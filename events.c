@@ -47,6 +47,9 @@ void on_keypress(app_t *app, XEvent *ev) {
 	keysym = XKeycodeToKeysym(dpy, (KeyCode) kev->keycode, 0);
 
 	switch (keysym) {
+		case XK_Escape:
+			app_quit(app);
+			exit(1);
 		case XK_q:
 			app_quit(app);
 			exit(0);
