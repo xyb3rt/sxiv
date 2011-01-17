@@ -19,15 +19,15 @@
 #ifndef IMAGE_H
 #define IMAGE_H
 
-typedef enum {
-	SCALE_DOWN = 0;
-	SCALE_FIT;
-	SCALE_ZOOM;
+typedef enum scalemode_e {
+	SCALE_DOWN = 0,
+	SCALE_FIT,
+	SCALE_ZOOM
 } scalemode_t;
 
 typedef struct img_s {
-	scalemode_t scalemode;
 	int zoom;
+	scalemode_t scalemode;
 	int w;
 	int h;
 	int x;
