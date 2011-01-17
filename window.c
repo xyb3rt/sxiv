@@ -43,10 +43,9 @@ void win_open(win_t *win) {
 	scrw = DisplayWidth(dpy, scr);
 	scrh = DisplayHeight(dpy, scr);
 
-	bgcol.red = 0x7000;
-	bgcol.green = 0x7000;
-	bgcol.blue = 0x7000;
-	XAllocColor(dpy, DefaultColormap(dpy, scr), &bgcol);
+	if (!XAllocNamedColor(dpy, DefaultColormap(dpy, scr), BG_COLOR,
+			&bgcol, &bgcol))
+		FATAL("could not allocate color: %s", BG_COLOR);
 
 	if (win->w > scrw)
 		win->w = scrw;

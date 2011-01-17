@@ -9,3 +9,5 @@
 #define ZOOM_MIN   12.5
 #define ZOOM_MAX   400
 
+/* */
+#define BG_COLOR   "#777777"
