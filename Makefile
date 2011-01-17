@@ -2,14 +2,14 @@ all: sxiv
 
 CC?=gcc
 PREFIX?=/usr/local
-CFLAGS+= -Wall -pedantic -g
+CFLAGS+= -std=c99 -Wall -pedantic -g
 LDFLAGS+= 
-LIBS+= 
+LIBS+= -lX11
 
 SRCFILES=$(wildcard *.c)
 OBJFILES=$(SRCFILES:.c=.o)
 
-physlock:	$(OBJFILES)
+sxiv:	$(OBJFILES)
 	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 %.o: %.c Makefile
