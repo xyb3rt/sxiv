@@ -22,6 +22,7 @@
 #include <X11/keysym.h>
 
 #include "events.h"
+#include "window.h"
 
 extern Display *dpy;
 
@@ -55,4 +56,10 @@ static void (*handler[LASTEvent])(app_t*, XEvent*) = {
 };
 
 void event_loop(app_t *app) {
+	XEvent ev;
+
+	while (!XNextEvent(dpy, &ev)) {
+		if (handler[ev.type])
+			handler[ev.type](app, &ev);
+	}
 }

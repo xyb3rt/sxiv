@@ -37,6 +37,7 @@ void app_init(app_t *app) {
 }
 
 void app_run(app_t *app) {
+	event_loop(app);
 }
 
 void app_quit(app_t *app) {
