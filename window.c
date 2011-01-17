@@ -27,6 +27,9 @@
 Display *dpy;
 int scr;
 int scrw, scrh;
+Visual *vis;
+Colormap cmap;
+int depth;
 GC gc;
 XColor bgcol;
 
@@ -35,7 +38,7 @@ void win_open(win_t *win) {
 	XSetWindowAttributes attr;
 	unsigned long mask;
 
-	if (win == NULL)
+	if (!win)
 		return;
 
 	if (!(dpy = XOpenDisplay(NULL)))
@@ -44,6 +47,10 @@ void win_open(win_t *win) {
 	scr = DefaultScreen(dpy);
 	scrw = DisplayWidth(dpy, scr);
 	scrh = DisplayHeight(dpy, scr);
+
+	vis = DefaultVisual(dpy, scr);
+	cmap = DefaultColormap(dpy, scr);
+	depth = DefaultDepth(dpy, scr);
 
 	if (!XAllocNamedColor(dpy, DefaultColormap(dpy, scr), BG_COLOR,
 			&bgcol, &bgcol))
@@ -61,9 +68,8 @@ void win_open(win_t *win) {
 	attr.save_under = False;
 	mask = CWBackingStore | CWBackPixel | CWSaveUnder;
 
-	win->xwin = XCreateWindow(dpy, RootWindow(dpy, scr),
-			win->x, win->y, win->w, win->h, 0, DefaultDepth(dpy, scr), InputOutput,
-			DefaultVisual(dpy, scr), mask, &attr);
+	win->xwin = XCreateWindow(dpy, RootWindow(dpy, scr), win->x, win->y,
+			win->w, win->h, 0, depth, InputOutput, vis, mask, &attr);
 	if (win->xwin == None)
 		FATAL("could not create window");
 	
@@ -84,7 +90,7 @@ void win_open(win_t *win) {
 }
 
 void win_close(win_t *win) {
-	if (win == NULL)
+	if (!win)
 		return;
 
 	XDestroyWindow(dpy, win->xwin);
@@ -95,7 +101,7 @@ void win_close(win_t *win) {
 int win_configure(win_t *win, XConfigureEvent *cev) {
 	int changed;
 
-	if (win == NULL)
+	if (!win)
 		return 0;
 	
 	changed = win->x != cev->x || win->y != cev->y ||

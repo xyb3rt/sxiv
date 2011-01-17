@@ -30,7 +30,7 @@ void on_expose(app_t *app, XEvent *ev) {
 }
 
 void on_configurenotify(app_t *app, XEvent *ev) {
-	if (app == NULL || ev == NULL)
+	if (!app || !ev)
 		return;
 	
 	win_configure(&app->win, &ev->xconfigure);
@@ -40,7 +40,7 @@ void on_keypress(app_t *app, XEvent *ev) {
 	KeySym keysym;
 	XKeyEvent *kev;
 
-	if (app == NULL || ev == NULL)
+	if (!app || !ev)
 		return;
 	
 	kev = &ev->xkey;

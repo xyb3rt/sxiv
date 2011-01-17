@@ -22,7 +22,7 @@
 #include "app.h"
 
 void app_init(app_t *app) {
-	if (app == NULL)
+	if (!app)
 		return;
 
 	app->fileidx = 0;
