@@ -20,6 +20,7 @@
 
 #include "sxiv.h"
 #include "app.h"
+#include "events.h"
 
 void app_init(app_t *app) {
 	if (!app)
