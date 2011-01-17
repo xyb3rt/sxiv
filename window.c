@@ -32,6 +32,8 @@ XColor bgcol;
 
 void win_open(win_t *win) {
 	XClassHint *classhint;
+	XSetWindowAttributes attr;
+	unsigned long mask;
 
 	if (win == NULL)
 		return;
@@ -54,9 +56,14 @@ void win_open(win_t *win) {
 	win->x = (scrw - win->w) / 2;
 	win->y = (scrh - win->h) / 2;
 
+	attr.backing_store = NotUseful;
+	attr.background_pixel = bgcol.pixel;
+	attr.save_under = False;
+	mask = CWBackingStore | CWBackPixel | CWSaveUnder;
+
 	win->xwin = XCreateWindow(dpy, RootWindow(dpy, scr),
 			win->x, win->y, win->w, win->h, 0, DefaultDepth(dpy, scr), InputOutput,
-			DefaultVisual(dpy, scr), 0, NULL);
+			DefaultVisual(dpy, scr), mask, &attr);
 	if (win->xwin == None)
 		FATAL("could not create window");
 	
