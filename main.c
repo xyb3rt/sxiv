@@ -16,6 +16,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+#include <stdlib.h>
+
 #include "sxiv.h"
 #include "app.h"
 
@@ -24,11 +26,19 @@ app_t app;
 void cleanup() {
 	static int in = 0;
 
-	if (!in++) {
-	}
+	if (!in++)
+		app_quit(&app);
 }
 
 int main(int argc, char **argv) {
+
+	// TODO: parse cmd line arguments properly
+	app.filenames = argv + 1;
+	app.filecnt = argc - 1;
+
+	app_init(&app);
+	app_run(&app);
+	app_quit(&app);
 
 	return 0;
 }
