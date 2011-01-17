@@ -33,7 +33,9 @@ typedef struct win_s {
 	int fullscreen;
 } win_t;
 
-void win_open(win_t *win);
-void win_close(win_t *win);
+void win_open(win_t*);
+void win_close(win_t*);
+
+int win_configure(win_t*, XConfigureEvent*);
 
 #endif /* WINDOW_H */

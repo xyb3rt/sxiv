@@ -84,3 +84,19 @@ void win_close(win_t *win) {
 	XFreeGC(dpy, gc);
 	XCloseDisplay(dpy);
 }
+
+int win_configure(win_t *win, XConfigureEvent *cev) {
+	int changed;
+
+	if (win == NULL)
+		return 0;
+	
+	changed = win->x != cev->x || win->y != cev->y ||
+			win->w != cev->width || win->h != cev->height;
+	win->x = cev->x;
+	win->y = cev->y;
+	win->w = cev->width;
+	win->h = cev->height;
+	win->bw = cev->border_width;
+	return changed;
+}
