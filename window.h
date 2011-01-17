@@ -19,12 +19,21 @@
 #ifndef WINDOW_H
 #define WINDOW_H
 
+#include <X11/Xlib.h>
+
 typedef struct win_s {
+	Window xwin;
+
 	int w;
 	int h;
 	int x;
 	int y;
+
 	int bw;
+	int fullscreen;
 } win_t;
+
+void win_open(win_t *win);
+void win_close(win_t *win);
 
 #endif /* WINDOW_H */

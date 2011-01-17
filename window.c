@@ -16,6 +16,72 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+#include <stdlib.h>
+#include <stdio.h>
+
+#include <X11/Xutil.h>
+
 #include "sxiv.h"
 #include "window.h"
 
+Display *dpy;
+int scr;
+int scrw, scrh;
+GC gc;
+XColor bgcol;
+
+void win_open(win_t *win) {
+	XClassHint *classhint;
+
+	if (win == NULL)
+		return;
+
+	if (!(dpy = XOpenDisplay(NULL)))
+		FATAL("could not open display");
+	
+	scr = DefaultScreen(dpy);
+	scrw = DisplayWidth(dpy, scr);
+	scrh = DisplayHeight(dpy, scr);
+
+	bgcol.red = 0x7000;
+	bgcol.green = 0x7000;
+	bgcol.blue = 0x7000;
+	XAllocColor(dpy, DefaultColormap(dpy, scr), &bgcol);
+
+	if (win->w > scrw)
+		win->w = scrw;
+	if (win->h > scrh)
+		win->h = scrh;
+	win->x = (scrw - win->w) / 2;
+	win->y = (scrh - win->h) / 2;
+
+	win->xwin = XCreateWindow(dpy, RootWindow(dpy, scr),
+			win->x, win->y, win->w, win->h, 0, DefaultDepth(dpy, scr), InputOutput,
+			DefaultVisual(dpy, scr), 0, NULL);
+	if (win->xwin == None)
+		FATAL("could not create window");
+	
+	XSelectInput(dpy, win->xwin,
+			StructureNotifyMask | ExposureMask | KeyPressMask);
+
+	gc = XCreateGC(dpy, win->xwin, 0, NULL);
+
+	if ((classhint = XAllocClassHint())) {
+		classhint->res_name = "sxvi";
+		classhint->res_class = "sxvi";
+		XSetClassHint(dpy, win->xwin, classhint);
+		XFree(classhint);
+	}
+
+	XMapWindow(dpy, win->xwin);
+	XFlush(dpy);
+}
+
+void win_close(win_t *win) {
+	if (win == NULL)
+		return;
+
+	XDestroyWindow(dpy, win->xwin);
+	XFreeGC(dpy, gc);
+	XCloseDisplay(dpy);
+}
