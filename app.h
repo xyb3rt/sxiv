@@ -23,11 +23,15 @@
 #include "window.h"
 
 typedef struct app_s {
-	const char **filenames;
+	char **filenames;
 	unsigned int filecnt;
 	unsigned int fileidx;
 	img_t img;
 	win_t win;
 } app_t;
+
+void app_init(app_t*);
+void app_run(app_t*);
+void app_quit(app_t*);
 
 #endif /* APP_H */

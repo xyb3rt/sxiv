@@ -16,6 +16,28 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+#include <X11/Xlib.h>
+
 #include "sxiv.h"
 #include "app.h"
 
+void app_init(app_t *app) {
+	if (app == NULL)
+		return;
+
+	app->fileidx = 0;
+
+	app->img.zoom = 100;
+	app->img.scalemode = SCALE_DOWN;
+
+	app->win.w = WIN_WIDTH;
+	app->win.h = WIN_HEIGHT;
+
+	win_open(&app->win);
+}
+
+void app_run(app_t *app) {
+}
+
+void app_quit(app_t *app) {
+}
