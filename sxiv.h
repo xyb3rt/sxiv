@@ -23,6 +23,9 @@
 
 #define VERSION "git-20110117"
 
+#define MIN(a,b) ((a) < (b) ? (a) : (b))
+#define MAX(a,b) ((a) > (b) ? (a) : (b))
+
 #define WARN(...)                                                  \
 	do {                                                             \
 	  fprintf(stderr, "sxiv: %s:%d: warning: ", __FILE__, __LINE__); \
@@ -30,7 +33,7 @@
 		fprintf(stderr, "\n");                                         \
 	} while (0)
 
-#define DIE(...)                                                 \
+#define DIE(...)                                                   \
   do {                                                             \
 		fprintf(stderr, "sxiv: %s:%d: error: ", __FILE__, __LINE__);   \
 		fprintf(stderr, __VA_ARGS__);                                  \

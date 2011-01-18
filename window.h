@@ -47,5 +47,6 @@ void win_open(win_t*);
 void win_close(win_t*);
 
 int win_configure(win_t*, XConfigureEvent*);
+void win_clear(win_t*);
 
 #endif /* WINDOW_H */

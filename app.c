@@ -28,7 +28,7 @@ void app_init(app_t *app) {
 
 	app->fileidx = 0;
 
-	app->img.zoom = 100;
+	app->img.zoom = 1.0;
 	app->img.scalemode = SCALE_MODE;
 
 	app->win.w = WIN_WIDTH;
@@ -52,4 +52,6 @@ void app_load_image(app_t *app) {
 		return;
 
 	img_load(&app->img, app->filenames[app->fileidx]);
+
+	img_render(&app->img, &app->win);
 }

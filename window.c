@@ -106,3 +106,10 @@ int win_configure(win_t *win, XConfigureEvent *cev) {
 	win->bw = cev->border_width;
 	return changed;
 }
+
+void win_clear(win_t *win) {
+	if (!win)
+		return;
+
+	XClearWindow(win->env.dpy, win->xwin);
+}
