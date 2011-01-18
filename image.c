@@ -40,7 +40,7 @@ void img_load(img_t *img, char *filename) {
 		imlib_free_image();
 
 	if (!(img->im = imlib_load_image(filename)))
-		FATAL("could not open image: %s", filename);
+		DIE("could not open image: %s", filename);
 	
 	imlib_context_set_image(img->im);
 	

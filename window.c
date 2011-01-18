@@ -37,7 +37,7 @@ void win_open(win_t *win) {
 	e = &win->env;
 
 	if (!(e->dpy = XOpenDisplay(NULL)))
-		FATAL("could not open display");
+		DIE("could not open display");
 	
 	e->scr = DefaultScreen(e->dpy);
 	e->scrw = DisplayWidth(e->dpy, e->scr);
@@ -49,7 +49,7 @@ void win_open(win_t *win) {
 
 	if (!XAllocNamedColor(e->dpy, DefaultColormap(e->dpy, e->scr), BG_COLOR,
 		                    &bgcol, &bgcol))
-		FATAL("could not allocate color: %s", BG_COLOR);
+		DIE("could not allocate color: %s", BG_COLOR);
 
 	if (win->w > e->scrw)
 		win->w = e->scrw;
@@ -67,7 +67,7 @@ void win_open(win_t *win) {
 	                          win->x, win->y, win->w, win->h, 0,
 	                          e->depth, InputOutput, e->vis, mask, &attr);
 	if (win->xwin == None)
-		FATAL("could not create window");
+		DIE("could not create window");
 	
 	XSelectInput(e->dpy, win->xwin,
 	             StructureNotifyMask | ExposureMask | KeyPressMask);
