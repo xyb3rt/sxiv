@@ -34,4 +34,6 @@ void app_init(app_t*);
 void app_run(app_t*);
 void app_quit(app_t*);
 
+void app_load_image(app_t*);
+
 #endif /* APP_H */

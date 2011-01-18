@@ -40,8 +40,16 @@ void app_init(app_t *app) {
 }
 
 void app_run(app_t *app) {
+	app_load_image(app);
 	event_loop(app);
 }
 
 void app_quit(app_t *app) {
+}
+
+void app_load_image(app_t *app) {
+	if (!app || app->fileidx >= app->filecnt || !app->filenames)
+		return;
+
+	img_load(&app->img, app->filenames[app->fileidx]);
 }

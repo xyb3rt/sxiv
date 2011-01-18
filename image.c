@@ -16,7 +16,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include <Imlib2.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 #include "sxiv.h"
 #include "image.h"
@@ -29,4 +30,20 @@ void imlib_init(win_t *win) {
 	imlib_context_set_visual(win->env.vis);
 	imlib_context_set_colormap(win->env.cmap);
 	imlib_context_set_drawable(win->xwin);
+}
+
+void img_load(img_t *img, char *filename) {
+	if (!img || !filename)
+		return;
+
+	if (imlib_context_get_image())
+		imlib_free_image();
+
+	if (!(img->im = imlib_load_image(filename)))
+		FATAL("could not open image: %s", filename);
+	
+	imlib_context_set_image(img->im);
+	
+	img->w = imlib_image_get_width();
+	img->h = imlib_image_get_height();
 }
