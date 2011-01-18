@@ -24,16 +24,25 @@
 #include "events.h"
 #include "window.h"
 
+void on_keypress(app_t*, XEvent*);
+void on_configurenotify(app_t*, XEvent*);
+void on_expose(app_t*, XEvent*);
+
 extern Display *dpy;
 
-void on_expose(app_t *app, XEvent *ev) {
-}
+static void (*handler[LASTEvent])(app_t*, XEvent*) = {
+	[Expose] = on_expose,
+	[ConfigureNotify] = on_configurenotify,
+	[KeyPress] = on_keypress
+};
 
-void on_configurenotify(app_t *app, XEvent *ev) {
-	if (!app || !ev)
-		return;
-	
-	win_configure(&app->win, &ev->xconfigure);
+void event_loop(app_t *app) {
+	XEvent ev;
+
+	while (!XNextEvent(dpy, &ev)) {
+		if (handler[ev.type])
+			handler[ev.type](app, &ev);
+	}
 }
 
 void on_keypress(app_t *app, XEvent *ev) {
@@ -56,17 +65,12 @@ void on_keypress(app_t *app, XEvent *ev) {
 	}
 }
 
-static void (*handler[LASTEvent])(app_t*, XEvent*) = {
-	[Expose] = on_expose,
-	[ConfigureNotify] = on_configurenotify,
-	[KeyPress] = on_keypress
-};
+void on_configurenotify(app_t *app, XEvent *ev) {
+	if (!app || !ev)
+		return;
+	
+	win_configure(&app->win, &ev->xconfigure);
+}
 
-void event_loop(app_t *app) {
-	XEvent ev;
-
-	while (!XNextEvent(dpy, &ev)) {
-		if (handler[ev.type])
-			handler[ev.type](app, &ev);
-	}
+void on_expose(app_t *app, XEvent *ev) {
 }

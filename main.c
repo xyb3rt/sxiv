@@ -23,13 +23,6 @@
 
 app_t app;
 
-void cleanup() {
-	static int in = 0;
-
-	if (!in++)
-		app_quit(&app);
-}
-
 int main(int argc, char **argv) {
 
 	// TODO: parse cmd line arguments properly
@@ -41,4 +34,11 @@ int main(int argc, char **argv) {
 	app_quit(&app);
 
 	return 0;
+}
+
+void cleanup() {
+	static int in = 0;
+
+	if (!in++)
+		app_quit(&app);
 }
