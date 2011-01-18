@@ -29,7 +29,7 @@ void app_init(app_t *app) {
 	app->fileidx = 0;
 
 	app->img.zoom = 100;
-	app->img.scalemode = SCALE_DOWN;
+	app->img.scalemode = SCALE_MODE;
 
 	app->win.w = WIN_WIDTH;
 	app->win.h = WIN_HEIGHT;
