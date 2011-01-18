@@ -4,7 +4,7 @@ CC?=gcc
 PREFIX?=/usr/local
 CFLAGS+= -std=c99 -Wall -pedantic -g
 LDFLAGS+= 
-LIBS+= -lX11
+LIBS+= -lX11 -lImlib2
 
 SRCFILES=$(wildcard *.c)
 OBJFILES=$(SRCFILES:.c=.o)

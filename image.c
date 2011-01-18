@@ -16,6 +16,17 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+#include <Imlib2.h>
+
 #include "sxiv.h"
 #include "image.h"
 
+void imlib_init(win_t *win) {
+	if (!win)
+		return;
+	
+	imlib_context_set_display(win->env.dpy);
+	imlib_context_set_visual(win->env.vis);
+	imlib_context_set_colormap(win->env.cmap);
+	imlib_context_set_drawable(win->xwin);
+}

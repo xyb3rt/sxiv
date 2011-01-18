@@ -35,6 +35,8 @@ void app_init(app_t *app) {
 	app->win.h = WIN_HEIGHT;
 
 	win_open(&app->win);
+	
+	imlib_init(&app->win);
 }
 
 void app_run(app_t *app) {
