@@ -45,13 +45,11 @@ void event_loop(app_t *app) {
 
 void on_keypress(app_t *app, XEvent *ev) {
 	KeySym keysym;
-	XKeyEvent *kev;
 
 	if (!app || !ev)
 		return;
 	
-	kev = &ev->xkey;
-	keysym = XKeycodeToKeysym(app->win.env.dpy, (KeyCode) kev->keycode, 0);
+	keysym = XLookupKeysym(&ev->xkey, 0);
 
 	switch (keysym) {
 		case XK_Escape:
