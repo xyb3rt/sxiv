@@ -21,8 +21,18 @@
 
 #include <X11/Xlib.h>
 
+typedef struct win_env_s {
+	Display *dpy;
+	int scr;
+	int scrw, scrh;
+	Visual *vis;
+	Colormap cmap;
+	int depth;
+} win_env_t;
+
 typedef struct win_s {
 	Window xwin;
+	win_env_t env;
 
 	int w;
 	int h;

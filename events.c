@@ -28,8 +28,6 @@ void on_keypress(app_t*, XEvent*);
 void on_configurenotify(app_t*, XEvent*);
 void on_expose(app_t*, XEvent*);
 
-extern Display *dpy;
-
 static void (*handler[LASTEvent])(app_t*, XEvent*) = {
 	[Expose] = on_expose,
 	[ConfigureNotify] = on_configurenotify,
@@ -39,7 +37,7 @@ static void (*handler[LASTEvent])(app_t*, XEvent*) = {
 void event_loop(app_t *app) {
 	XEvent ev;
 
-	while (!XNextEvent(dpy, &ev)) {
+	while (!XNextEvent(app->win.env.dpy, &ev)) {
 		if (handler[ev.type])
 			handler[ev.type](app, &ev);
 	}
@@ -53,7 +51,7 @@ void on_keypress(app_t *app, XEvent *ev) {
 		return;
 	
 	kev = &ev->xkey;
-	keysym = XKeycodeToKeysym(dpy, (KeyCode) kev->keycode, 0);
+	keysym = XKeycodeToKeysym(app->win.env.dpy, (KeyCode) kev->keycode, 0);
 
 	switch (keysym) {
 		case XK_Escape:

@@ -24,78 +24,71 @@
 #include "sxiv.h"
 #include "window.h"
 
-Display *dpy;
-int scr;
-int scrw, scrh;
-Visual *vis;
-Colormap cmap;
-int depth;
-GC gc;
-XColor bgcol;
-
 void win_open(win_t *win) {
+	win_env_t *e;
 	XClassHint *classhint;
+	XColor bgcol;
 	XSetWindowAttributes attr;
 	unsigned long mask;
 
 	if (!win)
 		return;
+	
+	e = &win->env;
 
-	if (!(dpy = XOpenDisplay(NULL)))
+	if (!(e->dpy = XOpenDisplay(NULL)))
 		FATAL("could not open display");
 	
-	scr = DefaultScreen(dpy);
-	scrw = DisplayWidth(dpy, scr);
-	scrh = DisplayHeight(dpy, scr);
+	e->scr = DefaultScreen(e->dpy);
+	e->scrw = DisplayWidth(e->dpy, e->scr);
+	e->scrh = DisplayHeight(e->dpy, e->scr);
 
-	vis = DefaultVisual(dpy, scr);
-	cmap = DefaultColormap(dpy, scr);
-	depth = DefaultDepth(dpy, scr);
+	e->vis = DefaultVisual(e->dpy, e->scr);
+	e->cmap = DefaultColormap(e->dpy, e->scr);
+	e->depth = DefaultDepth(e->dpy, e->scr);
 
-	if (!XAllocNamedColor(dpy, DefaultColormap(dpy, scr), BG_COLOR,
-			&bgcol, &bgcol))
+	if (!XAllocNamedColor(e->dpy, DefaultColormap(e->dpy, e->scr), BG_COLOR,
+		                    &bgcol, &bgcol))
 		FATAL("could not allocate color: %s", BG_COLOR);
 
-	if (win->w > scrw)
-		win->w = scrw;
-	if (win->h > scrh)
-		win->h = scrh;
-	win->x = (scrw - win->w) / 2;
-	win->y = (scrh - win->h) / 2;
+	if (win->w > e->scrw)
+		win->w = e->scrw;
+	if (win->h > e->scrh)
+		win->h = e->scrh;
+	win->x = (e->scrw - win->w) / 2;
+	win->y = (e->scrh - win->h) / 2;
 
 	attr.backing_store = NotUseful;
 	attr.background_pixel = bgcol.pixel;
 	attr.save_under = False;
 	mask = CWBackingStore | CWBackPixel | CWSaveUnder;
 
-	win->xwin = XCreateWindow(dpy, RootWindow(dpy, scr), win->x, win->y,
-			win->w, win->h, 0, depth, InputOutput, vis, mask, &attr);
+	win->xwin = XCreateWindow(e->dpy, RootWindow(e->dpy, e->scr),
+	                          win->x, win->y, win->w, win->h, 0,
+	                          e->depth, InputOutput, e->vis, mask, &attr);
 	if (win->xwin == None)
 		FATAL("could not create window");
 	
-	XSelectInput(dpy, win->xwin,
-			StructureNotifyMask | ExposureMask | KeyPressMask);
-
-	gc = XCreateGC(dpy, win->xwin, 0, NULL);
+	XSelectInput(e->dpy, win->xwin,
+	             StructureNotifyMask | ExposureMask | KeyPressMask);
 
 	if ((classhint = XAllocClassHint())) {
 		classhint->res_name = "sxvi";
 		classhint->res_class = "sxvi";
-		XSetClassHint(dpy, win->xwin, classhint);
+		XSetClassHint(e->dpy, win->xwin, classhint);
 		XFree(classhint);
 	}
 
-	XMapWindow(dpy, win->xwin);
-	XFlush(dpy);
+	XMapWindow(e->dpy, win->xwin);
+	XFlush(e->dpy);
 }
 
 void win_close(win_t *win) {
 	if (!win)
 		return;
 
-	XDestroyWindow(dpy, win->xwin);
-	XFreeGC(dpy, gc);
-	XCloseDisplay(dpy);
+	XDestroyWindow(win->env.dpy, win->xwin);
+	XCloseDisplay(win->env.dpy);
 }
 
 int win_configure(win_t *win, XConfigureEvent *cev) {
@@ -105,7 +98,7 @@ int win_configure(win_t *win, XConfigureEvent *cev) {
 		return 0;
 	
 	changed = win->x != cev->x || win->y != cev->y ||
-			win->w != cev->width || win->h != cev->height;
+	          win->w != cev->width || win->h != cev->height;
 	win->x = cev->x;
 	win->y = cev->y;
 	win->w = cev->width;
