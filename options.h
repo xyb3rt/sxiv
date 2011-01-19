@@ -29,6 +29,6 @@ extern const options_t *options;
 void print_usage();
 void print_version();
 
-int parse_options(int, char**);
+void parse_options(int, char**);
 
 #endif /* OPTIONS_H */

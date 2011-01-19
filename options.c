@@ -37,7 +37,7 @@ void print_version() {
 	printf("Version %s, written by Bert Muennich\n", VERSION);
 }
 
-int parse_options(int argc, char **argv) {
+void parse_options(int argc, char **argv) {
 	int opt;
 
 	_options.filenames = (const char**) argv + 1;
@@ -46,7 +46,8 @@ int parse_options(int argc, char **argv) {
 	while ((opt = getopt(argc, argv, "hv")) != -1) {
 		switch (opt) {
 			case '?':
-				return -1;
+				print_usage();
+				exit(1);
 			case 'h':
 				print_usage();
 				exit(0);
@@ -55,6 +56,4 @@ int parse_options(int argc, char **argv) {
 				exit(0);
 		}
 	}
-
-	return 0;
 }

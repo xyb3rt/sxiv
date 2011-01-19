@@ -50,8 +50,7 @@ void run() {
 }
 
 int main(int argc, char **argv) {
-	if (parse_options(argc, argv) < 0)
-		return 1;
+	parse_options(argc, argv);
 
 	if (!options->filecnt) {
 		print_usage();
