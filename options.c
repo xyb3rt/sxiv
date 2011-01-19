@@ -1,4 +1,4 @@
-/* sxiv: app.c
+/* sxiv: options.c
  * Copyright (c) 2011 Bert Muennich <muennich at informatik.hu-berlin.de>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -16,42 +16,45 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include <X11/Xlib.h>
+#define _XOPEN_SOURCE
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <unistd.h>
 
 #include "sxiv.h"
-#include "app.h"
-#include "events.h"
+#include "options.h"
 
-void app_init(app_t *app) {
-	if (!app)
-		return;
+options_t _options;
+const options_t *options = (const options_t*) &_options;
 
-	app->fileidx = 0;
-
-	app->img.zoom = 1.0;
-	app->img.scalemode = SCALE_MODE;
-
-	app->win.w = WIN_WIDTH;
-	app->win.h = WIN_HEIGHT;
-
-	win_open(&app->win);
-	
-	imlib_init(&app->win);
+void print_usage() {
+	printf("usage: sxiv [-hv] FILES...\n");
 }
 
-void app_run(app_t *app) {
-	app_load_image(app);
-	event_loop(app);
+void print_version() {
+	printf("sxiv - simple x image viewer\n");
+	printf("Version %s, written by Bert Muennich\n", VERSION);
 }
 
-void app_quit(app_t *app) {
-}
+int parse_options(int argc, char **argv) {
+	int opt;
 
-void app_load_image(app_t *app) {
-	if (!app || app->fileidx >= app->filecnt || !app->filenames)
-		return;
+	_options.filenames = (const char**) argv + 1;
+	_options.filecnt = argc - 1;
 
-	img_load(&app->img, app->filenames[app->fileidx]);
+	while ((opt = getopt(argc, argv, "hv")) != -1) {
+		switch (opt) {
+			case '?':
+				return -1;
+			case 'h':
+				print_usage();
+				exit(0);
+			case 'v':
+				print_version();
+				exit(0);
+		}
+	}
 
-	img_render(&app->img, &app->win);
+	return 0;
 }

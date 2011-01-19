@@ -36,13 +36,13 @@ typedef struct img_s {
 	int h;
 	int x;
 	int y;
-
 	Imlib_Image *im;
 } img_t;
 
 void imlib_init(win_t*);
+void imlib_destroy();
 
-void img_load(img_t*, char*);
+void img_load(img_t*, const char*);
 void img_render(img_t*, win_t*);
 
 #endif /* IMAGE_H */

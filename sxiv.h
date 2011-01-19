@@ -21,7 +21,7 @@
 
 #include "config.h"
 
-#define VERSION "git-20110117"
+#define VERSION "git-20110119"
 
 #define MIN(a,b) ((a) < (b) ? (a) : (b))
 #define MAX(a,b) ((a) > (b) ? (a) : (b))

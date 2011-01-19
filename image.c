@@ -19,6 +19,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include <Imlib2.h>
+
 #include "sxiv.h"
 #include "image.h"
 
@@ -32,7 +34,12 @@ void imlib_init(win_t *win) {
 	imlib_context_set_drawable(win->xwin);
 }
 
-void img_load(img_t *img, char *filename) {
+void imlib_destroy() {
+	if (imlib_context_get_image())
+		imlib_free_image();
+}
+
+void img_load(img_t *img, const char *filename) {
 	if (!img || !filename)
 		return;
 
@@ -53,7 +60,7 @@ void img_render(img_t *img, win_t *win) {
 	unsigned int sx, sy, sw, sh;
 	unsigned int dx, dy, dw, dh;
 
-	if (!img || !win)
+	if (!img || !win || !imlib_context_get_image())
 		return;
 
 	/* set zoom level to fit image into window */

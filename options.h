@@ -1,4 +1,4 @@
-/* sxiv: events.h
+/* sxiv: options.h
  * Copyright (c) 2011 Bert Muennich <muennich at informatik.hu-berlin.de>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -16,11 +16,19 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef EVENTS_H
-#define EVENTS_H
+#ifndef OPTIONS_H
+#define OPTIONS_H
 
-#include "app.h"
+typedef struct options_s {
+	const char **filenames;
+	unsigned int filecnt;
+} options_t;
 
-void event_loop(app_t*);
+extern const options_t *options;
 
-#endif /* EVENTS_H */
+void print_usage();
+void print_version();
+
+int parse_options(int, char**);
+
+#endif /* OPTIONS_H */
