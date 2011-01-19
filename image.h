@@ -19,8 +19,6 @@
 #ifndef IMAGE_H
 #define IMAGE_H
 
-#include <Imlib2.h>
-
 #include "window.h"
 
 typedef enum scalemode_e {
@@ -36,7 +34,6 @@ typedef struct img_s {
 	int h;
 	int x;
 	int y;
-	Imlib_Image *im;
 } img_t;
 
 void imlib_init(win_t*);

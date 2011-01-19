@@ -40,16 +40,18 @@ void imlib_destroy() {
 }
 
 void img_load(img_t *img, const char *filename) {
+	Imlib_Image *im;
+
 	if (!img || !filename)
 		return;
 
 	if (imlib_context_get_image())
 		imlib_free_image();
 
-	if (!(img->im = imlib_load_image(filename)))
+	if (!(im = imlib_load_image(filename)))
 		DIE("could not open image: %s", filename);
 
-	imlib_context_set_image(img->im);
+	imlib_context_set_image(im);
 
 	img->w = imlib_image_get_width();
 	img->h = imlib_image_get_height();
