@@ -72,9 +72,12 @@ void win_open(win_t *win) {
 	XSelectInput(e->dpy, win->xwin,
 	             StructureNotifyMask | ExposureMask | KeyPressMask);
 
+	XStoreName(e->dpy, win->xwin, "sxiv");
+	XSetIconName(e->dpy, win->xwin, "Sxiv");
+
 	if ((classhint = XAllocClassHint())) {
-		classhint->res_name = "sxvi";
-		classhint->res_class = "sxvi";
+		classhint->res_name = "sxiv";
+		classhint->res_class = "sxiv";
 		XSetClassHint(e->dpy, win->xwin, classhint);
 		XFree(classhint);
 	}
