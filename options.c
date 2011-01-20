@@ -40,9 +40,6 @@ void print_version() {
 void parse_options(int argc, char **argv) {
 	int opt;
 
-	_options.filenames = (const char**) argv + 1;
-	_options.filecnt = argc - 1;
-
 	while ((opt = getopt(argc, argv, "hv")) != -1) {
 		switch (opt) {
 			case '?':
@@ -56,4 +53,7 @@ void parse_options(int argc, char **argv) {
 				exit(0);
 		}
 	}
+
+	_options.filenames = (const char**) argv + optind;
+	_options.filecnt = argc - optind;
 }
