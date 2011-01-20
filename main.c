@@ -102,6 +102,20 @@ void on_keypress(XEvent *ev) {
 		case XK_q:
 			cleanup();
 			exit(0);
+		case XK_n:
+		case XK_space:
+			if (fileidx + 1 < options->filecnt) {
+				img_load(&img, options->filenames[++fileidx]);
+				img_display(&img, &win);
+			}
+			break;
+		case XK_p:
+		case XK_BackSpace:
+			if (fileidx > 0) {
+				img_load(&img, options->filenames[--fileidx]);
+				img_display(&img, &win);
+			}
+			break;
 	}
 }
 
