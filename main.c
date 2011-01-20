@@ -69,7 +69,7 @@ int main(int argc, char **argv) {
 	imlib_init(&win);
 
 	img_load(&img, options->filenames[fileidx]);
-	img_render(&img, &win);
+	img_display(&img, &win);
 
 	run();
 
@@ -113,4 +113,9 @@ void on_configurenotify(XEvent *ev) {
 }
 
 void on_expose(XEvent *ev) {
+	if (!ev)
+		return;
+
+	img_render(&img, &win, ev->xexpose.x, ev->xexpose.y,
+	           ev->xexpose.width, ev->xexpose.height);
 }

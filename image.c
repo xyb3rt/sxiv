@@ -57,10 +57,8 @@ void img_load(img_t *img, const char *filename) {
 	img->h = imlib_image_get_height();
 }
 
-void img_render(img_t *img, win_t *win) {
+void img_display(img_t *img, win_t *win) {
 	float zw, zh;
-	unsigned int sx, sy, sw, sh;
-	unsigned int dx, dy, dw, dh;
 
 	if (!img || !win || !imlib_context_get_image())
 		return;
@@ -84,30 +82,43 @@ void img_render(img_t *img, win_t *win) {
 	img->x = (win->w - img->w * img->zoom) / 2;
 	img->y = (win->h - img->h * img->zoom) / 2;
 
-	if (img->x < 0) {
-		sx = -img->x / img->zoom;
-		sw = (img->x + win->w) / img->zoom;
-		dx = 0;
-		dw = win->w;
+	win_clear(win);
+
+	img_render(img, win, 0, 0, win->w, win->h);
+}
+
+void img_render(img_t *img, win_t *win, int x, int y, int w, int h) {
+	int sx, sy, sw, sh;
+	int dx, dy, dw, dh;
+
+	if (!img || !win || !imlib_context_get_image())
+		return;
+
+	if (img->x < x) {
+		sx = (x - img->x) / img->zoom;
+		sw = MIN(w / img->zoom, img->w - sx);
+		dx = x;
+		dw = sw * img->zoom;
 	} else {
 		sx = 0;
-		sw = img->w;
+		sw = MIN((w - img->x + x) / img->zoom, img->w);
 		dx = img->x;
-		dw = img->w * img->zoom;
+		dw = sw * img->zoom;
 	}
-	if (img->y < 0) {
-		sy = -img->y / img->zoom;
-		sh = (img->y + win->h) / img->zoom;
-		dy = 0;
-		dh = win->h;
+	if (img->y < y) {
+		sy = (y - img->y) / img->zoom;
+		sh = MIN(h / img->zoom, img->h - sy);
+		dy = y;
+		dh = sh * img->zoom;
 	} else {
 		sy = 0;
-		sh = img->h;
+		sh = MIN((h - img->y + y) / img->zoom, img->h);
 		dy = img->y;
-		dh = img->h * img->zoom;
+		dh = sh * img->zoom;
 	}
 
-	win_clear(win);
+	if (sw < 0 || sh < 0)
+		return;
 
 	imlib_render_image_part_on_drawable_at_size(sx, sy, sw, sh, dx, dy, dw, dh);
 }

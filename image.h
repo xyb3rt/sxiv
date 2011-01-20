@@ -30,16 +30,17 @@ typedef enum scalemode_e {
 typedef struct img_s {
 	float zoom;
 	scalemode_t scalemode;
-	int w;
-	int h;
 	int x;
 	int y;
+	int w;
+	int h;
 } img_t;
 
 void imlib_init(win_t*);
 void imlib_destroy();
 
 void img_load(img_t*, const char*);
-void img_render(img_t*, win_t*);
+void img_display(img_t*, win_t*);
+void img_render(img_t*, win_t*, int, int, int, int);
 
 #endif /* IMAGE_H */
