@@ -12,7 +12,7 @@ OBJFILES=$(SRCFILES:.c=.o)
 sxiv:	$(OBJFILES)
 	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
 
-%.o: %.c Makefile
+%.o: %.c Makefile config.h
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 install: all
