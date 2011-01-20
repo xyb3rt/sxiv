@@ -88,12 +88,36 @@ void img_display(img_t *img, win_t *win) {
 	img_render(img, win);
 }
 
+void img_check_pan(img_t *img, win_t *win) {
+	if (!img)
+		return;
+
+	if (img->w * img->zoom > win->w) {
+		if (img->x > 0 && img->x + img->w * img->zoom > win->w)
+			img->x = 0;
+		if (img->x < 0 && img->x + img->w * img->zoom < win->w)
+			img->x = win->w - img->w * img->zoom;
+	} else {
+		img->x = (win->w - img->w * img->zoom) / 2;
+	}
+	if (img->h * img->zoom > win->h) {
+		if (img->y > 0 && img->y + img->h * img->zoom > win->h)
+			img->y = 0;
+		if (img->y < 0 && img->y + img->h * img->zoom < win->h)
+			img->y = win->h - img->h * img->zoom;
+	} else {
+		img->y = (win->h - img->h * img->zoom) / 2;
+	}
+}
+
 void img_render(img_t *img, win_t *win) {
 	int sx, sy, sw, sh;
 	int dx, dy, dw, dh;
 
 	if (!img || !win || !imlib_context_get_image())
 		return;
+
+	img_check_pan(img, win);
 
 	if (img->x < 0) {
 		sx = -img->x / img->zoom;
@@ -124,4 +148,42 @@ void img_render(img_t *img, win_t *win) {
 	imlib_render_image_part_on_drawable_at_size(sx, sy, sw, sh, dx, dy, dw, dh);
 
 	win_draw(win);
+}
+
+int img_zoom(img_t *img, int d) {
+	int ad, iz;
+	float z;
+
+	if (!img)
+		return 0;
+
+	ad = ABS(d);
+	iz = (int) (img->zoom * 1000.0) + d;
+	if (iz % ad > ad / 2)
+		iz += ad - iz % ad;
+	else
+		iz -= iz % ad;
+	z = (float) iz / 1000.0;
+
+	if (z * 100.0 < ZOOM_MIN)
+		z = ZOOM_MIN / 100.0;
+	else if (z * 100.0 > ZOOM_MAX)
+		z = ZOOM_MAX / 100.0;
+
+	if (z != img->zoom) {
+		img->x -= (img->w * z - img->w * img->zoom) / 2;
+		img->y -= (img->h * z - img->h * img->zoom) / 2;
+		img->zoom = z;
+		return 1;
+	} else {
+		return 0;
+	}
+}
+
+int img_zoom_in(img_t *img) {
+	return img_zoom(img, 125);
+}
+
+int img_zoom_out(img_t *img) {
+	return img_zoom(img, -125);
 }

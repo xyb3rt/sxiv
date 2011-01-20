@@ -142,6 +142,19 @@ void on_keypress(XEvent *ev) {
 				update_title();
 			}
 			break;
+		case XK_plus:
+		case XK_equal:
+			if (img_zoom_in(&img)) {
+				img_render(&img, &win);
+				update_title();
+			}
+			break;
+		case XK_minus:
+			if (img_zoom_out(&img)) {
+				img_render(&img, &win);
+				update_title();
+			}
+			break;
 	}
 }
 
