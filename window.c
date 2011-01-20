@@ -120,14 +120,17 @@ int win_configure(win_t *win, XConfigureEvent *cev) {
 }
 
 void win_clear(win_t *win) {
+	win_env_t *e;
+
 	if (!win)
 		return;
 
+	e = &win->env;
+
 	if (win->pm)
-		XFreePixmap(win->env.dpy, win->pm);
-	win->pm = XCreatePixmap(win->env.dpy, win->xwin, win->w, win->h,
-	                        win->env.depth);
-	XFillRectangle(win->env.dpy, win->pm, win->bgc, 0, 0, win->w, win->h);
+		XFreePixmap(e->dpy, win->pm);
+	win->pm = XCreatePixmap(e->dpy, win->xwin, e->scrw, e->scrh, e->depth);
+	XFillRectangle(e->dpy, win->pm, win->bgc, 0, 0, e->scrw, e->scrh);
 }
 
 void win_draw(win_t *win) {
