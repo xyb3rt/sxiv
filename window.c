@@ -72,8 +72,7 @@ void win_open(win_t *win) {
 	XSelectInput(e->dpy, win->xwin,
 	             StructureNotifyMask | ExposureMask | KeyPressMask);
 
-	XStoreName(e->dpy, win->xwin, "sxiv");
-	XSetIconName(e->dpy, win->xwin, "Sxiv");
+	win_set_title(win, "sxiv");
 
 	if ((classhint = XAllocClassHint())) {
 		classhint->res_name = "sxiv";
@@ -92,6 +91,17 @@ void win_close(win_t *win) {
 
 	XDestroyWindow(win->env.dpy, win->xwin);
 	XCloseDisplay(win->env.dpy);
+}
+
+void win_set_title(win_t *win, const char *title) {
+	if (!win)
+		return;
+
+	if (!title)
+		title = "sxiv";
+
+	XStoreName(win->env.dpy, win->xwin, title);
+	XSetIconName(win->env.dpy, win->xwin, title);
 }
 
 int win_configure(win_t *win, XConfigureEvent *cev) {

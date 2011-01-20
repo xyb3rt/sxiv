@@ -46,6 +46,8 @@ typedef struct win_s {
 void win_open(win_t*);
 void win_close(win_t*);
 
+void win_set_title(win_t*, const char*);
+
 int win_configure(win_t*, XConfigureEvent*);
 void win_clear(win_t*);
 

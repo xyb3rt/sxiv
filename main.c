@@ -31,6 +31,8 @@ void on_keypress(XEvent*);
 void on_configurenotify(XEvent*);
 void on_expose(XEvent*);
 
+void update_title();
+
 static void (*handler[LASTEvent])(XEvent*) = {
 	[Expose] = on_expose,
 	[ConfigureNotify] = on_configurenotify,
@@ -43,6 +45,9 @@ win_t win;
 const char **filenames;
 unsigned int filecnt;
 unsigned int fileidx;
+
+#define TITLE_LEN 256
+char win_title[TITLE_LEN];
 
 void run() {
 	XEvent ev;
@@ -90,6 +95,7 @@ int main(int argc, char **argv) {
 
 	img_load(&img, filenames[fileidx]);
 	img_display(&img, &win);
+	update_title();
 
 	run();
 
@@ -127,6 +133,7 @@ void on_keypress(XEvent *ev) {
 			if (fileidx + 1 < filecnt) {
 				img_load(&img, filenames[++fileidx]);
 				img_display(&img, &win);
+				update_title();
 			}
 			break;
 		case XK_p:
@@ -134,6 +141,7 @@ void on_keypress(XEvent *ev) {
 			if (fileidx > 0) {
 				img_load(&img, filenames[--fileidx]);
 				img_display(&img, &win);
+				update_title();
 			}
 			break;
 	}
@@ -152,4 +160,19 @@ void on_expose(XEvent *ev) {
 
 	img_render(&img, &win, ev->xexpose.x, ev->xexpose.y,
 	           ev->xexpose.width, ev->xexpose.height);
+}
+
+void update_title() {
+	int n;
+
+	n = snprintf(win_title, TITLE_LEN, "sxiv: [%d/%d] <%d%%> %s", fileidx + 1,
+	             filecnt, (int) (img.zoom * 100.0), filenames[fileidx]);
+	
+	if (n >= TITLE_LEN) {
+		win_title[TITLE_LEN - 2] = '.';
+		win_title[TITLE_LEN - 3] = '.';
+		win_title[TITLE_LEN - 4] = '.';
+	}
+
+	win_set_title(&win, win_title);
 }
