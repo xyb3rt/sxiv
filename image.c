@@ -31,7 +31,6 @@ void imlib_init(win_t *win) {
 	imlib_context_set_display(win->env.dpy);
 	imlib_context_set_visual(win->env.vis);
 	imlib_context_set_colormap(win->env.cmap);
-	imlib_context_set_drawable(win->xwin);
 }
 
 void imlib_destroy() {
@@ -86,43 +85,43 @@ void img_display(img_t *img, win_t *win) {
 	img->x = (win->w - img->w * img->zoom) / 2;
 	img->y = (win->h - img->h * img->zoom) / 2;
 
-	win_clear(win);
-
-	img_render(img, win, 0, 0, win->w, win->h);
+	img_render(img, win);
 }
 
-void img_render(img_t *img, win_t *win, int x, int y, int w, int h) {
+void img_render(img_t *img, win_t *win) {
 	int sx, sy, sw, sh;
 	int dx, dy, dw, dh;
 
 	if (!img || !win || !imlib_context_get_image())
 		return;
 
-	if (img->x < x) {
-		sx = (x - img->x) / img->zoom;
-		sw = MIN(w / img->zoom, img->w - sx);
-		dx = x;
-		dw = sw * img->zoom;
+	if (img->x < 0) {
+		sx = -img->x / img->zoom;
+		sw = win->w / img->zoom;
+		dx = 0;
+		dw = win->w;
 	} else {
 		sx = 0;
-		sw = MIN((w - img->x + x) / img->zoom, img->w);
+		sw = img->w;
 		dx = img->x;
-		dw = sw * img->zoom;
+		dw = img->w * img->zoom;
 	}
-	if (img->y < y) {
-		sy = (y - img->y) / img->zoom;
-		sh = MIN(h / img->zoom, img->h - sy);
-		dy = y;
-		dh = sh * img->zoom;
+	if (img->y < 0) {
+		sy = -img->y / img->zoom;
+		sh = win->h / img->zoom;
+		dy = 0;
+		dh = win->h;
 	} else {
 		sy = 0;
-		sh = MIN((h - img->y + y) / img->zoom, img->h);
+		sh = img->h;
 		dy = img->y;
-		dh = sh * img->zoom;
+		dh = img->h * img->zoom;
 	}
 
-	if (sw < 0 || sh < 0)
-		return;
+	win_clear(win);
 
+	imlib_context_set_drawable(win->pm);
 	imlib_render_image_part_on_drawable_at_size(sx, sy, sw, sh, dx, dy, dw, dh);
+
+	win_draw(win);
 }

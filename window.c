@@ -28,8 +28,7 @@ void win_open(win_t *win) {
 	win_env_t *e;
 	XClassHint *classhint;
 	XColor bgcol;
-	XSetWindowAttributes attr;
-	unsigned long mask;
+	XGCValues gcval;
 
 	if (!win)
 		return;
@@ -58,19 +57,19 @@ void win_open(win_t *win) {
 	win->x = (e->scrw - win->w) / 2;
 	win->y = (e->scrh - win->h) / 2;
 
-	attr.backing_store = NotUseful;
-	attr.background_pixel = bgcol.pixel;
-	attr.save_under = False;
-	mask = CWBackingStore | CWBackPixel | CWSaveUnder;
-
 	win->xwin = XCreateWindow(e->dpy, RootWindow(e->dpy, e->scr),
 	                          win->x, win->y, win->w, win->h, 0,
-	                          e->depth, InputOutput, e->vis, mask, &attr);
+	                          e->depth, InputOutput, e->vis, 0, None);
 	if (win->xwin == None)
 		DIE("could not create window");
 	
 	XSelectInput(e->dpy, win->xwin,
-	             StructureNotifyMask | ExposureMask | KeyPressMask);
+	             StructureNotifyMask | KeyPressMask);
+
+	win->pm = 0;
+
+	gcval.foreground = bgcol.pixel;
+	win->bgc = XCreateGC(e->dpy, win->xwin, GCForeground, &gcval);
 
 	win_set_title(win, "sxiv");
 
@@ -124,5 +123,17 @@ void win_clear(win_t *win) {
 	if (!win)
 		return;
 
+	if (win->pm)
+		XFreePixmap(win->env.dpy, win->pm);
+	win->pm = XCreatePixmap(win->env.dpy, win->xwin, win->w, win->h,
+	                        win->env.depth);
+	XFillRectangle(win->env.dpy, win->pm, win->bgc, 0, 0, win->w, win->h);
+}
+
+void win_draw(win_t *win) {
+	if (!win)
+		return;
+
+	XSetWindowBackgroundPixmap(win->env.dpy, win->xwin, win->pm);
 	XClearWindow(win->env.dpy, win->xwin);
 }

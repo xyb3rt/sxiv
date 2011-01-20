@@ -29,14 +29,12 @@
 
 void on_keypress(XEvent*);
 void on_configurenotify(XEvent*);
-void on_expose(XEvent*);
 
 void update_title();
 
 static void (*handler[LASTEvent])(XEvent*) = {
-	[Expose] = on_expose,
-	[ConfigureNotify] = on_configurenotify,
-	[KeyPress] = on_keypress
+	[KeyPress] = on_keypress,
+	[ConfigureNotify] = on_configurenotify
 };
 
 img_t img;
@@ -152,14 +150,6 @@ void on_configurenotify(XEvent *ev) {
 		return;
 	
 	win_configure(&win, &ev->xconfigure);
-}
-
-void on_expose(XEvent *ev) {
-	if (!ev)
-		return;
-
-	img_render(&img, &win, ev->xexpose.x, ev->xexpose.y,
-	           ev->xexpose.width, ev->xexpose.height);
 }
 
 void update_title() {

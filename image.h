@@ -41,6 +41,6 @@ void imlib_destroy();
 
 int img_load(img_t*, const char*);
 void img_display(img_t*, win_t*);
-void img_render(img_t*, win_t*, int, int, int, int);
+void img_render(img_t*, win_t*);
 
 #endif /* IMAGE_H */
