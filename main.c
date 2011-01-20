@@ -17,6 +17,7 @@
  */
 
 #include <stdlib.h>
+#include <stdio.h>
 
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
@@ -38,6 +39,9 @@ static void (*handler[LASTEvent])(XEvent*) = {
 
 img_t img;
 win_t win;
+
+const char **filenames;
+unsigned int filecnt;
 unsigned int fileidx;
 
 void run() {
@@ -50,6 +54,8 @@ void run() {
 }
 
 int main(int argc, char **argv) {
+	int i;
+
 	parse_options(argc, argv);
 
 	if (!options->filecnt) {
@@ -57,7 +63,21 @@ int main(int argc, char **argv) {
 		exit(1);
 	}
 
+	if (!(filenames = (const char**) malloc(options->filecnt * sizeof(char*))))
+		DIE("could not allocate memory");
+	
 	fileidx = 0;
+	filecnt = 0;
+
+	for (i = 0; i < options->filecnt; ++i) {
+		if (!(img_load(&img, options->filenames[i]) < 0))
+			filenames[filecnt++] = options->filenames[i];
+	}
+
+	if (!filecnt) {
+		fprintf(stderr, "sxiv: no valid image filename given, aborting\n");
+		exit(1);
+	}
 
 	img.zoom = 1.0;
 	img.scalemode = SCALE_MODE;
@@ -68,7 +88,7 @@ int main(int argc, char **argv) {
 	win_open(&win);
 	imlib_init(&win);
 
-	img_load(&img, options->filenames[fileidx]);
+	img_load(&img, filenames[fileidx]);
 	img_display(&img, &win);
 
 	run();
@@ -104,15 +124,15 @@ void on_keypress(XEvent *ev) {
 			exit(0);
 		case XK_n:
 		case XK_space:
-			if (fileidx + 1 < options->filecnt) {
-				img_load(&img, options->filenames[++fileidx]);
+			if (fileidx + 1 < filecnt) {
+				img_load(&img, filenames[++fileidx]);
 				img_display(&img, &win);
 			}
 			break;
 		case XK_p:
 		case XK_BackSpace:
 			if (fileidx > 0) {
-				img_load(&img, options->filenames[--fileidx]);
+				img_load(&img, filenames[--fileidx]);
 				img_display(&img, &win);
 			}
 			break;

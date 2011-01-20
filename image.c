@@ -39,22 +39,26 @@ void imlib_destroy() {
 		imlib_free_image();
 }
 
-void img_load(img_t *img, const char *filename) {
+int img_load(img_t *img, const char *filename) {
 	Imlib_Image *im;
 
 	if (!img || !filename)
-		return;
+		return -1;
 
 	if (imlib_context_get_image())
 		imlib_free_image();
 
-	if (!(im = imlib_load_image(filename)))
-		DIE("could not open image: %s", filename);
+	if (!(im = imlib_load_image(filename))) {
+		WARN("could not open image: %s", filename);
+		return -1;
+	}
 
 	imlib_context_set_image(im);
 
 	img->w = imlib_image_get_width();
 	img->h = imlib_image_get_height();
+
+	return 0;
 }
 
 void img_display(img_t *img, win_t *win) {

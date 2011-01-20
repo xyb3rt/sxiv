@@ -39,7 +39,7 @@ typedef struct img_s {
 void imlib_init(win_t*);
 void imlib_destroy();
 
-void img_load(img_t*, const char*);
+int img_load(img_t*, const char*);
 void img_display(img_t*, win_t*);
 void img_render(img_t*, win_t*, int, int, int, int);
 
