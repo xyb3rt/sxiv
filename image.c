@@ -24,6 +24,10 @@
 #include "sxiv.h"
 #include "image.h"
 
+int zl_cnt;
+float zoom_min;
+float zoom_max;
+
 void imlib_init(win_t *win) {
 	if (!win)
 		return;
@@ -31,6 +35,10 @@ void imlib_init(win_t *win) {
 	imlib_context_set_display(win->env.dpy);
 	imlib_context_set_visual(win->env.vis);
 	imlib_context_set_colormap(win->env.cmap);
+
+	zl_cnt = sizeof(zoom_levels) / sizeof(zoom_levels[0]);
+	zoom_min = zoom_levels[0] / 100.0;
+	zoom_max = zoom_levels[zl_cnt - 1] / 100.0;
 }
 
 void imlib_destroy() {
@@ -72,10 +80,10 @@ void img_display(img_t *img, win_t *win) {
 		zh = (float) win->h / (float) img->h;
 		img->zoom = MIN(zw, zh);
 
-		if (img->zoom * 100.0 < ZOOM_MIN)
-			img->zoom = ZOOM_MIN / 100.0;
-		else if (img->zoom * 100.0 > ZOOM_MAX)
-			img->zoom = ZOOM_MAX / 100.0;
+		if (img->zoom < zoom_min)
+			img->zoom = zoom_min;
+		else if (img->zoom > zoom_max)
+			img->zoom = zoom_max;
 
 		if (img->scalemode == SCALE_DOWN && img->zoom > 1.0)
 			img->zoom = 1.0;
@@ -150,25 +158,14 @@ void img_render(img_t *img, win_t *win) {
 	win_draw(win);
 }
 
-int img_zoom(img_t *img, int d) {
-	int ad, iz;
-	float z;
-
+int img_zoom(img_t *img, float z) {
 	if (!img)
 		return 0;
 
-	ad = ABS(d);
-	iz = (int) (img->zoom * 1000.0) + d;
-	if (iz % ad > ad / 2)
-		iz += ad - iz % ad;
-	else
-		iz -= iz % ad;
-	z = (float) iz / 1000.0;
-
-	if (z * 100.0 < ZOOM_MIN)
-		z = ZOOM_MIN / 100.0;
-	else if (z * 100.0 > ZOOM_MAX)
-		z = ZOOM_MAX / 100.0;
+	if (z < zoom_min)
+		z = zoom_min;
+	else if (z > zoom_max)
+		z = zoom_max;
 
 	if (z != img->zoom) {
 		img->x -= (img->w * z - img->w * img->zoom) / 2;
@@ -181,9 +178,29 @@ int img_zoom(img_t *img, int d) {
 }
 
 int img_zoom_in(img_t *img) {
-	return img_zoom(img, 125);
+	int i;
+
+	if (!img)
+		return 0;
+
+	for (i = 1; i < zl_cnt; ++i) {
+		if (zoom_levels[i] > img->zoom * 100.0)
+			return img_zoom(img, zoom_levels[i] / 100.0);
+	}
+
+	return 0;
 }
 
 int img_zoom_out(img_t *img) {
-	return img_zoom(img, -125);
+	int i;
+
+	if (!img)
+		return 0;
+
+	for (i = zl_cnt - 2; i >= 0; --i) {
+		if (zoom_levels[i] < img->zoom * 100.0)
+			return img_zoom(img, zoom_levels[i] / 100.0);
+	}
+
+	return 0;
 }

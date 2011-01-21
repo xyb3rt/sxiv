@@ -3,11 +3,13 @@
 #define WIN_HEIGHT 600
 
 /* */
+#define BG_COLOR   "#888888"
+
+/* */
 #define SCALE_MODE SCALE_DOWN
 
 /* */
-#define ZOOM_MIN   12.5
-#define ZOOM_MAX   400
-
-/* */
-#define BG_COLOR   "#888888"
+static const float zoom_levels[] = {
+	 12.5,  25.0,  50.0,  75.0,
+	100.0, 150.0, 200.0, 400.0, 800.0
+};
