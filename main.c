@@ -139,8 +139,6 @@ void on_keypress(XEvent *ev) {
 	if (!len)
 		return;
 
-	printf("%c\n", key);
-
 	switch (key) {
 		case 'q':
 			cleanup();
