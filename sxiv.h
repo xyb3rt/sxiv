@@ -21,7 +21,7 @@
 
 #include "config.h"
 
-#define VERSION "git-20110119"
+#define VERSION "0.1"
 
 #define ABS(a)   ((a) < 0 ? (-(a)) : (a))
 #define MIN(a,b) ((a) < (b) ? (a) : (b))
