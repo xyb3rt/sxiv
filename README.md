@@ -3,7 +3,7 @@ sxiv: Simple (or small or suckless) X Image Viewer
 sxiv is a really simple alternative to feh and qiv. Its only dependency is
 imlib2. The primary goal for writing sxiv is to create an image viewer, which
 only implements the most basic features required for fast image viewing. Its
-code base should be kept small and clean making it easy for you to dig into it
+code base should be kept small and clean to make it easy for you to dig into it
 and customize it for your needs.
 
 Installation
@@ -40,4 +40,4 @@ Use the following keys to control sxiv:
              Go to the previous image
     +,=      Zoom in
     -        Zoom out
-    h,j,k,l  Scroll left/up/down/right
+    h,j,k,l  Scroll left/down/up/right
