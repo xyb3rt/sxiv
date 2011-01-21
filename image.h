@@ -27,9 +27,17 @@ enum scalemode {
 	SCALE_ZOOM
 };
 
+typedef enum pandir_e {
+	PAN_LEFT = 0,
+	PAN_RIGHT,
+	PAN_UP,
+	PAN_DOWN
+} pandir_t;
+
 typedef struct img_s {
 	float zoom;
 	unsigned char re;
+	unsigned char cp;
 	int x;
 	int y;
 	int w;
@@ -44,5 +52,7 @@ void img_render(img_t*, win_t*);
 
 int img_zoom_in(img_t*);
 int img_zoom_out(img_t*);
+
+int img_pan(img_t*, win_t*, pandir_t);
 
 #endif /* IMAGE_H */

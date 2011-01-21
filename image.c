@@ -123,11 +123,13 @@ void img_render(img_t *img, win_t *win) {
 		/* center image in window */
 		img->x = (win->w - img->w * img->zoom) / 2;
 		img->y = (win->h - img->h * img->zoom) / 2;
-	} else {
-		/* typically after zooming and panning */
+	} else if (img->cp) {
+		/* only useful after zooming */
 		img_check_pan(img, win);
+		img->cp = 0;
 	}
 
+	/* calculate source and destination offsets */
 	if (img->x < 0) {
 		sx = -img->x / img->zoom;
 		sw = win->w / img->zoom;
@@ -172,6 +174,7 @@ int img_zoom(img_t *img, float z) {
 		img->x -= (img->w * z - img->w * img->zoom) / 2;
 		img->y -= (img->h * z - img->h * img->zoom) / 2;
 		img->zoom = z;
+		img->cp = 1;
 		return 1;
 	} else {
 		return 0;
@@ -204,4 +207,33 @@ int img_zoom_out(img_t *img) {
 	}
 
 	return 0;
+}
+
+int img_pan(img_t *img, win_t *win, pandir_t dir) {
+	int ox, oy;
+
+	if (!img || !win)
+		return 0;
+
+	ox = img->x;
+	oy = img->y;
+
+	switch (dir) {
+		case PAN_LEFT:
+			img->x += win->w / 5;
+			break;
+		case PAN_RIGHT:
+			img->x -= win->w / 5;
+			break;
+		case PAN_UP:
+			img->y += win->h / 5;
+			break;
+		case PAN_DOWN:
+			img->y -= win->h / 5;
+			break;
+	}
+
+	img_check_pan(img, win);
+
+	return ox != img->x || oy != img->y;
 }

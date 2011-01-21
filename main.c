@@ -108,13 +108,14 @@ void cleanup() {
 
 void on_keypress(XEvent *ev) {
 	char key;
-	int len;
 	KeySym keysym;
+	int changed;
 
 	if (!ev)
 		return;
 	
-	len = XLookupString(&ev->xkey, &key, 1, &keysym, NULL);
+	XLookupString(&ev->xkey, &key, 1, &keysym, NULL);
+	changed = 0;
 
 	switch (keysym) {
 		case XK_Escape:
@@ -122,48 +123,58 @@ void on_keypress(XEvent *ev) {
 			exit(2);
 		case XK_space:
 			key = 'n';
-			len = 1;
 			break;
 		case XK_BackSpace:
 			key = 'p';
-			len = 1;
 			break;
 	}
-
-	if (!len)
-		return;
 
 	switch (key) {
 		case 'q':
 			cleanup();
 			exit(0);
+
+		/* navigate through image list */
 		case 'n':
 			if (fileidx + 1 < filecnt) {
 				img_load(&img, filenames[++fileidx]);
-				img_render(&img, &win);
-				update_title();
+				changed = 1;
 			}
 			break;
 		case 'p':
 			if (fileidx > 0) {
 				img_load(&img, filenames[--fileidx]);
-				img_render(&img, &win);
-				update_title();
+				changed = 1;
 			}
 			break;
+
+		/* zooming */
 		case '+':
 		case '=':
-			if (img_zoom_in(&img)) {
-				img_render(&img, &win);
-				update_title();
-			}
+			changed = img_zoom_in(&img);
 			break;
 		case '-':
-			if (img_zoom_out(&img)) {
-				img_render(&img, &win);
-				update_title();
-			}
+			changed = img_zoom_out(&img);
 			break;
+
+		/* panning */
+		case 'h':
+			changed = img_pan(&img, &win, PAN_LEFT);
+			break;
+		case 'j':
+			changed = img_pan(&img, &win, PAN_DOWN);
+			break;
+		case 'k':
+			changed = img_pan(&img, &win, PAN_UP);
+			break;
+		case 'l':
+			changed = img_pan(&img, &win, PAN_RIGHT);
+			break;
+	}
+
+	if (changed) {
+		img_render(&img, &win);
+		update_title();
 	}
 }
 
