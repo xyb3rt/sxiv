@@ -93,7 +93,7 @@ int main(int argc, char **argv) {
 	imlib_init(&win);
 
 	img_load(&img, filenames[fileidx]);
-	img_display(&img, &win);
+	img_render(&img, &win);
 	update_title();
 
 	run();
@@ -146,14 +146,14 @@ void on_keypress(XEvent *ev) {
 		case 'n':
 			if (fileidx + 1 < filecnt) {
 				img_load(&img, filenames[++fileidx]);
-				img_display(&img, &win);
+				img_render(&img, &win);
 				update_title();
 			}
 			break;
 		case 'p':
 			if (fileidx > 0) {
 				img_load(&img, filenames[--fileidx]);
-				img_display(&img, &win);
+				img_render(&img, &win);
 				update_title();
 			}
 			break;

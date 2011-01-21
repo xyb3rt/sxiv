@@ -62,38 +62,11 @@ int img_load(img_t *img, const char *filename) {
 
 	imlib_context_set_image(im);
 
+	img->re = 0;
 	img->w = imlib_image_get_width();
 	img->h = imlib_image_get_height();
 
 	return 0;
-}
-
-void img_display(img_t *img, win_t *win) {
-	float zw, zh;
-
-	if (!img || !win || !imlib_context_get_image())
-		return;
-
-	/* set zoom level to fit image into window */
-	if (img->scalemode != SCALE_ZOOM) {
-		zw = (float) win->w / (float) img->w;
-		zh = (float) win->h / (float) img->h;
-		img->zoom = MIN(zw, zh);
-
-		if (img->zoom < zoom_min)
-			img->zoom = zoom_min;
-		else if (img->zoom > zoom_max)
-			img->zoom = zoom_max;
-
-		if (img->scalemode == SCALE_DOWN && img->zoom > 1.0)
-			img->zoom = 1.0;
-	}
-
-	/* center image in window */
-	img->x = (win->w - img->w * img->zoom) / 2;
-	img->y = (win->h - img->h * img->zoom) / 2;
-
-	img_render(img, win);
 }
 
 void img_check_pan(img_t *img, win_t *win) {
@@ -121,11 +94,37 @@ void img_check_pan(img_t *img, win_t *win) {
 void img_render(img_t *img, win_t *win) {
 	int sx, sy, sw, sh;
 	int dx, dy, dw, dh;
+	float zw, zh;
 
 	if (!img || !win || !imlib_context_get_image())
 		return;
 
-	img_check_pan(img, win);
+	if (!img->re) {
+		/* rendered for the first time */
+		img->re = 1;
+
+		/* set zoom level to fit image into window */
+		if (img->scalemode != SCALE_ZOOM) {
+			zw = (float) win->w / (float) img->w;
+			zh = (float) win->h / (float) img->h;
+			img->zoom = MIN(zw, zh);
+
+			if (img->zoom < zoom_min)
+				img->zoom = zoom_min;
+			else if (img->zoom > zoom_max)
+				img->zoom = zoom_max;
+
+			if (img->scalemode == SCALE_DOWN && img->zoom > 1.0)
+				img->zoom = 1.0;
+		}
+
+		/* center image in window */
+		img->x = (win->w - img->w * img->zoom) / 2;
+		img->y = (win->h - img->h * img->zoom) / 2;
+	} else {
+		/* typically after zooming and panning */
+		img_check_pan(img, win);
+	}
 
 	if (img->x < 0) {
 		sx = -img->x / img->zoom;
