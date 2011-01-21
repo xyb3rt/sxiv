@@ -28,20 +28,22 @@ int zl_cnt;
 float zoom_min;
 float zoom_max;
 
-void imlib_init(win_t *win) {
-	if (!win)
-		return;
-
-	imlib_context_set_display(win->env.dpy);
-	imlib_context_set_visual(win->env.vis);
-	imlib_context_set_colormap(win->env.cmap);
-
+void img_init(img_t *img, win_t *win) {
 	zl_cnt = sizeof(zoom_levels) / sizeof(zoom_levels[0]);
 	zoom_min = zoom_levels[0] / 100.0;
 	zoom_max = zoom_levels[zl_cnt - 1] / 100.0;
+
+	if (img)
+		img->zoom = 1.0;
+
+	if (win) {
+		imlib_context_set_display(win->env.dpy);
+		imlib_context_set_visual(win->env.vis);
+		imlib_context_set_colormap(win->env.cmap);
+	}
 }
 
-void imlib_destroy() {
+void img_free(img_t* img) {
 	if (imlib_context_get_image())
 		imlib_free_image();
 }
@@ -104,7 +106,7 @@ void img_render(img_t *img, win_t *win) {
 		img->re = 1;
 
 		/* set zoom level to fit image into window */
-		if (img->scalemode != SCALE_ZOOM) {
+		if (SCALE_MODE != SCALE_ZOOM) {
 			zw = (float) win->w / (float) img->w;
 			zh = (float) win->h / (float) img->h;
 			img->zoom = MIN(zw, zh);
@@ -114,7 +116,7 @@ void img_render(img_t *img, win_t *win) {
 			else if (img->zoom > zoom_max)
 				img->zoom = zoom_max;
 
-			if (img->scalemode == SCALE_DOWN && img->zoom > 1.0)
+			if (SCALE_MODE == SCALE_DOWN && img->zoom > 1.0)
 				img->zoom = 1.0;
 		}
 

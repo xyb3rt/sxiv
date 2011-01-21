@@ -21,15 +21,14 @@
 
 #include "window.h"
 
-typedef enum scalemode_e {
+enum scalemode {
 	SCALE_DOWN = 0,
 	SCALE_FIT,
 	SCALE_ZOOM
-} scalemode_t;
+};
 
 typedef struct img_s {
 	float zoom;
-	scalemode_t scalemode;
 	unsigned char re;
 	int x;
 	int y;
@@ -37,8 +36,8 @@ typedef struct img_s {
 	int h;
 } img_t;
 
-void imlib_init(win_t*);
-void imlib_destroy();
+void img_init(img_t*, win_t*);
+void img_free(img_t*);
 
 int img_load(img_t*, const char*);
 void img_render(img_t*, win_t*);

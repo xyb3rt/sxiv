@@ -83,14 +83,8 @@ int main(int argc, char **argv) {
 		exit(1);
 	}
 
-	img.zoom = 1.0;
-	img.scalemode = SCALE_MODE;
-
-	win.w = WIN_WIDTH;
-	win.h = WIN_HEIGHT;
-
 	win_open(&win);
-	imlib_init(&win);
+	img_init(&img, &win);
 
 	img_load(&img, filenames[fileidx]);
 	img_render(&img, &win);
@@ -107,7 +101,7 @@ void cleanup() {
 	static int in = 0;
 
 	if (!in++) {
-		imlib_destroy();
+		img_free(&img);
 		win_close(&win);
 	}
 }

@@ -33,8 +33,8 @@ typedef struct win_env_s {
 typedef struct win_s {
 	Window xwin;
 	win_env_t env;
-	Pixmap pm;
 	GC bgc;
+	Pixmap pm;
 
 	int w;
 	int h;

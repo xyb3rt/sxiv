@@ -32,16 +32,14 @@ void win_open(win_t *win) {
 
 	if (!win)
 		return;
-	
-	e = &win->env;
 
+	e = &win->env;
 	if (!(e->dpy = XOpenDisplay(NULL)))
 		DIE("could not open display");
-	
+
 	e->scr = DefaultScreen(e->dpy);
 	e->scrw = DisplayWidth(e->dpy, e->scr);
 	e->scrh = DisplayHeight(e->dpy, e->scr);
-
 	e->vis = DefaultVisual(e->dpy, e->scr);
 	e->cmap = DefaultColormap(e->dpy, e->scr);
 	e->depth = DefaultDepth(e->dpy, e->scr);
@@ -50,6 +48,8 @@ void win_open(win_t *win) {
 		                    &bgcol, &bgcol))
 		DIE("could not allocate color: %s", BG_COLOR);
 
+	win->w = WIN_WIDTH;
+	win->h = WIN_HEIGHT;
 	if (win->w > e->scrw)
 		win->w = e->scrw;
 	if (win->h > e->scrh)
@@ -66,10 +66,9 @@ void win_open(win_t *win) {
 	XSelectInput(e->dpy, win->xwin,
 	             StructureNotifyMask | KeyPressMask);
 
-	win->pm = 0;
-
 	gcval.foreground = bgcol.pixel;
 	win->bgc = XCreateGC(e->dpy, win->xwin, GCForeground, &gcval);
+	win->pm = 0;
 
 	win_set_title(win, "sxiv");
 
