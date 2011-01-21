@@ -20,6 +20,7 @@
 #include <stdio.h>
 
 #include <X11/Xlib.h>
+#include <X11/Xutil.h>
 #include <X11/keysym.h>
 
 #include "sxiv.h"
@@ -112,44 +113,60 @@ void cleanup() {
 }
 
 void on_keypress(XEvent *ev) {
+	char key;
+	int len;
 	KeySym keysym;
 
 	if (!ev)
 		return;
 	
-	keysym = XLookupKeysym(&ev->xkey, 0);
+	len = XLookupString(&ev->xkey, &key, 1, &keysym, NULL);
 
 	switch (keysym) {
 		case XK_Escape:
 			cleanup();
-			exit(1);
-		case XK_q:
+			exit(2);
+		case XK_space:
+			key = 'n';
+			len = 1;
+			break;
+		case XK_BackSpace:
+			key = 'p';
+			len = 1;
+			break;
+	}
+
+	if (!len)
+		return;
+
+	printf("%c\n", key);
+
+	switch (key) {
+		case 'q':
 			cleanup();
 			exit(0);
-		case XK_n:
-		case XK_space:
+		case 'n':
 			if (fileidx + 1 < filecnt) {
 				img_load(&img, filenames[++fileidx]);
 				img_display(&img, &win);
 				update_title();
 			}
 			break;
-		case XK_p:
-		case XK_BackSpace:
+		case 'p':
 			if (fileidx > 0) {
 				img_load(&img, filenames[--fileidx]);
 				img_display(&img, &win);
 				update_title();
 			}
 			break;
-		case XK_plus:
-		case XK_equal:
+		case '+':
+		case '=':
 			if (img_zoom_in(&img)) {
 				img_render(&img, &win);
 				update_title();
 			}
 			break;
-		case XK_minus:
+		case '-':
 			if (img_zoom_out(&img)) {
 				img_render(&img, &win);
 				update_title();
