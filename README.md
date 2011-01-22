@@ -28,16 +28,14 @@ check and change them, so that they fit your needs.
 Usage
 -----
 sxiv has no useful command line options yet, but they will be added in the next
-releases. Right now, it simply displays all files given given on the
-command line.
+releases. Right now, it simply displays all files given on the command line.
 
 Use the following keys to control sxiv:
 
-    q        Quit sxiv
-    Escape   Quit sxiv and return an exit value of 2 (useful for scripting)
-    Space,n  Go to the next image
-    Backspace,p
-             Go to the previous image
-    +,=      Zoom in
-    -        Zoom out
-    h,j,k,l  Scroll left/down/up/right
+    q            Quit sxiv
+    Escape       Quit sxiv and return an exit value of 2 (useful for scripting)
+    Space,n      Go to the next image
+    Backspace,p  Go to the previous image
+    +,=          Zoom in
+    -            Zoom out
+    h,j,k,l      Scroll left/down/up/right
