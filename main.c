@@ -168,6 +168,20 @@ void on_keypress(XEvent *ev) {
 				changed = 1;
 			}
 			break;
+		case 'g':
+			if (fileidx != 0) {
+				fileidx = 0;
+				img_load(&img, filenames[fileidx]);
+				changed = 1;
+			}
+			break;
+		case 'G':
+			if (fileidx != filecnt - 1) {
+				fileidx = filecnt - 1;
+				img_load(&img, filenames[fileidx]);
+				changed = 1;
+			}
+			break;
 
 		/* zooming */
 		case '+':
