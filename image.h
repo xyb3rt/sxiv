@@ -37,7 +37,8 @@ typedef enum pandir_e {
 typedef struct img_s {
 	float zoom;
 	unsigned char re;
-	unsigned char cp;
+	unsigned char checkpan;
+	unsigned char zoomed;
 	int x;
 	int y;
 	int w;

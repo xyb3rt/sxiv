@@ -18,6 +18,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <sys/select.h>
 
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -45,14 +46,34 @@ const char **filenames;
 unsigned int filecnt;
 unsigned int fileidx;
 
+unsigned char timeout;
+
 #define TITLE_LEN 256
 char win_title[TITLE_LEN];
 
 void run() {
+	int xfd;
+	fd_set fds;
+	struct timeval t;
 	XEvent ev;
 
-	while (!XNextEvent(win.env.dpy, &ev)) {
-		if (handler[ev.type])
+	timeout = 0;
+
+	while (1) {
+		if (timeout) {
+			t.tv_sec = 0;
+			t.tv_usec = 250;
+			xfd = ConnectionNumber(win.env.dpy);
+			FD_ZERO(&fds);
+			FD_SET(xfd, &fds);
+			
+			if (!XPending(win.env.dpy) && !select(xfd + 1, &fds, 0, 0, &t)) {
+				img_render(&img, &win);
+				timeout = 0;
+			}
+		}
+
+		if (!XNextEvent(win.env.dpy, &ev) && handler[ev.type])
 			handler[ev.type](&ev);
 	}
 }
@@ -175,14 +196,18 @@ void on_keypress(XEvent *ev) {
 	if (changed) {
 		img_render(&img, &win);
 		update_title();
+		timeout = 0;
 	}
 }
 
 void on_configurenotify(XEvent *ev) {
 	if (!ev)
 		return;
-	
-	win_configure(&win, &ev->xconfigure);
+
+	if (win_configure(&win, &ev->xconfigure)) {
+		img.checkpan = 1;
+		timeout = 1;
+	}
 }
 
 void update_title() {

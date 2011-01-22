@@ -102,19 +102,20 @@ void win_set_title(win_t *win, const char *title) {
 	XSetIconName(win->env.dpy, win->xwin, title);
 }
 
-int win_configure(win_t *win, XConfigureEvent *cev) {
+int win_configure(win_t *win, XConfigureEvent *c) {
 	int changed;
 
 	if (!win)
 		return 0;
 	
-	changed = win->x != cev->x || win->y != cev->y ||
-	          win->w != cev->width || win->h != cev->height;
-	win->x = cev->x;
-	win->y = cev->y;
-	win->w = cev->width;
-	win->h = cev->height;
-	win->bw = cev->border_width;
+	changed = win->w != c->width || win->h != c->height;
+
+	win->x = c->x;
+	win->y = c->y;
+	win->w = c->width;
+	win->h = c->height;
+	win->bw = c->border_width;
+
 	return changed;
 }
 
