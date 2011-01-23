@@ -154,7 +154,7 @@ void on_keypress(XEvent *ev) {
 			cleanup();
 			exit(0);
 
-		/* navigate through image list */
+		/* navigate image list */
 		case 'n':
 			if (fileidx + 1 < filecnt) {
 				img_load(&img, filenames[++fileidx]);
@@ -219,7 +219,7 @@ void on_keypress(XEvent *ev) {
 			changed = img_pan(&img, &win, PAN_RIGHT);
 			break;
 
-		/* change window state */
+		/* Control window */
 		case 'f':
 			win_toggle_fullscreen(&win);
 			break;

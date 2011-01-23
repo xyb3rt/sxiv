@@ -1,5 +1,4 @@
 - mouse scrolling and zooming
 - add some useful command line options
-- write man page
 - toggle aliasing
 - view all images in directories (recursive mode)

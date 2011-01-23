@@ -1,0 +1,79 @@
+.TH SXIV 1 sxiv\-VERSION
+.SH NAME
+sxiv \- Simple (or small or suckless) X Image Viewer
+.SH SYNOPSIS
+.B sxiv
+.RB [ \-hv ]
+.SH DESCRIPTION
+sxiv is a simple image viewer for X. It only has the most basic features
+required for fast image viewing.
+.P
+Please note, that the fullscreen mode requires an EWMH/NetWM compliant window
+manager.
+.SH OPTIONS
+.TP
+.B \-h
+Print brief usage information to standard output and exit.
+.TP
+.B \-v
+Print version information to standard output and exit.
+.SH KEYBOARD COMMANDS
+.SS General
+.TP
+.B q
+Quit sxiv.
+.TP
+.B Escape
+Quit sxiv and return an exit value of 2.
+.SS Navigate image list 
+.TP
+.BR Space ", " n
+Go to the next image.
+.TP
+.BR Backspace ", " p
+Go to the previous image.
+.TP
+.B g
+Go to the first image.
+.TP
+.B G
+Go to the last image.
+.TP
+.B [
+Go 10 images backward.
+.TP
+.B ]
+Go 10 images forward.
+.SS Zooming
+.TP
+.BR + ", " =
+Zoom in.
+.TP
+.B \-
+Zoom out.
+.SS Panning
+.TP
+.B h
+Pan left.
+.TP
+.B j
+Pan down.
+.TP
+.B k
+Pan up.
+.TP
+.B l
+Pan right.
+.SS Control window
+.TP
+.B f
+Toggle fullscreen mode.
+.SH AUTHORS
+.TP
+Bert Muennich <ber.t at gmx.com>
+.SH MISC
+.SS Homepage
+.TP
+http://github.com/muennich/sxiv
+.SH SEE ALSO
+.BR feh (1), qiv (1)

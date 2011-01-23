@@ -19,6 +19,9 @@ sxiv:	$(OBJFILES)
 
 install: all
 	install -D -m 4755 -o root -g root sxiv $(PREFIX)/sbin/sxiv
+	mkdir -p $(PREFIX)/share/man/man1
+	sed "s/VERSION/$(VERSION)/g" dwm.1 > $(PREFIX)/share/man/man1/sxiv.1
+	chmod 644 $(PREFIX)/share/man/man1/sxiv.1
 
 clean:
 	rm -f sxiv *.o
