@@ -64,7 +64,7 @@ void win_open(win_t *win) {
 		DIE("could not create window");
 	
 	XSelectInput(e->dpy, win->xwin,
-	             StructureNotifyMask | KeyPressMask);
+	             StructureNotifyMask | KeyPressMask | ButtonPressMask);
 
 	gcval.foreground = bgcol.pixel;
 	win->bgc = XCreateGC(e->dpy, win->xwin, GCForeground, &gcval);
