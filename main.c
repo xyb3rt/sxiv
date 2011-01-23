@@ -43,8 +43,7 @@ img_t img;
 win_t win;
 
 const char **filenames;
-unsigned int filecnt;
-unsigned int fileidx;
+int filecnt, fileidx;
 
 unsigned char timeout;
 
@@ -165,6 +164,20 @@ void on_keypress(XEvent *ev) {
 		case 'p':
 			if (fileidx > 0) {
 				img_load(&img, filenames[--fileidx]);
+				changed = 1;
+			}
+			break;
+		case '[':
+			if (fileidx != 0) {
+				fileidx = MAX(0, fileidx - 10);
+				img_load(&img, filenames[fileidx]);
+				changed = 1;
+			}
+			break;
+		case ']':
+			if (fileidx != filecnt - 1) {
+				fileidx = MIN(fileidx + 10, filecnt - 1);
+				img_load(&img, filenames[fileidx]);
 				changed = 1;
 			}
 			break;

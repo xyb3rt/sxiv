@@ -21,7 +21,7 @@
 
 typedef struct options_s {
 	const char **filenames;
-	unsigned int filecnt;
+	int filecnt;
 } options_t;
 
 extern const options_t *options;
