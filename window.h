@@ -33,7 +33,8 @@ typedef struct win_env_s {
 typedef struct win_s {
 	Window xwin;
 	win_env_t env;
-	GC bgc;
+
+	unsigned long bgcol;
 	Pixmap pm;
 
 	int w;
@@ -51,6 +52,7 @@ void win_close(win_t*);
 void win_set_title(win_t*, const char*);
 
 int win_configure(win_t*, XConfigureEvent*);
+void win_toggle_fullscreen(win_t*);
 
 void win_clear(win_t*);
 void win_draw(win_t*);

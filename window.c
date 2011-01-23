@@ -18,17 +18,19 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #include <X11/Xutil.h>
 
 #include "sxiv.h"
 #include "window.h"
 
+GC bgc;
+
 void win_open(win_t *win) {
 	win_env_t *e;
 	XClassHint *classhint;
 	XColor bgcol;
-	XGCValues gcval;
 
 	if (!win)
 		return;
@@ -48,6 +50,9 @@ void win_open(win_t *win) {
 		                    &bgcol, &bgcol))
 		DIE("could not allocate color: %s", BG_COLOR);
 
+	win->bgcol = bgcol.pixel;
+	win->pm = 0;
+
 	win->w = WIN_WIDTH;
 	win->h = WIN_HEIGHT;
 	if (win->w > e->scrw)
@@ -66,9 +71,7 @@ void win_open(win_t *win) {
 	XSelectInput(e->dpy, win->xwin,
 	             StructureNotifyMask | KeyPressMask);
 
-	gcval.foreground = bgcol.pixel;
-	win->bgc = XCreateGC(e->dpy, win->xwin, GCForeground, &gcval);
-	win->pm = 0;
+	bgc = XCreateGC(e->dpy, win->xwin, 0, None);
 
 	win_set_title(win, "sxiv");
 
@@ -119,8 +122,34 @@ int win_configure(win_t *win, XConfigureEvent *c) {
 	return changed;
 }
 
+void win_toggle_fullscreen(win_t *win) {
+	XEvent ev;
+	XClientMessageEvent *cm;
+
+	if (!win)
+		return;
+
+	win->fullscreen ^= 1;
+
+	memset(&ev, 0, sizeof(ev));
+	ev.type = ClientMessage;
+
+	cm = &ev.xclient;
+	cm->window = win->xwin;
+	cm->message_type = XInternAtom(win->env.dpy, "_NET_WM_STATE", False);
+	cm->format = 32;
+	cm->data.l[0] = win->fullscreen;
+	cm->data.l[1] = XInternAtom(win->env.dpy, "_NET_WM_STATE_FULLSCREEN", False);
+	cm->data.l[2] = XInternAtom(win->env.dpy, "_NET_WM_STATE_ABOVE", False);
+	cm->data.l[3] = 0;
+
+	XSendEvent(win->env.dpy, DefaultRootWindow(win->env.dpy), False,
+	           SubstructureNotifyMask, &ev);
+}
+
 void win_clear(win_t *win) {
 	win_env_t *e;
+	XGCValues gcval;
 
 	if (!win)
 		return;
@@ -130,7 +159,11 @@ void win_clear(win_t *win) {
 	if (win->pm)
 		XFreePixmap(e->dpy, win->pm);
 	win->pm = XCreatePixmap(e->dpy, win->xwin, e->scrw, e->scrh, e->depth);
-	XFillRectangle(e->dpy, win->pm, win->bgc, 0, 0, e->scrw, e->scrh);
+
+	gcval.foreground = win->fullscreen ? BlackPixel(e->dpy, e->scr) : win->bgcol;
+	XChangeGC(e->dpy, bgc, GCForeground, &gcval);
+
+	XFillRectangle(e->dpy, win->pm, bgc, 0, 0, e->scrw, e->scrh);
 }
 
 void win_draw(win_t *win) {

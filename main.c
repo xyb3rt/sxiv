@@ -218,6 +218,11 @@ void on_keypress(XEvent *ev) {
 		case 'l':
 			changed = img_pan(&img, &win, PAN_RIGHT);
 			break;
+
+		/* change window state */
+		case 'f':
+			win_toggle_fullscreen(&win);
+			break;
 	}
 
 	if (changed) {
