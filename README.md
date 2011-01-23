@@ -36,6 +36,8 @@ Use the following keys to control sxiv:
     Escape       Quit sxiv and return an exit value of 2 (useful for scripting)
     Space,n      Go to the next image
     Backspace,p  Go to the previous image
+		g/G          Go to first/last image
+		[/]          Go 10 images backward/forward
     +,=          Zoom in
     -            Zoom out
     h,j,k,l      Scroll left/down/up/right
