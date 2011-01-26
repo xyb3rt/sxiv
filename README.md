@@ -45,3 +45,4 @@ Use the following keys to control sxiv:
     <,>          Rotate image (counter-)clockwise by 90 degrees
     f            Toggle fullscreen mode (requires an EWMH/NetWM compliant
                  window manager)
+    a            Toggle anti-aliasing

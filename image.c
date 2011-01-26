@@ -33,8 +33,10 @@ void img_init(img_t *img, win_t *win) {
 	zoom_min = zoom_levels[0] / 100.0;
 	zoom_max = zoom_levels[zl_cnt - 1] / 100.0;
 
-	if (img)
+	if (img) {
 		img->zoom = 1.0;
+		img->aa = 1;
+	}
 
 	if (win) {
 		imlib_context_set_display(win->env.dpy);
@@ -63,6 +65,7 @@ int img_load(img_t *img, const char *filename) {
 	}
 
 	imlib_context_set_image(im);
+	imlib_context_set_anti_alias(img->aa);
 
 	img->re = 0;
 	img->checkpan = 0;
@@ -271,4 +274,14 @@ int img_rotate_left(img_t *img, win_t *win) {
 
 int img_rotate_right(img_t *img, win_t *win) {
 	return img_rotate(img, win, 1);
+}
+
+int img_toggle_antialias(img_t *img) {
+	if (!img)
+		return 0;
+
+	img->aa ^= 1;
+	imlib_context_set_anti_alias(img->aa);
+
+	return 1;
 }

@@ -39,6 +39,7 @@ typedef struct img_s {
 	unsigned char re;
 	unsigned char checkpan;
 	unsigned char zoomed;
+	unsigned char aa;
 	int x;
 	int y;
 	int w;
@@ -58,5 +59,7 @@ int img_pan(img_t*, win_t*, pandir_t);
 
 int img_rotate_left(img_t*, win_t*);
 int img_rotate_right(img_t*, win_t*);
+
+int img_toggle_antialias(img_t*);
 
 #endif /* IMAGE_H */

@@ -227,9 +227,14 @@ void on_keypress(XEvent *ev) {
 			changed = img_rotate_right(&img, &win);
 			break;
 
-		/* Control window */
+		/* control window */
 		case 'f':
 			win_toggle_fullscreen(&win);
+			break;
+
+		/* miscellaneous */
+		case 'a':
+			changed = img_toggle_antialias(&img);
 			break;
 	}
 
