@@ -69,7 +69,7 @@ void win_open(win_t *win) {
 		DIE("could not create window");
 	
 	XSelectInput(e->dpy, win->xwin,
-	             StructureNotifyMask | KeyPressMask);
+	             StructureNotifyMask | KeyPressMask | ButtonPressMask);
 
 	bgc = XCreateGC(e->dpy, win->xwin, 0, None);
 

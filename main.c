@@ -31,10 +31,12 @@
 
 void on_keypress(XEvent*);
 void on_configurenotify(XEvent*);
+void on_buttonpress(XEvent*);
 
 void update_title();
 
 static void (*handler[LASTEvent])(XEvent*) = {
+	[ButtonPress] = on_buttonpress,
 	[KeyPress] = on_keypress,
 	[ConfigureNotify] = on_configurenotify
 };
@@ -123,6 +125,31 @@ void cleanup() {
 	if (!in++) {
 		img_free(&img);
 		win_close(&win);
+	}
+}
+
+void on_buttonpress(XEvent *ev) {
+	int changed;
+	XButtonEvent *buttonevent;
+
+	changed = 0;
+	buttonevent = &ev->xbutton;
+
+	switch (buttonevent->button) {
+		case Button4:
+			changed = img_zoom_in(&img);
+			break;
+		case Button5:
+			changed = img_zoom_out(&img);
+			break;
+		default:
+			return;
+	}
+
+	if (changed) {
+		img_render(&img, &win);
+		update_title();
+		timeout = 0;
 	}
 }
 
