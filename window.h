@@ -21,6 +21,8 @@
 
 #include <X11/Xlib.h>
 
+#define CLEANMASK(mask) ((mask) & ~LockMask)
+
 typedef struct win_env_s {
 	Display *dpy;
 	int scr;

@@ -41,8 +41,19 @@ Use the following keys to control sxiv:
     [/]          Go 10 images backward/forward
     +,=          Zoom in
     -            Zoom out
-    h,j,k,l      Scroll left/down/up/right
+    h,j,k,l      Pan image left/down/up/right
     <,>          Rotate image (counter-)clockwise by 90 degrees
     f            Toggle fullscreen mode (requires an EWMH/NetWM compliant
                  window manager)
     a            Toggle anti-aliasing
+
+Additionally, sxiv can be controlled via the following mouse commands:
+
+    Button1           Go to the next image
+    Button3           Go to the previous image
+    ScrollUp          Pan image up
+    ScrollDown        Pan image down
+    Shift+ScrollUp    Pan image left
+    Shift+ScrollDown  Pan image right
+    Ctrl+ScrollUp     Zoom in
+    Ctrl+ScrollDown   Zoom out

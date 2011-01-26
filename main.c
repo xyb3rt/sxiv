@@ -30,14 +30,14 @@
 #include "window.h"
 
 void on_keypress(XEvent*);
-void on_configurenotify(XEvent*);
 void on_buttonpress(XEvent*);
+void on_configurenotify(XEvent*);
 
 void update_title();
 
 static void (*handler[LASTEvent])(XEvent*) = {
-	[ButtonPress] = on_buttonpress,
 	[KeyPress] = on_keypress,
+	[ButtonPress] = on_buttonpress,
 	[ConfigureNotify] = on_configurenotify
 };
 
@@ -125,31 +125,6 @@ void cleanup() {
 	if (!in++) {
 		img_free(&img);
 		win_close(&win);
-	}
-}
-
-void on_buttonpress(XEvent *ev) {
-	int changed;
-	XButtonEvent *buttonevent;
-
-	changed = 0;
-	buttonevent = &ev->xbutton;
-
-	switch (buttonevent->button) {
-		case Button4:
-			changed = img_zoom_in(&img);
-			break;
-		case Button5:
-			changed = img_zoom_out(&img);
-			break;
-		default:
-			return;
-	}
-
-	if (changed) {
-		img_render(&img, &win);
-		update_title();
-		timeout = 0;
 	}
 }
 
@@ -262,6 +237,60 @@ void on_keypress(XEvent *ev) {
 		/* miscellaneous */
 		case 'a':
 			changed = img_toggle_antialias(&img);
+			break;
+	}
+
+	if (changed) {
+		img_render(&img, &win);
+		update_title();
+		timeout = 0;
+	}
+}
+
+void on_buttonpress(XEvent *ev) {
+	int changed;
+	unsigned int mask;
+
+	if (!ev)
+		return;
+
+	mask = CLEANMASK(ev->xbutton.state);
+	changed = 0;
+
+	switch (ev->xbutton.button) {
+		case Button1:
+			if (fileidx + 1 < filecnt) {
+				img_load(&img, filenames[++fileidx]);
+				changed = 1;
+			}
+			break;
+		case Button3:
+			if (fileidx > 0) {
+				img_load(&img, filenames[--fileidx]);
+				changed = 1;
+			}
+			break;
+		case Button4:
+			if (mask == ControlMask)
+				changed = img_zoom_in(&img);
+			else if (mask == ShiftMask)
+				changed = img_pan(&img, &win, PAN_LEFT);
+			else
+				changed = img_pan(&img, &win, PAN_UP);
+			break;
+		case Button5:
+			if (mask == ControlMask)
+				changed = img_zoom_out(&img);
+			else if (mask == ShiftMask)
+				changed = img_pan(&img, &win, PAN_RIGHT);
+			else
+				changed = img_pan(&img, &win, PAN_DOWN);
+			break;
+		case 6:
+			changed = img_pan(&img, &win, PAN_LEFT);
+			break;
+		case 7:
+			changed = img_pan(&img, &win, PAN_RIGHT);
 			break;
 	}
 
