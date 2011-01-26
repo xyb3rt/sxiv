@@ -42,5 +42,6 @@ Use the following keys to control sxiv:
     +,=          Zoom in
     -            Zoom out
     h,j,k,l      Scroll left/down/up/right
+		<,>          Rotate image (counter-)clockwise by 90 degrees
     f            Toggle fullscreen mode (requires an EWMH/NetWM compliant
                  window manager)

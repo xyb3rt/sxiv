@@ -219,6 +219,14 @@ void on_keypress(XEvent *ev) {
 			changed = img_pan(&img, &win, PAN_RIGHT);
 			break;
 
+		/* rotation */
+		case '<':
+			changed = img_rotate_left(&img, &win);
+			break;
+		case '>':
+			changed = img_rotate_right(&img, &win);
+			break;
+
 		/* Control window */
 		case 'f':
 			win_toggle_fullscreen(&win);

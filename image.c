@@ -104,7 +104,7 @@ void img_render(img_t *img, win_t *win) {
 	if (!img || !win || !imlib_context_get_image())
 		return;
 
-	if ((!img->re || !img->zoomed) && SCALE_MODE != SCALE_ZOOM) {
+	if (!img->zoomed && SCALE_MODE != SCALE_ZOOM) {
 		/* set zoom level to fit image into window */
 		zw = (float) win->w / (float) img->w;
 		zh = (float) win->h / (float) img->h;
@@ -240,4 +240,35 @@ int img_pan(img_t *img, win_t *win, pandir_t dir) {
 	img_check_pan(img, win);
 
 	return ox != img->x || oy != img->y;
+}
+
+int img_rotate(img_t *img, win_t *win, int d) {
+	int ox, oy, tmp;
+
+	if (!img || !win)
+		return 0;
+
+	ox = d == 1 ? img->x : win->w - img->x - img->w * img->zoom;
+	oy = d == 3 ? img->y : win->h - img->y - img->h * img->zoom;
+
+	imlib_image_orientate(d);
+
+	img->x = oy + (win->w - win->h) / 2;
+	img->y = ox + (win->h - win->w) / 2;
+
+	tmp = img->w;
+	img->w = img->h;
+	img->h = tmp;
+
+	img->checkpan = 1;
+
+	return 1;
+}
+
+int img_rotate_left(img_t *img, win_t *win) {
+	return img_rotate(img, win, 3);
+}
+
+int img_rotate_right(img_t *img, win_t *win) {
+	return img_rotate(img, win, 1);
 }

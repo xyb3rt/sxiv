@@ -56,4 +56,7 @@ int img_zoom_out(img_t*);
 
 int img_pan(img_t*, win_t*, pandir_t);
 
+int img_rotate_left(img_t*, win_t*);
+int img_rotate_right(img_t*, win_t*);
+
 #endif /* IMAGE_H */
