@@ -28,8 +28,10 @@ check and change them, so that they fit your needs.
 
 Usage
 -----
-sxiv has no useful command line options yet, but they will be added in the next
-releases. Right now, it simply displays all files given on the command line.
+sxiv supports the following command-line options:
+
+    -w WIDTHxHEIGHT  set window width to WIDTH and height to HEIGHT
+                     (if HEIGHT is omitted, height is also set to WIDTH)
 
 Use the following keys to control sxiv:
 

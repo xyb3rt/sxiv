@@ -23,6 +23,7 @@
 #include <X11/Xutil.h>
 
 #include "sxiv.h"
+#include "options.h"
 #include "window.h"
 
 GC bgc;
@@ -53,12 +54,8 @@ void win_open(win_t *win) {
 	win->bgcol = bgcol.pixel;
 	win->pm = 0;
 
-	win->w = WIN_WIDTH;
-	win->h = WIN_HEIGHT;
-	if (win->w > e->scrw)
-		win->w = e->scrw;
-	if (win->h > e->scrh)
-		win->h = e->scrh;
+	win->w = MIN(options->winw, e->scrw);
+	win->h = MIN(options->winh, e->scrh);
 	win->x = (e->scrw - win->w) / 2;
 	win->y = (e->scrh - win->h) / 2;
 

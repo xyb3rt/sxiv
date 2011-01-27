@@ -4,6 +4,10 @@ sxiv \- Simple (or small or suckless) X Image Viewer
 .SH SYNOPSIS
 .B sxiv
 .RB [ \-hv ]
+[
+.B \-w
+.IB WIDTH x HEIGHT
+]
 .IR FILE ...
 .SH DESCRIPTION
 sxiv is a simple image viewer for X. It only has the most basic features
@@ -18,6 +22,16 @@ Print brief usage information to standard output and exit.
 .TP
 .B \-v
 Print version information to standard output and exit.
+.TP
+.BI "\-w " WIDTH x HEIGHT
+Set window width to
+.I WIDTH
+and height to
+.IR HEIGHT .
+If
+.I HEIGHT
+is omitted, height is also set to
+.IR WIDTH .
 .SH KEYBOARD COMMANDS
 .SS General
 .TP

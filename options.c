@@ -29,7 +29,7 @@ options_t _options;
 const options_t *options = (const options_t*) &_options;
 
 void print_usage() {
-	printf("usage: sxiv [-hv] FILES...\n");
+	printf("usage: sxiv [-hv] [-w WIDTH[xHEIGHT]] FILES...\n");
 }
 
 void print_version() {
@@ -38,9 +38,13 @@ void print_version() {
 }
 
 void parse_options(int argc, char **argv) {
+	unsigned short w, h;
 	int opt;
 
-	while ((opt = getopt(argc, argv, "hv")) != -1) {
+	_options.winw = w = 0;
+	_options.winh = h = 0;
+
+	while ((opt = getopt(argc, argv, "hvw:")) != -1) {
 		switch (opt) {
 			case '?':
 				print_usage();
@@ -51,7 +55,24 @@ void parse_options(int argc, char **argv) {
 			case 'v':
 				print_version();
 				exit(0);
+			case 'w':
+				if (!sscanf(optarg, "%hux%hu", &w, &h)) {
+					fprintf(stderr, "sxiv: invalid argument for option -w: %s\n",
+					        optarg);
+					exit(1);
+				} else {
+					_options.winw = (int) w;
+					_options.winh = (int) h;
+				}
+				break;
 		}
+	}
+
+	if (!_options.winw) {
+		_options.winw = WIN_WIDTH;
+		_options.winh = WIN_HEIGHT;
+	} else if (!_options.winh) {
+		_options.winh = _options.winw;
 	}
 
 	_options.filenames = (const char**) argv + optind;

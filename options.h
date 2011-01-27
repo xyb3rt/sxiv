@@ -22,6 +22,8 @@
 typedef struct options_s {
 	const char **filenames;
 	int filecnt;
+	int winw;
+	int winh;
 } options_t;
 
 extern const options_t *options;
