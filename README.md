@@ -30,8 +30,16 @@ Usage
 -----
 sxiv supports the following command-line options:
 
-    -w WIDTHxHEIGHT  set window width to WIDTH and height to HEIGHT
-                     (if HEIGHT is omitted, height is also set to WIDTH)
+    -d       scale all images to 100%, but fit large images into window
+    -f       start in fullscreen mode
+    -p       pixelize, i.e. turn off image anti-aliasing
+    -s       scale all images to fit into window
+    -v       print version information and exit
+    -w WIDTHxHEIGHT
+             set window width to WIDTH and height to HEIGHT
+             (if HEIGHT is omitted, height is also set to WIDTH)
+    -Z       same as `-z 100'
+    -z ZOOM  scale all images to current zoom level, use ZOOM at startup
 
 Use the following keys to control sxiv:
 

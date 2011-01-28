@@ -23,6 +23,7 @@
 
 #include "sxiv.h"
 #include "image.h"
+#include "options.h"
 
 int zl_cnt;
 float zoom_min;
@@ -34,8 +35,10 @@ void img_init(img_t *img, win_t *win) {
 	zoom_max = zoom_levels[zl_cnt - 1] / 100.0;
 
 	if (img) {
-		img->zoom = 1.0;
-		img->aa = 1;
+		img->zoom = options->zoom;
+		img->zoom = MAX(img->zoom, zoom_min);
+		img->zoom = MIN(img->zoom, zoom_max);
+		img->aa = options->aa;
 	}
 
 	if (win) {
@@ -102,32 +105,20 @@ void img_check_pan(img_t *img, win_t *win) {
 void img_render(img_t *img, win_t *win) {
 	int sx, sy, sw, sh;
 	int dx, dy, dw, dh;
-	float zw, zh;
 
 	if (!img || !win || !imlib_context_get_image())
 		return;
 
-	if (!img->zoomed && SCALE_MODE != SCALE_ZOOM) {
-		/* set zoom level to fit image into window */
-		zw = (float) win->w / (float) img->w;
-		zh = (float) win->h / (float) img->h;
-		img->zoom = MIN(zw, zh);
-
-		if (img->zoom < zoom_min)
-			img->zoom = zoom_min;
-		else if (img->zoom > zoom_max)
-			img->zoom = zoom_max;
-
-		if (SCALE_MODE == SCALE_DOWN && img->zoom > 1.0)
+	if (!img->zoomed && options->scalemode != SCALE_ZOOM) {
+		img_fit(img, win);
+		if (options->scalemode == SCALE_DOWN && img->zoom > 1.0)
 			img->zoom = 1.0;
 	}
 
 	if (!img->re) {
 		/* rendered for the first time */
 		img->re = 1;
-		/* center image in window */
-		img->x = (win->w - img->w * img->zoom) / 2;
-		img->y = (win->h - img->h * img->zoom) / 2;
+		img_center(img, win);
 	}
 	
 	if (img->checkpan) {
@@ -167,14 +158,37 @@ void img_render(img_t *img, win_t *win) {
 	win_draw(win);
 }
 
+int img_fit(img_t *img, win_t *win) {
+	float oz, zw, zh;
+
+	if (!img || !win)
+		return 0;
+
+	oz = img->zoom;
+	zw = (float) win->w / (float) img->w;
+	zh = (float) win->h / (float) img->h;
+
+	img->zoom = MIN(zw, zh);
+	img->zoom = MAX(img->zoom, zoom_min);
+	img->zoom = MIN(img->zoom, zoom_max);
+
+	return oz != img->zoom;
+}
+
+void img_center(img_t *img, win_t *win) {
+	if (!img || !win)
+		return;
+
+	img->x = (win->w - img->w * img->zoom) / 2;
+	img->y = (win->h - img->h * img->zoom) / 2;
+}
+
 int img_zoom(img_t *img, float z) {
 	if (!img)
 		return 0;
 
-	if (z < zoom_min)
-		z = zoom_min;
-	else if (z > zoom_max)
-		z = zoom_max;
+	z = MAX(z, zoom_min);
+	z = MIN(z, zoom_max);
 
 	if (z != img->zoom) {
 		img->x -= (img->w * z - img->w * img->zoom) / 2;

@@ -45,7 +45,7 @@ typedef struct win_s {
 	int y;
 
 	int bw;
-	int fullscreen;
+	unsigned char fullscreen;
 } win_t;
 
 void win_open(win_t*);

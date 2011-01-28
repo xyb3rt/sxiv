@@ -1,4 +1,5 @@
-/* default window dimensions:                            */
+/* default window dimensions:                            *
+ * (also controllable via -w option)                     */
 #define WIN_WIDTH   800
 #define WIN_HEIGHT  600
 
@@ -7,6 +8,7 @@
 #define BG_COLOR    "#888888"
 
 /* how should images be scaled when they are loaded?:    *
+ * (also controllable via -d/-s/-Z/-z options)           *
  *   SCALE_DOWN: 100%, but fit large images into window, *
  *   SCALE_FIT:  fit all images into window,             *
  *   SCALE_ZOOM: use current zoom level, 100% at startup */

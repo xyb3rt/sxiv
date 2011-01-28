@@ -3,11 +3,12 @@
 sxiv \- Simple (or small or suckless) X Image Viewer
 .SH SYNOPSIS
 .B sxiv
-.RB [ \-hv ]
-[
-.B \-w
+.RB [ \-dfhpsvZ ]
+.RB [ \-w
 .IB WIDTH x HEIGHT
 ]
+.RB [ \-z
+.IR ZOOM ]
 .IR FILE ...
 .SH DESCRIPTION
 sxiv is a simple image viewer for X. It only has the most basic features
@@ -17,8 +18,20 @@ Please note, that the fullscreen mode requires an EWMH/NetWM compliant window
 manager.
 .SH OPTIONS
 .TP
+.B \-d
+Scale all images to 100%, but fit large images into window.
+.TP
+.B \-f
+Start in fullscreen mode.
+.TP
 .B \-h
 Print brief usage information to standard output and exit.
+.TP
+.B \-p
+Pixelize images, i.e. turn off anti-aliasing.
+.TP
+.B \-s
+Scale all images to fit into window.
 .TP
 .B \-v
 Print version information to standard output and exit.
@@ -32,6 +45,14 @@ If
 .I HEIGHT
 is omitted, height is also set to
 .IR WIDTH .
+.TP
+.B \-Z
+The same as `-z 100'.
+.TP
+.BI "\-z " ZOOM
+Scale all images to the current zoom level, use a zoom level of
+.I ZOOM
+at startup.
 .SH KEYBOARD COMMANDS
 .SS General
 .TP

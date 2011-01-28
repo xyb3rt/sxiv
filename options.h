@@ -19,11 +19,19 @@
 #ifndef OPTIONS_H
 #define OPTIONS_H
 
+#include "image.h"
+
 typedef struct options_s {
 	const char **filenames;
 	int filecnt;
+
+	scalemode_t scalemode;
+	float zoom;
+	unsigned char aa;
+
 	int winw;
 	int winh;
+	unsigned char fullscreen;
 } options_t;
 
 extern const options_t *options;

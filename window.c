@@ -54,6 +54,7 @@ void win_open(win_t *win) {
 	win->bgcol = bgcol.pixel;
 	win->pm = 0;
 
+	win->fullscreen = 0;
 	win->w = MIN(options->winw, e->scrw);
 	win->h = MIN(options->winh, e->scrh);
 	win->x = (e->scrw - win->w) / 2;
@@ -81,6 +82,9 @@ void win_open(win_t *win) {
 
 	XMapWindow(e->dpy, win->xwin);
 	XFlush(e->dpy);
+	
+	if (options->fullscreen)
+		win_toggle_fullscreen(win);
 }
 
 void win_close(win_t *win) {

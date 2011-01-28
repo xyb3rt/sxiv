@@ -21,11 +21,11 @@
 
 #include "window.h"
 
-enum scalemode {
+typedef enum scalemode_e {
 	SCALE_DOWN = 0,
 	SCALE_FIT,
 	SCALE_ZOOM
-};
+} scalemode_t;
 
 typedef enum pandir_e {
 	PAN_LEFT = 0,
@@ -51,6 +51,9 @@ void img_free(img_t*);
 
 int img_load(img_t*, const char*);
 void img_render(img_t*, win_t*);
+
+int img_fit(img_t*, win_t*);
+void img_center(img_t*, win_t*);
 
 int img_zoom_in(img_t*);
 int img_zoom_out(img_t*);
