@@ -149,6 +149,18 @@ void on_keypress(XEvent *ev) {
 		case XK_BackSpace:
 			key = 'p';
 			break;
+		case XK_Left:
+			key = 'h';
+			break;
+		case XK_Down:
+			key = 'j';
+			break;
+		case XK_Up:
+			key = 'k';
+			break;
+		case XK_Right:
+			key = 'l';
+			break;
 	}
 
 	switch (key) {

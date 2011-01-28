@@ -45,13 +45,13 @@ Use the following keys to control sxiv:
 
     q            Quit sxiv
     Escape       Quit sxiv and return an exit value of 2 (useful for scripting)
-    Space,n      Go to the next image
-    Backspace,p  Go to the previous image
+    n,Space      Go to the next image
+    p,Backspace  Go to the previous image
     g/G          Go to first/last image
     [/]          Go 10 images backward/forward
     +,=          Zoom in
     -            Zoom out
-    h,j,k,l      Pan image left/down/up/right
+    h,j,k,l      Pan image left/down/up/right (also with arrow keys)
     <,>          Rotate image (counter-)clockwise by 90 degrees
     f            Toggle fullscreen mode (requires an EWMH/NetWM compliant
                  window manager)
