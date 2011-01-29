@@ -230,7 +230,7 @@ int img_zoom_out(img_t *img) {
 	return 0;
 }
 
-int img_pan(img_t *img, win_t *win, pandir_t dir) {
+int img_move(img_t *img, win_t *win, int dx, int dy) {
 	int ox, oy;
 
 	if (!img || !win)
@@ -239,24 +239,30 @@ int img_pan(img_t *img, win_t *win, pandir_t dir) {
 	ox = img->x;
 	oy = img->y;
 
-	switch (dir) {
-		case PAN_LEFT:
-			img->x += win->w / 5;
-			break;
-		case PAN_RIGHT:
-			img->x -= win->w / 5;
-			break;
-		case PAN_UP:
-			img->y += win->h / 5;
-			break;
-		case PAN_DOWN:
-			img->y -= win->h / 5;
-			break;
-	}
+	img->x += dx;
+	img->y += dy;
 
 	img_check_pan(img, win);
 
 	return ox != img->x || oy != img->y;
+}
+
+int img_pan(img_t *img, win_t *win, pandir_t dir) {
+	if (!img || !win)
+		return 0;
+
+	switch (dir) {
+		case PAN_LEFT:
+			return img_move(img, win, win->w / 5, 0);
+		case PAN_RIGHT:
+			return img_move(img, win, -win->w / 5, 0);
+		case PAN_UP:
+			return img_move(img, win, 0, win->h / 5);
+		case PAN_DOWN:
+			return img_move(img, win, 0, -win->h / 5);
+	}
+
+	return 0;
 }
 
 int img_rotate(img_t *img, win_t *win, int d) {

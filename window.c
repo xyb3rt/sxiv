@@ -21,12 +21,16 @@
 #include <string.h>
 
 #include <X11/Xutil.h>
+#include <X11/cursorfont.h>
 
 #include "sxiv.h"
 #include "options.h"
 #include "window.h"
 
-GC bgc;
+static Cursor arrow;
+static Cursor hand;
+
+static GC bgc;
 
 void win_open(win_t *win) {
 	win_env_t *e;
@@ -66,8 +70,11 @@ void win_open(win_t *win) {
 	if (win->xwin == None)
 		DIE("could not create window");
 	
-	XSelectInput(e->dpy, win->xwin,
-	             StructureNotifyMask | KeyPressMask | ButtonPressMask);
+	XSelectInput(e->dpy, win->xwin, StructureNotifyMask | KeyPressMask |
+	             ButtonPressMask | ButtonReleaseMask | Button2MotionMask);
+
+	arrow = XCreateFontCursor(e->dpy, XC_left_ptr);
+	hand = XCreateFontCursor(e->dpy, XC_fleur);
 
 	bgc = XCreateGC(e->dpy, win->xwin, 0, None);
 
@@ -90,6 +97,11 @@ void win_open(win_t *win) {
 void win_close(win_t *win) {
 	if (!win)
 		return;
+
+	XFreeCursor(win->env.dpy, arrow);
+	XFreeCursor(win->env.dpy, hand);
+
+	XFreeGC(win->env.dpy, bgc);
 
 	XDestroyWindow(win->env.dpy, win->xwin);
 	XCloseDisplay(win->env.dpy);
@@ -173,4 +185,19 @@ void win_draw(win_t *win) {
 
 	XSetWindowBackgroundPixmap(win->env.dpy, win->xwin, win->pm);
 	XClearWindow(win->env.dpy, win->xwin);
+}
+
+void win_set_cursor(win_t *win, win_cur_t cursor) {
+	if (!win)
+		return;
+
+	switch (cursor) {
+		case CURSOR_HAND:
+			XDefineCursor(win->env.dpy, win->xwin, hand);
+			break;
+		case CURSOR_ARROW:
+		default:
+			XDefineCursor(win->env.dpy, win->xwin, arrow);
+			break;
+	}
 }

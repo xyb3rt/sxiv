@@ -31,6 +31,8 @@
 
 void on_keypress(XEvent*);
 void on_buttonpress(XEvent*);
+void on_buttonrelease(XEvent*);
+void on_motionnotify(XEvent*);
 void on_configurenotify(XEvent*);
 
 void update_title();
@@ -38,6 +40,8 @@ void update_title();
 static void (*handler[LASTEvent])(XEvent*) = {
 	[KeyPress] = on_keypress,
 	[ButtonPress] = on_buttonpress,
+	[ButtonRelease] = on_buttonrelease,
+	[MotionNotify] = on_motionnotify,
 	[ConfigureNotify] = on_configurenotify
 };
 
@@ -48,6 +52,9 @@ const char **filenames;
 int filecnt, fileidx;
 
 unsigned char timeout;
+
+int mox;
+int moy;
 
 #define TITLE_LEN 256
 char win_title[TITLE_LEN];
@@ -276,6 +283,11 @@ void on_buttonpress(XEvent *ev) {
 				changed = 1;
 			}
 			break;
+		case Button2:
+			mox = ev->xbutton.x;
+			moy = ev->xbutton.y;
+			win_set_cursor(&win, CURSOR_HAND);
+			break;
 		case Button3:
 			if (fileidx > 0) {
 				img_load(&img, filenames[--fileidx]);
@@ -310,6 +322,31 @@ void on_buttonpress(XEvent *ev) {
 		img_render(&img, &win);
 		update_title();
 		timeout = 0;
+	}
+}
+
+void on_buttonrelease(XEvent *ev) {
+	if (!ev)
+		return;
+
+	if (ev->xbutton.button == Button2)
+		win_set_cursor(&win, CURSOR_ARROW);
+}
+
+void on_motionnotify(XEvent *ev) {
+	XMotionEvent *m;
+
+	if (!ev)
+		return;
+
+	m = &ev->xmotion;
+	
+	if (m->x >= 0 && m->x <= win.w && m->y >= 0 && m->y <= win.h) {
+		if (img_move(&img, &win, m->x - mox, m->y - moy))
+			timeout = 1;
+
+		mox = m->x;
+		moy = m->y;
 	}
 }
 

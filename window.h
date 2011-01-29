@@ -23,6 +23,11 @@
 
 #define CLEANMASK(mask) ((mask) & ~LockMask)
 
+typedef enum win_cur_e {
+	CURSOR_ARROW = 0,
+	CURSOR_HAND
+} win_cur_t;
+
 typedef struct win_env_s {
 	Display *dpy;
 	int scr;
@@ -58,5 +63,7 @@ void win_toggle_fullscreen(win_t*);
 
 void win_clear(win_t*);
 void win_draw(win_t*);
+
+void win_set_cursor(win_t*, win_cur_t);
 
 #endif /* WINDOW_H */
