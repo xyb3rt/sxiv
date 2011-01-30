@@ -44,12 +44,12 @@ typedef struct win_s {
 	unsigned long bgcol;
 	Pixmap pm;
 
-	int w;
-	int h;
 	int x;
 	int y;
+	unsigned int w;
+	unsigned int h;
 
-	int bw;
+	unsigned int bw;
 	unsigned char fullscreen;
 } win_t;
 

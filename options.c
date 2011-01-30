@@ -29,7 +29,7 @@ options_t _options;
 const options_t *options = (const options_t*) &_options;
 
 void print_usage() {
-	printf("usage: sxiv [-dfhpsvWZ] [-w WIDTH[xHEIGHT]] [-z ZOOM] FILES...\n");
+	printf("usage: sxiv [-dfhpsvWZ] [-g GEOMETRY] [-z ZOOM] FILES...\n");
 }
 
 void print_version() {
@@ -38,7 +38,6 @@ void print_version() {
 }
 
 void parse_options(int argc, char **argv) {
-	unsigned short w, h;
 	float z;
 	int opt;
 
@@ -46,13 +45,12 @@ void parse_options(int argc, char **argv) {
 	_options.zoom = 1.0;
 	_options.aa = 1;
 
-	_options.winw = w = 0;
-	_options.winh = h = 0;
 	_options.fullscreen = 0;
+	_options.geometry = NULL;
 
 	_options.warn = 0;
 
-	while ((opt = getopt(argc, argv, "dfhpsvWw:Zz:")) != -1) {
+	while ((opt = getopt(argc, argv, "dfg:hpsvWZz:")) != -1) {
 		switch (opt) {
 			case '?':
 				print_usage();
@@ -62,6 +60,9 @@ void parse_options(int argc, char **argv) {
 				break;
 			case 'f':
 				_options.fullscreen = 1;
+				break;
+			case 'g':
+				_options.geometry = optarg;
 				break;
 			case 'h':
 				print_usage();
@@ -78,16 +79,6 @@ void parse_options(int argc, char **argv) {
 			case 'W':
 				_options.warn = 1;
 				break;
-			case 'w':
-				if (!sscanf(optarg, "%hux%hu", &w, &h)) {
-					fprintf(stderr, "sxiv: invalid argument for option -w: %s\n",
-					        optarg);
-					exit(1);
-				} else {
-					_options.winw = (int) w;
-					_options.winh = (int) h;
-				}
-				break;
 			case 'Z':
 				_options.scalemode = SCALE_ZOOM;
 				_options.zoom = 1.0;
@@ -103,13 +94,6 @@ void parse_options(int argc, char **argv) {
 				}
 				break;
 		}
-	}
-
-	if (!_options.winw) {
-		_options.winw = WIN_WIDTH;
-		_options.winh = WIN_HEIGHT;
-	} else if (!_options.winh) {
-		_options.winh = _options.winw;
 	}
 
 	_options.filenames = (const char**) argv + optind;

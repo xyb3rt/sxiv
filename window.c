@@ -35,6 +35,7 @@ void win_open(win_t *win) {
 	win_env_t *e;
 	XClassHint *classhint;
 	XColor bgcol;
+	int gmask;
 
 	if (!win)
 		return;
@@ -58,10 +59,25 @@ void win_open(win_t *win) {
 	win->pm = 0;
 
 	win->fullscreen = 0;
-	win->w = MIN(options->winw, e->scrw);
-	win->h = MIN(options->winh, e->scrh);
-	win->x = (e->scrw - win->w) / 2;
-	win->y = (e->scrh - win->h) / 2;
+	
+	/* determine window offsets, width & height */
+	if (!options->geometry)
+		gmask = 0;
+	else
+		gmask = XParseGeometry(options->geometry, &win->x, &win->y,
+		                       &win->w, &win->h);
+	if (!(gmask & WidthValue))
+		win->w = WIN_WIDTH;
+	if (win->w > e->scrw)
+		win->w = e->scrw;
+	if (!(gmask & HeightValue))
+		win->h = WIN_HEIGHT;
+	if (win->h > e->scrh)
+		win->h = e->scrh;
+	if (!(gmask & XValue))
+		win->x = (e->scrw - win->w) / 2;
+	if (!(gmask & YValue))
+		win->y = (e->scrh - win->h) / 2;
 
 	win->xwin = XCreateWindow(e->dpy, RootWindow(e->dpy, e->scr),
 	                          win->x, win->y, win->w, win->h, 0,
