@@ -136,79 +136,60 @@ void cleanup() {
 
 void on_keypress(XEvent *ev) {
 	char key;
-	KeySym keysym;
+	KeySym ksym;
 	int changed;
 
 	if (!ev)
 		return;
 	
-	XLookupString(&ev->xkey, &key, 1, &keysym, NULL);
+	XLookupString(&ev->xkey, &key, 1, &ksym, NULL);
 	changed = 0;
 
-	switch (keysym) {
+	switch (ksym) {
 		case XK_Escape:
 			cleanup();
 			exit(2);
-		case XK_space:
-			key = 'n';
-			break;
-		case XK_BackSpace:
-			key = 'p';
-			break;
-		case XK_Left:
-			key = 'h';
-			break;
-		case XK_Down:
-			key = 'j';
-			break;
-		case XK_Up:
-			key = 'k';
-			break;
-		case XK_Right:
-			key = 'l';
-			break;
-	}
-
-	switch (key) {
-		case 'q':
+		case XK_q:
 			cleanup();
 			exit(0);
 
 		/* navigate image list */
-		case 'n':
+		case XK_n:
+		case XK_space:
 			if (fileidx + 1 < filecnt) {
 				img_load(&img, filenames[++fileidx]);
 				changed = 1;
 			}
 			break;
-		case 'p':
+		case XK_p:
+		case XK_BackSpace:
 			if (fileidx > 0) {
 				img_load(&img, filenames[--fileidx]);
 				changed = 1;
 			}
 			break;
-		case '[':
+		case XK_bracketleft:
 			if (fileidx != 0) {
 				fileidx = MAX(0, fileidx - 10);
 				img_load(&img, filenames[fileidx]);
 				changed = 1;
 			}
 			break;
-		case ']':
+		case XK_bracketright:
 			if (fileidx != filecnt - 1) {
 				fileidx = MIN(fileidx + 10, filecnt - 1);
 				img_load(&img, filenames[fileidx]);
 				changed = 1;
 			}
 			break;
-		case 'g':
+		case XK_g:
 			if (fileidx != 0) {
 				fileidx = 0;
 				img_load(&img, filenames[fileidx]);
 				changed = 1;
 			}
 			break;
-		case 'G':
+		case XK_G:
 			if (fileidx != filecnt - 1) {
 				fileidx = filecnt - 1;
 				img_load(&img, filenames[fileidx]);
@@ -217,43 +198,47 @@ void on_keypress(XEvent *ev) {
 			break;
 
 		/* zooming */
-		case '+':
-		case '=':
+		case XK_plus:
+		case XK_equal:
 			changed = img_zoom_in(&img);
 			break;
-		case '-':
+		case XK_minus:
 			changed = img_zoom_out(&img);
 			break;
 
 		/* panning */
-		case 'h':
+		case XK_h:
+		case XK_Left:
 			changed = img_pan(&img, &win, PAN_LEFT);
 			break;
-		case 'j':
+		case XK_j:
+		case XK_Down:
 			changed = img_pan(&img, &win, PAN_DOWN);
 			break;
-		case 'k':
+		case XK_k:
+		case XK_Up:
 			changed = img_pan(&img, &win, PAN_UP);
 			break;
-		case 'l':
+		case XK_l:
+		case XK_Right:
 			changed = img_pan(&img, &win, PAN_RIGHT);
 			break;
 
 		/* rotation */
-		case '<':
+		case XK_less:
 			changed = img_rotate_left(&img, &win);
 			break;
-		case '>':
+		case XK_greater:
 			changed = img_rotate_right(&img, &win);
 			break;
 
 		/* control window */
-		case 'f':
+		case XK_f:
 			win_toggle_fullscreen(&win);
 			break;
 
 		/* miscellaneous */
-		case 'a':
+		case XK_a:
 			changed = img_toggle_antialias(&img);
 			break;
 	}
