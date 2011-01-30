@@ -18,7 +18,7 @@ sxiv:	$(OBJFILES)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 install: all
-	install -D -m 4755 -o root -g root sxiv $(PREFIX)/bin/sxiv
+	install -D -m 755 -o root -g root sxiv $(PREFIX)/bin/sxiv
 	mkdir -p $(PREFIX)/share/man/man1
 	sed "s/VERSION/$(VERSION)/g" sxiv.1 > $(PREFIX)/share/man/man1/sxiv.1
 	chmod 644 $(PREFIX)/share/man/man1/sxiv.1

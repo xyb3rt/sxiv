@@ -16,7 +16,7 @@ sxiv is built using the commands:
 
 Please note, that the latter one requires root privileges.
 By default, sxiv is installed using the prefix "/usr/local", so the full path
-of the executable will be "/usr/local/sbin/sxiv".
+of the executable will be "/usr/local/bin/sxiv".
 
 You can install it into a directory of your choice by changing the second
 command to:
