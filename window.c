@@ -24,7 +24,6 @@
 #include <X11/cursorfont.h>
 
 #include "sxiv.h"
-#include "options.h"
 #include "window.h"
 
 static Cursor arrow;

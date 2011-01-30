@@ -29,7 +29,7 @@ options_t _options;
 const options_t *options = (const options_t*) &_options;
 
 void print_usage() {
-	printf("usage: sxiv [-dfhpsvZ] [-w WIDTH[xHEIGHT]] [-z ZOOM] FILES...\n");
+	printf("usage: sxiv [-dfhpsvWZ] [-w WIDTH[xHEIGHT]] [-z ZOOM] FILES...\n");
 }
 
 void print_version() {
@@ -50,7 +50,9 @@ void parse_options(int argc, char **argv) {
 	_options.winh = h = 0;
 	_options.fullscreen = 0;
 
-	while ((opt = getopt(argc, argv, "dfhpsvw:Zz:")) != -1) {
+	_options.warn = 0;
+
+	while ((opt = getopt(argc, argv, "dfhpsvWw:Zz:")) != -1) {
 		switch (opt) {
 			case '?':
 				print_usage();
@@ -73,6 +75,9 @@ void parse_options(int argc, char **argv) {
 			case 'v':
 				print_version();
 				exit(0);
+			case 'W':
+				_options.warn = 1;
+				break;
 			case 'w':
 				if (!sscanf(optarg, "%hux%hu", &w, &h)) {
 					fprintf(stderr, "sxiv: invalid argument for option -w: %s\n",

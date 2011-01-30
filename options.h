@@ -32,6 +32,8 @@ typedef struct options_s {
 	int winw;
 	int winh;
 	unsigned char fullscreen;
+
+	unsigned char warn;
 } options_t;
 
 extern const options_t *options;

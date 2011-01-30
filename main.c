@@ -26,7 +26,6 @@
 
 #include "sxiv.h"
 #include "image.h"
-#include "options.h"
 #include "window.h"
 
 void on_keypress(XEvent*);

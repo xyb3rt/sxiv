@@ -35,6 +35,7 @@ sxiv supports the following command-line options:
     -p       pixelize, i.e. turn off image anti-aliasing
     -s       scale all images to fit into window
     -v       print version information and exit
+    -W       enable printing of warnings
     -w WIDTHxHEIGHT
              set window width to WIDTH and height to HEIGHT
              (if HEIGHT is omitted, height is also set to WIDTH)

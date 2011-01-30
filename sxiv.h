@@ -20,26 +20,29 @@
 #define SXIV_H
 
 #include "config.h"
+#include "options.h"
 
 #define ABS(a)   ((a) < 0 ? (-(a)) : (a))
 #define MIN(a,b) ((a) < (b) ? (a) : (b))
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
 
-#define WARN(...)                                                  \
-	do {                                                             \
-	  fprintf(stderr, "sxiv: %s:%d: warning: ", __FILE__, __LINE__); \
-		fprintf(stderr, __VA_ARGS__);                                  \
-		fprintf(stderr, "\n");                                         \
-	} while (0)
+#define WARN(...)                                                    \
+  do {                                                               \
+    if (options->warn) {                                             \
+      fprintf(stderr, "sxiv: %s:%d: warning: ", __FILE__, __LINE__); \
+      fprintf(stderr, __VA_ARGS__);                                  \
+      fprintf(stderr, "\n");                                         \
+    }                                                                \
+  } while (0)
 
-#define DIE(...)                                                   \
-  do {                                                             \
-		fprintf(stderr, "sxiv: %s:%d: error: ", __FILE__, __LINE__);   \
-		fprintf(stderr, __VA_ARGS__);                                  \
-		fprintf(stderr, "\n");                                         \
-		cleanup();                                                     \
-		exit(1);                                                       \
-	} while (0)
+#define DIE(...)                                                     \
+  do {                                                               \
+    fprintf(stderr, "sxiv: %s:%d: error: ", __FILE__, __LINE__);     \
+    fprintf(stderr, __VA_ARGS__);                                    \
+    fprintf(stderr, "\n");                                           \
+    cleanup();                                                       \
+    exit(1);                                                         \
+  } while (0)
 
 void cleanup();
 

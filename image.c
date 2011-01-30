@@ -23,7 +23,6 @@
 
 #include "sxiv.h"
 #include "image.h"
-#include "options.h"
 
 int zl_cnt;
 float zoom_min;
