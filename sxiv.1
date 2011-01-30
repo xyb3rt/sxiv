@@ -24,6 +24,11 @@ Scale all images to 100%, but fit large images into window.
 .B \-f
 Start in fullscreen mode.
 .TP
+.BI "\-g " GEOMETRY
+Set window position and size. See section GEOMETRY SPECIFICATIONS of X(7) for
+more information on
+.IR GEOMETRY .
+.TP
 .B \-h
 Print brief usage information to standard output and exit.
 .TP
@@ -38,16 +43,6 @@ Print version information to standard output and exit.
 .TP
 .B \-W
 Enable printing of warnings to standard error stream.
-.TP
-.BI "\-w " WIDTH x HEIGHT
-Set window width to
-.I WIDTH
-and height to
-.IR HEIGHT .
-If
-.I HEIGHT
-is omitted, height is also set to
-.IR WIDTH .
 .TP
 .B \-Z
 The same as `-z 100'.
@@ -123,6 +118,9 @@ Toggle anti-aliasing.
 .TP
 .B Button1
 Go to the next image.
+.TP
+.B Button2
+Drag the image with the mouse while keeping this button pressed down.
 .TP
 .B Button3
 Go to the previous image.

@@ -30,17 +30,16 @@ Usage
 -----
 sxiv supports the following command-line options:
 
-    -d       scale all images to 100%, but fit large images into window
-    -f       start in fullscreen mode
-    -p       pixelize, i.e. turn off image anti-aliasing
-    -s       scale all images to fit into window
-    -v       print version information and exit
-    -W       enable printing of warnings
-    -w WIDTHxHEIGHT
-             set window width to WIDTH and height to HEIGHT
-             (if HEIGHT is omitted, height is also set to WIDTH)
-    -Z       same as `-z 100'
-    -z ZOOM  scale all images to current zoom level, use ZOOM at startup
+    -d           scale all images to 100%, but fit large images into window
+    -f           start in fullscreen mode
+    -g GEOMETRY  set window position and size
+                 (see section GEOMETRY SPECIFICATIONS of X(7))
+    -p           pixelize, i.e. turn off image anti-aliasing
+    -s           scale all images to fit into window
+    -v           print version information and exit
+    -W           enable printing of warnings
+    -Z           same as `-z 100'
+    -z ZOOM      scale all images to current zoom level, use ZOOM at startup
 
 Use the following keys to control sxiv:
 
@@ -61,6 +60,7 @@ Use the following keys to control sxiv:
 Additionally, sxiv can be controlled via the following mouse commands:
 
     Button1           Go to the next image
+    Button2           Drag image with mouse while keeping it pressed
     Button3           Go to the previous image
     ScrollUp          Pan image up
     ScrollDown        Pan image down
