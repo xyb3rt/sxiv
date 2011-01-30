@@ -32,7 +32,7 @@ typedef struct options_s {
 	unsigned char fullscreen;
 	char *geometry;
 
-	unsigned char warn;
+	unsigned char quiet;
 } options_t;
 
 extern const options_t *options;

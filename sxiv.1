@@ -3,10 +3,9 @@
 sxiv \- Simple (or small or suckless) X Image Viewer
 .SH SYNOPSIS
 .B sxiv
-.RB [ \-dfhpsvWZ ]
-.RB [ \-w
-.IB WIDTH x HEIGHT
-]
+.RB [ \-dfhpqsvZ ]
+.RB [ \-g
+.IR GEOMETRY ]
 .RB [ \-z
 .IR ZOOM ]
 .IR FILE ...
@@ -35,14 +34,14 @@ Print brief usage information to standard output and exit.
 .B \-p
 Pixelize images, i.e. turn off anti-aliasing.
 .TP
+.B \-q
+Be quiet, disable warnings to standard error stream.
+.TP
 .B \-s
 Scale all images to fit into window.
 .TP
 .B \-v
 Print version information to standard output and exit.
-.TP
-.B \-W
-Enable printing of warnings to standard error stream.
 .TP
 .B \-Z
 The same as `-z 100'.

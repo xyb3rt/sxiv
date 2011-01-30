@@ -35,9 +35,9 @@ sxiv supports the following command-line options:
     -g GEOMETRY  set window position and size
                  (see section GEOMETRY SPECIFICATIONS of X(7))
     -p           pixelize, i.e. turn off image anti-aliasing
+		-q           be quiet, disable warnings
     -s           scale all images to fit into window
     -v           print version information and exit
-    -W           enable printing of warnings
     -Z           same as `-z 100'
     -z ZOOM      scale all images to current zoom level, use ZOOM at startup
 

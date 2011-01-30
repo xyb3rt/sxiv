@@ -28,7 +28,7 @@
 
 #define WARN(...)                                                    \
   do {                                                               \
-    if (options->warn) {                                             \
+    if (!options->quiet) {                                           \
       fprintf(stderr, "sxiv: %s:%d: warning: ", __FILE__, __LINE__); \
       fprintf(stderr, __VA_ARGS__);                                  \
       fprintf(stderr, "\n");                                         \
