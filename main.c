@@ -235,6 +235,9 @@ void on_keypress(XEvent *ev) {
 		case XK_a:
 			changed = img_toggle_antialias(&img);
 			break;
+		case XK_r:
+			changed = img_load(&img, filenames[fileidx]);
+			break;
 	}
 
 	if (changed) {
