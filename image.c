@@ -52,22 +52,41 @@ void img_free(img_t* img) {
 		imlib_free_image();
 }
 
+int img_check(const char *filename) {
+	Imlib_Image *im;
+
+	if (!filename)
+		return 0;
+
+	if (!(im = imlib_load_image(filename))) {
+		WARN("could not open image: %s", filename);
+		return 0;
+	}
+
+	imlib_context_set_image(im);
+	imlib_image_set_changes_on_disk();
+	imlib_free_image();
+
+	return 1;
+}
+
 int img_load(img_t *img, const char *filename) {
 	Imlib_Image *im;
 
 	if (!img || !filename)
-		return -1;
+		return 0;
 
 	if (imlib_context_get_image())
 		imlib_free_image();
 
 	if (!(im = imlib_load_image(filename))) {
 		WARN("could not open image: %s", filename);
-		return -1;
+		return 0;
 	}
 
 	imlib_context_set_image(im);
 	imlib_context_set_anti_alias(img->aa);
+	imlib_image_set_changes_on_disk();
 
 	img->re = 0;
 	img->checkpan = 0;
@@ -76,7 +95,7 @@ int img_load(img_t *img, const char *filename) {
 	img->w = imlib_image_get_width();
 	img->h = imlib_image_get_height();
 
-	return 0;
+	return 1;
 }
 
 void img_check_pan(img_t *img, win_t *win) {

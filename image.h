@@ -49,7 +49,9 @@ typedef struct img_s {
 void img_init(img_t*, win_t*);
 void img_free(img_t*);
 
+int img_check(const char*);
 int img_load(img_t*, const char*);
+
 void img_render(img_t*, win_t*);
 
 int img_fit(img_t*, win_t*);

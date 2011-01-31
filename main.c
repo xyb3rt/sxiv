@@ -102,7 +102,7 @@ int main(int argc, char **argv) {
 	filecnt = 0;
 
 	for (i = 0; i < options->filecnt; ++i) {
-		if (!(img_load(&img, options->filenames[i]) < 0))
+		if (img_check(options->filenames[i]))
 			filenames[filecnt++] = options->filenames[i];
 	}
 
@@ -157,43 +157,37 @@ void on_keypress(XEvent *ev) {
 		case XK_n:
 		case XK_space:
 			if (fileidx + 1 < filecnt) {
-				img_load(&img, filenames[++fileidx]);
-				changed = 1;
+				changed = img_load(&img, filenames[++fileidx]);
 			}
 			break;
 		case XK_p:
 		case XK_BackSpace:
 			if (fileidx > 0) {
-				img_load(&img, filenames[--fileidx]);
-				changed = 1;
+				changed = img_load(&img, filenames[--fileidx]);
 			}
 			break;
 		case XK_bracketleft:
 			if (fileidx != 0) {
 				fileidx = MAX(0, fileidx - 10);
-				img_load(&img, filenames[fileidx]);
-				changed = 1;
+				changed = img_load(&img, filenames[fileidx]);
 			}
 			break;
 		case XK_bracketright:
 			if (fileidx != filecnt - 1) {
 				fileidx = MIN(fileidx + 10, filecnt - 1);
-				img_load(&img, filenames[fileidx]);
-				changed = 1;
+				changed = img_load(&img, filenames[fileidx]);
 			}
 			break;
 		case XK_g:
 			if (fileidx != 0) {
 				fileidx = 0;
-				img_load(&img, filenames[fileidx]);
-				changed = 1;
+				changed = img_load(&img, filenames[fileidx]);
 			}
 			break;
 		case XK_G:
 			if (fileidx != filecnt - 1) {
 				fileidx = filecnt - 1;
-				img_load(&img, filenames[fileidx]);
-				changed = 1;
+				changed = img_load(&img, filenames[fileidx]);
 			}
 			break;
 
