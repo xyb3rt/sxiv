@@ -76,8 +76,12 @@ void win_open(win_t *win) {
 		win->h = e->scrh;
 	if (!(gmask & XValue))
 		win->x = (e->scrw - win->w) / 2;
+	else if (gmask & XNegative)
+		win->x += e->scrw - win->w;
 	if (!(gmask & YValue))
 		win->y = (e->scrh - win->h) / 2;
+	else if (gmask & YNegative)
+		win->y += e->scrh - win->h;
 
 	win->xwin = XCreateWindow(e->dpy, RootWindow(e->dpy, e->scr),
 	                          win->x, win->y, win->w, win->h, 0,
