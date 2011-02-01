@@ -29,6 +29,7 @@ typedef struct options_s {
 	float zoom;
 	unsigned char aa;
 
+	unsigned char fixed;
 	unsigned char fullscreen;
 	char *geometry;
 

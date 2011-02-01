@@ -29,7 +29,7 @@ options_t _options;
 const options_t *options = (const options_t*) &_options;
 
 void print_usage() {
-	printf("usage: sxiv [-dfhpqsvZ] [-g GEOMETRY] [-z ZOOM] FILES...\n");
+	printf("usage: sxiv [-dFfhpqsvZ] [-g GEOMETRY] [-z ZOOM] FILES...\n");
 }
 
 void print_version() {
@@ -45,18 +45,22 @@ void parse_options(int argc, char **argv) {
 	_options.zoom = 1.0;
 	_options.aa = 1;
 
+	_options.fixed = 0;
 	_options.fullscreen = 0;
 	_options.geometry = NULL;
 
 	_options.quiet = 0;
 
-	while ((opt = getopt(argc, argv, "dfg:hpqsvZz:")) != -1) {
+	while ((opt = getopt(argc, argv, "dFfg:hpqsvZz:")) != -1) {
 		switch (opt) {
 			case '?':
 				print_usage();
 				exit(1);
 			case 'd':
 				_options.scalemode = SCALE_DOWN;
+				break;
+			case 'F':
+				_options.fixed = 1;
 				break;
 			case 'f':
 				_options.fullscreen = 1;

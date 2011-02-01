@@ -33,7 +33,8 @@ static GC bgc;
 
 void win_open(win_t *win) {
 	win_env_t *e;
-	XClassHint *classhint;
+	XClassHint classhint;
+	XSizeHints sizehints;
 	XColor bgcol;
 	int gmask;
 
@@ -99,11 +100,17 @@ void win_open(win_t *win) {
 
 	win_set_title(win, "sxiv");
 
-	if ((classhint = XAllocClassHint())) {
-		classhint->res_name = "sxiv";
-		classhint->res_class = "sxiv";
-		XSetClassHint(e->dpy, win->xwin, classhint);
-		XFree(classhint);
+	classhint.res_name = "sxiv";
+	classhint.res_class = "sxiv";
+	XSetClassHint(e->dpy, win->xwin, &classhint);
+
+	if (options->fixed) {
+		sizehints.flags = PMinSize | PMaxSize;
+		sizehints.min_width = win->w;
+		sizehints.max_width = win->w;
+		sizehints.min_height = win->h;
+		sizehints.max_height = win->h;
+		XSetWMNormalHints(e->dpy, win->xwin, &sizehints);
 	}
 
 	XMapWindow(e->dpy, win->xwin);
