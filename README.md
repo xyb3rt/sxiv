@@ -31,7 +31,7 @@ Usage
 sxiv supports the following command-line options:
 
     -d           Scale all images to 100%, but fit large images into window
-		-F           Use size-hints to make the window fixed/floating
+    -F           Use size-hints to make the window fixed/floating
     -f           Start in fullscreen mode
     -g GEOMETRY  Set window position and size
                  (see section GEOMETRY SPECIFICATIONS of X(7))
