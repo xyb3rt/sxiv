@@ -34,6 +34,7 @@ typedef struct options_s {
 	char *geometry;
 
 	unsigned char quiet;
+	unsigned char recursive;
 } options_t;
 
 extern const options_t *options;

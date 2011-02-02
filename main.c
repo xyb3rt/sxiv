@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/select.h>
+#include <sys/stat.h>
 
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -28,6 +29,9 @@
 #include "image.h"
 #include "window.h"
 
+void* s_malloc(size_t);
+void* s_realloc(void*, size_t);
+
 void on_keypress(XEvent*);
 void on_buttonpress(XEvent*);
 void on_buttonrelease(XEvent*);
@@ -35,6 +39,7 @@ void on_motionnotify(XEvent*);
 void on_configurenotify(XEvent*);
 
 void update_title();
+void read_dir(const char*);
 
 static void (*handler[LASTEvent])(XEvent*) = {
 	[KeyPress] = on_keypress,
@@ -47,6 +52,8 @@ static void (*handler[LASTEvent])(XEvent*) = {
 img_t img;
 win_t win;
 
+#define DNAME_CNT 512
+#define FNAME_CNT 4096
 const char **filenames;
 int filecnt, fileidx;
 
@@ -87,6 +94,8 @@ void run() {
 
 int main(int argc, char **argv) {
 	int i;
+	const char *filename;
+	struct stat fstats;
 
 	parse_options(argc, argv);
 
@@ -95,16 +104,35 @@ int main(int argc, char **argv) {
 		exit(1);
 	}
 
-	if (!(filenames = (const char**) malloc(options->filecnt * sizeof(char*))))
-		DIE("could not allocate memory");
-	
+	if (options->recursive)
+		filecnt = FNAME_CNT;
+	else
+		filecnt = options->filecnt;
+
+	filenames = (const char**) s_malloc(filecnt * sizeof(const char*));
 	fileidx = 0;
-	filecnt = 0;
 
 	for (i = 0; i < options->filecnt; ++i) {
-		if (img_check(options->filenames[i]))
-			filenames[filecnt++] = options->filenames[i];
+		filename = options->filenames[i];
+		if (stat(filename, &fstats)) {
+			WARN("could not stat file: %s", filename);
+		} else if (S_ISDIR(fstats.st_mode)) {
+			if (options->recursive)
+				read_dir(filename);
+			else
+				WARN("ignoring directory: %s", filename);
+		} else if (img_check(filename)) {
+			if (fileidx == filecnt) {
+				filecnt *= 2;
+				filenames = (const char**) s_realloc(filenames,
+				                                     filecnt * sizeof(const char*));
+			}
+			filenames[fileidx++] = filename;
+		}
 	}
+
+	filecnt = fileidx;
+	fileidx = 0;
 
 	if (!filecnt) {
 		fprintf(stderr, "sxiv: no valid image filename given, aborting\n");
@@ -354,4 +382,21 @@ void update_title() {
 	}
 
 	win_set_title(&win, win_title);
+}
+
+void read_dir(const char *dir) {
+}
+
+void* s_malloc(size_t size) {
+	void *ptr;
+	
+	if (!(ptr = malloc(size)))
+		DIE("could not allocate memory");
+	return ptr;
+}
+
+void* s_realloc(void *ptr, size_t size) {
+	if (!(ptr = realloc(ptr, size)))
+		DIE("could not allocate memory");
+	return ptr;
 }

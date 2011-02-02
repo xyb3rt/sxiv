@@ -50,6 +50,7 @@ void parse_options(int argc, char **argv) {
 	_options.geometry = NULL;
 
 	_options.quiet = 0;
+	_options.recursive = 0;
 
 	while ((opt = getopt(argc, argv, "dFfg:hpqsvZz:")) != -1) {
 		switch (opt) {
