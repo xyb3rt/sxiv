@@ -37,6 +37,7 @@ sxiv supports the following command-line options:
                  (see section GEOMETRY SPECIFICATIONS of X(7))
     -p           Pixelize, i.e. turn off image anti-aliasing
     -q           Be quiet, disable warnings
+    -r           Search given directories recursively for images
     -s           Scale all images to fit into window
     -v           Print version information and exit
     -Z           Same as `-z 100'
