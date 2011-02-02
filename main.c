@@ -444,6 +444,8 @@ void read_dir_rec(const char *dirname) {
 		else
 			first = 0;
 	}
+
+	free(dirnames);
 }
 
 void* s_malloc(size_t size) {
