@@ -22,7 +22,7 @@
 #include <stdio.h>
 #include <unistd.h>
 
-#include "sxiv.h"
+#include "config.h"
 #include "options.h"
 
 options_t _options;

@@ -16,14 +16,14 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
 
 #include <X11/Xutil.h>
 #include <X11/cursorfont.h>
 
-#include "sxiv.h"
+#include "config.h"
+#include "options.h"
+#include "util.h"
 #include "window.h"
 
 static Cursor arrow;
@@ -43,7 +43,7 @@ void win_open(win_t *win) {
 
 	e = &win->env;
 	if (!(e->dpy = XOpenDisplay(NULL)))
-		DIE("could not open display");
+		die("could not open display");
 
 	e->scr = DefaultScreen(e->dpy);
 	e->scrw = DisplayWidth(e->dpy, e->scr);
@@ -54,7 +54,7 @@ void win_open(win_t *win) {
 
 	if (!XAllocNamedColor(e->dpy, DefaultColormap(e->dpy, e->scr), BG_COLOR,
 		                    &bgcol, &bgcol))
-		DIE("could not allocate color: %s", BG_COLOR);
+		die("could not allocate color: %s", BG_COLOR);
 
 	win->bgcol = bgcol.pixel;
 	win->pm = 0;
@@ -88,7 +88,7 @@ void win_open(win_t *win) {
 	                          win->x, win->y, win->w, win->h, 0,
 	                          e->depth, InputOutput, e->vis, 0, None);
 	if (win->xwin == None)
-		DIE("could not create window");
+		die("could not create window");
 	
 	XSelectInput(e->dpy, win->xwin, StructureNotifyMask | KeyPressMask |
 	             ButtonPressMask | ButtonReleaseMask | Button2MotionMask);

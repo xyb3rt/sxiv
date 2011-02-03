@@ -1,10 +1,10 @@
 all: sxiv
 
-VERSION=git-20110202
+VERSION=git-20110203
 
 CC?=gcc
 PREFIX?=/usr/local
-CFLAGS+= -std=c99 -Wall -pedantic -DVERSION=\"$(VERSION)\"
+CFLAGS+= -Wall -pedantic -DVERSION=\"$(VERSION)\"
 LDFLAGS+= 
 LIBS+= -lX11 -lImlib2
 

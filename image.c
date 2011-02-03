@@ -16,13 +16,12 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include <stdlib.h>
-#include <stdio.h>
-
 #include <Imlib2.h>
 
-#include "sxiv.h"
+#include "config.h"
 #include "image.h"
+#include "options.h"
+#include "util.h"
 
 int zl_cnt;
 float zoom_min;
@@ -59,7 +58,7 @@ int _imlib_load_image(const char *filename) {
 		return 0;
 
 	if (!(im = imlib_load_image(filename))) {
-		WARN("could not open image: %s", filename);
+		warn("could not open image: %s", filename);
 		return 0;
 	}
 

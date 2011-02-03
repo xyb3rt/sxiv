@@ -27,12 +27,10 @@
 #include <X11/Xutil.h>
 #include <X11/keysym.h>
 
-#include "sxiv.h"
 #include "image.h"
+#include "options.h"
+#include "util.h"
 #include "window.h"
-
-void* s_malloc(size_t);
-void* s_realloc(void*, size_t);
 
 void on_keypress(XEvent*);
 void on_buttonpress(XEvent*);
@@ -44,13 +42,7 @@ void update_title();
 void check_append(const char*);
 void read_dir_rec(const char*);
 
-static void (*handler[LASTEvent])(XEvent*) = {
-	[KeyPress] = on_keypress,
-	[ButtonPress] = on_buttonpress,
-	[ButtonRelease] = on_buttonrelease,
-	[MotionNotify] = on_motionnotify,
-	[ConfigureNotify] = on_configurenotify
-};
+static void (*handler[LASTEvent])(XEvent*);
 
 img_t img;
 win_t win;
@@ -68,11 +60,26 @@ int moy;
 #define TITLE_LEN 256
 char win_title[TITLE_LEN];
 
+void cleanup() {
+	static int in = 0;
+
+	if (!in++) {
+		img_free(&img);
+		win_close(&win);
+	}
+}
+
 void run() {
 	int xfd;
 	fd_set fds;
 	struct timeval t;
 	XEvent ev;
+
+	handler[KeyPress] = on_keypress;
+	handler[ButtonPress] = on_buttonpress;
+	handler[ButtonRelease] = on_buttonrelease;
+	handler[MotionNotify] = on_motionnotify;
+	handler[ConfigureNotify] = on_configurenotify;
 
 	timeout = 0;
 
@@ -118,12 +125,12 @@ int main(int argc, char **argv) {
 	for (i = 0; i < options->filecnt; ++i) {
 		filename = options->filenames[i];
 		if (stat(filename, &fstats)) {
-			WARN("could not stat file: %s", filename);
+			warn("could not stat file: %s", filename);
 		} else if (S_ISDIR(fstats.st_mode)) {
 			if (options->recursive)
 				read_dir_rec(filename);
 			else
-				WARN("ignoring directory: %s", filename);
+				warn("ignoring directory: %s", filename);
 		} else {
 			check_append(filename);
 		}
@@ -149,15 +156,6 @@ int main(int argc, char **argv) {
 	cleanup();
 
 	return 0;
-}
-
-void cleanup() {
-	static int in = 0;
-
-	if (!in++) {
-		img_free(&img);
-		win_close(&win);
-	}
 }
 
 void on_keypress(XEvent *ev) {
@@ -417,7 +415,7 @@ void read_dir_rec(const char *dirname) {
 	while (diridx > 0) {
 		dirname = dirnames[--diridx];
 		if (!(dir = opendir(dirname)))
-			DIE("could not open directory: %s", dirname);
+			die("could not open directory: %s", dirname);
 		while ((dentry = readdir(dir))) {
 			if (!strcmp(dentry->d_name, ".") || !strcmp(dentry->d_name, ".."))
 				continue;
@@ -425,7 +423,7 @@ void read_dir_rec(const char *dirname) {
 			filename = (char*) s_malloc(len * sizeof(char));
 			snprintf(filename, len, "%s/%s", dirname, dentry->d_name);
 			if (stat(filename, &fstats)) {
-				WARN("could not stat file: %s", filename);
+				warn("could not stat file: %s", filename);
 				free(filename);
 			} else if (S_ISDIR(fstats.st_mode)) {
 				if (diridx == dircnt) {
@@ -446,18 +444,4 @@ void read_dir_rec(const char *dirname) {
 	}
 
 	free(dirnames);
-}
-
-void* s_malloc(size_t size) {
-	void *ptr;
-	
-	if (!(ptr = malloc(size)))
-		DIE("could not allocate memory");
-	return ptr;
-}
-
-void* s_realloc(void *ptr, size_t size) {
-	if (!(ptr = realloc(ptr, size)))
-		DIE("could not allocate memory");
-	return ptr;
 }
