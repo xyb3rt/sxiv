@@ -99,7 +99,7 @@ int img_load(img_t *img, const char *filename) {
 }
 
 void img_check_pan(img_t *img, win_t *win) {
-	if (!img)
+	if (!img || !win)
 		return;
 
 	if (img->w * img->zoom > win->w) {
@@ -120,6 +120,23 @@ void img_check_pan(img_t *img, win_t *win) {
 	}
 }
 
+int img_fit(img_t *img, win_t *win) {
+	float oz, zw, zh;
+
+	if (!img || !win)
+		return 0;
+
+	oz = img->zoom;
+	zw = (float) win->w / (float) img->w;
+	zh = (float) win->h / (float) img->h;
+
+	img->zoom = MIN(zw, zh);
+	img->zoom = MAX(img->zoom, zoom_min);
+	img->zoom = MIN(img->zoom, zoom_max);
+
+	return oz != img->zoom;
+}
+
 void img_render(img_t *img, win_t *win) {
 	int sx, sy, sw, sh;
 	int dx, dy, dw, dh;
@@ -128,7 +145,7 @@ void img_render(img_t *img, win_t *win) {
 		return;
 
 	if (img->scalemode != SCALE_ZOOM) {
-		img_fit(img, win, 0);
+		img_fit(img, win);
 		if (img->scalemode == SCALE_DOWN && img->zoom > 1.0)
 			img->zoom = 1.0;
 	}
@@ -176,24 +193,12 @@ void img_render(img_t *img, win_t *win) {
 	win_draw(win);
 }
 
-int img_fit(img_t *img, win_t *win, unsigned char set) {
-	float oz, zw, zh;
-
+int img_fit_win(img_t *img, win_t *win) {
 	if (!img || !win)
 		return 0;
 
-	oz = img->zoom;
-	zw = (float) win->w / (float) img->w;
-	zh = (float) win->h / (float) img->h;
-
-	img->zoom = MIN(zw, zh);
-	img->zoom = MAX(img->zoom, zoom_min);
-	img->zoom = MIN(img->zoom, zoom_max);
-
-	if (set)
-		img->scalemode = SCALE_FIT;
-
-	return oz != img->zoom;
+	img->scalemode = SCALE_FIT;
+	return img_fit(img, win);
 }
 
 int img_center(img_t *img, win_t *win) {
@@ -217,6 +222,7 @@ int img_zoom(img_t *img, float z) {
 
 	z = MAX(z, zoom_min);
 	z = MIN(z, zoom_max);
+
 	img->scalemode = SCALE_ZOOM;
 
 	if (z != img->zoom) {

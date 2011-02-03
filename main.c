@@ -288,7 +288,7 @@ void on_keypress(XKeyEvent *kev) {
 			changed = img_zoom(&img, 1.0);
 			break;
 		case XK_w:
-			if ((changed = img_fit(&img, &win, 1)))
+			if ((changed = img_fit_win(&img, &win)))
 				img_center(&img, &win);
 			break;
 
