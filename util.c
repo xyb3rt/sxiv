@@ -46,7 +46,7 @@ void warn(const char* fmt, ...) {
 
 	va_start(args, fmt);
 	fprintf(stderr, "sxiv: warning: ");
-	fprintf(stderr, fmt, args);
+	vfprintf(stderr, fmt, args);
 	fprintf(stderr, "\n");
 	va_end(args);
 }
@@ -59,7 +59,7 @@ void die(const char* fmt, ...) {
 
 	va_start(args, fmt);
 	fprintf(stderr, "sxiv: error: ");
-	fprintf(stderr, fmt, args);
+	vfprintf(stderr, fmt, args);
 	fprintf(stderr, "\n");
 	va_end(args);
 
