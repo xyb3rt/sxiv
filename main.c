@@ -32,17 +32,10 @@
 #include "util.h"
 #include "window.h"
 
-void on_keypress(XEvent*);
-void on_buttonpress(XEvent*);
-void on_buttonrelease(XEvent*);
-void on_motionnotify(XEvent*);
-void on_configurenotify(XEvent*);
-
 void update_title();
 void check_append(const char*);
 void read_dir_rec(const char*);
-
-static void (*handler[LASTEvent])(XEvent*);
+void run();
 
 img_t img;
 win_t win;
@@ -51,11 +44,6 @@ win_t win;
 #define FNAME_CNT 4096
 const char **filenames;
 int filecnt, fileidx;
-
-unsigned char timeout;
-
-int mox;
-int moy;
 
 #define TITLE_LEN 256
 char win_title[TITLE_LEN];
@@ -66,39 +54,6 @@ void cleanup() {
 	if (!in++) {
 		img_free(&img);
 		win_close(&win);
-	}
-}
-
-void run() {
-	int xfd;
-	fd_set fds;
-	struct timeval t;
-	XEvent ev;
-
-	handler[KeyPress] = on_keypress;
-	handler[ButtonPress] = on_buttonpress;
-	handler[ButtonRelease] = on_buttonrelease;
-	handler[MotionNotify] = on_motionnotify;
-	handler[ConfigureNotify] = on_configurenotify;
-
-	timeout = 0;
-
-	while (1) {
-		if (timeout) {
-			t.tv_sec = 0;
-			t.tv_usec = 250;
-			xfd = ConnectionNumber(win.env.dpy);
-			FD_ZERO(&fds);
-			FD_SET(xfd, &fds);
-			
-			if (!XPending(win.env.dpy) && !select(xfd + 1, &fds, 0, 0, &t)) {
-				img_render(&img, &win);
-				timeout = 0;
-			}
-		}
-
-		if (!XNextEvent(win.env.dpy, &ev) && handler[ev.type])
-			handler[ev.type](&ev);
 	}
 }
 
@@ -158,15 +113,102 @@ int main(int argc, char **argv) {
 	return 0;
 }
 
-void on_keypress(XEvent *ev) {
+void update_title() {
+	int n;
+
+	n = snprintf(win_title, TITLE_LEN, "sxiv: [%d/%d] <%d%%> %s", fileidx + 1,
+	             filecnt, (int) (img.zoom * 100.0), filenames[fileidx]);
+	
+	if (n >= TITLE_LEN) {
+		win_title[TITLE_LEN - 2] = '.';
+		win_title[TITLE_LEN - 3] = '.';
+		win_title[TITLE_LEN - 4] = '.';
+	}
+
+	win_set_title(&win, win_title);
+}
+
+void check_append(const char *filename) {
+	if (!filename)
+		return;
+
+	if (img_check(filename)) {
+		if (fileidx == filecnt) {
+			filecnt *= 2;
+			filenames = (const char**) s_realloc(filenames,
+																					 filecnt * sizeof(const char*));
+		}
+		filenames[fileidx++] = filename;
+	}
+}
+
+void read_dir_rec(const char *dirname) {
+	char *filename;
+	const char **dirnames;
+	int dircnt, diridx;
+	unsigned char first;
+	size_t len;
+	DIR *dir;
+	struct dirent *dentry;
+	struct stat fstats;
+
+	if (!dirname)
+		return;
+
+	dircnt = DNAME_CNT;
+	diridx = first = 1;
+	dirnames = (const char**) s_malloc(dircnt * sizeof(const char*));
+	dirnames[0] = dirname;
+
+	while (diridx > 0) {
+		dirname = dirnames[--diridx];
+		if (!(dir = opendir(dirname)))
+			die("could not open directory: %s", dirname);
+		while ((dentry = readdir(dir))) {
+			if (!strcmp(dentry->d_name, ".") || !strcmp(dentry->d_name, ".."))
+				continue;
+			len = strlen(dirname) + strlen(dentry->d_name) + 2;
+			filename = (char*) s_malloc(len * sizeof(char));
+			snprintf(filename, len, "%s/%s", dirname, dentry->d_name);
+			if (stat(filename, &fstats)) {
+				warn("could not stat file: %s", filename);
+				free(filename);
+			} else if (S_ISDIR(fstats.st_mode)) {
+				if (diridx == dircnt) {
+					dircnt *= 2;
+					dirnames = (const char**) s_realloc(dirnames,
+					                                    dircnt * sizeof(const char*));
+				}
+				dirnames[diridx++] = filename;
+			} else {
+				check_append(filename);
+			}
+		}
+		closedir(dir);
+		if (!first)
+			free((void*) dirname);
+		else
+			first = 0;
+	}
+
+	free(dirnames);
+}
+
+
+/* event handling */
+
+unsigned char timeout;
+int mox, moy;
+
+void on_keypress(XKeyEvent *kev) {
 	char key;
 	KeySym ksym;
 	int changed;
 
-	if (!ev)
+	if (!kev)
 		return;
 	
-	XLookupString(&ev->xkey, &key, 1, &ksym, NULL);
+	XLookupString(kev, &key, 1, &ksym, NULL);
 	changed = 0;
 
 	switch (ksym) {
@@ -271,17 +313,17 @@ void on_keypress(XEvent *ev) {
 	}
 }
 
-void on_buttonpress(XEvent *ev) {
+void on_buttonpress(XButtonEvent *bev) {
 	int changed;
 	unsigned int mask;
 
-	if (!ev)
+	if (!bev)
 		return;
 
-	mask = CLEANMASK(ev->xbutton.state);
+	mask = CLEANMASK(bev->state);
 	changed = 0;
 
-	switch (ev->xbutton.button) {
+	switch (bev->button) {
 		case Button1:
 			if (fileidx + 1 < filecnt) {
 				img_load(&img, filenames[++fileidx]);
@@ -289,8 +331,8 @@ void on_buttonpress(XEvent *ev) {
 			}
 			break;
 		case Button2:
-			mox = ev->xbutton.x;
-			moy = ev->xbutton.y;
+			mox = bev->x;
+			moy = bev->y;
 			win_set_cursor(&win, CURSOR_HAND);
 			break;
 		case Button3:
@@ -330,118 +372,63 @@ void on_buttonpress(XEvent *ev) {
 	}
 }
 
-void on_buttonrelease(XEvent *ev) {
-	if (!ev)
+void on_motionnotify(XMotionEvent *mev) {
+	if (!mev)
 		return;
 
-	if (ev->xbutton.button == Button2)
-		win_set_cursor(&win, CURSOR_ARROW);
-}
-
-void on_motionnotify(XEvent *ev) {
-	XMotionEvent *m;
-
-	if (!ev)
-		return;
-
-	m = &ev->xmotion;
-	
-	if (m->x >= 0 && m->x <= win.w && m->y >= 0 && m->y <= win.h) {
-		if (img_move(&img, &win, m->x - mox, m->y - moy))
+	if (mev->x >= 0 && mev->x <= win.w && mev->y >= 0 && mev->y <= win.h) {
+		if (img_move(&img, &win, mev->x - mox, mev->y - moy))
 			timeout = 1;
 
-		mox = m->x;
-		moy = m->y;
+		mox = mev->x;
+		moy = mev->y;
 	}
 }
 
-void on_configurenotify(XEvent *ev) {
-	if (!ev)
-		return;
+void run() {
+	int xfd;
+	fd_set fds;
+	struct timeval t;
+	XEvent ev;
 
-	if (win_configure(&win, &ev->xconfigure)) {
-		img.checkpan = 1;
-		timeout = 1;
-	}
-}
+	timeout = 0;
 
-void update_title() {
-	int n;
-
-	n = snprintf(win_title, TITLE_LEN, "sxiv: [%d/%d] <%d%%> %s", fileidx + 1,
-	             filecnt, (int) (img.zoom * 100.0), filenames[fileidx]);
-	
-	if (n >= TITLE_LEN) {
-		win_title[TITLE_LEN - 2] = '.';
-		win_title[TITLE_LEN - 3] = '.';
-		win_title[TITLE_LEN - 4] = '.';
-	}
-
-	win_set_title(&win, win_title);
-}
-
-void check_append(const char *filename) {
-	if (!filename)
-		return;
-
-	if (img_check(filename)) {
-		if (fileidx == filecnt) {
-			filecnt *= 2;
-			filenames = (const char**) s_realloc(filenames,
-																					 filecnt * sizeof(const char*));
-		}
-		filenames[fileidx++] = filename;
-	}
-}
-
-void read_dir_rec(const char *dirname) {
-	char *filename;
-	const char **dirnames;
-	int dircnt, diridx;
-	unsigned char first;
-	size_t len;
-	DIR *dir;
-	struct dirent *dentry;
-	struct stat fstats;
-
-	if (!dirname)
-		return;
-
-	dircnt = DNAME_CNT;
-	diridx = first = 1;
-	dirnames = (const char**) s_malloc(dircnt * sizeof(const char*));
-	dirnames[0] = dirname;
-
-	while (diridx > 0) {
-		dirname = dirnames[--diridx];
-		if (!(dir = opendir(dirname)))
-			die("could not open directory: %s", dirname);
-		while ((dentry = readdir(dir))) {
-			if (!strcmp(dentry->d_name, ".") || !strcmp(dentry->d_name, ".."))
-				continue;
-			len = strlen(dirname) + strlen(dentry->d_name) + 2;
-			filename = (char*) s_malloc(len * sizeof(char));
-			snprintf(filename, len, "%s/%s", dirname, dentry->d_name);
-			if (stat(filename, &fstats)) {
-				warn("could not stat file: %s", filename);
-				free(filename);
-			} else if (S_ISDIR(fstats.st_mode)) {
-				if (diridx == dircnt) {
-					dircnt *= 2;
-					dirnames = (const char**) s_realloc(dirnames,
-					                                    dircnt * sizeof(const char*));
-				}
-				dirnames[diridx++] = filename;
-			} else {
-				check_append(filename);
+	while (1) {
+		if (timeout) {
+			t.tv_sec = 0;
+			t.tv_usec = 250;
+			xfd = ConnectionNumber(win.env.dpy);
+			FD_ZERO(&fds);
+			FD_SET(xfd, &fds);
+			
+			if (!XPending(win.env.dpy) && !select(xfd + 1, &fds, 0, 0, &t)) {
+				img_render(&img, &win);
+				timeout = 0;
 			}
 		}
-		closedir(dir);
-		if (!first)
-			free((void*) dirname);
-		else
-			first = 0;
-	}
 
-	free(dirnames);
+		if (!XNextEvent(win.env.dpy, &ev)) {
+			switch (ev.type) {
+				case KeyPress:
+					on_keypress(&ev.xkey);
+					break;
+				case ButtonPress:
+					on_buttonpress(&ev.xbutton);
+					break;
+				case ButtonRelease:
+					if (ev.xbutton.button == Button2)
+						win_set_cursor(&win, CURSOR_ARROW);
+					break;
+				case MotionNotify:
+					on_motionnotify(&ev.xmotion);
+					break;
+				case ConfigureNotify:
+					if (win_configure(&win, &ev.xconfigure)) {
+						img.checkpan = 1;
+						timeout = 1;
+					}
+					break;
+			}
+		}
+	}
 }
