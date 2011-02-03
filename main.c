@@ -33,7 +33,7 @@
 #include "window.h"
 
 void update_title();
-void check_append(const char*);
+int check_append(const char*);
 void read_dir_rec(const char*);
 void run();
 
@@ -61,10 +61,10 @@ void cleanup() {
 int load_image() {
 	struct stat fstats;
 
-	if (stat(filenames[fileidx], &fstats))
-		warn("could not stat file: %s", filenames[fileidx]);
-	else
+	if (!stat(filenames[fileidx], &fstats))
 		filesize = fstats.st_size;
+	else
+		filesize = 0;
 
 	return img_load(&img, filenames[fileidx]);
 }
@@ -91,9 +91,7 @@ int main(int argc, char **argv) {
 
 	for (i = 0; i < options->filecnt; ++i) {
 		filename = options->filenames[i];
-		if (stat(filename, &fstats)) {
-			warn("could not stat file: %s", filename);
-		} else if (S_ISDIR(fstats.st_mode)) {
+		if (!stat(filename, &fstats) && S_ISDIR(fstats.st_mode)) {
 			if (options->recursive)
 				read_dir_rec(filename);
 			else
@@ -145,9 +143,9 @@ void update_title() {
 	win_set_title(&win, win_title);
 }
 
-void check_append(const char *filename) {
+int check_append(const char *filename) {
 	if (!filename)
-		return;
+		return 0;
 
 	if (img_check(filename)) {
 		if (fileidx == filecnt) {
@@ -156,6 +154,9 @@ void check_append(const char *filename) {
 																					 filecnt * sizeof(const char*));
 		}
 		filenames[fileidx++] = filename;
+		return 1;
+	} else {
+		return 0;
 	}
 }
 
@@ -179,29 +180,32 @@ void read_dir_rec(const char *dirname) {
 
 	while (diridx > 0) {
 		dirname = dirnames[--diridx];
-		if (!(dir = opendir(dirname)))
-			die("could not open directory: %s", dirname);
-		while ((dentry = readdir(dir))) {
-			if (!strcmp(dentry->d_name, ".") || !strcmp(dentry->d_name, ".."))
-				continue;
-			len = strlen(dirname) + strlen(dentry->d_name) + 2;
-			filename = (char*) s_malloc(len * sizeof(char));
-			snprintf(filename, len, "%s/%s", dirname, dentry->d_name);
-			if (stat(filename, &fstats)) {
-				warn("could not stat file: %s", filename);
-				free(filename);
-			} else if (S_ISDIR(fstats.st_mode)) {
-				if (diridx == dircnt) {
-					dircnt *= 2;
-					dirnames = (const char**) s_realloc(dirnames,
-					                                    dircnt * sizeof(const char*));
+		if (!(dir = opendir(dirname))) {
+			warn("could not open directory: %s", dirname);
+		} else {
+			while ((dentry = readdir(dir))) {
+				if (!strcmp(dentry->d_name, ".") || !strcmp(dentry->d_name, ".."))
+					continue;
+
+				len = strlen(dirname) + strlen(dentry->d_name) + 2;
+				filename = (char*) s_malloc(len * sizeof(char));
+				snprintf(filename, len, "%s/%s", dirname, dentry->d_name);
+
+				if (!stat(filename, &fstats) && S_ISDIR(fstats.st_mode)) {
+					if (diridx == dircnt) {
+						dircnt *= 2;
+						dirnames = (const char**) s_realloc(dirnames,
+																								dircnt * sizeof(const char*));
+					}
+					dirnames[diridx++] = filename;
+				} else {
+					if (!check_append(filename))
+						free(filename);
 				}
-				dirnames[diridx++] = filename;
-			} else {
-				check_append(filename);
 			}
+			closedir(dir);
 		}
-		closedir(dir);
+
 		if (!first)
 			free((void*) dirname);
 		else

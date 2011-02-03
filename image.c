@@ -58,7 +58,7 @@ int _imlib_load_image(const char *filename) {
 		return 0;
 
 	if (!(im = imlib_load_image(filename))) {
-		warn("could not open image: %s", filename);
+		warn("could not open file: %s", filename);
 		return 0;
 	}
 
