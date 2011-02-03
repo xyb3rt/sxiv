@@ -329,6 +329,10 @@ void on_keypress(XKeyEvent *kev) {
 			win_toggle_fullscreen(&win);
 			/* render on next configurenotify */
 			break;
+		case XK_W:
+			if ((changed = win_resize(&win, img.w * img.zoom, img.h * img.zoom)))
+				img.checkpan = 1;
+			break;
 
 		/* miscellaneous */
 		case XK_a:

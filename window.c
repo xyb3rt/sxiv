@@ -31,10 +31,23 @@ static Cursor hand;
 
 static GC bgc;
 
+void win_set_sizehints(win_t *win) {
+	XSizeHints sizehints;
+
+	if (!win)
+		return;
+
+	sizehints.flags = PMinSize | PMaxSize;
+	sizehints.min_width = win->w;
+	sizehints.max_width = win->w;
+	sizehints.min_height = win->h;
+	sizehints.max_height = win->h;
+	XSetWMNormalHints(win->env.dpy, win->xwin, &sizehints);
+}
+
 void win_open(win_t *win) {
 	win_env_t *e;
 	XClassHint classhint;
-	XSizeHints sizehints;
 	XColor bgcol;
 	int gmask;
 
@@ -104,14 +117,8 @@ void win_open(win_t *win) {
 	classhint.res_class = "sxiv";
 	XSetClassHint(e->dpy, win->xwin, &classhint);
 
-	if (options->fixed) {
-		sizehints.flags = PMinSize | PMaxSize;
-		sizehints.min_width = win->w;
-		sizehints.max_width = win->w;
-		sizehints.min_height = win->h;
-		sizehints.max_height = win->h;
-		XSetWMNormalHints(e->dpy, win->xwin, &sizehints);
-	}
+	if (options->fixed)
+		win_set_sizehints(win);
 
 	XMapWindow(e->dpy, win->xwin);
 	XFlush(e->dpy);
@@ -133,17 +140,6 @@ void win_close(win_t *win) {
 	XCloseDisplay(win->env.dpy);
 }
 
-void win_set_title(win_t *win, const char *title) {
-	if (!win)
-		return;
-
-	if (!title)
-		title = "sxiv";
-
-	XStoreName(win->env.dpy, win->xwin, title);
-	XSetIconName(win->env.dpy, win->xwin, title);
-}
-
 int win_configure(win_t *win, XConfigureEvent *c) {
 	int changed;
 
@@ -159,6 +155,32 @@ int win_configure(win_t *win, XConfigureEvent *c) {
 	win->bw = c->border_width;
 
 	return changed;
+}
+
+int win_resize(win_t *win, unsigned int w, unsigned int h) {
+	if (!win)
+		return 0;
+
+	w = MIN(w, win->env.scrw - 2 * win->bw);
+	h = MIN(h, win->env.scrh - 2 * win->bw);
+
+	if (win->w == w && win->h == h)
+		return 0;
+
+	win->w = w;
+	win->h = h;
+
+	if (win->x + w + 2 * win->bw > win->env.scrw)
+		win->x = win->env.scrw - w - 2 * win->bw;
+	if (win->y + h + 2 * win->bw > win->env.scrh)
+		win->y = win->env.scrh - h - 2 * win->bw;
+
+	if (options->fixed)
+		win_set_sizehints(win);
+
+	XMoveResizeWindow(win->env.dpy, win->xwin, win->x, win->y, win->w, win->h);
+
+	return 1;
 }
 
 void win_toggle_fullscreen(win_t *win) {
@@ -211,6 +233,17 @@ void win_draw(win_t *win) {
 
 	XSetWindowBackgroundPixmap(win->env.dpy, win->xwin, win->pm);
 	XClearWindow(win->env.dpy, win->xwin);
+}
+
+void win_set_title(win_t *win, const char *title) {
+	if (!win)
+		return;
+
+	if (!title)
+		title = "sxiv";
+
+	XStoreName(win->env.dpy, win->xwin, title);
+	XSetIconName(win->env.dpy, win->xwin, title);
 }
 
 void win_set_cursor(win_t *win, win_cur_t cursor) {
