@@ -88,9 +88,9 @@ int img_load(img_t *img, const char *filename) {
 
 	imlib_context_set_anti_alias(img->aa);
 
+	img->scalemode = options->scalemode;
 	img->re = 0;
 	img->checkpan = 0;
-	img->zoomed = 0;
 
 	img->w = imlib_image_get_width();
 	img->h = imlib_image_get_height();
@@ -127,9 +127,9 @@ void img_render(img_t *img, win_t *win) {
 	if (!img || !win || !imlib_context_get_image())
 		return;
 
-	if (!img->zoomed && options->scalemode != SCALE_ZOOM) {
-		img_fit(img, win);
-		if (options->scalemode == SCALE_DOWN && img->zoom > 1.0)
+	if (img->scalemode != SCALE_ZOOM) {
+		img_fit(img, win, 0);
+		if (img->scalemode == SCALE_DOWN && img->zoom > 1.0)
 			img->zoom = 1.0;
 	}
 
@@ -176,7 +176,7 @@ void img_render(img_t *img, win_t *win) {
 	win_draw(win);
 }
 
-int img_fit(img_t *img, win_t *win) {
+int img_fit(img_t *img, win_t *win, unsigned char set) {
 	float oz, zw, zh;
 
 	if (!img || !win)
@@ -189,6 +189,9 @@ int img_fit(img_t *img, win_t *win) {
 	img->zoom = MIN(zw, zh);
 	img->zoom = MAX(img->zoom, zoom_min);
 	img->zoom = MIN(img->zoom, zoom_max);
+
+	if (set)
+		img->scalemode = SCALE_FIT;
 
 	return oz != img->zoom;
 }
@@ -214,13 +217,13 @@ int img_zoom(img_t *img, float z) {
 
 	z = MAX(z, zoom_min);
 	z = MIN(z, zoom_max);
+	img->scalemode = SCALE_ZOOM;
 
 	if (z != img->zoom) {
 		img->x -= (img->w * z - img->w * img->zoom) / 2;
 		img->y -= (img->h * z - img->h * img->zoom) / 2;
 		img->zoom = z;
 		img->checkpan = 1;
-		img->zoomed = 1;
 		return 1;
 	} else {
 		return 0;

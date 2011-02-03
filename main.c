@@ -284,6 +284,13 @@ void on_keypress(XKeyEvent *kev) {
 		case XK_minus:
 			changed = img_zoom_out(&img);
 			break;
+		case XK_0:
+			changed = img_zoom(&img, 1.0);
+			break;
+		case XK_w:
+			if ((changed = img_fit(&img, &win, 1)))
+				img_center(&img, &win);
+			break;
 
 		/* panning */
 		case XK_h:

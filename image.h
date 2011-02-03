@@ -36,9 +36,9 @@ typedef enum pandir_e {
 
 typedef struct img_s {
 	float zoom;
+	scalemode_t scalemode;
 	unsigned char re;
 	unsigned char checkpan;
-	unsigned char zoomed;
 	unsigned char aa;
 	int x;
 	int y;
@@ -54,9 +54,10 @@ int img_load(img_t*, const char*);
 
 void img_render(img_t*, win_t*);
 
-int img_fit(img_t*, win_t*);
+int img_fit(img_t*, win_t*, unsigned char);
 int img_center(img_t*, win_t*);
 
+int img_zoom(img_t*, float);
 int img_zoom_in(img_t*);
 int img_zoom_out(img_t*);
 
