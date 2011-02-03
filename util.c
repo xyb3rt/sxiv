@@ -66,3 +66,12 @@ void die(const char* fmt, ...) {
 	cleanup();
 	exit(1);
 }
+
+void size_readable(float *size, const char **unit) {
+	const char *units[] = { "", "K", "M", "G" };
+	int i;
+
+	for (i = 0; i < LEN(units) && *size > 1024; ++i)
+		*size /= 1024;
+	*unit = units[MIN(i, LEN(units) - 1)];
+}

@@ -55,7 +55,7 @@ int img_load(img_t*, const char*);
 void img_render(img_t*, win_t*);
 
 int img_fit(img_t*, win_t*);
-void img_center(img_t*, win_t*);
+int img_center(img_t*, win_t*);
 
 int img_zoom_in(img_t*);
 int img_zoom_out(img_t*);
@@ -63,9 +63,9 @@ int img_zoom_out(img_t*);
 int img_move(img_t*, win_t*, int, int);
 int img_pan(img_t*, win_t*, pandir_t);
 
-int img_rotate_left(img_t*, win_t*);
-int img_rotate_right(img_t*, win_t*);
+void img_rotate_left(img_t*, win_t*);
+void img_rotate_right(img_t*, win_t*);
 
-int img_toggle_antialias(img_t*);
+void img_toggle_antialias(img_t*);
 
 #endif /* IMAGE_H */

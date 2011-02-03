@@ -44,6 +44,7 @@ win_t win;
 #define FNAME_CNT 4096
 const char **filenames;
 int filecnt, fileidx;
+size_t filesize;
 
 #define TITLE_LEN 256
 char win_title[TITLE_LEN];
@@ -55,6 +56,17 @@ void cleanup() {
 		img_free(&img);
 		win_close(&win);
 	}
+}
+
+int load_image() {
+	struct stat fstats;
+
+	if (stat(filenames[fileidx], &fstats))
+		warn("could not stat file: %s", filenames[fileidx]);
+	else
+		filesize = fstats.st_size;
+
+	return img_load(&img, filenames[fileidx]);
 }
 
 int main(int argc, char **argv) {
@@ -102,7 +114,7 @@ int main(int argc, char **argv) {
 	win_open(&win);
 	img_init(&img, &win);
 
-	img_load(&img, filenames[fileidx]);
+	load_image();
 	img_render(&img, &win);
 	update_title();
 
@@ -115,10 +127,15 @@ int main(int argc, char **argv) {
 
 void update_title() {
 	int n;
+	float size;
+	const char *unit;
 
-	n = snprintf(win_title, TITLE_LEN, "sxiv: [%d/%d] <%d%%> %s", fileidx + 1,
-	             filecnt, (int) (img.zoom * 100.0), filenames[fileidx]);
-	
+	size = filesize;
+	size_readable(&size, &unit);
+
+	n = snprintf(win_title, TITLE_LEN, "sxiv: [%d/%d] <%d%%> (%.2f%s) %s",
+	             fileidx + 1, filecnt, (int) (img.zoom * 100.0), size, unit,
+	             filenames[fileidx]);
 	if (n >= TITLE_LEN) {
 		win_title[TITLE_LEN - 2] = '.';
 		win_title[TITLE_LEN - 3] = '.';
@@ -223,37 +240,39 @@ void on_keypress(XKeyEvent *kev) {
 		case XK_n:
 		case XK_space:
 			if (fileidx + 1 < filecnt) {
-				changed = img_load(&img, filenames[++fileidx]);
+				++fileidx;
+				changed = load_image();
 			}
 			break;
 		case XK_p:
 		case XK_BackSpace:
 			if (fileidx > 0) {
-				changed = img_load(&img, filenames[--fileidx]);
+				--fileidx;
+				changed = load_image();
 			}
 			break;
 		case XK_bracketleft:
 			if (fileidx != 0) {
 				fileidx = MAX(0, fileidx - 10);
-				changed = img_load(&img, filenames[fileidx]);
+				changed = load_image();
 			}
 			break;
 		case XK_bracketright:
 			if (fileidx != filecnt - 1) {
 				fileidx = MIN(fileidx + 10, filecnt - 1);
-				changed = img_load(&img, filenames[fileidx]);
+				changed = load_image();
 			}
 			break;
 		case XK_g:
 			if (fileidx != 0) {
 				fileidx = 0;
-				changed = img_load(&img, filenames[fileidx]);
+				changed = load_image();
 			}
 			break;
 		case XK_G:
 			if (fileidx != filecnt - 1) {
 				fileidx = filecnt - 1;
-				changed = img_load(&img, filenames[fileidx]);
+				changed = load_image();
 			}
 			break;
 
@@ -286,24 +305,29 @@ void on_keypress(XKeyEvent *kev) {
 
 		/* rotation */
 		case XK_less:
-			changed = img_rotate_left(&img, &win);
+			img_rotate_left(&img, &win);
+			changed = 1;
 			break;
 		case XK_greater:
-			changed = img_rotate_right(&img, &win);
+			img_rotate_right(&img, &win);
+			changed = 1;
 			break;
 
 		/* control window */
 		case XK_f:
 			win_toggle_fullscreen(&win);
+			/* render on next configurenotify */
 			break;
 
 		/* miscellaneous */
 		case XK_a:
-			changed = img_toggle_antialias(&img);
+			img_toggle_antialias(&img);
+			changed = 1;
 			break;
 		case XK_r:
-			changed = img_load(&img, filenames[fileidx]);
+			changed = load_image();
 			break;
+;
 	}
 
 	if (changed) {
@@ -326,8 +350,8 @@ void on_buttonpress(XButtonEvent *bev) {
 	switch (bev->button) {
 		case Button1:
 			if (fileidx + 1 < filecnt) {
-				img_load(&img, filenames[++fileidx]);
-				changed = 1;
+				++fileidx;
+				changed = load_image();
 			}
 			break;
 		case Button2:
@@ -337,8 +361,8 @@ void on_buttonpress(XButtonEvent *bev) {
 			break;
 		case Button3:
 			if (fileidx > 0) {
-				img_load(&img, filenames[--fileidx]);
-				changed = 1;
+				--fileidx;
+				changed = load_image();
 			}
 			break;
 		case Button4:

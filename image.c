@@ -73,7 +73,6 @@ int img_check(const char *filename) {
 
 	if ((ret = _imlib_load_image(filename)))
 		imlib_free_image();
-
 	return ret;
 }
 
@@ -194,12 +193,19 @@ int img_fit(img_t *img, win_t *win) {
 	return oz != img->zoom;
 }
 
-void img_center(img_t *img, win_t *win) {
+int img_center(img_t *img, win_t *win) {
+	int ox, oy;
+
 	if (!img || !win)
-		return;
+		return 0;
+	
+	ox = img->x;
+	oy = img->y;
 
 	img->x = (win->w - img->w * img->zoom) / 2;
 	img->y = (win->h - img->h * img->zoom) / 2;
+	
+	return ox != img->x || oy != img->y;
 }
 
 int img_zoom(img_t *img, float z) {
@@ -231,7 +237,6 @@ int img_zoom_in(img_t *img) {
 		if (zoom_levels[i] > img->zoom * 100.0)
 			return img_zoom(img, zoom_levels[i] / 100.0);
 	}
-
 	return 0;
 }
 
@@ -245,7 +250,6 @@ int img_zoom_out(img_t *img) {
 		if (zoom_levels[i] < img->zoom * 100.0)
 			return img_zoom(img, zoom_levels[i] / 100.0);
 	}
-
 	return 0;
 }
 
@@ -284,11 +288,11 @@ int img_pan(img_t *img, win_t *win, pandir_t dir) {
 	return 0;
 }
 
-int img_rotate(img_t *img, win_t *win, int d) {
+void img_rotate(img_t *img, win_t *win, int d) {
 	int ox, oy, tmp;
 
 	if (!img || !win)
-		return 0;
+		return;
 
 	ox = d == 1 ? img->x : win->w - img->x - img->w * img->zoom;
 	oy = d == 3 ? img->y : win->h - img->y - img->h * img->zoom;
@@ -303,24 +307,20 @@ int img_rotate(img_t *img, win_t *win, int d) {
 	img->h = tmp;
 
 	img->checkpan = 1;
-
-	return 1;
 }
 
-int img_rotate_left(img_t *img, win_t *win) {
-	return img_rotate(img, win, 3);
+void img_rotate_left(img_t *img, win_t *win) {
+	img_rotate(img, win, 3);
 }
 
-int img_rotate_right(img_t *img, win_t *win) {
-	return img_rotate(img, win, 1);
+void img_rotate_right(img_t *img, win_t *win) {
+	img_rotate(img, win, 1);
 }
 
-int img_toggle_antialias(img_t *img) {
+void img_toggle_antialias(img_t *img) {
 	if (!img)
-		return 0;
+		return;
 
 	img->aa ^= 1;
 	imlib_context_set_anti_alias(img->aa);
-
-	return 1;
 }

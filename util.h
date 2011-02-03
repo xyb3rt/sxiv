@@ -24,11 +24,14 @@
 #define ABS(a)   ((a) < 0 ? (-(a)) : (a))
 #define MIN(a,b) ((a) < (b) ? (a) : (b))
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
+#define LEN(a)   (sizeof(a) / sizeof(a[0]))
 
 void* s_malloc(size_t);
 void* s_realloc(void*, size_t);
 
 void warn(const char*, ...);
 void die(const char*, ...);
+
+void size_readable(float*, const char**);
 
 #endif /* UTIL_H */
