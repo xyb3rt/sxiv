@@ -157,23 +157,22 @@ int win_configure(win_t *win, XConfigureEvent *c) {
 	return changed;
 }
 
-int win_resize(win_t *win, unsigned int w, unsigned int h) {
+int win_moveresize(win_t *win, int x, int y, unsigned int w, unsigned int h) {
 	if (!win)
 		return 0;
 
+	x = MAX(0, x);
+	y = MAX(0, y);
 	w = MIN(w, win->env.scrw - 2 * win->bw);
 	h = MIN(h, win->env.scrh - 2 * win->bw);
 
-	if (win->w == w && win->h == h)
+	if (win->x == x && win->y == y && win->w == w && win->h == h)
 		return 0;
 
+	win->x = x;
+	win->y = y;
 	win->w = w;
 	win->h = h;
-
-	if (win->x + w + 2 * win->bw > win->env.scrw)
-		win->x = win->env.scrw - w - 2 * win->bw;
-	if (win->y + h + 2 * win->bw > win->env.scrh)
-		win->y = win->env.scrh - h - 2 * win->bw;
 
 	if (options->fixed)
 		win_set_sizehints(win);

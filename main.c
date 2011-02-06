@@ -222,6 +222,8 @@ unsigned char timeout;
 int mox, moy;
 
 void on_keypress(XKeyEvent *kev) {
+	int x, y;
+	unsigned int w, h;
 	char key;
 	KeySym ksym;
 	int changed;
@@ -330,8 +332,14 @@ void on_keypress(XKeyEvent *kev) {
 			/* render on next configurenotify */
 			break;
 		case XK_W:
-			if ((changed = win_resize(&win, img.w * img.zoom, img.h * img.zoom)))
-				img.checkpan = 1;
+			x = win.x + img.x;
+			y = win.y + img.y;
+			w = img.w * img.zoom;
+			h = img.h * img.zoom;
+			if ((changed = win_moveresize(&win, x, y, w, h))) {
+				img.x = x - win.x;
+				img.y = y - win.y;
+			}
 			break;
 
 		/* miscellaneous */
