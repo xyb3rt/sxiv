@@ -53,8 +53,11 @@ Use the following keys to control sxiv:
     [/]          Go 10 images backward/forward
     +,=          Zoom in
     -            Zoom out
+    0            Set zoom level to 100%
+    w            Fit image into window
     h,j,k,l      Pan image left/down/up/right (also with arrow keys)
     <,>          Rotate image (counter-)clockwise by 90 degrees
+    W            Resize window to fit image
     f            Toggle fullscreen mode (requires an EWMH/NetWM compliant
                  window manager)
     a            Toggle anti-aliasing
