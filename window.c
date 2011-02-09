@@ -28,8 +28,9 @@
 
 static Cursor arrow;
 static Cursor hand;
-
 static GC bgc;
+
+Atom wm_delete_win;
 
 void win_set_sizehints(win_t *win) {
 	XSizeHints sizehints;
@@ -122,6 +123,9 @@ void win_open(win_t *win) {
 
 	XMapWindow(e->dpy, win->xwin);
 	XFlush(e->dpy);
+
+	wm_delete_win = XInternAtom(e->dpy, "WM_DELETE_WINDOW", False);
+	XSetWMProtocols(e->dpy, win->xwin, &wm_delete_win, 1);
 	
 	if (options->fullscreen)
 		win_toggle_fullscreen(win);

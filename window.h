@@ -53,6 +53,8 @@ typedef struct win_s {
 	unsigned char fullscreen;
 } win_t;
 
+extern Atom wm_delete_win;
+
 void win_open(win_t*);
 void win_close(win_t*);
 

@@ -475,6 +475,10 @@ void run() {
 						timeout = 1;
 					}
 					break;
+				case ClientMessage:
+					if ((Atom) ev.xclient.data.l[0] == wm_delete_win)
+						return;
+					break;
 			}
 		}
 	}
