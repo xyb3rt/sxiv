@@ -29,10 +29,14 @@ int zl_cnt;
 float zoom_min;
 float zoom_max;
 
+Imlib_Image *im_warn;
+
 void img_init(img_t *img, win_t *win) {
 	zl_cnt = sizeof(zoom_levels) / sizeof(zoom_levels[0]);
 	zoom_min = zoom_levels[0] / 100.0;
 	zoom_max = zoom_levels[zl_cnt - 1] / 100.0;
+
+	im_warn = imlib_create_image_using_data(32, 32, icon_warn);
 
 	if (img) {
 		img->zoom = options->zoom;
@@ -49,8 +53,10 @@ void img_init(img_t *img, win_t *win) {
 }
 
 void img_free(img_t* img) {
-	if (imlib_context_get_image())
+	if (img && img->valid && imlib_context_get_image())
 		imlib_free_image();
+	imlib_context_set_image(im_warn);
+	imlib_free_image();
 }
 
 int _imlib_load_image(const char *filename) {
@@ -79,19 +85,16 @@ int img_check(const char *filename) {
 }
 
 int img_load(img_t *img, const char *filename) {
-	Imlib_Image *im_warn;
-
 	if (!img || !filename)
 		return 0;
 
-	if (imlib_context_get_image())
+	if (img->valid && imlib_context_get_image())
 		imlib_free_image();
 
 	if ((img->valid = _imlib_load_image(filename))) {
 		imlib_context_set_anti_alias(img->aa);
 		img->scalemode = options->scalemode;
 	} else {
-		im_warn = imlib_create_image_using_data(32, 32, icon_warn);
 		imlib_context_set_image(im_warn);
 		imlib_image_set_has_alpha(1);
 		imlib_context_set_anti_alias(0);
