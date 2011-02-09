@@ -243,16 +243,15 @@ void win_set_title(win_t *win, const char *title) {
 
 	XStoreName(win->env.dpy, win->xwin, title);
 	XSetIconName(win->env.dpy, win->xwin, title);
-	XChangeProperty( win->env.dpy, win->xwin,
-			XInternAtom(win->env.dpy, "_NET_WM_NAME", False),
-			XInternAtom(win->env.dpy, "UTF8_STRING", False),
-			8, PropModeReplace, (unsigned char *) title,
-			strlen(title));
-	XChangeProperty( win->env.dpy, win->xwin,
-			XInternAtom(win->env.dpy, "_NET_WM_ICON_NAME", False),
-			XInternAtom(win->env.dpy, "UTF8_STRING", False),
-			8, PropModeReplace, (unsigned char *) title,
-			strlen(title));
+
+	XChangeProperty(win->env.dpy, win->xwin,
+	                XInternAtom(win->env.dpy, "_NET_WM_NAME", False),
+	                XInternAtom(win->env.dpy, "UTF8_STRING", False), 8,
+	                PropModeReplace, (unsigned char *) title, strlen(title));
+	XChangeProperty(win->env.dpy, win->xwin,
+	                XInternAtom(win->env.dpy, "_NET_WM_ICON_NAME", False),
+	                XInternAtom(win->env.dpy, "UTF8_STRING", False), 8,
+	                PropModeReplace, (unsigned char *) title, strlen(title));
 }
 
 void win_set_cursor(win_t *win, win_cur_t cursor) {
