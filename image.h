@@ -38,6 +38,7 @@ typedef struct img_s {
 	float zoom;
 	scalemode_t scalemode;
 
+	unsigned char valid;
 	unsigned char re;
 	unsigned char checkpan;
 	unsigned char aa;

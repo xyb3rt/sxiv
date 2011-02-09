@@ -16,9 +16,11 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+#include <unistd.h>
 #include <Imlib2.h>
 
 #include "config.h"
+#include "icon.h"
 #include "image.h"
 #include "options.h"
 #include "util.h"
@@ -57,7 +59,7 @@ int _imlib_load_image(const char *filename) {
 	if (!filename)
 		return 0;
 
-	if (!(im = imlib_load_image(filename))) {
+	if (access(filename, F_OK) || !(im = imlib_load_image(filename))) {
 		warn("could not open file: %s", filename);
 		return 0;
 	}
@@ -77,18 +79,25 @@ int img_check(const char *filename) {
 }
 
 int img_load(img_t *img, const char *filename) {
+	Imlib_Image *im_warn;
+
 	if (!img || !filename)
 		return 0;
 
 	if (imlib_context_get_image())
 		imlib_free_image();
 
-	if (!_imlib_load_image(filename))
-		return 0;
+	if ((img->valid = _imlib_load_image(filename))) {
+		imlib_context_set_anti_alias(img->aa);
+		img->scalemode = options->scalemode;
+	} else {
+		im_warn = imlib_create_image_using_data(32, 32, icon_warn);
+		imlib_context_set_image(im_warn);
+		imlib_image_set_has_alpha(1);
+		imlib_context_set_anti_alias(0);
+		img->scalemode = SCALE_DOWN;
+	}
 
-	imlib_context_set_anti_alias(img->aa);
-
-	img->scalemode = options->scalemode;
 	img->re = 0;
 	img->checkpan = 0;
 
@@ -194,7 +203,7 @@ void img_render(img_t *img, win_t *win) {
 }
 
 int img_fit_win(img_t *img, win_t *win) {
-	if (!img || !win)
+	if (!img || !img->valid || !win)
 		return 0;
 
 	img->scalemode = SCALE_FIT;
@@ -217,7 +226,7 @@ int img_center(img_t *img, win_t *win) {
 }
 
 int img_zoom(img_t *img, float z) {
-	if (!img)
+	if (!img || !img->valid)
 		return 0;
 
 	z = MAX(z, zoom_min);
@@ -239,7 +248,7 @@ int img_zoom(img_t *img, float z) {
 int img_zoom_in(img_t *img) {
 	int i;
 
-	if (!img)
+	if (!img || !img->valid)
 		return 0;
 
 	for (i = 1; i < zl_cnt; ++i) {
@@ -252,7 +261,7 @@ int img_zoom_in(img_t *img) {
 int img_zoom_out(img_t *img) {
 	int i;
 
-	if (!img)
+	if (!img || !img->valid)
 		return 0;
 
 	for (i = zl_cnt - 2; i >= 0; --i) {
@@ -265,7 +274,7 @@ int img_zoom_out(img_t *img) {
 int img_move(img_t *img, win_t *win, int dx, int dy) {
 	int ox, oy;
 
-	if (!img || !win)
+	if (!img || !img->valid || !win)
 		return 0;
 
 	ox = img->x;
@@ -280,7 +289,7 @@ int img_move(img_t *img, win_t *win, int dx, int dy) {
 }
 
 int img_pan(img_t *img, win_t *win, pandir_t dir) {
-	if (!img || !win)
+	if (!img || !img->valid || !win)
 		return 0;
 
 	switch (dir) {
@@ -300,7 +309,7 @@ int img_pan(img_t *img, win_t *win, pandir_t dir) {
 void img_rotate(img_t *img, win_t *win, int d) {
 	int ox, oy, tmp;
 
-	if (!img || !win)
+	if (!img || !img->valid || !win)
 		return;
 
 	ox = d == 1 ? img->x : win->w - img->x - img->w * img->zoom;
@@ -327,7 +336,7 @@ void img_rotate_right(img_t *img, win_t *win) {
 }
 
 void img_toggle_antialias(img_t *img) {
-	if (!img)
+	if (!img || !img->valid)
 		return;
 
 	img->aa ^= 1;

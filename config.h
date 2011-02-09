@@ -5,7 +5,7 @@
 
 /* default color to use for window background:           *
  *   (see X(7) "COLOR NAMES" section for valid values)   */
-#define BG_COLOR    "#888888"
+#define BG_COLOR    "#999999"
 
 /* how should images be scaled when they are loaded?:    *
  * (also controllable via -d/-s/-Z/-z options)           *

@@ -128,12 +128,17 @@ void update_title() {
 	float size;
 	const char *unit;
 
-	size = filesize;
-	size_readable(&size, &unit);
+	if (img.valid) {
+		size = filesize;
+		size_readable(&size, &unit);
+		n = snprintf(win_title, TITLE_LEN, "sxiv: [%d/%d] <%d%%> (%.2f%s) %s",
+								 fileidx + 1, filecnt, (int) (img.zoom * 100.0), size, unit,
+								 filenames[fileidx]);
+	} else {
+		n = snprintf(win_title, TITLE_LEN, "sxiv: [%d/%d] broken: %s",
+		             fileidx + 1, filecnt, filenames[fileidx]);
+	}
 
-	n = snprintf(win_title, TITLE_LEN, "sxiv: [%d/%d] <%d%%> (%.2f%s) %s",
-	             fileidx + 1, filecnt, (int) (img.zoom * 100.0), size, unit,
-	             filenames[fileidx]);
 	if (n >= TITLE_LEN) {
 		win_title[TITLE_LEN - 2] = '.';
 		win_title[TITLE_LEN - 3] = '.';
@@ -350,7 +355,6 @@ void on_keypress(XKeyEvent *kev) {
 		case XK_r:
 			changed = load_image();
 			break;
-;
 	}
 
 	if (changed) {
