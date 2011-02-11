@@ -1,5 +1,5 @@
 /* default window dimensions:                            *
- * (also controllable via -w option)                     */
+ * (also controllable via -g option)                     */
 #define WIN_WIDTH   800
 #define WIN_HEIGHT  600
 
