@@ -17,10 +17,12 @@
  */
 
 #include <stdlib.h>
-#include <stdio.h>
+#include <string.h>
 
 #include "options.h"
 #include "util.h"
+
+#define FNAME_LEN 10
 
 void cleanup();
 
@@ -74,4 +76,40 @@ void size_readable(float *size, const char **unit) {
 	for (i = 0; i < LEN(units) && *size > 1024; ++i)
 		*size /= 1024;
 	*unit = units[MIN(i, LEN(units) - 1)];
+}
+
+char* readline(FILE *stream) {
+	size_t len;
+	char *buf, *s, *end;
+
+	if (!stream || feof(stream) || ferror(stream))
+		return NULL;
+
+	len = FNAME_LEN;
+	s = buf = (char*) s_malloc(len * sizeof(char));
+
+	do {
+		*s = '\0';
+		fgets(s, len - (s - buf), stream);
+		if ((end = strchr(s, '\n'))) {
+			*end = '\0';
+		} else if (strlen(s) + 1 == len - (s - buf)) {
+			buf = (char*) s_realloc(buf, 2 * len * sizeof(char));
+			s = buf + len - 1;
+			len *= 2;
+		} else {
+			s += strlen(s);
+		}
+	} while (!end && !feof(stream) && !ferror(stream));
+
+	if (!ferror(stream) && *buf) {
+		s = (char*) s_malloc((strlen(buf) + 1) * sizeof(char));
+		strcpy(s, buf);
+	} else {
+		s = NULL;
+	}
+
+	free(buf);
+
+	return s;
 }

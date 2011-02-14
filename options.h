@@ -24,6 +24,7 @@
 typedef struct options_s {
 	const char **filenames;
 	int filecnt;
+	unsigned char from_stdin;
 
 	scalemode_t scalemode;
 	float zoom;

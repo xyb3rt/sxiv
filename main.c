@@ -81,7 +81,7 @@ int main(int argc, char **argv) {
 		exit(1);
 	}
 
-	if (options->recursive)
+	if (options->recursive || options->from_stdin)
 		filecnt = FNAME_CNT;
 	else
 		filecnt = options->filecnt;
@@ -89,15 +89,22 @@ int main(int argc, char **argv) {
 	filenames = (const char**) s_malloc(filecnt * sizeof(const char*));
 	fileidx = 0;
 
-	for (i = 0; i < options->filecnt; ++i) {
-		filename = options->filenames[i];
-		if (!stat(filename, &fstats) && S_ISDIR(fstats.st_mode)) {
-			if (options->recursive)
-				read_dir_rec(filename);
-			else
-				warn("ignoring directory: %s", filename);
-		} else {
-			check_append(filename);
+	if (options->from_stdin) {
+		while ((filename = readline(stdin))) {
+			if (!check_append(filename))
+				free((void*) filename);
+		}
+	} else {
+		for (i = 0; i < options->filecnt; ++i) {
+			filename = options->filenames[i];
+			if (!stat(filename, &fstats) && S_ISDIR(fstats.st_mode)) {
+				if (options->recursive)
+					read_dir_rec(filename);
+				else
+					warn("ignoring directory: %s", filename);
+			} else {
+				check_append(filename);
+			}
 		}
 	}
 

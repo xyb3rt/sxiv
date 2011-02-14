@@ -19,6 +19,7 @@
 #define _XOPEN_SOURCE
 
 #include <stdlib.h>
+#include <string.h>
 #include <stdio.h>
 #include <unistd.h>
 
@@ -106,4 +107,6 @@ void parse_options(int argc, char **argv) {
 
 	_options.filenames = (const char**) argv + optind;
 	_options.filecnt = argc - optind;
+	_options.from_stdin = _options.filecnt == 1 &&
+	                      strcmp(_options.filenames[0], "-") == 0;
 }

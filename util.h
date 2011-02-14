@@ -19,6 +19,7 @@
 #ifndef UTIL_H
 #define UTIL_H
 
+#include <stdio.h>
 #include <stdarg.h>
 
 #define ABS(a)   ((a) < 0 ? (-(a)) : (a))
@@ -33,5 +34,7 @@ void warn(const char*, ...);
 void die(const char*, ...);
 
 void size_readable(float*, const char**);
+
+char* readline(FILE*);
 
 #endif /* UTIL_H */
