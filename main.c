@@ -139,8 +139,8 @@ void update_title() {
 		size = filesize;
 		size_readable(&size, &unit);
 		n = snprintf(win_title, TITLE_LEN, "sxiv: [%d/%d] <%d%%> (%.2f%s) %s",
-								 fileidx + 1, filecnt, (int) (img.zoom * 100.0), size, unit,
-								 filenames[fileidx]);
+		             fileidx + 1, filecnt, (int) (img.zoom * 100.0), size, unit,
+		             filenames[fileidx]);
 	} else {
 		n = snprintf(win_title, TITLE_LEN, "sxiv: [%d/%d] broken: %s",
 		             fileidx + 1, filecnt, filenames[fileidx]);
@@ -163,7 +163,7 @@ int check_append(const char *filename) {
 		if (fileidx == filecnt) {
 			filecnt *= 2;
 			filenames = (const char**) s_realloc(filenames,
-																					 filecnt * sizeof(const char*));
+			                                     filecnt * sizeof(const char*));
 		}
 		filenames[fileidx++] = filename;
 		return 1;
@@ -207,7 +207,7 @@ void read_dir_rec(const char *dirname) {
 					if (diridx == dircnt) {
 						dircnt *= 2;
 						dirnames = (const char**) s_realloc(dirnames,
-																								dircnt * sizeof(const char*));
+						                                    dircnt * sizeof(const char*));
 					}
 					dirnames[diridx++] = filename;
 				} else {
