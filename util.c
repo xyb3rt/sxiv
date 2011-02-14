@@ -22,7 +22,7 @@
 #include "options.h"
 #include "util.h"
 
-#define FNAME_LEN 10
+#define FNAME_LEN 512
 
 void cleanup();
 

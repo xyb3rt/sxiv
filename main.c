@@ -41,7 +41,7 @@ img_t img;
 win_t win;
 
 #define DNAME_CNT 512
-#define FNAME_CNT 4096
+#define FNAME_CNT 1024
 const char **filenames;
 int filecnt, fileidx;
 size_t filesize;
