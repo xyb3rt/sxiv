@@ -102,11 +102,11 @@ char* readline(FILE *stream) {
 		}
 	} while (!end && !feof(stream) && !ferror(stream));
 
-	if (!ferror(stream) && *buf) {
+	if (ferror(stream)) {
+		s = NULL;
+	} else {
 		s = (char*) s_malloc((strlen(buf) + 1) * sizeof(char));
 		strcpy(s, buf);
-	} else {
-		s = NULL;
 	}
 
 	free(buf);

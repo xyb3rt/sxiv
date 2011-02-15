@@ -91,7 +91,7 @@ int main(int argc, char **argv) {
 
 	if (options->from_stdin) {
 		while ((filename = readline(stdin))) {
-			if (!check_append(filename))
+			if (!*filename || !check_append(filename))
 				free((void*) filename);
 		}
 	} else {
