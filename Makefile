@@ -6,7 +6,7 @@ CC?=gcc
 PREFIX?=/usr/local
 CFLAGS+= -Wall -pedantic -DVERSION=\"$(VERSION)\"
 LDFLAGS+= 
-LIBS+= -lX11 -lImlib2
+LIBS+= -lX11 -lImlib2 -lpthread
 
 SRCFILES=$(wildcard *.c)
 OBJFILES=$(SRCFILES:.c=.o)

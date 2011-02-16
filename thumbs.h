@@ -27,6 +27,7 @@ typedef struct thumb_s {
 	int w;
 	int h;
 	Pixmap pm;
+	unsigned char loaded;
 } thumb_t;
 
 typedef struct tns_s {

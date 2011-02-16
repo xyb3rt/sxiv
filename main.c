@@ -473,19 +473,22 @@ void run() {
 	timeout = 0;
 
 	while (1) {
-		if (timeout) {
+		if (timeout || (mode == MODE_THUMBS && !tns.loaded)) {
 			t.tv_sec = 0;
 			t.tv_usec = 250;
 			xfd = ConnectionNumber(win.env.dpy);
 			FD_ZERO(&fds);
 			FD_SET(xfd, &fds);
-			
+
 			if (!XPending(win.env.dpy) && !select(xfd + 1, &fds, 0, 0, &t)) {
 				timeout = 0;
 				if (mode == MODE_NORMAL)
 					img_render(&img, &win);
 				else
 					tns_render(&tns, &win);
+
+				if (mode == MODE_THUMBS && !tns.loaded && !XPending(win.env.dpy))
+					continue;
 			}
 		}
 
