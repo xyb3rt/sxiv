@@ -211,19 +211,21 @@ void win_toggle_fullscreen(win_t *win) {
 	           SubstructureNotifyMask, &ev);
 }
 
-Pixmap win_create_pixmap(win_t *win) {
+Pixmap win_create_pixmap(win_t *win, int w, int h) {
 	if (!win)
 		return 0;
 
-	return XCreatePixmap(win->env.dpy, win->xwin, THUMB_SIZE, THUMB_SIZE,
-	                     win->env.depth);
+	return XCreatePixmap(win->env.dpy, win->xwin, w, h, win->env.depth);
+}
+
+void win_free_pixmap(win_t *win, Pixmap pm) {
+	if (win && pm)
+		XFreePixmap(win->env.dpy, pm);
 }
 
 void win_draw_pixmap(win_t *win, Pixmap pm, int x, int y, int w, int h) {
-	if (!win)
-		return;
-
-	XCopyArea(win->env.dpy, pm, win->pm, bgc, 0, 0, w, h, x, y);
+	if (win)
+		XCopyArea(win->env.dpy, pm, win->pm, bgc, 0, 0, w, h, x, y);
 }
 
 void win_clear(win_t *win) {

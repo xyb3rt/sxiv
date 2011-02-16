@@ -27,9 +27,9 @@
 #include <X11/Xutil.h>
 #include <X11/keysym.h>
 
-#include "config.h"
 #include "image.h"
 #include "options.h"
+#include "thumbs.h"
 #include "util.h"
 #include "window.h"
 
@@ -39,13 +39,13 @@ typedef enum appmode_e {
 } appmode_t;
 
 void update_title();
-void render_thumbs();
 int check_append(const char*);
 void read_dir_rec(const char*);
 void run();
 
 appmode_t mode;
 img_t img;
+tns_t tns;
 win_t win;
 
 #define DNAME_CNT 512
@@ -53,9 +53,6 @@ win_t win;
 const char **filenames;
 int filecnt, fileidx;
 size_t filesize;
-
-thumb_t *thumbs;
-int tvis, tcols, trows;
 
 #define TITLE_LEN 256
 char win_title[TITLE_LEN];
@@ -65,6 +62,7 @@ void cleanup() {
 
 	if (!in++) {
 		img_free(&img);
+		tns_free(&tns, &win);
 		win_close(&win);
 	}
 }
@@ -130,17 +128,13 @@ int main(int argc, char **argv) {
 	win_open(&win);
 	img_init(&img, &win);
 
-	if (options->thumbnails) {
-		thumbs = (thumb_t*) s_malloc(filecnt * sizeof(thumb_t));
-		for (i = 0; i < filecnt; ++i) {
-			thumbs[i].pm = win_create_pixmap(&win);
-			img_load_thumb(&thumbs[i], filenames[i]);
-		}
-	}
+	if (options->thumbnails)
+		tns_load(&tns, &win, filenames, filecnt);
 
 	if (options->thumbnails == 2) {
 		mode = MODE_THUMBS;
-		render_thumbs();
+		tns.first = tns.sel = 0;
+		tns_render(&tns, &win);
 	} else {
 		mode = MODE_NORMAL;
 		load_image();
@@ -177,35 +171,6 @@ void update_title() {
 	}
 
 	win_set_title(&win, win_title);
-}
-
-void render_thumbs() {
-	int i, cnt, x, y;
-
-	tcols = win.w / (THUMB_SIZE + 10);
-	trows = win.h / (THUMB_SIZE + 10);
-
-	x = win.w - tcols * (THUMB_SIZE + 10) + 5;
-	y = win.h - trows * (THUMB_SIZE + 10) + 5;
-	cnt = MIN(tcols * trows, filecnt);
-
-	win_clear(&win);
-
-	i = 0;
-	while (i < cnt) {
-		thumbs[i].x = x + (THUMB_SIZE - thumbs[i].w) / 2;
-		thumbs[i].y = y + (THUMB_SIZE - thumbs[i].h) / 2;
-		win_draw_pixmap(&win, thumbs[i].pm, thumbs[i].x, thumbs[i].y, thumbs[i].w,
-		                thumbs[i].h);
-		if (++i % tcols == 0) {
-			x = win.w - tcols * (THUMB_SIZE + 10) + 5;
-			y += THUMB_SIZE + 10;
-		} else {
-			x += THUMB_SIZE + 10;
-		}
-	}
-
-	win_draw(&win);
 }
 
 int check_append(const char *filename) {
@@ -287,7 +252,10 @@ unsigned char timeout;
 int mox, moy;
 
 void redraw() {
-	img_render(&img, &win);
+	if (mode == MODE_NORMAL)
+		img_render(&img, &win);
+	else
+		tns_render(&tns, &win);
 	update_title();
 	timeout = 0;
 }
@@ -513,8 +481,11 @@ void run() {
 			FD_SET(xfd, &fds);
 			
 			if (!XPending(win.env.dpy) && !select(xfd + 1, &fds, 0, 0, &t)) {
-				img_render(&img, &win);
 				timeout = 0;
+				if (mode == MODE_NORMAL)
+					img_render(&img, &win);
+				else
+					tns_render(&tns, &win);
 			}
 		}
 
@@ -535,8 +506,9 @@ void run() {
 					break;
 				case ConfigureNotify:
 					if (win_configure(&win, &ev.xconfigure)) {
-						img.checkpan = 1;
 						timeout = 1;
+						if (mode == MODE_NORMAL)
+							img.checkpan = 1;
 					}
 					break;
 				case ClientMessage:
