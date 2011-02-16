@@ -52,6 +52,8 @@ typedef struct img_s {
 typedef struct thumb_s {
 	int x;
 	int y;
+	int w;
+	int h;
 	Pixmap pm;
 } thumb_t;
 

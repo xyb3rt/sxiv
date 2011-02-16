@@ -25,12 +25,13 @@
 
 #include "config.h"
 #include "options.h"
+#include "util.h"
 
 options_t _options;
 const options_t *options = (const options_t*) &_options;
 
 void print_usage() {
-	printf("usage: sxiv [-dFfhpqrstvZ] [-g GEOMETRY] [-z ZOOM] FILES...\n");
+	printf("usage: sxiv [-dFfhpqrsTtvZ] [-g GEOMETRY] [-z ZOOM] FILES...\n");
 }
 
 void print_version() {
@@ -54,7 +55,7 @@ void parse_options(int argc, char **argv) {
 	_options.quiet = 0;
 	_options.recursive = 0;
 
-	while ((opt = getopt(argc, argv, "dFfg:hpqrstvZz:")) != -1) {
+	while ((opt = getopt(argc, argv, "dFfg:hpqrsTtvZz:")) != -1) {
 		switch (opt) {
 			case '?':
 				print_usage();
@@ -86,8 +87,11 @@ void parse_options(int argc, char **argv) {
 			case 's':
 				_options.scalemode = SCALE_FIT;
 				break;
+			case 'T':
+				_options.thumbnails = 2;
+				break;
 			case 't':
-				_options.thumbnails = 1;
+				_options.thumbnails = MAX(_options.thumbnails, 1);
 				break;
 			case 'v':
 				print_version();

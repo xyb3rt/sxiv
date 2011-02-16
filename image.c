@@ -110,6 +110,32 @@ int img_load(img_t *img, const char *filename) {
 	return 1;
 }
 
+int img_load_thumb(thumb_t *tn, const char *filename) {
+	int w, h;
+	float z, zw, zh;
+
+	if (!tn)
+		return 0;
+	
+	if (!_imlib_load_image(filename))
+		return 0;
+
+	w = imlib_image_get_width();
+	h = imlib_image_get_height();
+	zw = (float) THUMB_SIZE / (float) w;
+	zh = (float) THUMB_SIZE / (float) h;
+	z = MIN(zw, zh);
+	tn->w = z * w;
+	tn->h = z * h;
+
+	imlib_context_set_drawable(tn->pm);
+	imlib_render_image_part_on_drawable_at_size(0, 0, w, h,
+	                                            0, 0, tn->w, tn->h);
+	imlib_free_image();
+
+	return 1;
+}
+
 void img_check_pan(img_t *img, win_t *win) {
 	if (!img || !win)
 		return;
@@ -147,27 +173,6 @@ int img_fit(img_t *img, win_t *win) {
 	img->zoom = MIN(img->zoom, zoom_max);
 
 	return oz != img->zoom;
-}
-
-int img_load_thumb(thumb_t *tn, const char *filename) {
-	int w;
-	int h;
-
-	if (!tn)
-		return 0;
-	
-	if (!_imlib_load_image(filename))
-		return 0;
-
-	w = imlib_image_get_width();
-	h = imlib_image_get_height();
-
-	imlib_context_set_drawable(tn->pm);
-	imlib_render_image_part_on_drawable_at_size(0, 0, w, h,
-	                                            0, 0, THUMB_SIZE, THUMB_SIZE);
-	imlib_free_image();
-
-	return 1;
 }
 
 void img_render(img_t *img, win_t *win) {

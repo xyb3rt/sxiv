@@ -219,6 +219,13 @@ Pixmap win_create_pixmap(win_t *win) {
 	                     win->env.depth);
 }
 
+void win_draw_pixmap(win_t *win, Pixmap pm, int x, int y, int w, int h) {
+	if (!win)
+		return;
+
+	XCopyArea(win->env.dpy, pm, win->pm, bgc, 0, 0, w, h, x, y);
+}
+
 void win_clear(win_t *win) {
 	win_env_t *e;
 	XGCValues gcval;
