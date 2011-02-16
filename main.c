@@ -32,11 +32,17 @@
 #include "util.h"
 #include "window.h"
 
+typedef enum appmode_e {
+	MODE_NORMAL = 0,
+	MODE_THUMBS
+} appmode_t;
+
 void update_title();
 int check_append(const char*);
 void read_dir_rec(const char*);
 void run();
 
+appmode_t mode;
 img_t img;
 win_t win;
 
@@ -129,12 +135,16 @@ int main(int argc, char **argv) {
 		}
 	}
 
-	load_image();
-	img_render(&img, &win);
+	if (options->thumbnails == 2) {
+		mode = MODE_THUMBS;
+	} else {
+		mode = MODE_NORMAL;
+		load_image();
+		img_render(&img, &win);
+	}
+
 	update_title();
-
 	run();
-
 	cleanup();
 
 	return 0;
@@ -242,6 +252,12 @@ void read_dir_rec(const char *dirname) {
 
 unsigned char timeout;
 int mox, moy;
+
+void redraw() {
+	img_render(&img, &win);
+	update_title();
+	timeout = 0;
+}
 
 void on_keypress(XKeyEvent *kev) {
 	int x, y;
@@ -374,11 +390,8 @@ void on_keypress(XKeyEvent *kev) {
 			break;
 	}
 
-	if (changed) {
-		img_render(&img, &win);
-		update_title();
-		timeout = 0;
-	}
+	if (changed)
+		redraw();
 }
 
 void on_buttonpress(XButtonEvent *bev) {
@@ -433,11 +446,8 @@ void on_buttonpress(XButtonEvent *bev) {
 			break;
 	}
 
-	if (changed) {
-		img_render(&img, &win);
-		update_title();
-		timeout = 0;
-	}
+	if (changed)
+		redraw();
 }
 
 void on_motionnotify(XMotionEvent *mev) {
