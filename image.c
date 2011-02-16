@@ -149,6 +149,27 @@ int img_fit(img_t *img, win_t *win) {
 	return oz != img->zoom;
 }
 
+int img_load_thumb(thumb_t *tn, const char *filename) {
+	int w;
+	int h;
+
+	if (!tn)
+		return 0;
+	
+	if (!_imlib_load_image(filename))
+		return 0;
+
+	w = imlib_image_get_width();
+	h = imlib_image_get_height();
+
+	imlib_context_set_drawable(tn->pm);
+	imlib_render_image_part_on_drawable_at_size(0, 0, w, h,
+	                                            0, 0, THUMB_SIZE, THUMB_SIZE);
+	imlib_free_image();
+
+	return 1;
+}
+
 void img_render(img_t *img, win_t *win) {
 	int sx, sy, sw, sh;
 	int dx, dy, dw, dh;

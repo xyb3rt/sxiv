@@ -63,6 +63,8 @@ int win_moveresize(win_t*, int, int, unsigned int, unsigned int);
 
 void win_toggle_fullscreen(win_t*);
 
+Pixmap win_create_pixmap(win_t*);
+
 void win_clear(win_t*);
 void win_draw(win_t*);
 

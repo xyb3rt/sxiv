@@ -46,6 +46,8 @@ const char **filenames;
 int filecnt, fileidx;
 size_t filesize;
 
+thumb_t *thumbs;
+
 #define TITLE_LEN 256
 char win_title[TITLE_LEN];
 
@@ -118,6 +120,12 @@ int main(int argc, char **argv) {
 
 	win_open(&win);
 	img_init(&img, &win);
+
+	if (options->thumbnails) {
+		thumbs = (thumb_t*) s_malloc(filecnt * sizeof(thumb_t));
+		for (i = 0; i < filecnt; ++i)
+			img_load_thumb(&thumbs[i], filenames[i]);
+	}
 
 	load_image();
 	img_render(&img, &win);

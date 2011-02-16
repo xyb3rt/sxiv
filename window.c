@@ -211,6 +211,14 @@ void win_toggle_fullscreen(win_t *win) {
 	           SubstructureNotifyMask, &ev);
 }
 
+Pixmap win_create_pixmap(win_t *win) {
+	if (!win)
+		return 0;
+
+	return XCreatePixmap(win->env.dpy, win->xwin, THUMB_SIZE, THUMB_SIZE,
+	                     win->env.depth);
+}
+
 void win_clear(win_t *win) {
 	win_env_t *e;
 	XGCValues gcval;

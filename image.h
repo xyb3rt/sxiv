@@ -49,11 +49,18 @@ typedef struct img_s {
 	int h;
 } img_t;
 
+typedef struct thumb_s {
+	int x;
+	int y;
+	Pixmap pm;
+} thumb_t;
+
 void img_init(img_t*, win_t*);
 void img_free(img_t*);
 
 int img_check(const char*);
 int img_load(img_t*, const char*);
+int img_load_thumb(thumb_t*, const char*);
 
 void img_render(img_t*, win_t*);
 

@@ -29,6 +29,7 @@ typedef struct options_s {
 	scalemode_t scalemode;
 	float zoom;
 	unsigned char aa;
+	unsigned char thumbnails;
 
 	unsigned char fixed;
 	unsigned char fullscreen;
