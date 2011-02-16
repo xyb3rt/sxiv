@@ -123,8 +123,10 @@ int main(int argc, char **argv) {
 
 	if (options->thumbnails) {
 		thumbs = (thumb_t*) s_malloc(filecnt * sizeof(thumb_t));
-		for (i = 0; i < filecnt; ++i)
+		for (i = 0; i < filecnt; ++i) {
+			thumbs[i].pm = win_create_pixmap(&win);
 			img_load_thumb(&thumbs[i], filenames[i]);
+		}
 	}
 
 	load_image();
