@@ -284,6 +284,117 @@ void on_keypress(XKeyEvent *kev) {
 	XLookupString(kev, &key, 1, &ksym, NULL);
 	changed = 0;
 
+	if (mode == MODE_NORMAL) {
+		switch (ksym) {
+			/* navigate image list */
+			case XK_n:
+			case XK_space:
+				if (fileidx + 1 < filecnt) {
+					++fileidx;
+					changed = load_image();
+				}
+				break;
+			case XK_p:
+			case XK_BackSpace:
+				if (fileidx > 0) {
+					--fileidx;
+					changed = load_image();
+				}
+				break;
+			case XK_bracketleft:
+				if (fileidx != 0) {
+					fileidx = MAX(0, fileidx - 10);
+					changed = load_image();
+				}
+				break;
+			case XK_bracketright:
+				if (fileidx != filecnt - 1) {
+					fileidx = MIN(fileidx + 10, filecnt - 1);
+					changed = load_image();
+				}
+				break;
+			case XK_g:
+				if (fileidx != 0) {
+					fileidx = 0;
+					changed = load_image();
+				}
+				break;
+			case XK_G:
+				if (fileidx != filecnt - 1) {
+					fileidx = filecnt - 1;
+					changed = load_image();
+				}
+				break;
+
+			/* zooming */
+			case XK_plus:
+			case XK_equal:
+				changed = img_zoom_in(&img);
+				break;
+			case XK_minus:
+				changed = img_zoom_out(&img);
+				break;
+			case XK_0:
+				changed = img_zoom(&img, 1.0);
+				break;
+			case XK_w:
+				if ((changed = img_fit_win(&img, &win)))
+					img_center(&img, &win);
+				break;
+
+			/* panning */
+			case XK_h:
+			case XK_Left:
+				changed = img_pan(&img, &win, PAN_LEFT);
+				break;
+			case XK_j:
+			case XK_Down:
+				changed = img_pan(&img, &win, PAN_DOWN);
+				break;
+			case XK_k:
+			case XK_Up:
+				changed = img_pan(&img, &win, PAN_UP);
+				break;
+			case XK_l:
+			case XK_Right:
+				changed = img_pan(&img, &win, PAN_RIGHT);
+				break;
+
+			/* rotation */
+			case XK_less:
+				img_rotate_left(&img, &win);
+				changed = 1;
+				break;
+			case XK_greater:
+				img_rotate_right(&img, &win);
+				changed = 1;
+				break;
+
+			/* control window */
+			case XK_W:
+				x = win.x + img.x;
+				y = win.y + img.y;
+				w = img.w * img.zoom;
+				h = img.h * img.zoom;
+				if ((changed = win_moveresize(&win, x, y, w, h))) {
+					img.x = x - win.x;
+					img.y = y - win.y;
+				}
+				break;
+
+			/* miscellaneous */
+			case XK_a:
+				img_toggle_antialias(&img);
+				changed = 1;
+				break;
+			case XK_r:
+				changed = load_image();
+				break;
+		}
+	} else {
+	}
+
+	/* common key mappings */
 	switch (ksym) {
 		case XK_Escape:
 			cleanup();
@@ -291,114 +402,9 @@ void on_keypress(XKeyEvent *kev) {
 		case XK_q:
 			cleanup();
 			exit(0);
-
-		/* navigate image list */
-		case XK_n:
-		case XK_space:
-			if (fileidx + 1 < filecnt) {
-				++fileidx;
-				changed = load_image();
-			}
-			break;
-		case XK_p:
-		case XK_BackSpace:
-			if (fileidx > 0) {
-				--fileidx;
-				changed = load_image();
-			}
-			break;
-		case XK_bracketleft:
-			if (fileidx != 0) {
-				fileidx = MAX(0, fileidx - 10);
-				changed = load_image();
-			}
-			break;
-		case XK_bracketright:
-			if (fileidx != filecnt - 1) {
-				fileidx = MIN(fileidx + 10, filecnt - 1);
-				changed = load_image();
-			}
-			break;
-		case XK_g:
-			if (fileidx != 0) {
-				fileidx = 0;
-				changed = load_image();
-			}
-			break;
-		case XK_G:
-			if (fileidx != filecnt - 1) {
-				fileidx = filecnt - 1;
-				changed = load_image();
-			}
-			break;
-
-		/* zooming */
-		case XK_plus:
-		case XK_equal:
-			changed = img_zoom_in(&img);
-			break;
-		case XK_minus:
-			changed = img_zoom_out(&img);
-			break;
-		case XK_0:
-			changed = img_zoom(&img, 1.0);
-			break;
-		case XK_w:
-			if ((changed = img_fit_win(&img, &win)))
-				img_center(&img, &win);
-			break;
-
-		/* panning */
-		case XK_h:
-		case XK_Left:
-			changed = img_pan(&img, &win, PAN_LEFT);
-			break;
-		case XK_j:
-		case XK_Down:
-			changed = img_pan(&img, &win, PAN_DOWN);
-			break;
-		case XK_k:
-		case XK_Up:
-			changed = img_pan(&img, &win, PAN_UP);
-			break;
-		case XK_l:
-		case XK_Right:
-			changed = img_pan(&img, &win, PAN_RIGHT);
-			break;
-
-		/* rotation */
-		case XK_less:
-			img_rotate_left(&img, &win);
-			changed = 1;
-			break;
-		case XK_greater:
-			img_rotate_right(&img, &win);
-			changed = 1;
-			break;
-
-		/* control window */
 		case XK_f:
 			win_toggle_fullscreen(&win);
 			/* render on next configurenotify */
-			break;
-		case XK_W:
-			x = win.x + img.x;
-			y = win.y + img.y;
-			w = img.w * img.zoom;
-			h = img.h * img.zoom;
-			if ((changed = win_moveresize(&win, x, y, w, h))) {
-				img.x = x - win.x;
-				img.y = y - win.y;
-			}
-			break;
-
-		/* miscellaneous */
-		case XK_a:
-			img_toggle_antialias(&img);
-			changed = 1;
-			break;
-		case XK_r:
-			changed = load_image();
 			break;
 	}
 
