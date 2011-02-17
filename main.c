@@ -138,6 +138,8 @@ int main(int argc, char **argv) {
 
 	if (options->thumbnails == 2) {
 		mode = MODE_THUMBS;
+		win_clear(&win);
+		win_draw(&win);
 	} else {
 		mode = MODE_NORMAL;
 		load_image();

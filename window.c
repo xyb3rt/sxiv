@@ -239,14 +239,13 @@ void win_clear(win_t *win) {
 		return;
 
 	e = &win->env;
+	gcval.foreground = win->fullscreen ? BlackPixel(e->dpy, e->scr) : win->bgcol;
 
 	if (win->pm)
 		XFreePixmap(e->dpy, win->pm);
 	win->pm = XCreatePixmap(e->dpy, win->xwin, e->scrw, e->scrh, e->depth);
 
-	gcval.foreground = win->fullscreen ? BlackPixel(e->dpy, e->scr) : win->bgcol;
 	XChangeGC(e->dpy, bgc, GCForeground, &gcval);
-
 	XFillRectangle(e->dpy, win->pm, bgc, 0, 0, e->scrw, e->scrh);
 }
 
