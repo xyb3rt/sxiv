@@ -43,6 +43,7 @@ typedef struct win_s {
 	win_env_t env;
 
 	unsigned long bgcol;
+	unsigned long selcol;
 	Pixmap pm;
 
 	int x;
@@ -66,9 +67,10 @@ void win_toggle_fullscreen(win_t*);
 
 Pixmap win_create_pixmap(win_t*, int, int);
 void win_free_pixmap(win_t*, Pixmap);
-void win_draw_pixmap(win_t*, Pixmap, int, int, int, int);
 
 void win_clear(win_t*);
+void win_draw_pixmap(win_t*, Pixmap, int, int, int, int);
+void win_draw_rect(win_t*, int, int, int, int, Bool);
 void win_draw(win_t*);
 
 void win_set_title(win_t*, const char*);

@@ -46,5 +46,6 @@ void tns_free(tns_t*, win_t*);
 void tns_load(tns_t*, win_t*, const char*);
 
 void tns_render(tns_t*, win_t*);
+void tns_highlight(tns_t*, win_t*, int);
 
 #endif /* THUMBS_H */

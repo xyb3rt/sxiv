@@ -88,8 +88,8 @@ void tns_render(tns_t *tns, win_t *win) {
 	if (!tns || !win)
 		return;
 
-	tns->cols = win->w / thumb_dim;
-	tns->rows = win->h / thumb_dim;
+	tns->cols = MAX(1, win->w / thumb_dim);
+	tns->rows = MAX(1, win->h / thumb_dim);
 
 	cnt = tns->cols * tns->rows;
 	if (tns->first && tns->first + cnt > tns->cnt)
@@ -114,6 +114,22 @@ void tns_render(tns_t *tns, win_t *win) {
 		}
 	}
 
+	tns_highlight(tns, win, -1);
 	win_draw(win);
 }
 
+void tns_highlight(tns_t *tns, win_t *win, int old) {
+	thumb_t *t;
+
+	if (!tns || !win)
+		return;
+
+	if (old >= 0 && old < tns->cnt) {
+		t = &tns->thumbs[old];
+		win_draw_rect(win, t->x - 2, t->y - 2, t->w + 4, t->h + 4, False);
+	}
+	if (tns->sel < tns->cnt) {
+		t = &tns->thumbs[tns->sel];
+		win_draw_rect(win, t->x - 2, t->y - 2, t->w + 4, t->h + 4, True);
+	}
+}

@@ -6,6 +6,8 @@
 /* default color to use for window background:           *
  *   (see X(7) "COLOR NAMES" section for valid values)   */
 #define BG_COLOR    "#999999"
+/* default color to use for selections:                  */
+#define SEL_COLOR   "#0000BB"
 
 /* how should images be scaled when they are loaded?:    *
  * (also controllable via -d/-s/-Z/-z options)           *

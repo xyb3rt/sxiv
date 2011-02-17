@@ -29,7 +29,7 @@
 static Cursor carrow;
 static Cursor chand;
 static Cursor cwatch;
-static GC bgc;
+static GC gc;
 
 Atom wm_delete_win;
 
@@ -50,7 +50,8 @@ void win_set_sizehints(win_t *win) {
 void win_open(win_t *win) {
 	win_env_t *e;
 	XClassHint classhint;
-	XColor bgcol;
+	XColor col;
+	XGCValues gcval;
 	int gmask;
 
 	if (!win)
@@ -67,13 +68,18 @@ void win_open(win_t *win) {
 	e->cmap = DefaultColormap(e->dpy, e->scr);
 	e->depth = DefaultDepth(e->dpy, e->scr);
 
-	if (!XAllocNamedColor(e->dpy, DefaultColormap(e->dpy, e->scr), BG_COLOR,
-		                    &bgcol, &bgcol))
+	if (XAllocNamedColor(e->dpy, DefaultColormap(e->dpy, e->scr), BG_COLOR,
+		                    &col, &col))
+		win->bgcol = col.pixel;
+	else
+		die("could not allocate color: %s", BG_COLOR);
+	if (XAllocNamedColor(e->dpy, DefaultColormap(e->dpy, e->scr), SEL_COLOR,
+		                    &col, &col))
+		win->selcol = col.pixel;
+	else
 		die("could not allocate color: %s", BG_COLOR);
 
-	win->bgcol = bgcol.pixel;
 	win->pm = 0;
-
 	win->fullscreen = 0;
 	
 	/* determine window offsets, width & height */
@@ -112,7 +118,8 @@ void win_open(win_t *win) {
 	chand = XCreateFontCursor(e->dpy, XC_fleur);
 	cwatch = XCreateFontCursor(e->dpy, XC_watch);
 
-	bgc = XCreateGC(e->dpy, win->xwin, 0, None);
+	gcval.line_width = 2;
+	gc = XCreateGC(e->dpy, win->xwin, GCLineWidth, &gcval);
 
 	win_set_title(win, "sxiv");
 
@@ -141,7 +148,7 @@ void win_close(win_t *win) {
 	XFreeCursor(win->env.dpy, chand);
 	XFreeCursor(win->env.dpy, cwatch);
 
-	XFreeGC(win->env.dpy, bgc);
+	XFreeGC(win->env.dpy, gc);
 
 	XDestroyWindow(win->env.dpy, win->xwin);
 	XCloseDisplay(win->env.dpy);
@@ -226,11 +233,6 @@ void win_free_pixmap(win_t *win, Pixmap pm) {
 		XFreePixmap(win->env.dpy, pm);
 }
 
-void win_draw_pixmap(win_t *win, Pixmap pm, int x, int y, int w, int h) {
-	if (win)
-		XCopyArea(win->env.dpy, pm, win->pm, bgc, 0, 0, w, h, x, y);
-}
-
 void win_clear(win_t *win) {
 	win_env_t *e;
 	XGCValues gcval;
@@ -239,14 +241,37 @@ void win_clear(win_t *win) {
 		return;
 
 	e = &win->env;
-	gcval.foreground = win->fullscreen ? BlackPixel(e->dpy, e->scr) : win->bgcol;
-
+	gcval.foreground = win->fullscreen ? BlackPixel(e->dpy, e->scr) :
+	                                     win->bgcol;
 	if (win->pm)
 		XFreePixmap(e->dpy, win->pm);
 	win->pm = XCreatePixmap(e->dpy, win->xwin, e->scrw, e->scrh, e->depth);
 
-	XChangeGC(e->dpy, bgc, GCForeground, &gcval);
-	XFillRectangle(e->dpy, win->pm, bgc, 0, 0, e->scrw, e->scrh);
+	XChangeGC(e->dpy, gc, GCForeground, &gcval);
+	XFillRectangle(e->dpy, win->pm, gc, 0, 0, e->scrw, e->scrh);
+}
+
+void win_draw_pixmap(win_t *win, Pixmap pm, int x, int y, int w, int h) {
+	if (win)
+		XCopyArea(win->env.dpy, pm, win->pm, gc, 0, 0, w, h, x, y);
+}
+
+void win_draw_rect(win_t *win, int x, int y, int w, int h, Bool sel) {
+	win_env_t *e;
+	XGCValues gcval;
+
+	if (!win)
+		return;
+
+	e = &win->env;
+
+	if (sel)
+		gcval.foreground = win->selcol;
+	else
+		gcval.foreground = win->fullscreen ? BlackPixel(e->dpy, e->scr) :
+		                                     win->bgcol;
+	XChangeGC(e->dpy, gc, GCForeground, &gcval);
+	XDrawRectangle(e->dpy, win->pm, gc, x, y, w, h);
 }
 
 void win_draw(win_t *win) {
