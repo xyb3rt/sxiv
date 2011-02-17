@@ -268,11 +268,11 @@ void redraw() {
 }
 
 void on_keypress(XKeyEvent *kev) {
-	int sel, x, y;
+	int x, y;
 	unsigned int w, h;
 	char key;
 	KeySym ksym;
-	int changed;
+	int changed, sel;
 
 	if (!kev)
 		return;
@@ -439,7 +439,7 @@ void on_keypress(XKeyEvent *kev) {
 }
 
 void on_buttonpress(XButtonEvent *bev) {
-	int changed;
+	int changed, sel;
 	unsigned int mask;
 
 	if (!bev)
@@ -448,46 +448,61 @@ void on_buttonpress(XButtonEvent *bev) {
 	mask = CLEANMASK(bev->state);
 	changed = 0;
 
-	switch (bev->button) {
-		case Button1:
-			if (fileidx + 1 < filecnt) {
-				++fileidx;
-				changed = load_image();
-			}
-			break;
-		case Button2:
-			mox = bev->x;
-			moy = bev->y;
-			win_set_cursor(&win, CURSOR_HAND);
-			break;
-		case Button3:
-			if (fileidx > 0) {
-				--fileidx;
-				changed = load_image();
-			}
-			break;
-		case Button4:
-			if (mask == ControlMask)
-				changed = img_zoom_in(&img);
-			else if (mask == ShiftMask)
+	if (mode == MODE_NORMAL) {
+		switch (bev->button) {
+			case Button1:
+				if (fileidx + 1 < filecnt) {
+					++fileidx;
+					changed = load_image();
+				}
+				break;
+			case Button2:
+				mox = bev->x;
+				moy = bev->y;
+				win_set_cursor(&win, CURSOR_HAND);
+				break;
+			case Button3:
+				if (fileidx > 0) {
+					--fileidx;
+					changed = load_image();
+				}
+				break;
+			case Button4:
+				if (mask == ControlMask)
+					changed = img_zoom_in(&img);
+				else if (mask == ShiftMask)
+					changed = img_pan(&img, &win, PAN_LEFT);
+				else
+					changed = img_pan(&img, &win, PAN_UP);
+				break;
+			case Button5:
+				if (mask == ControlMask)
+					changed = img_zoom_out(&img);
+				else if (mask == ShiftMask)
+					changed = img_pan(&img, &win, PAN_RIGHT);
+				else
+					changed = img_pan(&img, &win, PAN_DOWN);
+				break;
+			case 6:
 				changed = img_pan(&img, &win, PAN_LEFT);
-			else
-				changed = img_pan(&img, &win, PAN_UP);
-			break;
-		case Button5:
-			if (mask == ControlMask)
-				changed = img_zoom_out(&img);
-			else if (mask == ShiftMask)
+				break;
+			case 7:
 				changed = img_pan(&img, &win, PAN_RIGHT);
-			else
-				changed = img_pan(&img, &win, PAN_DOWN);
-			break;
-		case 6:
-			changed = img_pan(&img, &win, PAN_LEFT);
-			break;
-		case 7:
-			changed = img_pan(&img, &win, PAN_RIGHT);
-			break;
+				break;
+		}
+	} else {
+		/* thumbnail mode */
+		switch (bev->button) {
+			case Button1:
+				if ((sel = tns_translate(&tns, bev->x, bev->y)) >= 0) {
+					fileidx = sel;
+					load_image();
+					mode = MODE_NORMAL;
+					changed = 1;
+					break;
+				}
+				break;
+		}
 	}
 
 	if (changed)

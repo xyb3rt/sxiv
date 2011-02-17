@@ -57,4 +57,6 @@ void tns_highlight(tns_t*, win_t*, int);
 
 void tns_move_selection(tns_t*, win_t*, movedir_t);
 
+int tns_translate(tns_t*, int, int);
+
 #endif /* THUMBS_H */

@@ -170,3 +170,19 @@ void tns_move_selection(tns_t *tns, win_t *win, movedir_t dir) {
 			break;
 	}
 }
+
+int tns_translate(tns_t *tns, int x, int y) {
+	int n;
+	thumb_t *t;
+
+	if (!tns || x < 5 || y < 5)
+		return -1;
+
+	if ((n = y / thumb_dim * tns-> cols + x / thumb_dim) < tns->cnt) {
+		t = &tns->thumbs[n];
+		if (x > t->x && x < t->x + t->w && y > t->y && y < t->y + t->h)
+			return n;
+	}
+
+	return -1;
+}
