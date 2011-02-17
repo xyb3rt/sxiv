@@ -230,7 +230,7 @@ void read_dir_rec(const char *dirname) {
 
 /* event handling */
 
-unsigned char timeout;
+int timeout;
 int mox, moy;
 
 void on_keypress(XKeyEvent *kev) {
@@ -436,7 +436,7 @@ void on_motionnotify(XMotionEvent *mev) {
 
 	if (mev->x >= 0 && mev->x <= win.w && mev->y >= 0 && mev->y <= win.h) {
 		if (img_move(&img, &win, mev->x - mox, mev->y - moy))
-			timeout = 1;
+			timeout = 1000;
 
 		mox = mev->x;
 		moy = mev->y;
@@ -454,7 +454,7 @@ void run() {
 	while (1) {
 		if (timeout) {
 			t.tv_sec = 0;
-			t.tv_usec = 75000;
+			t.tv_usec = timeout;
 			xfd = ConnectionNumber(win.env.dpy);
 			FD_ZERO(&fds);
 			FD_SET(xfd, &fds);
@@ -483,7 +483,7 @@ void run() {
 				case ConfigureNotify:
 					if (win_configure(&win, &ev.xconfigure)) {
 						img.checkpan = 1;
-						timeout = 1;
+						timeout = 75000;
 					}
 					break;
 				case ClientMessage:
