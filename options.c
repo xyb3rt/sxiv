@@ -34,8 +34,7 @@ void print_usage() {
 }
 
 void print_version() {
-	printf("sxiv - simple x image viewer\n");
-	printf("Version %s, written by Bert Muennich\n", VERSION);
+	printf("sxiv version %s - simple x image viewer\n", VERSION);
 }
 
 void parse_options(int argc, char **argv) {
