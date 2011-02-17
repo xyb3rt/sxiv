@@ -23,7 +23,6 @@
 
 typedef struct thumb_s {
 	Pixmap pm;
-	const char *filename;
 	int x;
 	int y;
 	int w;

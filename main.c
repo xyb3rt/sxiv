@@ -55,8 +55,6 @@ const char **filenames;
 int filecnt, fileidx;
 size_t filesize;
 
-int tns_loaded;
-
 #define TITLE_LEN 256
 char win_title[TITLE_LEN];
 
@@ -131,10 +129,8 @@ int main(int argc, char **argv) {
 	win_open(&win);
 	img_init(&img, &win);
 
-	if (options->thumbnails) {
-		tns_loaded = 0;
+	if (options->thumbnails)
 		tns_init(&tns, filecnt);
-	}
 
 	if (options->thumbnails == 2) {
 		mode = MODE_THUMBS;
@@ -161,7 +157,7 @@ void update_title() {
 	if (mode == MODE_THUMBS) {
 		n = snprintf(win_title, TITLE_LEN, "sxiv: [%d/%d] %s",
 		             tns.cnt ? tns.sel + 1 : 0, tns.cnt,
-								 tns.cnt ? tns.thumbs[tns.sel].filename : "");
+		             tns.cnt ? filenames[tns.sel] : "");
 	} else {
 		if (img.valid) {
 			size = filesize;
@@ -490,17 +486,17 @@ void run() {
 	timeout = 0;
 
 	while (1) {
-		if (mode == MODE_THUMBS && tns_loaded < filecnt) {
+		if (mode == MODE_THUMBS && tns.cnt < filecnt) {
 			win_set_cursor(&win, CURSOR_WATCH);
 			gettimeofday(&t0, 0);
 
-			while (!XPending(win.env.dpy) && tns_loaded < filecnt) {
-				tns_load(&tns, &win, filenames[tns_loaded++]);
+			while (!XPending(win.env.dpy) && tns.cnt < filecnt) {
+				tns_load(&tns, &win, filenames[tns.cnt]);
 				gettimeofday(&t, 0);
 				if (TV_TO_DOUBLE(t) - TV_TO_DOUBLE(t0) >= 0.25)
 					break;
 			}
-			if (tns_loaded == filecnt)
+			if (tns.cnt == filecnt)
 				win_set_cursor(&win, CURSOR_ARROW);
 			if (!XPending(win.env.dpy)) {
 				redraw();
