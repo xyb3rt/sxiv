@@ -378,6 +378,18 @@ void on_keypress(XKeyEvent *kev) {
 				}
 				break;
 
+			/* switch to thumnail mode */
+			case XK_Return:
+				if (options->thumbnails) {
+					if (fileidx < tns.cnt)
+						tns.sel = fileidx;
+					else
+						tns.sel = 0;
+					mode = MODE_THUMBS;
+					changed = 1;
+				}
+				break;
+
 			/* miscellaneous */
 			case XK_a:
 				img_toggle_antialias(&img);
