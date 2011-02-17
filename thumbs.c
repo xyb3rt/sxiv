@@ -69,6 +69,7 @@ void tns_load(tns_t *tns, win_t *win, const char *filename) {
 	z = MIN(zw, zh);
 
 	t = &tns->thumbs[tns->cnt++];
+	t->filename = filename;
 	t->w = z * w;
 	t->h = z * h;
 

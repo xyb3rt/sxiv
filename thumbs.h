@@ -22,11 +22,12 @@
 #include "window.h"
 
 typedef struct thumb_s {
+	Pixmap pm;
+	const char *filename;
 	int x;
 	int y;
 	int w;
 	int h;
-	Pixmap pm;
 } thumb_t;
 
 typedef struct tns_s {

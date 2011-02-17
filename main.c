@@ -158,15 +158,21 @@ void update_title() {
 	float size;
 	const char *unit;
 
-	if (img.valid) {
-		size = filesize;
-		size_readable(&size, &unit);
-		n = snprintf(win_title, TITLE_LEN, "sxiv: [%d/%d] <%d%%> (%.2f%s) %s",
-		             fileidx + 1, filecnt, (int) (img.zoom * 100.0), size, unit,
-		             filenames[fileidx]);
+	if (mode == MODE_THUMBS) {
+		n = snprintf(win_title, TITLE_LEN, "sxiv: [%d/%d] %s",
+		             tns.cnt ? tns.sel + 1 : 0, tns.cnt,
+								 tns.cnt ? tns.thumbs[tns.sel].filename : "");
 	} else {
-		n = snprintf(win_title, TITLE_LEN, "sxiv: [%d/%d] broken: %s",
-		             fileidx + 1, filecnt, filenames[fileidx]);
+		if (img.valid) {
+			size = filesize;
+			size_readable(&size, &unit);
+			n = snprintf(win_title, TITLE_LEN, "sxiv: [%d/%d] <%d%%> (%.2f%s) %s",
+									 fileidx + 1, filecnt, (int) (img.zoom * 100.0), size, unit,
+									 filenames[fileidx]);
+		} else {
+			n = snprintf(win_title, TITLE_LEN, "sxiv: [%d/%d] broken: %s",
+									 fileidx + 1, filecnt, filenames[fileidx]);
+		}
 	}
 
 	if (n >= TITLE_LEN) {
@@ -491,7 +497,7 @@ void run() {
 			if (tns_loaded == filecnt)
 				win_set_cursor(&win, CURSOR_ARROW);
 			if (!XPending(win.env.dpy)) {
-				tns_render(&tns, &win);
+				redraw();
 				continue;
 			} else {
 				timeout = 1;
@@ -503,13 +509,8 @@ void run() {
 			FD_ZERO(&fds);
 			FD_SET(xfd, &fds);
 
-			if (!XPending(win.env.dpy) && !select(xfd + 1, &fds, 0, 0, &t)) {
-				timeout = 0;
-				if (mode == MODE_NORMAL)
-					img_render(&img, &win);
-				else
-					tns_render(&tns, &win);
-			}
+			if (!XPending(win.env.dpy) && !select(xfd + 1, &fds, 0, 0, &t))
+				redraw();
 		}
 
 		if (!XNextEvent(win.env.dpy, &ev)) {
