@@ -397,6 +397,7 @@ void on_keypress(XKeyEvent *kev) {
 				fileidx = sel;
 				load_image();
 				mode = MODE_NORMAL;
+				win_set_cursor(&win, CURSOR_ARROW);
 				changed = 1;
 				break;
 
@@ -498,6 +499,7 @@ void on_buttonpress(XButtonEvent *bev) {
 					fileidx = sel;
 					load_image();
 					mode = MODE_NORMAL;
+					win_set_cursor(&win, CURSOR_ARROW);
 					changed = 1;
 					break;
 				}
