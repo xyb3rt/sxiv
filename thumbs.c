@@ -84,6 +84,8 @@ void tns_render(tns_t *tns, win_t *win) {
 
 	if (!tns || !win)
 		return;
+	
+	printf("tns_render()\n");
 
 	tns->cols = win->w / thumb_dim;
 	tns->rows = win->h / thumb_dim;

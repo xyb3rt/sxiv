@@ -22,6 +22,7 @@
 #include <dirent.h>
 #include <sys/select.h>
 #include <sys/stat.h>
+#include <sys/time.h>
 
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -469,7 +470,7 @@ void on_motionnotify(XMotionEvent *mev) {
 void run() {
 	int xfd;
 	fd_set fds;
-	struct timeval t;
+	struct timeval t, t0;
 	XEvent ev;
 
 	timeout = 0;
@@ -477,12 +478,22 @@ void run() {
 	while (1) {
 		if (mode == MODE_THUMBS && tns_loaded < filecnt) {
 			win_set_cursor(&win, CURSOR_WATCH);
-			tns_load(&tns, &win, filenames[tns_loaded++]);
-			tns_render(&tns, &win);
+			gettimeofday(&t0, 0);
+
+			while (!XPending(win.env.dpy) && tns_loaded < filecnt) {
+				tns_load(&tns, &win, filenames[tns_loaded++]);
+				gettimeofday(&t, 0);
+				if (TV_TO_DOUBLE(t) - TV_TO_DOUBLE(t0) >= 0.25)
+					break;
+			}
 			if (tns_loaded == filecnt)
 				win_set_cursor(&win, CURSOR_ARROW);
-			else if (!XPending(win.env.dpy))
+			if (!XPending(win.env.dpy)) {
+				tns_render(&tns, &win);
 				continue;
+			} else {
+				timeout = 1;
+			}
 		} else if (timeout) {
 			t.tv_sec = 0;
 			t.tv_usec = 75000;
