@@ -485,7 +485,7 @@ void run() {
 				continue;
 		} else if (timeout) {
 			t.tv_sec = 0;
-			t.tv_usec = 250;
+			t.tv_usec = 75000;
 			xfd = ConnectionNumber(win.env.dpy);
 			FD_ZERO(&fds);
 			FD_SET(xfd, &fds);
