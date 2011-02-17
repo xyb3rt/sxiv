@@ -476,9 +476,12 @@ void run() {
 
 	while (1) {
 		if (mode == MODE_THUMBS && tns_loaded < filecnt) {
+			win_set_cursor(&win, CURSOR_WATCH);
 			tns_load(&tns, &win, filenames[tns_loaded++]);
 			tns_render(&tns, &win);
-			if (!XPending(win.env.dpy))
+			if (tns_loaded == filecnt)
+				win_set_cursor(&win, CURSOR_ARROW);
+			else if (!XPending(win.env.dpy))
 				continue;
 		} else if (timeout) {
 			t.tv_sec = 0;

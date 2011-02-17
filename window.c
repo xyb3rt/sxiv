@@ -26,8 +26,9 @@
 #include "util.h"
 #include "window.h"
 
-static Cursor arrow;
-static Cursor hand;
+static Cursor carrow;
+static Cursor chand;
+static Cursor cwatch;
 static GC bgc;
 
 Atom wm_delete_win;
@@ -107,8 +108,9 @@ void win_open(win_t *win) {
 	XSelectInput(e->dpy, win->xwin, StructureNotifyMask | KeyPressMask |
 	             ButtonPressMask | ButtonReleaseMask | Button2MotionMask);
 
-	arrow = XCreateFontCursor(e->dpy, XC_left_ptr);
-	hand = XCreateFontCursor(e->dpy, XC_fleur);
+	carrow = XCreateFontCursor(e->dpy, XC_left_ptr);
+	chand = XCreateFontCursor(e->dpy, XC_fleur);
+	cwatch = XCreateFontCursor(e->dpy, XC_watch);
 
 	bgc = XCreateGC(e->dpy, win->xwin, 0, None);
 
@@ -135,8 +137,9 @@ void win_close(win_t *win) {
 	if (!win)
 		return;
 
-	XFreeCursor(win->env.dpy, arrow);
-	XFreeCursor(win->env.dpy, hand);
+	XFreeCursor(win->env.dpy, carrow);
+	XFreeCursor(win->env.dpy, chand);
+	XFreeCursor(win->env.dpy, cwatch);
 
 	XFreeGC(win->env.dpy, bgc);
 
@@ -281,11 +284,14 @@ void win_set_cursor(win_t *win, win_cur_t cursor) {
 
 	switch (cursor) {
 		case CURSOR_HAND:
-			XDefineCursor(win->env.dpy, win->xwin, hand);
+			XDefineCursor(win->env.dpy, win->xwin, chand);
+			break;
+		case CURSOR_WATCH:
+			XDefineCursor(win->env.dpy, win->xwin, cwatch);
 			break;
 		case CURSOR_ARROW:
 		default:
-			XDefineCursor(win->env.dpy, win->xwin, arrow);
+			XDefineCursor(win->env.dpy, win->xwin, carrow);
 			break;
 	}
 }
