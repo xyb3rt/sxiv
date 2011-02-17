@@ -21,6 +21,13 @@
 
 #include "window.h"
 
+typedef enum movedir_e {
+	MOVE_LEFT = 0,
+	MOVE_RIGHT,
+	MOVE_UP,
+	MOVE_DOWN
+} movedir_t;
+
 typedef struct thumb_s {
 	Pixmap pm;
 	int x;
@@ -47,5 +54,7 @@ void tns_load(tns_t*, win_t*, const char*);
 
 void tns_render(tns_t*, win_t*);
 void tns_highlight(tns_t*, win_t*, int);
+
+void tns_move_selection(tns_t*, win_t*, movedir_t);
 
 #endif /* THUMBS_H */

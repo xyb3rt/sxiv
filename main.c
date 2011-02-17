@@ -268,7 +268,7 @@ void redraw() {
 }
 
 void on_keypress(XKeyEvent *kev) {
-	int x, y;
+	int sel, x, y;
 	unsigned int w, h;
 	char key;
 	KeySym ksym;
@@ -388,6 +388,36 @@ void on_keypress(XKeyEvent *kev) {
 				break;
 		}
 	} else {
+		/* thumbnail mode */
+		sel = tns.sel;
+
+		switch (ksym) {
+			/* open selected image */
+			case XK_Return:
+				fileidx = sel;
+				load_image();
+				mode = MODE_NORMAL;
+				changed = 1;
+				break;
+
+			/* move selection */
+			case XK_h:
+			case XK_Left:
+				tns_move_selection(&tns, &win, MOVE_LEFT);
+				break;
+			case XK_j:
+			case XK_Down:
+				tns_move_selection(&tns, &win, MOVE_DOWN);
+				break;
+			case XK_k:
+			case XK_Up:
+				tns_move_selection(&tns, &win, MOVE_UP);
+				break;
+			case XK_l:
+			case XK_Right:
+				tns_move_selection(&tns, &win, MOVE_RIGHT);
+				break;
+		}
 	}
 
 	/* common key mappings */
