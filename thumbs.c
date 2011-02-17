@@ -18,7 +18,6 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <pthread.h>
 
 #include <Imlib2.h>
 
@@ -26,75 +25,14 @@
 #include "thumbs.h"
 #include "util.h"
 
-typedef struct tload_s {
-	const char **filenames;
-	tns_t *tns;
-	win_t *win;
-} tload_t;
-
 const int thumb_dim = THUMB_SIZE + 10;
 
-pthread_t loader;
-tload_t tinfo;
-
-void* thread_load(void *arg) {
-	int i, w, h;
-	float z, zw, zh;
-	tload_t *tl;
-	thumb_t *t;
-	Imlib_Image *im;
-
-	tl = (tload_t*) arg;
-
-	for (i = 0; i < tl->tns->cnt; ++i) {
-		if (!(im = imlib_load_image(tl->filenames[i])))
-			continue;
-
-		imlib_context_set_image(im);
-
-		w = imlib_image_get_width();
-		h = imlib_image_get_height();
-		zw = (float) THUMB_SIZE / (float) w;
-		zh = (float) THUMB_SIZE / (float) h;
-		z = MIN(zw, zh);
-
-		t = &tl->tns->thumbs[i];
-		t->w = z * w;
-		t->h = z * h;
-
-		t->pm = win_create_pixmap(tl->win, t->w, t->h);
-		imlib_context_set_drawable(t->pm);
-		imlib_render_image_part_on_drawable_at_size(0, 0, w, h,
-		                                            0, 0, t->w, t->h);
-		t->loaded = 1;
-		imlib_free_image();
-	}
-
-	tl->tns->loaded = 1;
-
-	return 0;
-}
-
-void tns_load(tns_t *tns, win_t *win, const char **fnames, int fcnt) {
-	pthread_attr_t tattr;
-
-	if (!tns || !win || !fnames || !fcnt)
+void tns_init(tns_t *tns, int cnt) {
+	if (!tns)
 		return;
-	
-	tns->thumbs = (thumb_t*) s_malloc(fcnt * sizeof(thumb_t));
-	memset(tns->thumbs, 0, fcnt * sizeof(thumb_t));
-	tns->cnt = fcnt;
-	tns->loaded = 0;
 
-	tinfo.filenames = fnames;
-	tinfo.tns = tns;
-	tinfo.win = win;
-
-	pthread_attr_init(&tattr);
-	pthread_attr_setdetachstate(&tattr, PTHREAD_CREATE_JOINABLE);
-
-	if (pthread_create(&loader, &tattr, thread_load, (void*) &tinfo))
-		die("could not create thread");
+	tns->cnt = tns->first = tns->sel = 0;
+	tns->thumbs = (thumb_t*) s_malloc(cnt * sizeof(thumb_t));
 }
 
 void tns_free(tns_t *tns, win_t *win) {
@@ -108,6 +46,37 @@ void tns_free(tns_t *tns, win_t *win) {
 
 	free(tns->thumbs);
 	tns->thumbs = NULL;
+}
+
+void tns_load(tns_t *tns, win_t *win, const char *filename) {
+	int w, h;
+	float z, zw, zh;
+	thumb_t *t;
+	Imlib_Image *im;
+
+	if (!tns || !win || !filename)
+		return;
+
+	if (!(im = imlib_load_image(filename)))
+		return;
+
+	imlib_context_set_image(im);
+
+	w = imlib_image_get_width();
+	h = imlib_image_get_height();
+	zw = (float) THUMB_SIZE / (float) w;
+	zh = (float) THUMB_SIZE / (float) h;
+	z = MIN(zw, zh);
+
+	t = &tns->thumbs[tns->cnt++];
+	t->w = z * w;
+	t->h = z * h;
+
+	t->pm = win_create_pixmap(win, t->w, t->h);
+	imlib_context_set_drawable(t->pm);
+	imlib_render_image_part_on_drawable_at_size(0, 0, w, h,
+	                                            0, 0, t->w, t->h);
+	imlib_free_image();
 }
 
 void tns_render(tns_t *tns, win_t *win) {
@@ -130,9 +99,6 @@ void tns_render(tns_t *tns, win_t *win) {
 	i = tns->first;
 
 	while (i < cnt) {
-		if (!tns->thumbs[i].loaded)
-			continue;
-
 		tns->thumbs[i].x = x + (THUMB_SIZE - tns->thumbs[i].w) / 2;
 		tns->thumbs[i].y = y + (THUMB_SIZE - tns->thumbs[i].h) / 2;
 		win_draw_pixmap(win, tns->thumbs[i].pm, tns->thumbs[i].x,

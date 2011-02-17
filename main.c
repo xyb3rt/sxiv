@@ -54,6 +54,8 @@ const char **filenames;
 int filecnt, fileidx;
 size_t filesize;
 
+int tns_loaded;
+
 #define TITLE_LEN 256
 char win_title[TITLE_LEN];
 
@@ -128,13 +130,13 @@ int main(int argc, char **argv) {
 	win_open(&win);
 	img_init(&img, &win);
 
-	if (options->thumbnails)
-		tns_load(&tns, &win, filenames, filecnt);
+	if (options->thumbnails) {
+		tns_loaded = 0;
+		tns_init(&tns, filecnt);
+	}
 
 	if (options->thumbnails == 2) {
 		mode = MODE_THUMBS;
-		tns.first = tns.sel = 0;
-		tns_render(&tns, &win);
 	} else {
 		mode = MODE_NORMAL;
 		load_image();
@@ -473,7 +475,12 @@ void run() {
 	timeout = 0;
 
 	while (1) {
-		if (timeout || (mode == MODE_THUMBS && !tns.loaded)) {
+		if (mode == MODE_THUMBS && tns_loaded < filecnt) {
+			tns_load(&tns, &win, filenames[tns_loaded++]);
+			tns_render(&tns, &win);
+			if (!XPending(win.env.dpy))
+				continue;
+		} else if (timeout) {
 			t.tv_sec = 0;
 			t.tv_usec = 250;
 			xfd = ConnectionNumber(win.env.dpy);
@@ -486,9 +493,6 @@ void run() {
 					img_render(&img, &win);
 				else
 					tns_render(&tns, &win);
-
-				if (mode == MODE_THUMBS && !tns.loaded && !XPending(win.env.dpy))
-					continue;
 			}
 		}
 

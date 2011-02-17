@@ -1,12 +1,12 @@
 all: sxiv
 
-VERSION=git-20110216
+VERSION=git-20110217
 
 CC?=gcc
 PREFIX?=/usr/local
 CFLAGS+= -Wall -pedantic -DVERSION=\"$(VERSION)\"
 LDFLAGS+= 
-LIBS+= -lX11 -lImlib2 -lpthread
+LIBS+= -lX11 -lImlib2
 
 SRCFILES=$(wildcard *.c)
 OBJFILES=$(SRCFILES:.c=.o)

@@ -27,12 +27,10 @@ typedef struct thumb_s {
 	int w;
 	int h;
 	Pixmap pm;
-	unsigned char loaded;
 } thumb_t;
 
 typedef struct tns_s {
 	thumb_t *thumbs;
-	unsigned char loaded;
 	int cnt;
 	int cols;
 	int rows;
@@ -42,8 +40,10 @@ typedef struct tns_s {
 
 extern const int thumb_dim;
 
-void tns_load(tns_t*, win_t*, const char**, int);
+void tns_init(tns_t*, int);
 void tns_free(tns_t*, win_t*);
+
+void tns_load(tns_t*, win_t*, const char*);
 
 void tns_render(tns_t*, win_t*);
 
