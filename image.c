@@ -29,14 +29,14 @@ int zl_cnt;
 float zoom_min;
 float zoom_max;
 
-Imlib_Image *im_warn;
+Imlib_Image *im_broken;
 
 void img_init(img_t *img, win_t *win) {
 	zl_cnt = sizeof(zoom_levels) / sizeof(zoom_levels[0]);
 	zoom_min = zoom_levels[0] / 100.0;
 	zoom_max = zoom_levels[zl_cnt - 1] / 100.0;
 
-	im_warn = imlib_create_image_using_data(32, 32, icon_warn);
+	im_broken = imlib_create_image_using_data(32, 32, icon_broken);
 
 	if (img) {
 		img->zoom = options->zoom;
@@ -55,7 +55,7 @@ void img_init(img_t *img, win_t *win) {
 void img_free(img_t* img) {
 	if (img && img->valid && imlib_context_get_image())
 		imlib_free_image();
-	imlib_context_set_image(im_warn);
+	imlib_context_set_image(im_broken);
 	imlib_free_image();
 }
 
@@ -72,7 +72,7 @@ int _imlib_load_image(const char *filename) {
 
 	imlib_context_set_image(im);
 	imlib_image_set_changes_on_disk();
-	
+
 	return 1;
 }
 
@@ -95,8 +95,7 @@ int img_load(img_t *img, const char *filename) {
 		imlib_context_set_anti_alias(img->aa);
 		img->scalemode = options->scalemode;
 	} else {
-		imlib_context_set_image(im_warn);
-		imlib_image_set_has_alpha(1);
+		imlib_context_set_image(im_broken);
 		imlib_context_set_anti_alias(0);
 		img->scalemode = SCALE_DOWN;
 	}
