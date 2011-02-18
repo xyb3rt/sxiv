@@ -39,6 +39,8 @@ typedef struct thumb_s {
 typedef struct tns_s {
 	thumb_t *thumbs;
 	int cnt;
+	int x;
+	int y;
 	int cols;
 	int rows;
 	int first;

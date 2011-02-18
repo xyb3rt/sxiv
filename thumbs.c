@@ -98,7 +98,9 @@ void tns_render(tns_t *tns, win_t *win) {
 
 	win_clear(win);
 
-	x = y = 5;
+	i = cnt % tns->cols ? 1 : 0;
+	tns->x = x = (win->w - MIN(cnt, tns->cols) * thumb_dim) / 2 + 5;
+	tns->y = y = (win->h - (cnt / tns->cols + i) * thumb_dim) / 2 + 5;
 	i = tns->first;
 
 	while (i < cnt) {
@@ -107,13 +109,14 @@ void tns_render(tns_t *tns, win_t *win) {
 		win_draw_pixmap(win, tns->thumbs[i].pm, tns->thumbs[i].x,
 		                tns->thumbs[i].y, tns->thumbs[i].w, tns->thumbs[i].h);
 		if (++i % tns->cols == 0) {
-			x = 5;
+			x = tns->x;
 			y += thumb_dim;
 		} else {
 			x += thumb_dim;
 		}
 	}
 
+	printf("%d, %d\n", tns->sel, tns->cnt);
 	tns_highlight(tns, win, -1);
 }
 
@@ -175,10 +178,10 @@ int tns_translate(tns_t *tns, int x, int y) {
 	int n;
 	thumb_t *t;
 
-	if (!tns || x < 5 || y < 5)
+	if (!tns || x < tns->x || y < tns->y)
 		return -1;
 
-	if ((n = y / thumb_dim * tns-> cols + x / thumb_dim) < tns->cnt) {
+	if ((n = (y - tns->y) / thumb_dim * tns->cols + (x - tns->x) / thumb_dim) < tns->cnt) {
 		t = &tns->thumbs[n];
 		if (x > t->x && x < t->x + t->w && y > t->y && y < t->y + t->h)
 			return n;
