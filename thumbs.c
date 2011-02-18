@@ -181,9 +181,11 @@ int tns_translate(tns_t *tns, int x, int y) {
 	if (!tns || x < tns->x || y < tns->y)
 		return -1;
 
-	if ((n = (y - tns->y) / thumb_dim * tns->cols + (x - tns->x) / thumb_dim) < tns->cnt) {
+	n = (y - tns->y) / thumb_dim * tns->cols + (x - tns->x) / thumb_dim;
+
+	if (n < tns->cnt) {
 		t = &tns->thumbs[n];
-		if (x > t->x && x < t->x + t->w && y > t->y && y < t->y + t->h)
+		if (x >= t->x && x <= t->x + t->w && y >= t->y && y <= t->y + t->h)
 			return n;
 	}
 
