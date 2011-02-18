@@ -45,7 +45,6 @@ typedef struct tns_s {
 	int rows;
 	int first;
 	int sel;
-	int vis;
 } tns_t;
 
 void tns_init(tns_t*, int);

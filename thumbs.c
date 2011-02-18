@@ -32,8 +32,9 @@ void tns_init(tns_t *tns, int cnt) {
 	if (!tns)
 		return;
 
-	tns->cnt = tns->first = tns->sel = tns->vis = 0;
+	tns->cnt = tns->first = tns->sel = 0;
 	tns->thumbs = (thumb_t*) s_malloc(cnt * sizeof(thumb_t));
+	memset(tns->thumbs, 0, cnt * sizeof(thumb_t));
 }
 
 void tns_free(tns_t *tns, win_t *win) {
@@ -115,7 +116,6 @@ void tns_render(tns_t *tns, win_t *win) {
 			x += thumb_dim;
 		}
 	}
-	tns->vis = i - tns->first;
 
 	tns_highlight(tns, win, -1);
 }
@@ -139,7 +139,7 @@ void tns_highlight(tns_t *tns, win_t *win, int old) {
 }
 
 void tns_move_selection(tns_t *tns, win_t *win, movedir_t dir) {
-	int sel;
+	int sel, old;
 
 	if (!tns || !win)
 		return;
@@ -148,29 +148,27 @@ void tns_move_selection(tns_t *tns, win_t *win, movedir_t dir) {
 
 	switch (dir) {
 		case MOVE_LEFT:
-			if (sel % tns->cols > 0) {
-				--tns->sel;
-				tns_highlight(tns, win, sel);
-			}
+			if (sel % tns->cols > 0)
+				--sel;
 			break;
 		case MOVE_RIGHT:
-			if (sel % tns->cols < tns->cols - 1 && sel < tns->cnt - 1) {
-				++tns->sel;
-				tns_highlight(tns, win, sel);
-			}
+			if (sel % tns->cols < tns->cols - 1 && sel < tns->cnt - 1)
+				++sel;
 			break;
 		case MOVE_UP:
-			if (sel / tns->cols > 0) {
-				tns->sel -= tns->cols;
-				tns_highlight(tns, win, sel);
-			}
+			if (sel / tns->cols > 0)
+				sel -= tns->cols;
 			break;
 		case MOVE_DOWN:
-			if (sel / tns->cols < tns->rows - 1 && sel + tns->cols < tns->vis) {
-				tns->sel += tns->cols;
-				tns_highlight(tns, win, sel);
-			}
+			if (sel / tns->cols < tns->rows - 1 && sel + tns->cols < tns->cnt)
+				sel += tns->cols;
 			break;
+	}
+
+	if (sel != tns->sel && tns->thumbs[sel].x != 0) {
+		old = tns->sel;
+		tns->sel = sel;
+		tns_highlight(tns, win, old);
 	}
 }
 
