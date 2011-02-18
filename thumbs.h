@@ -45,9 +45,8 @@ typedef struct tns_s {
 	int rows;
 	int first;
 	int sel;
+	int vis;
 } tns_t;
-
-extern const int thumb_dim;
 
 void tns_init(tns_t*, int);
 void tns_free(tns_t*, win_t*);

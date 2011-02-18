@@ -32,7 +32,7 @@ void tns_init(tns_t *tns, int cnt) {
 	if (!tns)
 		return;
 
-	tns->cnt = tns->first = tns->sel = 0;
+	tns->cnt = tns->first = tns->sel = tns->vis = 0;
 	tns->thumbs = (thumb_t*) s_malloc(cnt * sizeof(thumb_t));
 }
 
@@ -115,8 +115,8 @@ void tns_render(tns_t *tns, win_t *win) {
 			x += thumb_dim;
 		}
 	}
+	tns->vis = i - tns->first;
 
-	printf("%d, %d\n", tns->sel, tns->cnt);
 	tns_highlight(tns, win, -1);
 }
 
@@ -166,7 +166,7 @@ void tns_move_selection(tns_t *tns, win_t *win, movedir_t dir) {
 			}
 			break;
 		case MOVE_DOWN:
-			if (sel / tns->cols < tns->rows - 1 && sel + tns->cols < tns->cnt) {
+			if (sel / tns->cols < tns->rows - 1 && sel + tns->cols < tns->vis) {
 				tns->sel += tns->cols;
 				tns_highlight(tns, win, sel);
 			}
