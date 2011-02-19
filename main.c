@@ -344,8 +344,8 @@ void on_keypress(XKeyEvent *kev) {
 			/* render on next configurenotify */
 			break;
 		case XK_W:
-			x = win.x + img.x;
-			y = win.y + img.y;
+			x = MAX(0, win.x + img.x);
+			y = MAX(0, win.y + img.y);
 			w = img.w * img.zoom;
 			h = img.h * img.zoom;
 			if ((changed = win_moveresize(&win, x, y, w, h))) {
