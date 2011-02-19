@@ -501,10 +501,15 @@ void on_buttonpress(XButtonEvent *bev) {
 		switch (bev->button) {
 			case Button1:
 				if ((sel = tns_translate(&tns, bev->x, bev->y)) >= 0) {
-					fileidx = sel;
-					load_image();
-					mode = MODE_NORMAL;
-					win_set_cursor(&win, CURSOR_ARROW);
+					if (sel == fileidx) {
+						load_image();
+						mode = MODE_NORMAL;
+						win_set_cursor(&win, CURSOR_ARROW);
+					} else {
+						tns_highlight(&tns, &win, fileidx, False);
+						tns_highlight(&tns, &win, sel, True);
+						fileidx = sel;
+					}
 					changed = 1;
 					break;
 				}
