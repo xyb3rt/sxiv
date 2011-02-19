@@ -88,21 +88,27 @@ void tns_load(tns_t *tns, win_t *win, const char *filename) {
 }
 
 void tns_check_view(tns_t *tns, Bool scrolled) {
+	int r;
+
 	if (!tns)
 		return;
 
 	tns->first -= tns->first % tns->cols;
+	r = fileidx % tns->cols;
 
 	if (scrolled) {
 		/* move selection into visible area */
+		if (fileidx >= tns->first + tns->cols * tns->rows)
+			fileidx = tns->first + r + tns->cols * (tns->rows - 1);
+		else if (fileidx < tns->first)
+			fileidx = tns->first + r;
 	} else {
 		/* scroll to selection */
 		if (tns->first + tns->cols * tns->rows <= fileidx) {
-			tns->first = fileidx - fileidx % tns->cols -
-			             tns->cols * (tns->rows - 1);
+			tns->first = fileidx - r - tns->cols * (tns->rows - 1);
 			tns->dirty = 1;
 		} else if (tns->first > fileidx) {
-			tns->first = fileidx - fileidx % tns->cols;
+			tns->first = fileidx - r;
 			tns->dirty = 1;
 		}
 	}
@@ -167,7 +173,7 @@ void tns_highlight(tns_t *tns, win_t *win, int n, Bool hl) {
 	win_draw(win);
 }
 
-int tns_move_selection(tns_t *tns, win_t *win, movedir_t dir) {
+int tns_move_selection(tns_t *tns, win_t *win, tnsdir_t dir) {
 	int old;
 
 	if (!tns || !win)
@@ -176,19 +182,19 @@ int tns_move_selection(tns_t *tns, win_t *win, movedir_t dir) {
 	old = fileidx;
 
 	switch (dir) {
-		case MOVE_LEFT:
+		case TNS_LEFT:
 			if (fileidx > 0)
 				--fileidx;
 			break;
-		case MOVE_RIGHT:
+		case TNS_RIGHT:
 			if (fileidx < tns->cnt - 1)
 				++fileidx;
 			break;
-		case MOVE_UP:
+		case TNS_UP:
 			if (fileidx >= tns->cols)
 				fileidx -= tns->cols;
 			break;
-		case MOVE_DOWN:
+		case TNS_DOWN:
 			if (fileidx + tns->cols < tns->cnt)
 				fileidx += tns->cols;
 			break;
@@ -202,6 +208,28 @@ int tns_move_selection(tns_t *tns, win_t *win, movedir_t dir) {
 	}
 
 	return fileidx != old;
+}
+
+int tns_scroll(tns_t *tns, tnsdir_t dir) {
+	int old;
+
+	if (!tns)
+		return 0;
+
+	old = tns->first;
+
+	if (dir == TNS_DOWN && tns->first + tns->cols * tns->rows < tns->cnt)
+		tns->first += tns->cols;
+	else if (dir == TNS_UP && tns->first >= tns->cols)
+		tns->first -= tns->cols;
+
+	if (tns->first != old) {
+		tns_check_view(tns, True);
+		tns->dirty = 1;
+		return 1;
+	} else {
+		return 0;
+	}
 }
 
 int tns_translate(tns_t *tns, int x, int y) {

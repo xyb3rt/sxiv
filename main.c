@@ -397,19 +397,25 @@ void on_keypress(XKeyEvent *kev) {
 			/* move selection */
 			case XK_h:
 			case XK_Left:
-				changed = tns_move_selection(&tns, &win, MOVE_LEFT);
+				changed = tns_move_selection(&tns, &win, TNS_LEFT);
 				break;
 			case XK_j:
 			case XK_Down:
-				changed = tns_move_selection(&tns, &win, MOVE_DOWN);
+				changed = tns_move_selection(&tns, &win, TNS_DOWN);
 				break;
 			case XK_k:
 			case XK_Up:
-				changed = tns_move_selection(&tns, &win, MOVE_UP);
+				changed = tns_move_selection(&tns, &win, TNS_UP);
 				break;
 			case XK_l:
 			case XK_Right:
-				changed = tns_move_selection(&tns, &win, MOVE_RIGHT);
+				changed = tns_move_selection(&tns, &win, TNS_RIGHT);
+				break;
+
+			/* scroll */
+			case XK_bracketleft:
+				break;
+			case XK_bracketright:
 				break;
 		}
 	}
@@ -523,6 +529,12 @@ void on_buttonpress(XButtonEvent *bev) {
 					changed = 1;
 					break;
 				}
+				break;
+			case Button4:
+				changed = tns_scroll(&tns, TNS_UP);
+				break;
+			case Button5:
+				changed = tns_scroll(&tns, TNS_DOWN);
 				break;
 		}
 	}
