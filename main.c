@@ -156,8 +156,8 @@ void update_title() {
 
 	if (mode == MODE_THUMBS) {
 		n = snprintf(win_title, TITLE_LEN, "sxiv: [%d/%d] %s",
-		             tns.cnt ? tns.sel + 1 : 0, tns.cnt,
-		             tns.cnt ? filenames[tns.sel] : "");
+		             tns.cnt ? fileidx + 1 : 0, tns.cnt,
+		             tns.cnt ? filenames[fileidx] : "");
 	} else {
 		if (img.valid) {
 			size = filesize;
@@ -272,7 +272,7 @@ void on_keypress(XKeyEvent *kev) {
 	unsigned int w, h;
 	char key;
 	KeySym ksym;
-	int changed, sel;
+	int changed;
 
 	if (!kev)
 		return;
@@ -381,10 +381,6 @@ void on_keypress(XKeyEvent *kev) {
 			/* switch to thumnail mode */
 			case XK_Return:
 				if (options->thumbnails) {
-					if (fileidx < tns.cnt)
-						tns.sel = fileidx;
-					else
-						tns.sel = 0;
 					mode = MODE_THUMBS;
 					changed = tns.dirty = 1;
 				}
@@ -401,12 +397,9 @@ void on_keypress(XKeyEvent *kev) {
 		}
 	} else {
 		/* thumbnail mode */
-		sel = tns.sel;
-
 		switch (ksym) {
 			/* open selected image */
 			case XK_Return:
-				fileidx = sel;
 				load_image();
 				mode = MODE_NORMAL;
 				win_set_cursor(&win, CURSOR_ARROW);

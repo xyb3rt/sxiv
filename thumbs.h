@@ -54,7 +54,7 @@ void tns_free(tns_t*, win_t*);
 void tns_load(tns_t*, win_t*, const char*);
 
 void tns_render(tns_t*, win_t*);
-void tns_highlight(tns_t*, win_t*, int);
+void tns_highlight(tns_t*, win_t*, int, Bool);
 
 int tns_move_selection(tns_t*, win_t*, movedir_t);
 

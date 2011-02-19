@@ -25,14 +25,16 @@
 #include "thumbs.h"
 #include "util.h"
 
+extern int fileidx;
 extern Imlib_Image *im_broken;
+
 const int thumb_dim = THUMB_SIZE + 10;
 
 void tns_init(tns_t *tns, int cnt) {
 	if (!tns)
 		return;
 
-	tns->cnt = tns->first = tns->sel = 0;
+	tns->cnt = tns->first = 0;
 	tns->thumbs = (thumb_t*) s_malloc(cnt * sizeof(thumb_t));
 	memset(tns->thumbs, 0, cnt * sizeof(thumb_t));
 	tns->dirty = 0;
@@ -82,37 +84,64 @@ void tns_load(tns_t *tns, win_t *win, const char *filename) {
 	imlib_render_image_part_on_drawable_at_size(0, 0, w, h,
 	                                            0, 0, t->w, t->h);
 	imlib_free_image();
-
 	tns->dirty = 1;
 }
 
+void tns_check_view(tns_t *tns, Bool scrolled) {
+	if (!tns)
+		return;
+
+	tns->first -= tns->first % tns->cols;
+
+	if (scrolled) {
+		/* move selection into visible area */
+	} else {
+		/* scroll to selection */
+		if (tns->first + tns->cols * tns->rows <= fileidx) {
+			tns->first = fileidx - fileidx % tns->cols -
+			             tns->cols * (tns->rows - 1);
+			tns->dirty = 1;
+		} else if (tns->first > fileidx) {
+			tns->first = fileidx - fileidx % tns->cols;
+			tns->dirty = 1;
+		}
+	}
+}
+
 void tns_render(tns_t *tns, win_t *win) {
-	int i, cnt, x, y;
+	int i, cnt, r, x, y;
+	thumb_t *t;
 
 	if (!tns || !tns->dirty || !win)
 		return;
 
+	win_clear(win);
+
 	tns->cols = MAX(1, win->w / thumb_dim);
 	tns->rows = MAX(1, win->h / thumb_dim);
 
-	cnt = tns->cols * tns->rows;
-	if (tns->first && tns->first + cnt > tns->cnt)
-		tns->first = MAX(0, tns->cnt - cnt);
-	cnt = MIN(tns->first + cnt, tns->cnt);
+	if (tns->cnt < tns->cols * tns->rows) {
+		tns->first = 0;
+		cnt = tns->cnt;
+	} else {
+		tns_check_view(tns, False);
+		cnt = tns->cols * tns->rows;
+		if ((r = tns->first + cnt - tns->cnt) >= tns->cols)
+			tns->first -= r - r % tns->cols;
+		if (r > 0)
+			cnt -= r % tns->cols;
+	}
 
-	win_clear(win);
-
-	i = cnt % tns->cols ? 1 : 0;
+	r = cnt % tns->cols ? 1 : 0;
 	tns->x = x = (win->w - MIN(cnt, tns->cols) * thumb_dim) / 2 + 5;
-	tns->y = y = (win->h - (cnt / tns->cols + i) * thumb_dim) / 2 + 5;
-	i = tns->first;
+	tns->y = y = (win->h - (cnt / tns->cols + r) * thumb_dim) / 2 + 5;
 
-	while (i < cnt) {
-		tns->thumbs[i].x = x + (THUMB_SIZE - tns->thumbs[i].w) / 2;
-		tns->thumbs[i].y = y + (THUMB_SIZE - tns->thumbs[i].h) / 2;
-		win_draw_pixmap(win, tns->thumbs[i].pm, tns->thumbs[i].x,
-		                tns->thumbs[i].y, tns->thumbs[i].w, tns->thumbs[i].h);
-		if (++i % tns->cols == 0) {
+	for (i = 0; i < cnt; ++i) {
+		t = &tns->thumbs[tns->first + i];
+		t->x = x + (THUMB_SIZE - t->w) / 2;
+		t->y = y + (THUMB_SIZE - t->h) / 2;
+		win_draw_pixmap(win, t->pm, t->x, t->y, t->w, t->h);
+		if ((i + 1) % tns->cols == 0) {
 			x = tns->x;
 			y += thumb_dim;
 		} else {
@@ -121,61 +150,58 @@ void tns_render(tns_t *tns, win_t *win) {
 	}
 
 	tns->dirty = 0;
-
-	tns_highlight(tns, win, -1);
+	tns_highlight(tns, win, fileidx, True);
 }
 
-void tns_highlight(tns_t *tns, win_t *win, int old) {
+void tns_highlight(tns_t *tns, win_t *win, int n, Bool hl) {
 	thumb_t *t;
 
 	if (!tns || !win)
 		return;
 
-	if (old >= 0 && old < tns->cnt) {
-		t = &tns->thumbs[old];
-		win_draw_rect(win, t->x - 2, t->y - 2, t->w + 4, t->h + 4, False);
-	}
-	if (tns->sel < tns->cnt) {
-		t = &tns->thumbs[tns->sel];
-		win_draw_rect(win, t->x - 2, t->y - 2, t->w + 4, t->h + 4, True);
+	if (n >= 0 && n < tns->cnt) {
+		t = &tns->thumbs[n];
+		win_draw_rect(win, t->x - 2, t->y - 2, t->w + 4, t->h + 4, hl);
 	}
 
 	win_draw(win);
 }
 
 int tns_move_selection(tns_t *tns, win_t *win, movedir_t dir) {
-	int sel, old;
+	int old;
 
 	if (!tns || !win)
 		return 0;
 
-	sel = old = tns->sel;
+	old = fileidx;
 
 	switch (dir) {
 		case MOVE_LEFT:
-			if (sel % tns->cols > 0)
-				--sel;
+			if (fileidx > 0)
+				--fileidx;
 			break;
 		case MOVE_RIGHT:
-			if (sel % tns->cols < tns->cols - 1 && sel < tns->cnt - 1)
-				++sel;
+			if (fileidx < tns->cnt - 1)
+				++fileidx;
 			break;
 		case MOVE_UP:
-			if (sel / tns->cols > 0)
-				sel -= tns->cols;
+			if (fileidx >= tns->cols)
+				fileidx -= tns->cols;
 			break;
 		case MOVE_DOWN:
-			if (sel / tns->cols < tns->rows - 1 && sel + tns->cols < tns->cnt)
-				sel += tns->cols;
+			if (fileidx + tns->cols < tns->cnt)
+				fileidx += tns->cols;
 			break;
 	}
 
-	if (sel != old && tns->thumbs[sel].x != 0) {
-		tns->sel = sel;
-		tns_highlight(tns, win, old);
+	if (fileidx != old) {
+		tns_highlight(tns, win, old, False);
+		tns_check_view(tns, False);
+		if (!tns->dirty)
+			tns_highlight(tns, win, fileidx, True);
 	}
 
-	return sel != old;
+	return fileidx != old;
 }
 
 int tns_translate(tns_t *tns, int x, int y) {
@@ -185,7 +211,8 @@ int tns_translate(tns_t *tns, int x, int y) {
 	if (!tns || x < tns->x || y < tns->y)
 		return -1;
 
-	n = (y - tns->y) / thumb_dim * tns->cols + (x - tns->x) / thumb_dim;
+	n = tns->first + (y - tns->y) / thumb_dim * tns->cols +
+	    (x - tns->x) / thumb_dim;
 
 	if (n < tns->cnt) {
 		t = &tns->thumbs[n];
