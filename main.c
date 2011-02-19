@@ -411,12 +411,6 @@ void on_keypress(XKeyEvent *kev) {
 			case XK_Right:
 				changed = tns_move_selection(&tns, &win, TNS_RIGHT);
 				break;
-
-			/* scroll */
-			case XK_bracketleft:
-				break;
-			case XK_bracketright:
-				break;
 		}
 	}
 

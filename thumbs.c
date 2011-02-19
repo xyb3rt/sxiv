@@ -218,18 +218,17 @@ int tns_scroll(tns_t *tns, tnsdir_t dir) {
 
 	old = tns->first;
 
-	if (dir == TNS_DOWN && tns->first + tns->cols * tns->rows < tns->cnt)
+	if (dir == TNS_DOWN && tns->first + tns->cols * tns->rows < tns->cnt) {
 		tns->first += tns->cols;
-	else if (dir == TNS_UP && tns->first >= tns->cols)
-		tns->first -= tns->cols;
-
-	if (tns->first != old) {
 		tns_check_view(tns, True);
 		tns->dirty = 1;
-		return 1;
-	} else {
-		return 0;
+	} else if (dir == TNS_UP && tns->first >= tns->cols) {
+		tns->first -= tns->cols;
+		tns_check_view(tns, True);
+		tns->dirty = 1;
 	}
+
+	return tns->first != old;
 }
 
 int tns_translate(tns_t *tns, int x, int y) {

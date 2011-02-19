@@ -22,4 +22,5 @@ static const float zoom_levels[] = {
 	100.0, 150.0, 200.0, 400.0, 800.0
 };
 
-#define THUMB_SIZE  50
+/* default dimension of thumbnails (width == height):    */
+#define THUMB_SIZE  60
