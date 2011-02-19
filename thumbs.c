@@ -35,6 +35,7 @@ void tns_init(tns_t *tns, int cnt) {
 	tns->cnt = tns->first = tns->sel = 0;
 	tns->thumbs = (thumb_t*) s_malloc(cnt * sizeof(thumb_t));
 	memset(tns->thumbs, 0, cnt * sizeof(thumb_t));
+	tns->dirty = 0;
 }
 
 void tns_free(tns_t *tns, win_t *win) {
@@ -81,12 +82,14 @@ void tns_load(tns_t *tns, win_t *win, const char *filename) {
 	imlib_render_image_part_on_drawable_at_size(0, 0, w, h,
 	                                            0, 0, t->w, t->h);
 	imlib_free_image();
+
+	tns->dirty = 1;
 }
 
 void tns_render(tns_t *tns, win_t *win) {
 	int i, cnt, x, y;
 
-	if (!tns || !win)
+	if (!tns || !tns->dirty || !win)
 		return;
 
 	tns->cols = MAX(1, win->w / thumb_dim);
@@ -117,6 +120,8 @@ void tns_render(tns_t *tns, win_t *win) {
 		}
 	}
 
+	tns->dirty = 0;
+
 	tns_highlight(tns, win, -1);
 }
 
@@ -138,13 +143,13 @@ void tns_highlight(tns_t *tns, win_t *win, int old) {
 	win_draw(win);
 }
 
-void tns_move_selection(tns_t *tns, win_t *win, movedir_t dir) {
+int tns_move_selection(tns_t *tns, win_t *win, movedir_t dir) {
 	int sel, old;
 
 	if (!tns || !win)
-		return;
+		return 0;
 
-	sel = tns->sel;
+	sel = old = tns->sel;
 
 	switch (dir) {
 		case MOVE_LEFT:
@@ -165,11 +170,12 @@ void tns_move_selection(tns_t *tns, win_t *win, movedir_t dir) {
 			break;
 	}
 
-	if (sel != tns->sel && tns->thumbs[sel].x != 0) {
-		old = tns->sel;
+	if (sel != old && tns->thumbs[sel].x != 0) {
 		tns->sel = sel;
 		tns_highlight(tns, win, old);
 	}
+
+	return sel != old;
 }
 
 int tns_translate(tns_t *tns, int x, int y) {

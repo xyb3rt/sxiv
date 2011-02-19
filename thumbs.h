@@ -45,6 +45,7 @@ typedef struct tns_s {
 	int rows;
 	int first;
 	int sel;
+	unsigned char dirty;
 } tns_t;
 
 void tns_init(tns_t*, int);
@@ -55,7 +56,7 @@ void tns_load(tns_t*, win_t*, const char*);
 void tns_render(tns_t*, win_t*);
 void tns_highlight(tns_t*, win_t*, int);
 
-void tns_move_selection(tns_t*, win_t*, movedir_t);
+int tns_move_selection(tns_t*, win_t*, movedir_t);
 
 int tns_translate(tns_t*, int, int);
 
