@@ -309,18 +309,6 @@ void on_keypress(XKeyEvent *kev) {
 					changed = load_image();
 				}
 				break;
-			case XK_g:
-				if (fileidx != 0) {
-					fileidx = 0;
-					changed = load_image();
-				}
-				break;
-			case XK_G:
-				if (fileidx != filecnt - 1) {
-					fileidx = filecnt - 1;
-					changed = load_image();
-				}
-				break;
 
 			/* zooming */
 			case XK_plus:
@@ -434,6 +422,28 @@ void on_keypress(XKeyEvent *kev) {
 		case XK_q:
 			cleanup();
 			exit(0);
+
+		case XK_g:
+			if (fileidx != 0) {
+				fileidx = 0;
+				changed = 1;
+				if (mode == MODE_NORMAL)
+					load_image();
+				else
+					tns.dirty = 1;
+			}
+			break;
+		case XK_G:
+			if (fileidx != filecnt - 1) {
+				fileidx = filecnt - 1;
+				changed = 1;
+				if (mode == MODE_NORMAL)
+					load_image();
+				else
+					tns.dirty = 1;
+			}
+			break;
+
 		case XK_f:
 			win_toggle_fullscreen(&win);
 			/* render on next configurenotify */
