@@ -3,11 +3,11 @@
 #define WIN_WIDTH   800
 #define WIN_HEIGHT  600
 
-/* default color to use for window background:           *
+/* default color for window background:                  *
  *   (see X(7) "COLOR NAMES" section for valid values)   */
 #define BG_COLOR    "#999999"
-/* default color to use for selections:                  */
-#define SEL_COLOR   "#0000BB"
+/* default color for thumbnail selection:                */
+#define SEL_COLOR   "#0040FF"
 
 /* how should images be scaled when they are loaded?:    *
  * (also controllable via -d/-s/-Z/-z options)           *
