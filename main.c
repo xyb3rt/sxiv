@@ -538,7 +538,7 @@ void on_buttonpress(XButtonEvent *bev) {
 }
 
 void on_motionnotify(XMotionEvent *mev) {
-	if (!mev)
+	if (!mev || mode != MODE_NORMAL)
 		return;
 
 	if (mev->x >= 0 && mev->x <= win.w && mev->y >= 0 && mev->y <= win.h) {
