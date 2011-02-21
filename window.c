@@ -27,6 +27,7 @@
 #include "window.h"
 
 static Cursor carrow;
+static Cursor cnone;
 static Cursor chand;
 static Cursor cwatch;
 static GC gc;
@@ -52,6 +53,8 @@ void win_open(win_t *win) {
 	XClassHint classhint;
 	XColor col;
 	XGCValues gcval;
+	char none_data[] = {0, 0, 0, 0, 0, 0, 0, 0};
+	Pixmap none;
 	int gmask;
 
 	if (!win)
@@ -69,12 +72,12 @@ void win_open(win_t *win) {
 	e->depth = DefaultDepth(e->dpy, e->scr);
 
 	if (XAllocNamedColor(e->dpy, DefaultColormap(e->dpy, e->scr), BG_COLOR,
-		                    &col, &col))
+		                   &col, &col))
 		win->bgcol = col.pixel;
 	else
 		die("could not allocate color: %s", BG_COLOR);
 	if (XAllocNamedColor(e->dpy, DefaultColormap(e->dpy, e->scr), SEL_COLOR,
-		                    &col, &col))
+		                   &col, &col))
 		win->selcol = col.pixel;
 	else
 		die("could not allocate color: %s", BG_COLOR);
@@ -112,11 +115,17 @@ void win_open(win_t *win) {
 		die("could not create window");
 	
 	XSelectInput(e->dpy, win->xwin, StructureNotifyMask | KeyPressMask |
-	             ButtonPressMask | ButtonReleaseMask | Button2MotionMask);
+	             ButtonPressMask | ButtonReleaseMask | PointerMotionMask);
 
 	carrow = XCreateFontCursor(e->dpy, XC_left_ptr);
 	chand = XCreateFontCursor(e->dpy, XC_fleur);
 	cwatch = XCreateFontCursor(e->dpy, XC_watch);
+
+	if (!XAllocNamedColor(e->dpy, DefaultColormap(e->dpy, e->scr), "black",
+		                    &col, &col))
+		die("could not allocate color: black");
+	none = XCreateBitmapFromData(e->dpy, win->xwin, none_data, 8, 8);
+	cnone = XCreatePixmapCursor(e->dpy, none, none, &col, &col, 0, 0);
 
 	gcval.line_width = 2;
 	gc = XCreateGC(e->dpy, win->xwin, GCLineWidth, &gcval);
@@ -145,6 +154,7 @@ void win_close(win_t *win) {
 		return;
 
 	XFreeCursor(win->env.dpy, carrow);
+	XFreeCursor(win->env.dpy, cnone);
 	XFreeCursor(win->env.dpy, chand);
 	XFreeCursor(win->env.dpy, cwatch);
 
@@ -307,6 +317,9 @@ void win_set_cursor(win_t *win, win_cur_t cursor) {
 		return;
 
 	switch (cursor) {
+		case CURSOR_NONE:
+			XDefineCursor(win->env.dpy, win->xwin, cnone);
+			break;
 		case CURSOR_HAND:
 			XDefineCursor(win->env.dpy, win->xwin, chand);
 			break;
