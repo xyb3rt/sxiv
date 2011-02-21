@@ -391,6 +391,7 @@ void on_keypress(XKeyEvent *kev) {
 					tns_init(&tns, filecnt);
 				mode = MODE_THUMBS;
 				win_set_cursor(&win, CURSOR_ARROW);
+				hidecur = 0;
 				tns.sel = fileidx;
 				changed = tns.dirty = 1;
 				break;
