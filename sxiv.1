@@ -3,7 +3,7 @@
 sxiv \- Simple (or small or suckless) X Image Viewer
 .SH SYNOPSIS
 .B sxiv
-.RB [ \-dFfhpqrsvZ ]
+.RB [ \-dFfhpqrstvZ ]
 .RB [ \-g
 .IR GEOMETRY ]
 .RB [ \-z
@@ -19,6 +19,10 @@ or reads the names of the files to open from standard input, if only a single
 hyphen\-minus
 .RB ( \- )
 is given.
+.P
+sxiv has two modes of operation: image and thumbnail mode. The default is image
+mode, in which only the current image is shown. In thumbnail mode a grid of 
+small previews is displayed, making it easy to choose an image to open.
 .P
 Please note, that the fullscreen mode requires an EWMH/NetWM compliant window
 manager.
@@ -54,6 +58,9 @@ Search the given directories recursively for images to view.
 .B \-s
 Scale all images to fit into window.
 .TP
+.B \-t
+Start in thumbnail mode.
+.TP
 .B \-v
 Print version information to standard output and exit.
 .TP
@@ -72,6 +79,9 @@ Quit sxiv.
 .TP
 .B Escape
 Quit sxiv and return an exit value of 2.
+.TP
+.B Return
+Switch to thumbnail mode; in thumbnail mode: open selected image.
 .SS Navigate image list
 .TP
 .BR n ", " Space
@@ -104,19 +114,19 @@ Set zoom level to 100%.
 .TP
 .B w
 Set zoom level to fit image into window.
-.SS Panning
+.SS Panning/Moving
 .TP
 .BR h ", " Left
-Pan left.
+Pan image left; in thumbnail mode: move selection left.
 .TP
 .BR j ", " Down
-Pan down.
+Pan image down; in thumbnail mode: move selection down.
 .TP
 .BR k ", " Up
-Pan up.
+Pan image up; in thumbnail mode: move selection up.
 .TP
 .BR l ", " Right
-Pan right.
+Pan image right; in thumbnail mode: move selection right.
 .SS Rotation
 .TP
 .B <
@@ -142,10 +152,7 @@ Reload image.
 .SS Navigate image list
 .TP
 .B Button1
-Go to the next image.
-.TP
-.B Button2
-Drag the image with the mouse while keeping this button pressed down.
+Go to the next image; in thumbnail mode: select/open image.
 .TP
 .B Button3
 Go to the previous image.
@@ -156,19 +163,22 @@ Zoom in.
 .TP
 .B Ctrl+ScrollDown
 Zoom out.
-.SS Panning
+.SS Panning/Moving
+.TP
+.B Button2
+Drag the image with the mouse while keeping this button pressed down.
 .TP
 .B ScrollUp
-Pan up.
+Pan image up; in thumbnail mode: Scroll one row up.
 .TP
 .B ScrollDown
-Pan down.
+Pan image down; in thumbnail mode: Scroll one row down.
 .TP
 .B Shift+ScrollUp
-Pan left.
+Pan image left.
 .TP
 .B Shift+ScrollDown
-Pan right.
+Pan image right.
 .SH AUTHORS
 .EX
 Bert Muennich <ber.t at gmx.com>

@@ -52,7 +52,6 @@ Use the following keys to control the basic behaviour of sxiv:
 
     q            Quit sxiv
     Escape       Quit sxiv and return an exit value of 2 (useful for scripting)
-    Return       Switch operation mode
     f            Toggle fullscreen mode (requires an EWMH/NetWM compliant
                  window manager)
 
@@ -71,6 +70,7 @@ Inside image view mode, the following key mappings are available:
     W            Resize window to fit image
     a            Toggle anti-aliasing
     r            Reload image
+    Return       Switch to thumbnail mode
 
 Additionally, the image view offers the following mouse commands:
 
@@ -88,6 +88,7 @@ In thumbnail mode, the following key and mouse mappings are available:
 
     h,j,k,l      Move selection left/down/up/right (also with arrow keys)
     g/G          Move selection to first/last image
+    Return       Open selected image
 
     Button1      Select image/open image if it is already selected
     ScrollUp     Scroll up one row
