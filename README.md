@@ -28,6 +28,10 @@ check and change them, so that they fit your needs.
 
 Usage
 -----
+sxiv has two modes of operation: image and thumbnail mode. The default is image
+mode, in which only the current image is shown. In thumbnail mode a grid of
+small previews is displayed, making it easy to choose an image to open.
+
 sxiv supports the following command-line options:
 
     -d           Scale all images to 100%, but fit large images into window
@@ -39,14 +43,21 @@ sxiv supports the following command-line options:
     -q           Be quiet, disable warnings
     -r           Search given directories recursively for images
     -s           Scale all images to fit into window
+    -t           Start in thumbnail mode
     -v           Print version information and exit
     -Z           Same as `-z 100'
     -z ZOOM      Scale all images to current zoom level, use ZOOM at startup
 
-Use the following keys to control sxiv:
+Use the following keys to control the basic behaviour of sxiv:
 
     q            Quit sxiv
     Escape       Quit sxiv and return an exit value of 2 (useful for scripting)
+    Return       Switch operation mode
+    f            Toggle fullscreen mode (requires an EWMH/NetWM compliant
+                 window manager)
+
+Inside image view mode, the following key mappings are available:
+
     n,Space      Go to the next image
     p,Backspace  Go to the previous image
     g/G          Go to first/last image
@@ -58,12 +69,10 @@ Use the following keys to control sxiv:
     h,j,k,l      Pan image left/down/up/right (also with arrow keys)
     <,>          Rotate image (counter-)clockwise by 90 degrees
     W            Resize window to fit image
-    f            Toggle fullscreen mode (requires an EWMH/NetWM compliant
-                 window manager)
     a            Toggle anti-aliasing
     r            Reload image
 
-Additionally, sxiv can be controlled via the following mouse commands:
+Additionally, the image view offers the following mouse commands:
 
     Button1           Go to the next image
     Button2           Drag image with mouse while keeping it pressed
@@ -74,3 +83,12 @@ Additionally, sxiv can be controlled via the following mouse commands:
     Shift+ScrollDown  Pan image right
     Ctrl+ScrollUp     Zoom in
     Ctrl+ScrollDown   Zoom out
+
+In thumbnail mode, the following key and mouse mappings are available:
+
+    h,j,k,l      Move selection left/down/up/right (also with arrow keys)
+    g/G          Move selection to first/last image
+
+    Button1      Select image/open image if it is already selected
+    ScrollUp     Scroll up one row
+    ScrollDown   Scroll down one row

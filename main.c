@@ -155,8 +155,8 @@ void update_title() {
 
 	if (mode == MODE_THUMBS) {
 		n = snprintf(win_title, TITLE_LEN, "sxiv: [%d/%d] %s",
-		             tns.cnt ? fileidx + 1 : 0, tns.cnt,
-		             tns.cnt ? filenames[fileidx] : "");
+		             tns.cnt ? tns.sel + 1 : 0, tns.cnt,
+		             tns.cnt ? filenames[tns.sel] : "");
 	} else {
 		if (img.valid) {
 			size = filesize;

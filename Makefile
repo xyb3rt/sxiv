@@ -4,7 +4,7 @@ VERSION=git-20110221
 
 CC?=gcc
 PREFIX?=/usr/local
-CFLAGS+= -Wall -pedantic -DVERSION=\"$(VERSION)\" -g
+CFLAGS+= -Wall -pedantic -DVERSION=\"$(VERSION)\"
 LDFLAGS+= 
 LIBS+= -lX11 -lImlib2
 
