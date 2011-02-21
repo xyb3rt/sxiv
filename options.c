@@ -87,8 +87,7 @@ void parse_options(int argc, char **argv) {
 				_options.scalemode = SCALE_FIT;
 				break;
 			case 't':
-				if (_options.thumbnails < 2)
-					++_options.thumbnails;
+				_options.thumbnails = 1;
 				break;
 			case 'v':
 				print_version();

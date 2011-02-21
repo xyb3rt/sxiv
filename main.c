@@ -129,15 +129,14 @@ int main(int argc, char **argv) {
 	win_open(&win);
 	img_init(&img, &win);
 
-	if (options->thumbnails)
-		tns_init(&tns, filecnt);
-
-	if (options->thumbnails == 2) {
+	if (options->thumbnails) {
 		mode = MODE_THUMBS;
+		tns_init(&tns, filecnt);
 		win_clear(&win);
 		win_draw(&win);
 	} else {
 		mode = MODE_NORMAL;
+		tns.thumbs = NULL;
 		load_image();
 		img_render(&img, &win);
 	}
@@ -163,11 +162,11 @@ void update_title() {
 			size = filesize;
 			size_readable(&size, &unit);
 			n = snprintf(win_title, TITLE_LEN, "sxiv: [%d/%d] <%d%%> (%.2f%s) %s",
-									 fileidx + 1, filecnt, (int) (img.zoom * 100.0), size, unit,
-									 filenames[fileidx]);
+			             fileidx + 1, filecnt, (int) (img.zoom * 100.0), size, unit,
+			             filenames[fileidx]);
 		} else {
 			n = snprintf(win_title, TITLE_LEN, "sxiv: [%d/%d] broken: %s",
-									 fileidx + 1, filecnt, filenames[fileidx]);
+			             fileidx + 1, filecnt, filenames[fileidx]);
 		}
 	}
 
@@ -309,6 +308,18 @@ void on_keypress(XKeyEvent *kev) {
 					changed = load_image();
 				}
 				break;
+			case XK_g:
+				if (fileidx != 0) {
+					fileidx = 0;
+					changed = load_image();
+				}
+				break;
+			case XK_G:
+				if (fileidx != filecnt - 1) {
+					fileidx = filecnt - 1;
+					changed = load_image();
+				}
+				break;
 
 			/* zooming */
 			case XK_plus:
@@ -368,10 +379,11 @@ void on_keypress(XKeyEvent *kev) {
 
 			/* switch to thumnail mode */
 			case XK_Return:
-				if (options->thumbnails) {
-					mode = MODE_THUMBS;
-					changed = tns.dirty = 1;
-				}
+				if (!tns.thumbs)
+					tns_init(&tns, filecnt);
+				mode = MODE_THUMBS;
+				tns.sel = fileidx;
+				changed = tns.dirty = 1;
 				break;
 
 			/* miscellaneous */
@@ -388,6 +400,7 @@ void on_keypress(XKeyEvent *kev) {
 		switch (ksym) {
 			/* open selected image */
 			case XK_Return:
+				fileidx = tns.sel;
 				load_image();
 				mode = MODE_NORMAL;
 				win_set_cursor(&win, CURSOR_ARROW);
@@ -411,6 +424,17 @@ void on_keypress(XKeyEvent *kev) {
 			case XK_Right:
 				changed = tns_move_selection(&tns, &win, TNS_RIGHT);
 				break;
+			case XK_g:
+				if (tns.sel != 0) {
+					tns.sel = 0;
+					changed = tns.dirty = 1;
+				}
+				break;
+			case XK_G:
+				if (tns.sel != tns.cnt - 1) {
+					tns.sel = tns.cnt - 1;
+					changed = tns.dirty = 1;
+				}
 		}
 	}
 
@@ -422,27 +446,6 @@ void on_keypress(XKeyEvent *kev) {
 		case XK_q:
 			cleanup();
 			exit(0);
-
-		case XK_g:
-			if (fileidx != 0) {
-				fileidx = 0;
-				changed = 1;
-				if (mode == MODE_NORMAL)
-					load_image();
-				else
-					tns.dirty = 1;
-			}
-			break;
-		case XK_G:
-			if (fileidx != filecnt - 1) {
-				fileidx = filecnt - 1;
-				changed = 1;
-				if (mode == MODE_NORMAL)
-					load_image();
-				else
-					tns.dirty = 1;
-			}
-			break;
 
 		case XK_f:
 			win_toggle_fullscreen(&win);
@@ -511,14 +514,15 @@ void on_buttonpress(XButtonEvent *bev) {
 		switch (bev->button) {
 			case Button1:
 				if ((sel = tns_translate(&tns, bev->x, bev->y)) >= 0) {
-					if (sel == fileidx) {
+					if (sel == tns.sel) {
+						fileidx = tns.sel;
 						load_image();
 						mode = MODE_NORMAL;
 						win_set_cursor(&win, CURSOR_ARROW);
 					} else {
-						tns_highlight(&tns, &win, fileidx, False);
+						tns_highlight(&tns, &win, tns.sel, False);
 						tns_highlight(&tns, &win, sel, True);
-						fileidx = sel;
+						tns.sel = sel;
 					}
 					changed = 1;
 					break;
@@ -585,6 +589,7 @@ void run() {
 			FD_SET(xfd, &fds);
 
 			if (!XPending(win.env.dpy) && !select(xfd + 1, &fds, 0, 0, &t))
+				/* timeout fired */
 				redraw();
 		}
 

@@ -25,16 +25,14 @@
 #include "thumbs.h"
 #include "util.h"
 
-extern int fileidx;
 extern Imlib_Image *im_broken;
-
 const int thumb_dim = THUMB_SIZE + 10;
 
 void tns_init(tns_t *tns, int cnt) {
 	if (!tns)
 		return;
 
-	tns->cnt = tns->first = 0;
+	tns->cnt = tns->first = tns->sel = 0;
 	tns->thumbs = (thumb_t*) s_malloc(cnt * sizeof(thumb_t));
 	memset(tns->thumbs, 0, cnt * sizeof(thumb_t));
 	tns->dirty = 0;
@@ -43,7 +41,7 @@ void tns_init(tns_t *tns, int cnt) {
 void tns_free(tns_t *tns, win_t *win) {
 	int i;
 
-	if (!tns)
+	if (!tns || !tns->thumbs)
 		return;
 
 	for (i = 0; i < tns->cnt; ++i)
@@ -94,21 +92,21 @@ void tns_check_view(tns_t *tns, Bool scrolled) {
 		return;
 
 	tns->first -= tns->first % tns->cols;
-	r = fileidx % tns->cols;
+	r = tns->sel % tns->cols;
 
 	if (scrolled) {
 		/* move selection into visible area */
-		if (fileidx >= tns->first + tns->cols * tns->rows)
-			fileidx = tns->first + r + tns->cols * (tns->rows - 1);
-		else if (fileidx < tns->first)
-			fileidx = tns->first + r;
+		if (tns->sel >= tns->first + tns->cols * tns->rows)
+			tns->sel = tns->first + r + tns->cols * (tns->rows - 1);
+		else if (tns->sel < tns->first)
+			tns->sel = tns->first + r;
 	} else {
 		/* scroll to selection */
-		if (tns->first + tns->cols * tns->rows <= fileidx) {
-			tns->first = fileidx - r - tns->cols * (tns->rows - 1);
+		if (tns->first + tns->cols * tns->rows <= tns->sel) {
+			tns->first = tns->sel - r - tns->cols * (tns->rows - 1);
 			tns->dirty = 1;
-		} else if (tns->first > fileidx) {
-			tns->first = fileidx - r;
+		} else if (tns->first > tns->sel) {
+			tns->first = tns->sel - r;
 			tns->dirty = 1;
 		}
 	}
@@ -156,7 +154,7 @@ void tns_render(tns_t *tns, win_t *win) {
 	}
 
 	tns->dirty = 0;
-	tns_highlight(tns, win, fileidx, True);
+	tns_highlight(tns, win, tns->sel, True);
 }
 
 void tns_highlight(tns_t *tns, win_t *win, int n, Bool hl) {
@@ -179,35 +177,35 @@ int tns_move_selection(tns_t *tns, win_t *win, tnsdir_t dir) {
 	if (!tns || !win)
 		return 0;
 
-	old = fileidx;
+	old = tns->sel;
 
 	switch (dir) {
 		case TNS_LEFT:
-			if (fileidx > 0)
-				--fileidx;
+			if (tns->sel > 0)
+				--tns->sel;
 			break;
 		case TNS_RIGHT:
-			if (fileidx < tns->cnt - 1)
-				++fileidx;
+			if (tns->sel < tns->cnt - 1)
+				++tns->sel;
 			break;
 		case TNS_UP:
-			if (fileidx >= tns->cols)
-				fileidx -= tns->cols;
+			if (tns->sel >= tns->cols)
+				tns->sel -= tns->cols;
 			break;
 		case TNS_DOWN:
-			if (fileidx + tns->cols < tns->cnt)
-				fileidx += tns->cols;
+			if (tns->sel + tns->cols < tns->cnt)
+				tns->sel += tns->cols;
 			break;
 	}
 
-	if (fileidx != old) {
+	if (tns->sel != old) {
 		tns_highlight(tns, win, old, False);
 		tns_check_view(tns, False);
 		if (!tns->dirty)
-			tns_highlight(tns, win, fileidx, True);
+			tns_highlight(tns, win, tns->sel, True);
 	}
 
-	return fileidx != old;
+	return tns->sel != old;
 }
 
 int tns_scroll(tns_t *tns, tnsdir_t dir) {
