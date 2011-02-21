@@ -254,24 +254,23 @@ void read_dir_rec(const char *dirname) {
 
 /* event handling */
 
-int timeout;
-unsigned char hidecur;
+#define TO_WIN_RESIZE  75000;
+#define TO_IMAGE_DRAG  1000;
+#define TO_CURSOR_HIDE 1500000;
+#define TO_THUMBS_LOAD 75000;
+int timo_cursor;
+int timo_redraw;
 
-int mox, moy;
 unsigned char drag;
+int mox, moy;
 
 void redraw() {
-	if (mode == MODE_NORMAL) {
-		if (!drag && hidecur) {
-			win_set_cursor(&win, CURSOR_NONE);
-			hidecur = 0;
-		}
+	if (mode == MODE_NORMAL)
 		img_render(&img, &win);
-	} else {
+	else
 		tns_render(&tns, &win);
-	}
 	update_title();
-	timeout = 0;
+	timo_redraw = 0;
 }
 
 void on_keypress(XKeyEvent *kev) {
@@ -391,7 +390,7 @@ void on_keypress(XKeyEvent *kev) {
 					tns_init(&tns, filecnt);
 				mode = MODE_THUMBS;
 				win_set_cursor(&win, CURSOR_ARROW);
-				hidecur = 0;
+				timo_cursor = 0;
 				tns.sel = fileidx;
 				changed = tns.dirty = 1;
 				break;
@@ -489,7 +488,7 @@ void on_buttonpress(XButtonEvent *bev) {
 				mox = bev->x;
 				moy = bev->y;
 				win_set_cursor(&win, CURSOR_HAND);
-				hidecur = 0;
+				timo_cursor = 0;
 				drag = 1;
 				break;
 			case Button3:
@@ -530,7 +529,7 @@ void on_buttonpress(XButtonEvent *bev) {
 						fileidx = tns.sel;
 						load_image();
 						mode = MODE_NORMAL;
-						win_set_cursor(&win, CURSOR_NONE);
+						timo_cursor = TO_CURSOR_HIDE;
 					} else {
 						tns_highlight(&tns, &win, tns.sel, False);
 						tns_highlight(&tns, &win, sel, True);
@@ -559,7 +558,7 @@ void on_motionnotify(XMotionEvent *mev) {
 
 	if (mev->x >= 0 && mev->x <= win.w && mev->y >= 0 && mev->y <= win.h) {
 		if (img_move(&img, &win, mev->x - mox, mev->y - moy))
-			timeout = 1000;
+			timo_redraw = TO_IMAGE_DRAG;
 
 		mox = mev->x;
 		moy = mev->y;
@@ -567,17 +566,16 @@ void on_motionnotify(XMotionEvent *mev) {
 }
 
 void run() {
-	int xfd;
+	int xfd, timeout;
 	fd_set fds;
-	struct timeval t, t0;
+	struct timeval tt, t0, t1;
 	XEvent ev;
 
-	drag = timeout = 0;
+	timo_cursor = timo_redraw = 0;
+	drag = 0;
 
-	if (mode == MODE_NORMAL) {
-		hidecur = 1;
-		timeout = 1500000;
-	}
+	if (mode == MODE_NORMAL)
+		timo_cursor = TO_CURSOR_HIDE;
 
 	while (1) {
 		if (mode == MODE_THUMBS && tns.cnt < filecnt) {
@@ -586,8 +584,8 @@ void run() {
 
 			while (!XPending(win.env.dpy) && tns.cnt < filecnt) {
 				tns_load(&tns, &win, filenames[tns.cnt]);
-				gettimeofday(&t, 0);
-				if (TV_TO_DOUBLE(t) - TV_TO_DOUBLE(t0) >= 0.25)
+				gettimeofday(&t1, 0);
+				if (TV_TO_DOUBLE(t1) - TV_TO_DOUBLE(t0) >= 0.25)
 					break;
 			}
 			if (tns.cnt == filecnt)
@@ -596,24 +594,40 @@ void run() {
 				redraw();
 				continue;
 			} else {
-				timeout = 75000;
+				timo_redraw = TO_THUMBS_LOAD;
 			}
-		} else if (timeout) {
-			t.tv_sec = timeout / 1000000;
-			t.tv_usec = timeout % 1000000;
+		} else if (timo_cursor || timo_redraw) {
+			gettimeofday(&t0, 0);
+			if (timo_cursor && timo_redraw)
+				timeout = MIN(timo_cursor, timo_redraw);
+			else if (timo_cursor)
+				timeout = timo_cursor;
+			else
+				timeout = timo_redraw;
+			tt.tv_sec = timeout / 1000000;
+			tt.tv_usec = timeout % 1000000;
 			xfd = ConnectionNumber(win.env.dpy);
 			FD_ZERO(&fds);
 			FD_SET(xfd, &fds);
 
-			if (!XPending(win.env.dpy) && !select(xfd + 1, &fds, 0, 0, &t)) {
-				/* timeout fired */
-				if (hidecur) {
+			if (!XPending(win.env.dpy))
+				select(xfd + 1, &fds, 0, 0, &tt);
+			gettimeofday(&t1, 0);
+			timeout = MIN((TV_TO_DOUBLE(t1) - TV_TO_DOUBLE(t0)) * 1000000, timeout);
+
+			/* timeouts fired? */
+			if (timo_cursor) {
+				timo_cursor = MAX(0, timo_cursor - timeout);
+				if (!timo_cursor)
 					win_set_cursor(&win, CURSOR_NONE);
-					hidecur = 0;
-				} else {
-					redraw();
-				}
 			}
+			if (timo_redraw) {
+				timo_redraw = MAX(0, timo_redraw - timeout);
+				if (!timo_redraw)
+					redraw();
+			}
+			if (!XPending(win.env.dpy) && (timo_cursor || timo_redraw))
+				continue;
 		}
 
 		if (!XNextEvent(win.env.dpy, &ev)) {
@@ -629,8 +643,7 @@ void run() {
 						drag = 0;
 						if (mode == MODE_NORMAL) {
 							win_set_cursor(&win, CURSOR_ARROW);
-							hidecur = 1;
-							timeout = 1500000;
+							timo_cursor = TO_CURSOR_HIDE;
 						}
 					}
 					break;
@@ -638,16 +651,14 @@ void run() {
 					if (drag) {
 						on_motionnotify(&ev.xmotion);
 					} else if (mode == MODE_NORMAL) {
-						if (!hidecur) {
+						if (!timo_cursor)
 							win_set_cursor(&win, CURSOR_ARROW);
-							hidecur = 1;
-						}
-						timeout = 1500000;
+						timo_cursor = TO_CURSOR_HIDE;
 					}
 					break;
 				case ConfigureNotify:
 					if (win_configure(&win, &ev.xconfigure)) {
-						timeout = 75000;
+						timo_redraw = TO_WIN_RESIZE;
 						if (mode == MODE_NORMAL)
 							img.checkpan = 1;
 						else
