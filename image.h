@@ -19,6 +19,8 @@
 #ifndef IMAGE_H
 #define IMAGE_H
 
+#include <Imlib2.h>
+
 #include "window.h"
 
 typedef enum scalemode_e {
@@ -35,10 +37,11 @@ typedef enum pandir_e {
 } pandir_t;
 
 typedef struct img_s {
+	Imlib_Image *im;
+
 	float zoom;
 	scalemode_t scalemode;
 
-	unsigned char valid;
 	unsigned char re;
 	unsigned char checkpan;
 	unsigned char aa;
@@ -54,6 +57,7 @@ void img_free(img_t*);
 
 int img_check(const char*);
 int img_load(img_t*, const char*);
+void img_close(img_t*);
 
 void img_render(img_t*, win_t*);
 

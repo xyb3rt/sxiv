@@ -1,6 +1,8 @@
 #ifndef ICON_H
 #define ICON_H
 
+#include <Imlib2.h>
+
 static DATA32 icon_broken[] = {
 	0xffcc0000, 0xffcc0000, 0xffcc0000, 0xffcc0000, 0xffcc0000, 0xffcc0000,
 	0xffcc0000, 0xffcc0000, 0xffcc0000, 0xffcc0000, 0xffcc0000, 0xffcc0000,

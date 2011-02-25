@@ -79,10 +79,13 @@ void tns_load(tns_t *tns, win_t *win, const char *filename) {
 
 	t->pm = win_create_pixmap(win, t->w, t->h);
 	imlib_context_set_drawable(t->pm);
+	imlib_context_set_anti_alias(1);
 	imlib_render_image_part_on_drawable_at_size(0, 0, w, h,
 	                                            0, 0, t->w, t->h);
-	imlib_free_image();
 	tns->dirty = 1;
+
+	if (im)
+		imlib_free_image();
 }
 
 void tns_check_view(tns_t *tns, Bool scrolled) {

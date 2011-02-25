@@ -17,7 +17,6 @@
  */
 
 #include <unistd.h>
-#include <Imlib2.h>
 
 #include "config.h"
 #include "icon.h"
@@ -39,6 +38,7 @@ void img_init(img_t *img, win_t *win) {
 	im_broken = imlib_create_image_using_data(32, 32, icon_broken);
 
 	if (img) {
+		img->im = NULL;
 		img->zoom = options->zoom;
 		img->zoom = MAX(img->zoom, zoom_min);
 		img->zoom = MIN(img->zoom, zoom_max);
@@ -53,48 +53,38 @@ void img_init(img_t *img, win_t *win) {
 }
 
 void img_free(img_t* img) {
-	if (img && img->valid && imlib_context_get_image())
-		imlib_free_image();
 	imlib_context_set_image(im_broken);
 	imlib_free_image();
 }
 
-int _imlib_load_image(const char *filename) {
+int img_check(const char *filename) {
 	Imlib_Image *im;
 
 	if (!filename)
 		return 0;
 
-	if (access(filename, F_OK) || !(im = imlib_load_image(filename))) {
+	if (!access(filename, F_OK) && (im = imlib_load_image(filename))) {
+		imlib_context_set_image(im);
+		imlib_image_set_changes_on_disk();
+		imlib_free_image();
+		return 1;
+	} else {
 		warn("could not open file: %s", filename);
 		return 0;
 	}
-
-	imlib_context_set_image(im);
-	imlib_image_set_changes_on_disk();
-
-	return 1;
-}
-
-int img_check(const char *filename) {
-	int ret;
-
-	if ((ret = _imlib_load_image(filename)))
-		imlib_free_image();
-	return ret;
 }
 
 int img_load(img_t *img, const char *filename) {
 	if (!img || !filename)
 		return 0;
 
-	if (img->valid && imlib_context_get_image())
-		imlib_free_image();
-
-	if ((img->valid = _imlib_load_image(filename))) {
+	if (!access(filename, F_OK) && (img->im = imlib_load_image(filename))) {
+		imlib_context_set_image(img->im);
+		imlib_image_set_changes_on_disk();
 		imlib_context_set_anti_alias(img->aa);
 		img->scalemode = options->scalemode;
 	} else {
+		warn("could not open file: %s", filename);
 		imlib_context_set_image(im_broken);
 		imlib_context_set_anti_alias(0);
 		img->scalemode = SCALE_DOWN;
@@ -107,6 +97,14 @@ int img_load(img_t *img, const char *filename) {
 	img->h = imlib_image_get_height();
 
 	return 1;
+}
+
+void img_close(img_t *img) {
+	if (img && img->im) {
+		imlib_context_set_image(img->im);
+		imlib_free_image();
+		img->im = NULL;
+	}
 }
 
 void img_check_pan(img_t *img, win_t *win) {
@@ -152,7 +150,7 @@ void img_render(img_t *img, win_t *win) {
 	int sx, sy, sw, sh;
 	int dx, dy, dw, dh;
 
-	if (!img || !win || !imlib_context_get_image())
+	if (!img || !win)
 		return;
 
 	if (img->scalemode != SCALE_ZOOM) {
@@ -198,6 +196,11 @@ void img_render(img_t *img, win_t *win) {
 
 	win_clear(win);
 
+	if (img->im)
+		imlib_context_set_image(img->im);
+	else
+		imlib_context_set_image(im_broken);
+	
 	imlib_context_set_drawable(win->pm);
 	imlib_render_image_part_on_drawable_at_size(sx, sy, sw, sh, dx, dy, dw, dh);
 
@@ -205,7 +208,7 @@ void img_render(img_t *img, win_t *win) {
 }
 
 int img_fit_win(img_t *img, win_t *win) {
-	if (!img || !img->valid || !win)
+	if (!img || !img->im || !win)
 		return 0;
 
 	img->scalemode = SCALE_FIT;
@@ -228,7 +231,7 @@ int img_center(img_t *img, win_t *win) {
 }
 
 int img_zoom(img_t *img, float z) {
-	if (!img || !img->valid)
+	if (!img || !img->im)
 		return 0;
 
 	z = MAX(z, zoom_min);
@@ -250,7 +253,7 @@ int img_zoom(img_t *img, float z) {
 int img_zoom_in(img_t *img) {
 	int i;
 
-	if (!img || !img->valid)
+	if (!img || !img->im)
 		return 0;
 
 	for (i = 1; i < zl_cnt; ++i) {
@@ -263,7 +266,7 @@ int img_zoom_in(img_t *img) {
 int img_zoom_out(img_t *img) {
 	int i;
 
-	if (!img || !img->valid)
+	if (!img || !img->im)
 		return 0;
 
 	for (i = zl_cnt - 2; i >= 0; --i) {
@@ -276,7 +279,7 @@ int img_zoom_out(img_t *img) {
 int img_move(img_t *img, win_t *win, int dx, int dy) {
 	int ox, oy;
 
-	if (!img || !img->valid || !win)
+	if (!img || !img->im || !win)
 		return 0;
 
 	ox = img->x;
@@ -291,7 +294,7 @@ int img_move(img_t *img, win_t *win, int dx, int dy) {
 }
 
 int img_pan(img_t *img, win_t *win, pandir_t dir) {
-	if (!img || !img->valid || !win)
+	if (!img || !img->im || !win)
 		return 0;
 
 	switch (dir) {
@@ -311,12 +314,13 @@ int img_pan(img_t *img, win_t *win, pandir_t dir) {
 void img_rotate(img_t *img, win_t *win, int d) {
 	int ox, oy, tmp;
 
-	if (!img || !img->valid || !win)
+	if (!img || !img->im || !win)
 		return;
 
 	ox = d == 1 ? img->x : win->w - img->x - img->w * img->zoom;
 	oy = d == 3 ? img->y : win->h - img->y - img->h * img->zoom;
 
+	imlib_context_set_image(img->im);
 	imlib_image_orientate(d);
 
 	img->x = oy + (win->w - win->h) / 2;
@@ -338,9 +342,9 @@ void img_rotate_right(img_t *img, win_t *win) {
 }
 
 void img_toggle_antialias(img_t *img) {
-	if (!img || !img->valid)
-		return;
-
-	img->aa ^= 1;
-	imlib_context_set_anti_alias(img->aa);
+	if (img && img->im) {
+		img->aa ^= 1;
+		imlib_context_set_image(img->im);
+		imlib_context_set_anti_alias(img->aa);
+	}
 }

@@ -62,6 +62,7 @@ void cleanup() {
 	static int in = 0;
 
 	if (!in++) {
+		img_close(&img);
 		img_free(&img);
 		tns_free(&tns, &win);
 		win_close(&win);
@@ -70,6 +71,8 @@ void cleanup() {
 
 int load_image() {
 	struct stat fstats;
+
+	img_close(&img);
 
 	if (!stat(filenames[fileidx], &fstats))
 		filesize = fstats.st_size;
@@ -158,7 +161,7 @@ void update_title() {
 		             tns.cnt ? tns.sel + 1 : 0, tns.cnt,
 		             tns.cnt ? filenames[tns.sel] : "");
 	} else {
-		if (img.valid) {
+		if (img.im) {
 			size = filesize;
 			size_readable(&size, &unit);
 			n = snprintf(win_title, TITLE_LEN, "sxiv: [%d/%d] <%d%%> (%.2f%s) %s",
@@ -388,6 +391,7 @@ void on_keypress(XKeyEvent *kev) {
 			case XK_Return:
 				if (!tns.thumbs)
 					tns_init(&tns, filecnt);
+				img_close(&img);
 				mode = MODE_THUMBS;
 				win_set_cursor(&win, CURSOR_ARROW);
 				timo_cursor = 0;
