@@ -199,10 +199,15 @@ int check_append(const char *filename) {
 	}
 }
 
+int fncmp(const void *a, const void *b) {
+	return strcoll(*((char* const*) a), *((char* const*) b));
+}
+
 void read_dir_rec(const char *dirname) {
 	char *filename;
 	const char **dirnames;
 	int dircnt, diridx;
+	int fcnt, fstart;
 	unsigned char first;
 	size_t len;
 	DIR *dir;
@@ -216,6 +221,9 @@ void read_dir_rec(const char *dirname) {
 	diridx = first = 1;
 	dirnames = (const char**) s_malloc(dircnt * sizeof(const char*));
 	dirnames[0] = dirname;
+
+	fcnt = 0;
+	fstart = fileidx;
 
 	while (diridx > 0) {
 		dirname = dirnames[--diridx];
@@ -238,7 +246,9 @@ void read_dir_rec(const char *dirname) {
 					}
 					dirnames[diridx++] = filename;
 				} else {
-					if (!check_append(filename))
+					if (check_append(filename))
+						++fcnt;
+					else
 						free(filename);
 				}
 			}
@@ -250,6 +260,9 @@ void read_dir_rec(const char *dirname) {
 		else
 			first = 0;
 	}
+
+	if (fcnt > 1)
+		qsort(filenames + fstart, fcnt, sizeof(char*), fncmp);
 
 	free(dirnames);
 }
