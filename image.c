@@ -162,7 +162,14 @@ void img_render(img_t *img, win_t *win) {
 	if (!img->re) {
 		/* rendered for the first time */
 		img->re = 1;
-		img_center(img, win);
+		if (img->zoom * img->w <= win->w)
+			img->x = (win->w - img->w * img->zoom) / 2;
+		else
+			img->x = 0;
+		if (img->zoom * img->h <= win->h)
+			img->y = (win->h - img->h * img->zoom) / 2;
+		else
+			img->y = 0;
 	}
 	
 	if (img->checkpan) {

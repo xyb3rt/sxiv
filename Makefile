@@ -1,6 +1,6 @@
 all: sxiv
 
-VERSION=git-20110225
+VERSION=git-20110226
 
 CC?=gcc
 PREFIX?=/usr/local
