@@ -41,6 +41,8 @@ typedef struct img_s {
 
 	float zoom;
 	scalemode_t scalemode;
+	short ori;
+	short o_ori;
 
 	unsigned char re;
 	unsigned char checkpan;
@@ -57,6 +59,7 @@ void img_free(img_t*);
 
 int img_check(const char*);
 int img_load(img_t*, const char*);
+int img_save(img_t*);
 void img_close(img_t*);
 
 void img_render(img_t*, win_t*);

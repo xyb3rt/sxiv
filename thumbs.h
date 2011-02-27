@@ -38,6 +38,7 @@ typedef struct thumb_s {
 
 typedef struct tns_s {
 	thumb_t *thumbs;
+	int cap;
 	int cnt;
 	int x;
 	int y;
@@ -51,7 +52,7 @@ typedef struct tns_s {
 void tns_init(tns_t*, int);
 void tns_free(tns_t*, win_t*);
 
-void tns_load(tns_t*, win_t*, const char*);
+void tns_load(tns_t*, win_t*, int, const char*);
 
 void tns_render(tns_t*, win_t*);
 void tns_highlight(tns_t*, win_t*, int, Bool);

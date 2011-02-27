@@ -69,10 +69,11 @@ void cleanup() {
 	}
 }
 
-int load_image() {
+int load_image(int new) {
 	struct stat fstats;
 
 	img_close(&img);
+	fileidx = new;
 
 	if (!stat(filenames[fileidx], &fstats))
 		filesize = fstats.st_size;
@@ -140,7 +141,7 @@ int main(int argc, char **argv) {
 	} else {
 		mode = MODE_NORMAL;
 		tns.thumbs = NULL;
-		load_image();
+		load_image(fileidx);
 		img_render(&img, &win);
 	}
 
@@ -307,41 +308,29 @@ void on_keypress(XKeyEvent *kev) {
 			/* navigate image list */
 			case XK_n:
 			case XK_space:
-				if (fileidx + 1 < filecnt) {
-					++fileidx;
-					changed = load_image();
-				}
+				if (fileidx + 1 < filecnt)
+					changed = load_image(fileidx + 1);
 				break;
 			case XK_p:
 			case XK_BackSpace:
-				if (fileidx > 0) {
-					--fileidx;
-					changed = load_image();
-				}
+				if (fileidx > 0)
+					changed = load_image(fileidx - 1);
 				break;
 			case XK_bracketleft:
-				if (fileidx != 0) {
-					fileidx = MAX(0, fileidx - 10);
-					changed = load_image();
-				}
+				if (fileidx != 0)
+					changed = load_image(MAX(0, fileidx - 10));
 				break;
 			case XK_bracketright:
-				if (fileidx != filecnt - 1) {
-					fileidx = MIN(fileidx + 10, filecnt - 1);
-					changed = load_image();
-				}
+				if (fileidx != filecnt - 1)
+					changed = load_image(MIN(fileidx + 10, filecnt - 1));
 				break;
 			case XK_g:
-				if (fileidx != 0) {
-					fileidx = 0;
-					changed = load_image();
-				}
+				if (fileidx != 0)
+					changed = load_image(0);
 				break;
 			case XK_G:
-				if (fileidx != filecnt - 1) {
-					fileidx = filecnt - 1;
-					changed = load_image();
-				}
+				if (fileidx != filecnt - 1)
+					changed = load_image(filecnt - 1);
 				break;
 
 			/* zooming */
@@ -418,7 +407,11 @@ void on_keypress(XKeyEvent *kev) {
 				changed = 1;
 				break;
 			case XK_r:
-				changed = load_image();
+				changed = load_image(fileidx);
+				break;
+			case XK_S:
+			  if (img_save(&img))
+					tns_load(&tns, &win, fileidx, filenames[fileidx]);
 				break;
 		}
 	} else {
@@ -426,8 +419,7 @@ void on_keypress(XKeyEvent *kev) {
 		switch (ksym) {
 			/* open selected image */
 			case XK_Return:
-				fileidx = tns.sel;
-				load_image();
+				load_image(tns.sel);
 				mode = MODE_NORMAL;
 				win_set_cursor(&win, CURSOR_NONE);
 				changed = 1;
@@ -496,10 +488,8 @@ void on_buttonpress(XButtonEvent *bev) {
 	if (mode == MODE_NORMAL) {
 		switch (bev->button) {
 			case Button1:
-				if (fileidx + 1 < filecnt) {
-					++fileidx;
-					changed = load_image();
-				}
+				if (fileidx + 1 < filecnt)
+					changed = load_image(fileidx + 1);
 				break;
 			case Button2:
 				mox = bev->x;
@@ -509,10 +499,8 @@ void on_buttonpress(XButtonEvent *bev) {
 				drag = 1;
 				break;
 			case Button3:
-				if (fileidx > 0) {
-					--fileidx;
-					changed = load_image();
-				}
+				if (fileidx > 0)
+					changed = load_image(fileidx - 1);
 				break;
 			case Button4:
 				if (mask == ControlMask)
@@ -543,8 +531,7 @@ void on_buttonpress(XButtonEvent *bev) {
 			case Button1:
 				if ((sel = tns_translate(&tns, bev->x, bev->y)) >= 0) {
 					if (sel == tns.sel) {
-						fileidx = tns.sel;
-						load_image();
+						load_image(tns.sel);
 						mode = MODE_NORMAL;
 						timo_cursor = TO_CURSOR_HIDE;
 					} else {
@@ -600,7 +587,8 @@ void run() {
 			gettimeofday(&t0, 0);
 
 			while (!XPending(win.env.dpy) && tns.cnt < filecnt) {
-				tns_load(&tns, &win, filenames[tns.cnt]);
+				/* tns.cnt is increased inside tns_load */
+				tns_load(&tns, &win, tns.cnt, filenames[tns.cnt]);
 				gettimeofday(&t1, 0);
 				if (TV_TO_DOUBLE(t1) - TV_TO_DOUBLE(t0) >= 0.25)
 					break;

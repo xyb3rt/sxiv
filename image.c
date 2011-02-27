@@ -16,6 +16,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+#include <string.h>
 #include <unistd.h>
 
 #include "config.h"
@@ -27,6 +28,9 @@
 int zl_cnt;
 float zoom_min;
 float zoom_max;
+
+const short ori_left[8] = { 8, 7, 6, 5, 2, 1, 4, 3 };
+const short ori_right[8] = { 6, 5, 8, 7, 4, 3, 2, 1 };
 
 Imlib_Image *im_broken;
 
@@ -90,13 +94,32 @@ int img_load(img_t *img, const char *filename) {
 		img->scalemode = SCALE_DOWN;
 	}
 
-	img->re = 0;
-	img->checkpan = 0;
+	img->ori = img->o_ori = 1;
+	img->re = img->checkpan = 0;
 
 	img->w = imlib_image_get_width();
 	img->h = imlib_image_get_height();
 
 	return 1;
+}
+
+int img_save(img_t *img) {
+	const char *fmt;
+
+	if (!img || !img->im)
+		return 0;
+
+	imlib_context_set_image(img->im);
+
+	if (img->ori != img->o_ori) {
+		fmt = imlib_image_format();
+		if (strcmp(fmt, "png") == 0) {
+			imlib_save_image(imlib_image_get_filename());
+			return 1;
+		}
+	}
+
+	return 0;
 }
 
 void img_close(img_t *img) {
@@ -341,11 +364,17 @@ void img_rotate(img_t *img, win_t *win, int d) {
 }
 
 void img_rotate_left(img_t *img, win_t *win) {
-	img_rotate(img, win, 3);
+	if (img) {
+		img_rotate(img, win, 3);
+		img->ori = ori_left[img->ori];
+	}
 }
 
 void img_rotate_right(img_t *img, win_t *win) {
-	img_rotate(img, win, 1);
+	if (img) {
+		img_rotate(img, win, 1);
+		img->ori = ori_right[img->ori];
+	}
 }
 
 void img_toggle_antialias(img_t *img) {
