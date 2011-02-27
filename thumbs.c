@@ -35,6 +35,7 @@ void tns_init(tns_t *tns, int cnt) {
 	tns->cnt = tns->first = tns->sel = 0;
 	tns->thumbs = (thumb_t*) s_malloc(cnt * sizeof(thumb_t));
 	memset(tns->thumbs, 0, cnt * sizeof(thumb_t));
+	tns->cap = cnt;
 	tns->dirty = 0;
 }
 
@@ -51,7 +52,7 @@ void tns_free(tns_t *tns, win_t *win) {
 	tns->thumbs = NULL;
 }
 
-void tns_load(tns_t *tns, win_t *win, const char *filename) {
+void tns_load(tns_t *tns, win_t *win, int n, const char *filename) {
 	int w, h;
 	float z, zw, zh;
 	thumb_t *t;
@@ -60,10 +61,17 @@ void tns_load(tns_t *tns, win_t *win, const char *filename) {
 	if (!tns || !win || !filename)
 		return;
 
-	if ((im = imlib_load_image(filename)))
+	if (n >= tns->cap)
+		return;
+	else if (n >= tns->cnt)
+		tns->cnt = n + 1;
+
+	if ((im = imlib_load_image(filename))) {
 		imlib_context_set_image(im);
-	else
+		imlib_image_set_changes_on_disk();
+	} else {
 		imlib_context_set_image(im_broken);
+	}
 
 	w = imlib_image_get_width();
 	h = imlib_image_get_height();
@@ -73,10 +81,12 @@ void tns_load(tns_t *tns, win_t *win, const char *filename) {
 	if (!im && z > 1.0)
 		z = 1.0;
 
-	t = &tns->thumbs[tns->cnt++];
+	t = &tns->thumbs[n];
 	t->w = z * w;
 	t->h = z * h;
 
+	if (t->pm)
+		win_free_pixmap(win, t->pm);
 	t->pm = win_create_pixmap(win, t->w, t->h);
 	imlib_context_set_drawable(t->pm);
 	imlib_context_set_anti_alias(1);
