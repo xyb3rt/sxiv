@@ -99,10 +99,13 @@ int img_load(img_t *img, const char *filename) {
 	return 1;
 }
 
-void img_close(img_t *img) {
+void img_close(img_t *img, int decache) {
 	if (img && img->im) {
 		imlib_context_set_image(img->im);
-		imlib_free_image();
+		if (decache)
+			imlib_free_image_and_decache();
+		else
+			imlib_free_image();
 		img->im = NULL;
 	}
 }

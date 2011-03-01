@@ -23,6 +23,8 @@
 #include <sys/select.h>
 #include <sys/stat.h>
 #include <sys/time.h>
+#include <sys/wait.h>
+#include <unistd.h>
 
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -33,6 +35,7 @@
 #include "thumbs.h"
 #include "util.h"
 #include "window.h"
+#include "commands.h"
 
 typedef enum {
 	MODE_NORMAL = 0,
@@ -62,7 +65,7 @@ void cleanup() {
 	static int in = 0;
 
 	if (!in++) {
-		img_close(&img);
+		img_close(&img, 0);
 		img_free(&img);
 		tns_free(&tns, &win);
 		win_close(&win);
@@ -73,7 +76,7 @@ int load_image(int new) {
 	struct stat fstats;
 
 	if (new >= 0 && new < filecnt) {
-		img_close(&img);
+		img_close(&img, 0);
 		fileidx = new;
 		if (!stat(filenames[fileidx], &fstats))
 			filesize = fstats.st_size;
@@ -270,6 +273,60 @@ void read_dir_rec(const char *dirname) {
 	free(dirnames);
 }
 
+int run_command(const char **cmdline, Bool reload) {
+	int argc, i;
+	const char **argv;
+	pid_t pid;
+	int error, ret, status;
+
+	if (!cmdline)
+		return 0;
+
+	argc = 1;
+	while (cmdline[argc-1])
+		++argc;
+
+	if (argc < 2)
+		return 0;
+
+	argv = (const char**) s_malloc(argc * sizeof(const char*));
+	error = ret = 0;
+
+	for (i = 0; i < argc; ++i) {
+		if (cmdline[i] != FILENAME)
+			argv[i] = cmdline[i];
+		else
+			argv[i] = filenames[mode == MODE_NORMAL ? fileidx : tns.sel];
+	}
+
+	if ((pid = fork()) == 0) {
+		execvp(argv[0], (char **const) argv);
+		warn("could not exec %s", argv[0]);
+		exit(1);
+	} else if (pid < 0 && !options->quiet) {
+		warn("could not fork. command line was:");
+		error = 1;
+	} else if (reload) {
+		waitpid(pid, &status, 0);
+		if (WIFEXITED(status) && WEXITSTATUS(status) == 0) {
+			ret = 1;
+		} else if (!options->quiet) {
+			warn("child exited with non-zero return value: %d. command line was:",
+			     WEXITSTATUS(status));
+			error = 1;
+		}
+	}
+	
+	if (error) {
+		for (i = 0; i < argc && argv[i]; ++i)
+			fprintf(stderr, "%s%s", i > 0 ? " " : "", argv[i]);
+		fprintf(stderr, "\n");
+	}
+
+	free(argv);
+	return ret;
+}
+
 
 /* event handling */
 
@@ -293,7 +350,7 @@ void redraw() {
 }
 
 void on_keypress(XKeyEvent *kev) {
-	int x, y;
+	int i, x, y;
 	unsigned int w, h;
 	char key;
 	KeySym ksym;
@@ -304,6 +361,25 @@ void on_keypress(XKeyEvent *kev) {
 	
 	XLookupString(kev, &key, 1, &ksym, NULL);
 	changed = 0;
+
+	/* external commands from commands.h */
+	for (i = 0; i < LEN(commands); ++i) {
+		if (commands[i].ksym == ksym) {
+			win_set_cursor(&win, CURSOR_WATCH);
+			if (run_command(commands[i].cmdline, commands[i].reload)) {
+				if (mode == MODE_NORMAL) {
+					img_close(&img, 1);
+					load_image(fileidx);
+					tns_load(&tns, &win, fileidx, filenames[fileidx]);
+				} else {
+					tns_load(&tns, &win, tns.sel, filenames[tns.sel]);
+				}
+				redraw();
+			}
+			win_set_cursor(&win, mode == MODE_NORMAL ? CURSOR_NONE : CURSOR_ARROW);
+			return;
+		}
+	}
 
 	if (mode == MODE_NORMAL) {
 		switch (ksym) {
@@ -395,7 +471,7 @@ void on_keypress(XKeyEvent *kev) {
 			case XK_Return:
 				if (!tns.thumbs)
 					tns_init(&tns, filecnt);
-				img_close(&img);
+				img_close(&img, 0);
 				mode = MODE_THUMBS;
 				win_set_cursor(&win, CURSOR_ARROW);
 				timo_cursor = 0;

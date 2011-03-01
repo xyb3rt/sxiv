@@ -57,7 +57,7 @@ void img_free(img_t*);
 
 int img_check(const char*);
 int img_load(img_t*, const char*);
-void img_close(img_t*);
+void img_close(img_t*, int);
 
 void img_render(img_t*, win_t*);
 

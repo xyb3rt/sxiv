@@ -331,4 +331,6 @@ void win_set_cursor(win_t *win, win_cur_t cursor) {
 			XDefineCursor(win->env.dpy, win->xwin, carrow);
 			break;
 	}
+
+	XFlush(win->env.dpy);
 }

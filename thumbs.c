@@ -66,12 +66,10 @@ void tns_load(tns_t *tns, win_t *win, int n, const char *filename) {
 	else if (n >= tns->cnt)
 		tns->cnt = n + 1;
 
-	if ((im = imlib_load_image(filename))) {
+	if ((im = imlib_load_image(filename)))
 		imlib_context_set_image(im);
-		imlib_image_set_changes_on_disk();
-	} else {
+	else
 		imlib_context_set_image(im_broken);
-	}
 
 	w = imlib_image_get_width();
 	h = imlib_image_get_height();
@@ -95,7 +93,7 @@ void tns_load(tns_t *tns, win_t *win, int n, const char *filename) {
 	tns->dirty = 1;
 
 	if (im)
-		imlib_free_image();
+		imlib_free_image_and_decache();
 }
 
 void tns_check_view(tns_t *tns, Bool scrolled) {
