@@ -6,14 +6,19 @@ typedef struct {
 	Bool reload;
 } command_t;
 
-static const char *cmdline_1[] = { "jpegtran", "-rotate", "270", "-copy", "all",
-                                   "-outfile", FILENAME, FILENAME, NULL };
-static const char *cmdline_2[] = { "jpegtran", "-rotate", "90", "-copy", "all",
-                                   "-outfile", FILENAME, FILENAME, NULL };
-static const char *cmdline_3[] = { "mogrify", "-rotate", "-90", FILENAME,
-                                   NULL };
-static const char *cmdline_4[] = { "mogrify", "-rotate", "+90", FILENAME,
-                                   NULL };
+static const char *cmdline_1[] = {
+	"jpegtran", "-rotate", "270", "-copy", "all", "-outfile", FILENAME,
+	FILENAME,	NULL };
+
+static const char *cmdline_2[] = {
+	"jpegtran", "-rotate",  "90", "-copy", "all", "-outfile", FILENAME,
+	FILENAME, NULL };
+
+static const char *cmdline_3[] = {
+	"mogrify", "-rotate", "-90", FILENAME, NULL };
+
+static const char *cmdline_4[] = {
+	"mogrify", "-rotate", "+90", FILENAME, NULL };
 
 static command_t commands[] = {
 	/* key            command-line      reload? */
