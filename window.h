@@ -23,14 +23,14 @@
 
 #define CLEANMASK(mask) ((mask) & ~LockMask)
 
-typedef enum win_cur_e {
+typedef enum {
 	CURSOR_ARROW = 0,
 	CURSOR_NONE,
 	CURSOR_HAND,
 	CURSOR_WATCH
 } win_cur_t;
 
-typedef struct win_env_s {
+typedef struct {
 	Display *dpy;
 	int scr;
 	int scrw, scrh;
@@ -39,7 +39,7 @@ typedef struct win_env_s {
 	int depth;
 } win_env_t;
 
-typedef struct win_s {
+typedef struct {
 	Window xwin;
 	win_env_t env;
 

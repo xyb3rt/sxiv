@@ -23,20 +23,20 @@
 
 #include "window.h"
 
-typedef enum scalemode_e {
+typedef enum {
 	SCALE_DOWN = 0,
 	SCALE_FIT,
 	SCALE_ZOOM
 } scalemode_t;
 
-typedef enum pandir_e {
+typedef enum {
 	PAN_LEFT = 0,
 	PAN_RIGHT,
 	PAN_UP,
 	PAN_DOWN
 } pandir_t;
 
-typedef struct img_s {
+typedef struct {
 	Imlib_Image *im;
 
 	float zoom;

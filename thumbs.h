@@ -21,14 +21,14 @@
 
 #include "window.h"
 
-typedef enum tnsdir_e {
+typedef enum {
 	TNS_LEFT = 0,
 	TNS_RIGHT,
 	TNS_UP,
 	TNS_DOWN
 } tnsdir_t;
 
-typedef struct thumb_s {
+typedef struct {
 	Pixmap pm;
 	int x;
 	int y;
@@ -36,7 +36,7 @@ typedef struct thumb_s {
 	int h;
 } thumb_t;
 
-typedef struct tns_s {
+typedef struct {
 	thumb_t *thumbs;
 	int cap;
 	int cnt;

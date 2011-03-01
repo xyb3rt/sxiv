@@ -21,7 +21,7 @@
 
 #include "image.h"
 
-typedef struct options_s {
+typedef struct {
 	const char **filenames;
 	int filecnt;
 	unsigned char from_stdin;

@@ -34,7 +34,7 @@
 #include "util.h"
 #include "window.h"
 
-typedef enum appmode_e {
+typedef enum {
 	MODE_NORMAL = 0,
 	MODE_THUMBS
 } appmode_t;
