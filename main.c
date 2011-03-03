@@ -273,57 +273,59 @@ void read_dir_rec(const char *dirname) {
 	free(dirnames);
 }
 
-int run_command(const char **cmdline, Bool reload) {
-	int argc, i;
-	const char **argv;
+int run_command(const char *cline, Bool reload) {
+	int fncnt, fnlen;
+	char *cn, *cmdline;
+	const char *co, *fname;
 	pid_t pid;
-	int error, ret, status;
+	int ret, status;
 
-	if (!cmdline)
+	if (!cline || !*cline)
 		return 0;
 
-	argc = 1;
-	while (cmdline[argc-1])
-		++argc;
+	fncnt = 0;
+	co = cline - 1;
+	while ((co = strchr(co + 1, '#')))
+		++fncnt;
 
-	if (argc < 2)
+	if (!fncnt)
 		return 0;
 
-	argv = (const char**) s_malloc(argc * sizeof(const char*));
-	error = ret = 0;
+	ret = 0;
+	fname = filenames[mode == MODE_NORMAL ? fileidx : tns.sel];
+	fnlen = strlen(fname);
+	cn = cmdline = (char*) s_malloc((strlen(cline) + fncnt * (fnlen + 2)) *
+	                                sizeof(char));
 
-	for (i = 0; i < argc; ++i) {
-		if (cmdline[i] != FILENAME)
-			argv[i] = cmdline[i];
-		else
-			argv[i] = filenames[mode == MODE_NORMAL ? fileidx : tns.sel];
-	}
-
-	if ((pid = fork()) == 0) {
-		execvp(argv[0], (char **const) argv);
-		warn("could not exec %s", argv[0]);
-		exit(1);
-	} else if (pid < 0 && !options->quiet) {
-		warn("could not fork. command line was:");
-		error = 1;
-	} else if (reload) {
-		waitpid(pid, &status, 0);
-		if (WIFEXITED(status) && WEXITSTATUS(status) == 0) {
-			ret = 1;
-		} else if (!options->quiet) {
-			warn("child exited with non-zero return value: %d. command line was:",
-			     WEXITSTATUS(status));
-			error = 1;
+	/* replace all '#' with filename */
+	for (co = cline; *co; ++co) {
+		if (*co == '#') {
+			*cn++ = '"';
+			strcpy(cn, fname);
+			cn += fnlen;
+			*cn++ = '"';
+		} else {
+			*cn++ = *co;
 		}
 	}
-	
-	if (error) {
-		for (i = 0; i < argc && argv[i]; ++i)
-			fprintf(stderr, "%s%s", i > 0 ? " " : "", argv[i]);
-		fprintf(stderr, "\n");
-	}
+	*cn = '\0';
 
-	free(argv);
+	if ((pid = fork()) == 0) {
+		execlp("/bin/sh", "/bin/sh", "-c", cmdline, NULL);
+		warn("could not exec: /bin/sh");
+		exit(1);
+	} else if (pid < 0) {
+		warn("could not fork. command line was: %s", cmdline);
+	} else if (reload) {
+		waitpid(pid, &status, 0);
+		if (WIFEXITED(status) && WEXITSTATUS(status) == 0)
+			ret = 1;
+		else
+			warn("child exited with non-zero return value: %d. command line was: %s",
+			     WEXITSTATUS(status), cmdline);
+	}
+	
+	free(cmdline);
 	return ret;
 }
 
