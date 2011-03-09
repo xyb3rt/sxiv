@@ -24,3 +24,7 @@ static const float zoom_levels[] = {
 
 /* default dimension of thumbnails (width == height):    */
 #define THUMB_SIZE  60
+
+/* remove this line to disable external commands:        *
+ * (otherwise have a look at commands.h to define them)  */
+#define EXT_COMMANDS

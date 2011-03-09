@@ -30,12 +30,16 @@
 #include <X11/Xutil.h>
 #include <X11/keysym.h>
 
+#include "config.h"
 #include "image.h"
 #include "options.h"
 #include "thumbs.h"
 #include "util.h"
 #include "window.h"
+
+#ifdef EXT_COMMANDS
 #include "commands.h"
+#endif
 
 typedef enum {
 	MODE_NORMAL = 0,
@@ -273,6 +277,7 @@ void read_dir_rec(const char *dirname) {
 	free(dirnames);
 }
 
+#ifdef EXT_COMMANDS
 int run_command(const char *cline, Bool reload) {
 	int fncnt, fnlen;
 	char *cn, *cmdline;
@@ -328,6 +333,7 @@ int run_command(const char *cline, Bool reload) {
 	free(cmdline);
 	return ret;
 }
+#endif /* EXT_COMMANDS */
 
 
 /* event handling */
@@ -352,7 +358,7 @@ void redraw() {
 }
 
 void on_keypress(XKeyEvent *kev) {
-	int i, x, y;
+	int x, y;
 	unsigned int w, h;
 	char key;
 	KeySym ksym;
@@ -364,24 +370,28 @@ void on_keypress(XKeyEvent *kev) {
 	XLookupString(kev, &key, 1, &ksym, NULL);
 	changed = 0;
 
+#ifdef EXT_COMMANDS
 	/* external commands from commands.h */
-	for (i = 0; i < LEN(commands); ++i) {
-		if (commands[i].ksym == ksym) {
-			win_set_cursor(&win, CURSOR_WATCH);
-			if (run_command(commands[i].cmdline, commands[i].reload)) {
-				if (mode == MODE_NORMAL) {
-					img_close(&img, 1);
-					load_image(fileidx);
-					tns_load(&tns, &win, fileidx, filenames[fileidx]);
-				} else {
-					tns_load(&tns, &win, tns.sel, filenames[tns.sel]);
+	if (CLEANMASK(kev->state) & ControlMask) {
+		for (x = 0; x < LEN(commands); ++x) {
+			if (commands[x].ksym == ksym) {
+				win_set_cursor(&win, CURSOR_WATCH);
+				if (run_command(commands[x].cmdline, commands[x].reload)) {
+					if (mode == MODE_NORMAL) {
+						img_close(&img, 1);
+						load_image(fileidx);
+						tns_load(&tns, &win, fileidx, filenames[fileidx]);
+					} else {
+						tns_load(&tns, &win, tns.sel, filenames[tns.sel]);
+					}
+					redraw();
 				}
-				redraw();
+				win_set_cursor(&win, mode == MODE_NORMAL ? CURSOR_NONE : CURSOR_ARROW);
+				return;
 			}
-			win_set_cursor(&win, mode == MODE_NORMAL ? CURSOR_NONE : CURSOR_ARROW);
-			return;
 		}
 	}
+#endif
 
 	if (mode == MODE_NORMAL) {
 		switch (ksym) {
