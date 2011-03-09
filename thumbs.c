@@ -88,6 +88,8 @@ void tns_load(tns_t *tns, win_t *win, int n, const char *filename) {
 	t->pm = win_create_pixmap(win, t->w, t->h);
 	imlib_context_set_drawable(t->pm);
 	imlib_context_set_anti_alias(1);
+	if (imlib_image_has_alpha())
+		win_draw_rect(win, t->pm, 0, 0, t->w, t->h, True, 0, win->white);
 	imlib_render_image_part_on_drawable_at_size(0, 0, w, h,
 	                                            0, 0, t->w, t->h);
 	tns->dirty = 1;
@@ -170,13 +172,23 @@ void tns_render(tns_t *tns, win_t *win) {
 
 void tns_highlight(tns_t *tns, win_t *win, int n, Bool hl) {
 	thumb_t *t;
+	unsigned long col;
 
 	if (!tns || !win)
 		return;
 
 	if (n >= 0 && n < tns->cnt) {
 		t = &tns->thumbs[n];
-		win_draw_rect(win, t->x - 2, t->y - 2, t->w + 4, t->h + 4, hl);
+
+		if (hl)
+			col = win->selcol;
+		else if (win->fullscreen)
+			col = win->black;
+		else
+			col = win->bgcol;
+
+		win_draw_rect(win, win->pm, t->x - 2, t->y - 2, t->w + 4, t->h + 4,
+		              False, 2, col);
 	}
 
 	win_draw(win);

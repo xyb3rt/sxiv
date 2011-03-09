@@ -43,6 +43,8 @@ typedef struct {
 	Window xwin;
 	win_env_t env;
 
+	unsigned long black;
+	unsigned long white;
 	unsigned long bgcol;
 	unsigned long selcol;
 	Pixmap pm;
@@ -71,7 +73,8 @@ void win_free_pixmap(win_t*, Pixmap);
 
 void win_clear(win_t*);
 void win_draw_pixmap(win_t*, Pixmap, int, int, int, int);
-void win_draw_rect(win_t*, int, int, int, int, Bool);
+void win_draw_rect(win_t*, Pixmap, int, int, int, int, Bool, int,
+                   unsigned long);
 void win_draw(win_t*);
 
 void win_set_title(win_t*, const char*);

@@ -52,7 +52,6 @@ void win_open(win_t *win) {
 	win_env_t *e;
 	XClassHint classhint;
 	XColor col;
-	XGCValues gcval;
 	char none_data[] = {0, 0, 0, 0, 0, 0, 0, 0};
 	Pixmap none;
 	int gmask;
@@ -70,6 +69,9 @@ void win_open(win_t *win) {
 	e->vis = DefaultVisual(e->dpy, e->scr);
 	e->cmap = DefaultColormap(e->dpy, e->scr);
 	e->depth = DefaultDepth(e->dpy, e->scr);
+
+	win->black = BlackPixel(e->dpy, e->scr);
+	win->white = WhitePixel(e->dpy, e->scr);
 
 	if (XAllocNamedColor(e->dpy, DefaultColormap(e->dpy, e->scr), BG_COLOR,
 		                   &col, &col))
@@ -127,8 +129,7 @@ void win_open(win_t *win) {
 	none = XCreateBitmapFromData(e->dpy, win->xwin, none_data, 8, 8);
 	cnone = XCreatePixmapCursor(e->dpy, none, none, &col, &col, 0, 0);
 
-	gcval.line_width = 2;
-	gc = XCreateGC(e->dpy, win->xwin, GCLineWidth, &gcval);
+	gc = XCreateGC(e->dpy, win->xwin, 0, None);
 
 	win_set_title(win, "sxiv");
 
@@ -251,8 +252,8 @@ void win_clear(win_t *win) {
 		return;
 
 	e = &win->env;
-	gcval.foreground = win->fullscreen ? BlackPixel(e->dpy, e->scr) :
-	                                     win->bgcol;
+	gcval.foreground = win->fullscreen ? win->black : win->bgcol;
+
 	if (win->pm)
 		XFreePixmap(e->dpy, win->pm);
 	win->pm = XCreatePixmap(e->dpy, win->xwin, e->scrw, e->scrh, e->depth);
@@ -266,22 +267,21 @@ void win_draw_pixmap(win_t *win, Pixmap pm, int x, int y, int w, int h) {
 		XCopyArea(win->env.dpy, pm, win->pm, gc, 0, 0, w, h, x, y);
 }
 
-void win_draw_rect(win_t *win, int x, int y, int w, int h, Bool sel) {
-	win_env_t *e;
+void win_draw_rect(win_t *win, Pixmap pm, int x, int y, int w, int h,
+		Bool fill, int lw, unsigned long col) {
 	XGCValues gcval;
 
-	if (!win)
+	if (!win || !pm)
 		return;
 
-	e = &win->env;
+	gcval.line_width = lw;
+	gcval.foreground = col;
+	XChangeGC(win->env.dpy, gc, GCForeground | GCLineWidth, &gcval);
 
-	if (sel)
-		gcval.foreground = win->selcol;
+	if (fill)
+		XFillRectangle(win->env.dpy, pm, gc, x, y, w, h);
 	else
-		gcval.foreground = win->fullscreen ? BlackPixel(e->dpy, e->scr) :
-		                                     win->bgcol;
-	XChangeGC(e->dpy, gc, GCForeground, &gcval);
-	XDrawRectangle(e->dpy, win->pm, gc, x, y, w, h);
+		XDrawRectangle(win->env.dpy, pm, gc, x, y, w, h);
 }
 
 void win_draw(win_t *win) {
