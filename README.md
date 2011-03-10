@@ -69,6 +69,7 @@ Inside image view mode, the following key mappings are available:
     <,>          Rotate image (counter-)clockwise by 90 degrees
     W            Resize window to fit image
     a            Toggle anti-aliasing
+    A            Toggle visibility of alpha-channel, i.e. transparency
     r            Reload image
     Return       Switch to thumbnail mode
 
