@@ -43,6 +43,7 @@ void img_init(img_t *img, win_t *win) {
 		img->zoom = MAX(img->zoom, zoom_min);
 		img->zoom = MIN(img->zoom, zoom_max);
 		img->aa = options->aa;
+		img->alpha = 1;
 	}
 
 	if (win) {
@@ -211,7 +212,7 @@ void img_render(img_t *img, win_t *win) {
 	else
 		imlib_context_set_image(im_broken);
 
-	if (imlib_image_has_alpha())
+	if (imlib_image_has_alpha() && !img->alpha)
 		win_draw_rect(win, win->pm, dx, dy, dw, dh, True, 0, win->white);
 	
 	imlib_context_set_drawable(win->pm);

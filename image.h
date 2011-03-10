@@ -45,6 +45,7 @@ typedef struct {
 	unsigned char re;
 	unsigned char checkpan;
 	unsigned char aa;
+	unsigned char alpha;
 
 	int x;
 	int y;

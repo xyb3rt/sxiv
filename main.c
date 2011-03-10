@@ -496,6 +496,10 @@ void on_keypress(XKeyEvent *kev) {
 				img_toggle_antialias(&img);
 				changed = 1;
 				break;
+			case XK_A:
+				img.alpha ^= 1;
+				changed = 1;
+				break;
 			case XK_r:
 				changed = load_image(fileidx);
 				break;
