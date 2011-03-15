@@ -19,8 +19,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <Imlib2.h>
-
 #include "config.h"
 #include "thumbs.h"
 #include "util.h"
@@ -45,8 +43,12 @@ void tns_free(tns_t *tns, win_t *win) {
 	if (!tns || !tns->thumbs)
 		return;
 
-	for (i = 0; i < tns->cnt; ++i)
-		win_free_pixmap(win, tns->thumbs[i].pm);
+	for (i = 0; i < tns->cnt; ++i) {
+		if (tns->thumbs[i].im) {
+			imlib_context_set_image(tns->thumbs[i].im);
+			imlib_free_image();
+		}
+	}
 
 	free(tns->thumbs);
 	tns->thumbs = NULL;
@@ -66,6 +68,13 @@ void tns_load(tns_t *tns, win_t *win, int n, const char *filename) {
 	else if (n >= tns->cnt)
 		tns->cnt = n + 1;
 
+	t = &tns->thumbs[n];
+
+	if (t->im) {
+		imlib_context_set_image(t->im);
+		imlib_free_image();
+	}
+
 	if ((im = imlib_load_image(filename)))
 		imlib_context_set_image(im);
 	else
@@ -79,23 +88,16 @@ void tns_load(tns_t *tns, win_t *win, int n, const char *filename) {
 	if (!im && z > 1.0)
 		z = 1.0;
 
-	t = &tns->thumbs[n];
 	t->w = z * w;
 	t->h = z * h;
 
-	if (t->pm)
-		win_free_pixmap(win, t->pm);
-	t->pm = win_create_pixmap(win, t->w, t->h);
-	imlib_context_set_drawable(t->pm);
 	imlib_context_set_anti_alias(1);
-	if (imlib_image_has_alpha())
-		win_draw_rect(win, t->pm, 0, 0, t->w, t->h, True, 0, win->white);
-	imlib_render_image_part_on_drawable_at_size(0, 0, w, h,
-	                                            0, 0, t->w, t->h);
-	tns->dirty = 1;
-
+	if (!(t->im = imlib_create_cropped_scaled_image(0, 0, w, h, t->w, t->h)))
+		die("could not allocate memory");
 	if (im)
 		imlib_free_image_and_decache();
+
+	tns->dirty = 1;
 }
 
 void tns_check_view(tns_t *tns, Bool scrolled) {
@@ -133,6 +135,7 @@ void tns_render(tns_t *tns, win_t *win) {
 		return;
 
 	win_clear(win);
+	imlib_context_set_drawable(win->pm);
 
 	tns->cols = MAX(1, win->w / thumb_dim);
 	tns->rows = MAX(1, win->h / thumb_dim);
@@ -157,7 +160,9 @@ void tns_render(tns_t *tns, win_t *win) {
 		t = &tns->thumbs[tns->first + i];
 		t->x = x + (THUMB_SIZE - t->w) / 2;
 		t->y = y + (THUMB_SIZE - t->h) / 2;
-		win_draw_pixmap(win, t->pm, t->x, t->y, t->w, t->h);
+		imlib_context_set_image(t->im);
+		imlib_render_image_part_on_drawable_at_size(0, 0, t->w, t->h,
+		                                            t->x, t->y, t->w, t->h);
 		if ((i + 1) % tns->cols == 0) {
 			x = tns->x;
 			y += thumb_dim;

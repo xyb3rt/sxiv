@@ -19,6 +19,8 @@
 #ifndef THUMBS_H
 #define THUMBS_H
 
+#include <Imlib2.h>
+
 #include "window.h"
 
 typedef enum {
@@ -29,7 +31,7 @@ typedef enum {
 } tnsdir_t;
 
 typedef struct {
-	Pixmap pm;
+	Imlib_Image *im;
 	int x;
 	int y;
 	int w;

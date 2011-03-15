@@ -232,18 +232,6 @@ void win_toggle_fullscreen(win_t *win) {
 	           SubstructureNotifyMask, &ev);
 }
 
-Pixmap win_create_pixmap(win_t *win, int w, int h) {
-	if (!win)
-		return 0;
-
-	return XCreatePixmap(win->env.dpy, win->xwin, w, h, win->env.depth);
-}
-
-void win_free_pixmap(win_t *win, Pixmap pm) {
-	if (win && pm)
-		XFreePixmap(win->env.dpy, pm);
-}
-
 void win_clear(win_t *win) {
 	win_env_t *e;
 	XGCValues gcval;
@@ -262,9 +250,12 @@ void win_clear(win_t *win) {
 	XFillRectangle(e->dpy, win->pm, gc, 0, 0, e->scrw, e->scrh);
 }
 
-void win_draw_pixmap(win_t *win, Pixmap pm, int x, int y, int w, int h) {
-	if (win)
-		XCopyArea(win->env.dpy, pm, win->pm, gc, 0, 0, w, h, x, y);
+void win_draw(win_t *win) {
+	if (!win)
+		return;
+
+	XSetWindowBackgroundPixmap(win->env.dpy, win->xwin, win->pm);
+	XClearWindow(win->env.dpy, win->xwin);
 }
 
 void win_draw_rect(win_t *win, Pixmap pm, int x, int y, int w, int h,
@@ -282,14 +273,6 @@ void win_draw_rect(win_t *win, Pixmap pm, int x, int y, int w, int h,
 		XFillRectangle(win->env.dpy, pm, gc, x, y, w, h);
 	else
 		XDrawRectangle(win->env.dpy, pm, gc, x, y, w, h);
-}
-
-void win_draw(win_t *win) {
-	if (!win)
-		return;
-
-	XSetWindowBackgroundPixmap(win->env.dpy, win->xwin, win->pm);
-	XClearWindow(win->env.dpy, win->xwin);
 }
 
 void win_set_title(win_t *win, const char *title) {
