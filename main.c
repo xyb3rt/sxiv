@@ -246,7 +246,8 @@ void read_dir_rec(const char *dirname) {
 
 				len = strlen(dirname) + strlen(dentry->d_name) + 2;
 				filename = (char*) s_malloc(len * sizeof(char));
-				snprintf(filename, len, "%s/%s", dirname, dentry->d_name);
+				snprintf(filename, len, "%s%s%s", dirname,
+				         dirname[strlen(dirname)-1] == '/' ? "" : "/", dentry->d_name);
 
 				if (!stat(filename, &fstats) && S_ISDIR(fstats.st_mode)) {
 					if (diridx == dircnt) {
