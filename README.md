@@ -1,11 +1,11 @@
 sxiv: Simple (or small or suckless) X Image Viewer
 
-sxiv is a really simple alternative to feh and qiv. Its only dependency is
-imlib2. The primary goal for writing sxiv is to create an image viewer, which
-only implements the most basic features required for fast image viewing. It
-works nicely with tiling window managers and its code base should be kept small
-and clean to make it easy for you to dig into it and customize it for your
-needs.
+sxiv is a really simple alternative to feh and qiv. Its only dependency besides
+xlib is imlib2. The primary goal for writing sxiv is to create an image viewer,
+which only implements the most basic features required for fast image viewing.
+It works nicely with tiling window managers and its code base should be kept
+small and clean to make it easy for you to dig into it and customize it for
+your needs.
 
 Installation
 ------------
