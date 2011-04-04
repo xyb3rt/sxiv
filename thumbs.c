@@ -23,7 +23,7 @@
 #include "thumbs.h"
 #include "util.h"
 
-extern Imlib_Image *im_broken;
+extern Imlib_Image *im_invalid;
 const int thumb_dim = THUMB_SIZE + 10;
 
 void tns_init(tns_t *tns, int cnt) {
@@ -78,7 +78,7 @@ void tns_load(tns_t *tns, win_t *win, int n, const char *filename) {
 	if ((im = imlib_load_image(filename)))
 		imlib_context_set_image(im);
 	else
-		imlib_context_set_image(im_broken);
+		imlib_context_set_image(im_invalid);
 
 	w = imlib_image_get_width();
 	h = imlib_image_get_height();

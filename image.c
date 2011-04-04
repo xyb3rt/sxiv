@@ -16,8 +16,6 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include <unistd.h>
-
 #include "config.h"
 #include "icon.h"
 #include "image.h"
@@ -28,14 +26,14 @@ int zl_cnt;
 float zoom_min;
 float zoom_max;
 
-Imlib_Image *im_broken;
+Imlib_Image *im_invalid;
 
 void img_init(img_t *img, win_t *win) {
 	zl_cnt = sizeof(zoom_levels) / sizeof(zoom_levels[0]);
 	zoom_min = zoom_levels[0] / 100.0;
 	zoom_max = zoom_levels[zl_cnt - 1] / 100.0;
 
-	im_broken = imlib_create_image_using_data(32, 32, icon_broken);
+	im_invalid = imlib_create_image_using_data(32, 32, icon_invalid);
 
 	if (img) {
 		img->im = NULL;
@@ -54,41 +52,23 @@ void img_init(img_t *img, win_t *win) {
 }
 
 void img_free(img_t* img) {
-	imlib_context_set_image(im_broken);
+	imlib_context_set_image(im_invalid);
 	imlib_free_image();
-}
-
-int img_check(const char *filename) {
-	Imlib_Image *im;
-
-	if (!filename)
-		return 0;
-
-	if (!access(filename, F_OK) && (im = imlib_load_image(filename))) {
-		imlib_context_set_image(im);
-		imlib_image_set_changes_on_disk();
-		imlib_free_image();
-		return 1;
-	} else {
-		warn("could not open file: %s", filename);
-		return 0;
-	}
 }
 
 int img_load(img_t *img, const char *filename) {
 	if (!img || !filename)
 		return 0;
 
-	if (!access(filename, F_OK) && (img->im = imlib_load_image(filename))) {
+	if ((img->im = imlib_load_image(filename))) {
 		imlib_context_set_image(img->im);
 		imlib_image_set_changes_on_disk();
 		imlib_context_set_anti_alias(img->aa);
 		img->scalemode = options->scalemode;
 	} else {
-		warn("could not open file: %s", filename);
-		imlib_context_set_image(im_broken);
+		warn("not an image: %s", filename);
+		imlib_context_set_image(im_invalid);
 		imlib_context_set_anti_alias(0);
-		img->scalemode = SCALE_DOWN;
 	}
 
 	img->re = 0;
@@ -157,9 +137,9 @@ void img_render(img_t *img, win_t *win) {
 	if (!img || !win)
 		return;
 
-	if (img->scalemode != SCALE_ZOOM) {
+	if (!img->im || img->scalemode != SCALE_ZOOM) {
 		img_fit(img, win);
-		if (img->scalemode == SCALE_DOWN && img->zoom > 1.0)
+		if ((!img->im || img->scalemode == SCALE_DOWN) && img->zoom > 1.0)
 			img->zoom = 1.0;
 	}
 
@@ -210,7 +190,7 @@ void img_render(img_t *img, win_t *win) {
 	if (img->im)
 		imlib_context_set_image(img->im);
 	else
-		imlib_context_set_image(im_broken);
+		imlib_context_set_image(im_invalid);
 
 	if (imlib_image_has_alpha() && !img->alpha)
 		win_draw_rect(win, win->pm, dx, dy, dw, dh, True, 0, win->white);
