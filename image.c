@@ -56,6 +56,23 @@ void img_free(img_t* img) {
 	imlib_free_image();
 }
 
+int img_check(const char *filename) {
+	Imlib_Image *im;
+
+	if (!filename)
+		return 0;
+
+	if ((im = imlib_load_image(filename))) {
+		imlib_context_set_image(im);
+		imlib_image_set_changes_on_disk();
+		imlib_free_image();
+		return 1;
+	} else {
+		warn("invalid file: %s", filename);
+		return 0;
+	}
+}
+
 int img_load(img_t *img, const char *filename) {
 	if (!img || !filename)
 		return 0;
@@ -66,7 +83,7 @@ int img_load(img_t *img, const char *filename) {
 		imlib_context_set_anti_alias(img->aa);
 		img->scalemode = options->scalemode;
 	} else {
-		warn("not an image: %s", filename);
+		warn("invalid file: %s", filename);
 		imlib_context_set_image(im_invalid);
 		imlib_context_set_anti_alias(0);
 	}

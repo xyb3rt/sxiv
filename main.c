@@ -178,7 +178,7 @@ void update_title() {
 			             fileidx + 1, filecnt, (int) (img.zoom * 100.0), size, unit,
 			             filenames[fileidx]);
 		} else {
-			n = snprintf(win_title, TITLE_LEN, "sxiv: [%d/%d] not an image: %s",
+			n = snprintf(win_title, TITLE_LEN, "sxiv: [%d/%d] invalid: %s",
 			             fileidx + 1, filecnt, filenames[fileidx]);
 		}
 	}
@@ -193,7 +193,13 @@ void update_title() {
 }
 
 int check_append(const char *filename) {
-	if (filename && !access(filename, R_OK)) {
+	if (!filename)
+		return 0;
+
+	if (access(filename, R_OK)) {
+		warn("could not open file: %s", filename);
+		return 0;
+	} else if (img_check(filename)) {
 		if (fileidx == filecnt) {
 			filecnt *= 2;
 			filenames = (const char**) s_realloc(filenames,
@@ -202,7 +208,6 @@ int check_append(const char *filename) {
 		filenames[fileidx++] = filename;
 		return 1;
 	} else {
-		warn("could not open file: %s", filename);
 		return 0;
 	}
 }
