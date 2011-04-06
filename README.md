@@ -53,7 +53,6 @@ sxiv supports the following command-line options:
 Use the following keys to control the basic behaviour of sxiv:
 
     q            Quit sxiv
-    Escape       Quit sxiv and return an exit value of 2 (useful for scripting)
     f            Toggle fullscreen mode (requires an EWMH/NetWM compliant
                  window manager)
 
@@ -73,6 +72,7 @@ Inside image view mode, the following key mappings are available:
     a            Toggle anti-aliasing
     A            Toggle visibility of alpha-channel, i.e. transparency
     r            Reload image
+    D            Remove image from file list and go to next image
     Return       Switch to thumbnail mode
 
 Additionally, the image view offers the following mouse commands:
@@ -91,6 +91,7 @@ In thumbnail mode, the following key and mouse mappings are available:
 
     h,j,k,l      Move selection left/down/up/right (also with arrow keys)
     g/G          Move selection to first/last image
+    D            Remove selected image from file list and select next image
     Return       Open selected image
 
     Button1      Select image/open image if it is already selected

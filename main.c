@@ -370,7 +370,7 @@ void redraw() {
 }
 
 void on_keypress(XKeyEvent *kev) {
-	int x, y;
+	int i, x, y;
 	unsigned int w, h;
 	char key;
 	KeySym ksym;
@@ -385,10 +385,10 @@ void on_keypress(XKeyEvent *kev) {
 #ifdef EXT_COMMANDS
 	/* external commands from commands.h */
 	if (CLEANMASK(kev->state) & ControlMask) {
-		for (x = 0; x < LEN(commands); ++x) {
-			if (commands[x].ksym == ksym) {
+		for (i = 0; i < LEN(commands); ++i) {
+			if (commands[i].ksym == ksym) {
 				win_set_cursor(&win, CURSOR_WATCH);
-				if (run_command(commands[x].cmdline, commands[x].reload)) {
+				if (run_command(commands[i].cmdline, commands[i].reload)) {
 					if (mode == MODE_NORMAL) {
 						img_close(&img, 1);
 						load_image(fileidx);
@@ -570,6 +570,38 @@ void on_keypress(XKeyEvent *kev) {
 		case XK_f:
 			win_toggle_fullscreen(&win);
 			/* render on next configurenotify */
+			break;
+
+		case XK_D:
+			if (mode == MODE_THUMBS) {
+				if (tns.sel >= tns.cnt)
+					break;
+				i = tns.sel;
+			} else {
+				i = fileidx;
+			}
+			if (filecnt == 1) {
+				cleanup();
+				exit(0);
+			}
+			if (i + 1 < filecnt)
+				memmove(filenames + i, filenames + i + 1, (filecnt - i - 1) *
+				        sizeof(const char*));
+			else if (fileidx)
+				fileidx--;
+			if (i + 1 < tns.cnt) {
+				memmove(tns.thumbs + i, tns.thumbs + i + 1, (tns.cnt - i - 1) *
+				        sizeof(thumb_t));
+				memset(tns.thumbs + tns.cnt - 1, 0, sizeof(thumb_t));
+			} else if (tns.sel) {
+				tns.sel--;
+			}
+			filecnt--;
+			if (mode == MODE_NORMAL)
+				load_image(fileidx);
+			if (i < tns.cnt)
+				tns.cnt--;
+			changed = tns.dirty = 1;
 			break;
 	}
 

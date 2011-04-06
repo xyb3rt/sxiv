@@ -82,9 +82,6 @@ at startup.
 .B q
 Quit sxiv.
 .TP
-.B Escape
-Quit sxiv and return an exit value of 2.
-.TP
 .B Return
 Switch to thumbnail mode; in thumbnail mode: open selected image.
 .SS Navigate image list
@@ -156,6 +153,10 @@ Toggle visibility of alpha-channel, i.e. image transparency.
 .TP
 .B r
 Reload image.
+.TP
+.B D
+Remove image from file list and go to next image; in thumbnail mode: remove
+selected image from file list and select next image.
 .SH MOUSE COMMANDS
 .SS Navigate image list
 .TP
