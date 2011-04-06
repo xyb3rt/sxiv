@@ -3,7 +3,7 @@
 sxiv \- Simple (or small or suckless) X Image Viewer
 .SH SYNOPSIS
 .B sxiv
-.RB [ \-dFfhpqrstvZ ]
+.RB [ \-adFfhpqrstvZ ]
 .RB [ \-g
 .IR GEOMETRY ]
 .RB [ \-z
@@ -27,6 +27,11 @@ small previews is displayed, making it easy to choose an image to open.
 Please note, that the fullscreen mode requires an EWMH/NetWM compliant window
 manager.
 .SH OPTIONS
+.TP
+.B \-a
+Display all given files, do not filter out unsupported files. This might result
+in a much shorter startup time, when the file list is very long or contains
+large files of slow loadable types, e.g. gif and progressive jpg.
 .TP
 .B \-d
 Scale all images to 100%, but fit large images into window.

@@ -77,19 +77,22 @@ void cleanup() {
 }
 
 int load_image(int new) {
+	int ret = 0;
 	struct stat fstats;
 
 	if (new >= 0 && new < filecnt) {
+		win_set_cursor(&win, CURSOR_WATCH);
 		img_close(&img, 0);
 		fileidx = new;
 		if (!stat(filenames[fileidx], &fstats))
 			filesize = fstats.st_size;
 		else
 			filesize = 0;
-		return img_load(&img, filenames[fileidx]);
-	} else {
-		return 0;
+		if (!(ret = img_load(&img, filenames[fileidx])))
+			win_set_cursor(&win, CURSOR_NONE);
 	}
+
+	return ret;
 }
 
 int main(int argc, char **argv) {
@@ -199,7 +202,7 @@ int check_append(const char *filename) {
 	if (access(filename, R_OK)) {
 		warn("could not open file: %s", filename);
 		return 0;
-	} else if (img_check(filename)) {
+	} else if (options->all || img_check(filename)) {
 		if (fileidx == filecnt) {
 			filecnt *= 2;
 			filenames = (const char**) s_realloc(filenames,
@@ -353,10 +356,15 @@ unsigned char drag;
 int mox, moy;
 
 void redraw() {
-	if (mode == MODE_NORMAL)
+	if (mode == MODE_NORMAL) {
 		img_render(&img, &win);
-	else
+		if (timo_cursor)
+			win_set_cursor(&win, CURSOR_ARROW);
+		else if (!drag)
+			win_set_cursor(&win, CURSOR_NONE);
+	} else {
 		tns_render(&tns, &win);
+	}
 	update_title();
 	timo_redraw = 0;
 }
@@ -390,7 +398,8 @@ void on_keypress(XKeyEvent *kev) {
 					}
 					redraw();
 				}
-				win_set_cursor(&win, mode == MODE_NORMAL ? CURSOR_NONE : CURSOR_ARROW);
+				if (mode == MODE_THUMBS)
+					win_set_cursor(&win, CURSOR_ARROW);
 				return;
 			}
 		}
@@ -515,7 +524,6 @@ void on_keypress(XKeyEvent *kev) {
 			case XK_Return:
 				load_image(tns.sel);
 				mode = MODE_NORMAL;
-				win_set_cursor(&win, CURSOR_NONE);
 				changed = 1;
 				break;
 
@@ -580,6 +588,9 @@ void on_buttonpress(XButtonEvent *bev) {
 	changed = 0;
 
 	if (mode == MODE_NORMAL) {
+		win_set_cursor(&win, CURSOR_ARROW);
+		timo_cursor = TO_CURSOR_HIDE;
+
 		switch (bev->button) {
 			case Button1:
 				if (fileidx + 1 < filecnt)
@@ -671,9 +682,6 @@ void run() {
 
 	timo_cursor = timo_redraw = 0;
 	drag = 0;
-
-	if (mode == MODE_NORMAL)
-		timo_cursor = TO_CURSOR_HIDE;
 
 	while (1) {
 		if (mode == MODE_THUMBS && tns.cnt < filecnt) {
