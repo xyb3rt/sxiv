@@ -77,13 +77,15 @@ Scale all images to the current zoom level, use a zoom level of
 .I ZOOM
 at startup.
 .SH KEYBOARD COMMANDS
+The differences of the following key mappings between image view and thumbnail
+mode are denoted via brackets.
 .SS General
 .TP
 .B q
 Quit sxiv.
 .TP
 .B Return
-Switch to thumbnail mode; in thumbnail mode: open selected image.
+Switch to thumbnail mode [open selected image].
 .SS Navigate image list
 .TP
 .BR n ", " Space
@@ -93,10 +95,10 @@ Go to the next image.
 Go to the previous image.
 .TP
 .B g
-Go to the first image.
+Go to [select] the first image.
 .TP
 .B G
-Go to the last image.
+Go to [select] the last image.
 .TP
 .B [
 Go 10 images backward.
@@ -119,16 +121,16 @@ Set zoom level to fit image into window.
 .SS Panning/Moving
 .TP
 .BR h ", " Left
-Pan image left; in thumbnail mode: move selection left.
+Pan image [move selection] left.
 .TP
 .BR j ", " Down
-Pan image down; in thumbnail mode: move selection down.
+Pan image [move selection] down.
 .TP
 .BR k ", " Up
-Pan image up; in thumbnail mode: move selection up.
+Pan image [move selection] up.
 .TP
 .BR l ", " Right
-Pan image right; in thumbnail mode: move selection right.
+Pan image [move selection] right.
 .SS Rotation
 .TP
 .B <
@@ -151,17 +153,18 @@ Toggle anti-aliasing.
 .B A
 Toggle visibility of alpha-channel, i.e. image transparency.
 .TP
+.B D
+Remove current [selected] image from file list and go to [select] next image.
+.TP
 .B r
 Reload image.
-.TP
-.B D
-Remove image from file list and go to next image; in thumbnail mode: remove
-selected image from file list and select next image.
 .SH MOUSE COMMANDS
+The differences of the following mouse mappings between image view and
+thumbnail mode are denoted via brackets.
 .SS Navigate image list
 .TP
 .B Button1
-Go to the next image; in thumbnail mode: select/open image.
+Go to [select/open] next image.
 .TP
 .B Button3
 Go to the previous image.
@@ -178,10 +181,10 @@ Zoom out.
 Drag the image with the mouse while keeping this button pressed down.
 .TP
 .B ScrollUp
-Pan image up; in thumbnail mode: Scroll one row up.
+Pan image up [scroll up one thumbnail row].
 .TP
 .B ScrollDown
-Pan image down; in thumbnail mode: Scroll one row down.
+Pan image down [scroll down one thumbnail row].
 .TP
 .B Shift+ScrollUp
 Pan image left.
