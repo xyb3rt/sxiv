@@ -560,9 +560,6 @@ void on_keypress(XKeyEvent *kev) {
 
 	/* common key mappings */
 	switch (ksym) {
-		case XK_Escape:
-			cleanup();
-			exit(2);
 		case XK_q:
 			cleanup();
 			exit(0);
