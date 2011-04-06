@@ -32,6 +32,7 @@ typedef enum {
 
 typedef struct {
 	Imlib_Image *im;
+	const char *filename;
 	int x;
 	int y;
 	int w;

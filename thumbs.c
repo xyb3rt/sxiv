@@ -18,6 +18,9 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #include "config.h"
 #include "thumbs.h"
@@ -25,6 +28,9 @@
 
 extern Imlib_Image *im_invalid;
 const int thumb_dim = THUMB_SIZE + 10;
+
+int tns_cache_enabled();
+void tns_cache_write(thumb_t*, Bool);
 
 void tns_init(tns_t *tns, int cnt) {
 	if (!tns)
@@ -39,12 +45,17 @@ void tns_init(tns_t *tns, int cnt) {
 
 void tns_free(tns_t *tns, win_t *win) {
 	int i;
+	Bool cache;
 
 	if (!tns || !tns->thumbs)
 		return;
 
+	cache = tns_cache_enabled();
+
 	for (i = 0; i < tns->cnt; ++i) {
 		if (tns->thumbs[i].im) {
+			if (cache)
+				tns_cache_write(&tns->thumbs[i], False);
 			imlib_context_set_image(tns->thumbs[i].im);
 			imlib_free_image();
 		}
@@ -84,10 +95,12 @@ void tns_load(tns_t *tns, win_t *win, int n, const char *filename) {
 	h = imlib_image_get_height();
 
 	if (im) {
+		t->filename = filename;
 		zw = (float) THUMB_SIZE / (float) w;
 		zh = (float) THUMB_SIZE / (float) h;
 		z = MIN(zw, zh);
 	} else {
+		t->filename = NULL;
 		z = 1.0;
 	}
 
@@ -277,4 +290,24 @@ int tns_translate(tns_t *tns, int x, int y) {
 	}
 
 	return -1;
+}
+
+int tns_cache_enabled() {
+	int len, ret = 0;
+	char *cpath, *homedir;
+	struct stat stats;
+
+	if ((homedir = getenv("HOME"))) {
+		len = strlen(homedir) + 10;
+		cpath = (char*) s_malloc(len * sizeof(char));
+		snprintf(cpath, len, "%s/.sxiv", homedir);
+		ret = !stat(cpath, &stats) && S_ISDIR(stats.st_mode) &&
+		      !access(cpath, W_OK);
+		free(cpath);
+	}
+
+	return ret;
+}
+
+void tns_cache_write(thumb_t *t, Bool force) {
 }
