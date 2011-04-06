@@ -82,11 +82,14 @@ void tns_load(tns_t *tns, win_t *win, int n, const char *filename) {
 
 	w = imlib_image_get_width();
 	h = imlib_image_get_height();
-	zw = (float) THUMB_SIZE / (float) w;
-	zh = (float) THUMB_SIZE / (float) h;
-	z = MIN(zw, zh);
-	if (!im && z > 1.0)
+
+	if (im) {
+		zw = (float) THUMB_SIZE / (float) w;
+		zh = (float) THUMB_SIZE / (float) h;
+		z = MIN(zw, zh);
+	} else {
 		z = 1.0;
+	}
 
 	t->w = z * w;
 	t->h = z * h;
