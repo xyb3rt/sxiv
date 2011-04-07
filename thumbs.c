@@ -47,17 +47,12 @@ void tns_init(tns_t *tns, int cnt) {
 
 void tns_free(tns_t *tns, win_t *win) {
 	int i;
-	Bool cache;
 
 	if (!tns || !tns->thumbs)
 		return;
 
-	cache = tns_cache_enabled();
-
 	for (i = 0; i < tns->cnt; ++i) {
 		if (tns->thumbs[i].im) {
-			if (cache)
-				tns_cache_write(&tns->thumbs[i], False);
 			imlib_context_set_image(tns->thumbs[i].im);
 			imlib_free_image();
 		}
@@ -69,6 +64,7 @@ void tns_free(tns_t *tns, win_t *win) {
 
 void tns_load(tns_t *tns, win_t *win, int n, const char *filename) {
 	int w, h;
+	int use_cache, cached = 0;
 	float z, zw, zh;
 	thumb_t *t;
 	Imlib_Image *im;
@@ -88,8 +84,12 @@ void tns_load(tns_t *tns, win_t *win, int n, const char *filename) {
 		imlib_free_image();
 	}
 
-	if ((tns_cache_enabled() && (im = tns_cache_load(filename))) ||
-	    (im = imlib_load_image(filename)))
+	if ((use_cache = tns_cache_enabled())) {
+		if ((im = tns_cache_load(filename)))
+			cached = 1;
+	}
+
+	if (cached || (im = imlib_load_image(filename)))
 		imlib_context_set_image(im);
 	else
 		imlib_context_set_image(im_invalid);
@@ -115,6 +115,8 @@ void tns_load(tns_t *tns, win_t *win, int n, const char *filename) {
 		die("could not allocate memory");
 	if (im)
 		imlib_free_image_and_decache();
+	if (use_cache && !cached)
+		tns_cache_write(t, False);
 
 	tns->dirty = 1;
 }
@@ -334,7 +336,7 @@ char* tns_cache_filename(const char *filename) {
 	}
 
 	len = strlen(abspath);
-	for (i = 1; i < len; ++i) {
+	for (i = 0; i < len; ++i) {
 		if (abspath[i] == '/')
 			abspath[i] = '%';
 	}
@@ -392,7 +394,7 @@ void tns_cache_write(thumb_t *t, Bool force) {
 			imlib_save_image_with_error_return(cfile, &err);
 
 			if (err) {
-				warn("could not cache thumbnail:", t->filename);
+				warn("could not cache thumbnail: %s", t->filename);
 			} else {
 				TIMESPEC_TO_TIMEVAL(&times[0], &fstats.st_atim);
 				TIMESPEC_TO_TIMEVAL(&times[1], &fstats.st_mtim);

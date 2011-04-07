@@ -123,7 +123,7 @@ char* absolute_path(const char *filename) {
 			twd = (char*) s_realloc(twd, len);
 		}
 		if (chdir(cwd))
-			die("could not revert to working directory");
+			die("could not revert to prior working directory");
 		if (!s)
 			goto error;
 		dir = twd;
