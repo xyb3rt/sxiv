@@ -44,6 +44,7 @@ void die(const char*, ...);
 void size_readable(float*, const char**);
 
 char* absolute_path(const char*);
+int create_dir_rec(const char*);
 
 char* readline(FILE*);
 

@@ -18,6 +18,8 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <unistd.h>
 #include <errno.h>
 
@@ -154,6 +156,47 @@ end:
 		free(twd);
 
 	return path;
+}
+
+int create_dir_rec(const char *path) {
+	char *dir, *d;
+	struct stat stats;
+	int err = 0;
+
+	if (!path || !*path)
+		return -1;
+
+	if (!stat(path, &stats)) {
+		if (S_ISDIR(stats.st_mode)) {
+			return 0;
+		} else {
+			warn("not a directory: %s", path);
+			return -1;
+		}
+	}
+
+	d = dir = (char*) s_malloc(strlen(path) + 1);
+	strcpy(dir, path);
+
+	while (d != NULL && !err) {
+		d = strchr(d + 1, '/');
+		if (d != NULL)
+			*d = '\0';
+		if (access(dir, F_OK) && errno == ENOENT) {
+			if (mkdir(dir, 0755)) {
+				warn("could not create directory: %s", dir);
+				err = -1;
+			}
+		} else if (stat(dir, &stats) || !S_ISDIR(stats.st_mode)) {
+			warn("not a directory: %s", dir);
+			err = -1;
+		}
+		if (d != NULL)
+			*d = '/';
+	}
+	free(dir);
+
+	return err;
 }
 
 char* readline(FILE *stream) {

@@ -327,7 +327,6 @@ int tns_cache_enabled() {
 
 char* tns_cache_filename(const char *filename) {
 	size_t len;
-	int i;
 	char *cfile, *abspath;
 
 	if (!cache_dir || !filename)
@@ -341,13 +340,7 @@ char* tns_cache_filename(const char *filename) {
 		strcpy(abspath, filename);
 	}
 
-	len = strlen(abspath);
-	for (i = 0; i < len; ++i) {
-		if (abspath[i] == '/')
-			abspath[i] = '%';
-	}
-
-	len += strlen(cache_dir) + 6;
+	len = strlen(cache_dir) + strlen(abspath) + 6;
 	cfile = (char*) s_malloc(len);
 	snprintf(cfile, len, "%s/%s.png", cache_dir, abspath + 1);
 	
@@ -380,10 +373,10 @@ Imlib_Image* tns_cache_load(const char *filename) {
 }
 
 void tns_cache_write(thumb_t *t, Bool force) {
-	char *cfile;
+	char *cfile, *dirend;
 	struct stat cstats, fstats;
 	struct timeval times[2];
-	Imlib_Load_Error err;
+	Imlib_Load_Error err = 0;
 
 	if (!t || !t->im || !t->filename)
 		return;
@@ -395,9 +388,17 @@ void tns_cache_write(thumb_t *t, Bool force) {
 		    cstats.st_mtim.tv_sec != fstats.st_mtim.tv_sec ||
 		    cstats.st_mtim.tv_nsec != fstats.st_mtim.tv_nsec)
 		{
-			imlib_context_set_image(t->im);
-			imlib_image_set_format("png");
-			imlib_save_image_with_error_return(cfile, &err);
+			if ((dirend = strrchr(cfile, '/'))) {
+				*dirend = '\0';
+				err = create_dir_rec(cfile);
+				*dirend = '/';
+			}
+
+			if (!err) {
+				imlib_context_set_image(t->im);
+				imlib_image_set_format("png");
+				imlib_save_image_with_error_return(cfile, &err);
+			}
 
 			if (err) {
 				warn("could not cache thumbnail: %s", t->filename);
