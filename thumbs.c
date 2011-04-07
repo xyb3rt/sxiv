@@ -31,6 +31,7 @@ extern Imlib_Image *im_invalid;
 const int thumb_dim = THUMB_SIZE + 10;
 
 int tns_cache_enabled();
+Imlib_Image* tns_cache_load(const char*);
 void tns_cache_write(thumb_t*, Bool);
 
 void tns_init(tns_t *tns, int cnt) {
@@ -87,7 +88,8 @@ void tns_load(tns_t *tns, win_t *win, int n, const char *filename) {
 		imlib_free_image();
 	}
 
-	if ((im = imlib_load_image(filename)))
+	if ((tns_cache_enabled() && (im = tns_cache_load(filename))) ||
+	    (im = imlib_load_image(filename)))
 		imlib_context_set_image(im);
 	else
 		imlib_context_set_image(im_invalid);
@@ -346,6 +348,29 @@ char* tns_cache_filename(const char *filename) {
 	return cfile;
 }
 
+Imlib_Image* tns_cache_load(const char *filename) {
+	char *cfile;
+	struct stat cstats, fstats;
+	Imlib_Image *im = NULL;
+
+	if (!filename || stat(filename, &fstats))
+		return NULL;
+
+	if ((cfile = tns_cache_filename(filename))) {
+		if (!stat(cfile, &cstats) &&
+		    cstats.st_mtim.tv_sec == fstats.st_mtim.tv_sec &&
+				cstats.st_mtim.tv_nsec == fstats.st_mtim.tv_nsec)
+		{
+			printf("cache hit:  %s\n", filename);
+			im = imlib_load_image(cfile);
+		} else
+			printf("cache MISS: %s\n", filename);
+		free(cfile);
+	}
+
+	return im;
+}
+
 void tns_cache_write(thumb_t *t, Bool force) {
 	char *cfile;
 	struct stat cstats, fstats;
@@ -354,11 +379,10 @@ void tns_cache_write(thumb_t *t, Bool force) {
 
 	if (!t || !t->im || !t->filename)
 		return;
+	if (stat(t->filename, &fstats))
+		return;
 
 	if ((cfile = tns_cache_filename(t->filename))) {
-		if (stat(t->filename, &fstats))
-			goto end;
-
 		if (force || stat(cfile, &cstats) ||
 		    cstats.st_mtim.tv_sec != fstats.st_mtim.tv_sec ||
 		    cstats.st_mtim.tv_nsec != fstats.st_mtim.tv_nsec)
@@ -373,10 +397,9 @@ void tns_cache_write(thumb_t *t, Bool force) {
 				TIMESPEC_TO_TIMEVAL(&times[0], &fstats.st_atim);
 				TIMESPEC_TO_TIMEVAL(&times[1], &fstats.st_mtim);
 				utimes(cfile, times);
+				printf("thumbnail cache file written: %s\n", t->filename);
 			}
 		}
+		free(cfile);
 	}
-
-end:
-	free(cfile);
 }
