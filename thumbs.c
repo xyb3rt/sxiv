@@ -327,7 +327,8 @@ int tns_cache_enabled() {
 
 char* tns_cache_filename(const char *filename) {
 	size_t len;
-	char *cfile, *abspath;
+	char *cfile = NULL;
+	const char *abspath;
 
 	if (!cache_dir || !filename)
 		return NULL;
@@ -336,15 +337,17 @@ char* tns_cache_filename(const char *filename) {
 		if (!(abspath = absolute_path(filename)))
 			return NULL;
 	} else {
-		abspath = (char*) s_malloc(strlen(filename) + 1);
-		strcpy(abspath, filename);
+		abspath = filename;
 	}
 
-	len = strlen(cache_dir) + strlen(abspath) + 6;
-	cfile = (char*) s_malloc(len);
-	snprintf(cfile, len, "%s/%s.png", cache_dir, abspath + 1);
+	if (strncmp(abspath, cache_dir, strlen(cache_dir))) {
+		len = strlen(cache_dir) + strlen(abspath) + 6;
+		cfile = (char*) s_malloc(len);
+		snprintf(cfile, len, "%s/%s.png", cache_dir, abspath + 1);
+	}
 	
-	free(abspath);
+	if (abspath != filename)
+		free((void*) abspath);
 
 	return cfile;
 }
