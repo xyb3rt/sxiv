@@ -19,7 +19,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <dirent.h>
 #include <sys/select.h>
 #include <sys/stat.h>
 #include <sys/time.h>
@@ -48,7 +47,6 @@ typedef enum {
 
 void update_title();
 int check_append(const char*);
-void read_dir_rec(const char*);
 void run();
 
 appmode_t mode;
@@ -56,7 +54,6 @@ img_t img;
 tns_t tns;
 win_t win;
 
-#define DNAME_CNT 512
 #define FNAME_CNT 1024
 const char **filenames;
 int filecnt, fileidx;
@@ -96,8 +93,9 @@ int load_image(int new) {
 }
 
 int main(int argc, char **argv) {
-	int i;
+	int i, j;
 	const char *filename;
+	char **fnames;
 	struct stat fstats;
 
 	parse_options(argc, argv);
@@ -124,10 +122,15 @@ int main(int argc, char **argv) {
 		for (i = 0; i < options->filecnt; ++i) {
 			filename = options->filenames[i];
 			if (!stat(filename, &fstats) && S_ISDIR(fstats.st_mode)) {
-				if (options->recursive)
-					read_dir_rec(filename);
-				else
+				if (options->recursive && (fnames = read_dir_rec(filename))) {
+					for (j = 0; fnames[j]; ++j) {
+						if (!check_append(fnames[j]))
+							free(fnames[j]);
+					}
+					free(fnames);
+				} else {
 					warn("ignoring directory: %s", filename);
+				}
 			} else {
 				check_append(filename);
 			}
@@ -213,75 +216,6 @@ int check_append(const char *filename) {
 	} else {
 		return 0;
 	}
-}
-
-int fncmp(const void *a, const void *b) {
-	return strcoll(*((char* const*) a), *((char* const*) b));
-}
-
-void read_dir_rec(const char *dirname) {
-	char *filename;
-	const char **dirnames;
-	int dircnt, diridx;
-	int fcnt, fstart;
-	unsigned char first;
-	size_t len;
-	DIR *dir;
-	struct dirent *dentry;
-	struct stat fstats;
-
-	if (!dirname)
-		return;
-
-	dircnt = DNAME_CNT;
-	diridx = first = 1;
-	dirnames = (const char**) s_malloc(dircnt * sizeof(const char*));
-	dirnames[0] = dirname;
-
-	fcnt = 0;
-	fstart = fileidx;
-
-	while (diridx > 0) {
-		dirname = dirnames[--diridx];
-		if (!(dir = opendir(dirname))) {
-			warn("could not open directory: %s", dirname);
-		} else {
-			while ((dentry = readdir(dir))) {
-				if (!strcmp(dentry->d_name, ".") || !strcmp(dentry->d_name, ".."))
-					continue;
-
-				len = strlen(dirname) + strlen(dentry->d_name) + 2;
-				filename = (char*) s_malloc(len * sizeof(char));
-				snprintf(filename, len, "%s%s%s", dirname,
-				         dirname[strlen(dirname)-1] == '/' ? "" : "/", dentry->d_name);
-
-				if (!stat(filename, &fstats) && S_ISDIR(fstats.st_mode)) {
-					if (diridx == dircnt) {
-						dircnt *= 2;
-						dirnames = (const char**) s_realloc(dirnames,
-						                                    dircnt * sizeof(const char*));
-					}
-					dirnames[diridx++] = filename;
-				} else {
-					if (check_append(filename))
-						++fcnt;
-					else
-						free(filename);
-				}
-			}
-			closedir(dir);
-		}
-
-		if (!first)
-			free((void*) dirname);
-		else
-			first = 0;
-	}
-
-	if (fcnt > 1)
-		qsort(filenames + fstart, fcnt, sizeof(char*), fncmp);
-
-	free(dirnames);
 }
 
 #ifdef EXT_COMMANDS
