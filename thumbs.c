@@ -28,13 +28,18 @@
 #include "util.h"
 
 extern Imlib_Image *im_invalid;
+
 const int thumb_dim = THUMB_SIZE + 10;
+char *cache_dir = NULL;
 
 int tns_cache_enabled();
 Imlib_Image* tns_cache_load(const char*);
 void tns_cache_write(thumb_t*, Bool);
 
 void tns_init(tns_t *tns, int cnt) {
+	int len;
+	char *homedir;
+
 	if (!tns)
 		return;
 
@@ -43,6 +48,14 @@ void tns_init(tns_t *tns, int cnt) {
 	memset(tns->thumbs, 0, cnt * sizeof(thumb_t));
 	tns->cap = cnt;
 	tns->dirty = 0;
+
+	if ((homedir = getenv("HOME"))) {
+		if (cache_dir)
+			free(cache_dir);
+		len = strlen(homedir) + 10;
+		cache_dir = (char*) s_malloc(len * sizeof(char));
+		snprintf(cache_dir, len, "%s/.sxiv", homedir);
+	}
 }
 
 void tns_free(tns_t *tns, win_t *win) {
@@ -60,6 +73,11 @@ void tns_free(tns_t *tns, win_t *win) {
 
 	free(tns->thumbs);
 	tns->thumbs = NULL;
+
+	if (cache_dir) {
+		free(cache_dir);
+		cache_dir = NULL;
+	}
 }
 
 void tns_load(tns_t *tns, win_t *win, int n, const char *filename) {
@@ -301,30 +319,18 @@ int tns_translate(tns_t *tns, int x, int y) {
 /* thumbnail caching */
 
 int tns_cache_enabled() {
-	int len, ret = 0;
-	char *cpath, *homedir;
 	struct stat stats;
 
-	if ((homedir = getenv("HOME"))) {
-		len = strlen(homedir) + 10;
-		cpath = (char*) s_malloc(len * sizeof(char));
-		snprintf(cpath, len, "%s/.sxiv", homedir);
-		ret = !stat(cpath, &stats) && S_ISDIR(stats.st_mode) &&
-		      !access(cpath, W_OK);
-		free(cpath);
-	}
-
-	return ret;
+	return cache_dir && !stat(cache_dir, &stats) && S_ISDIR(stats.st_mode) &&
+	       !access(cache_dir, W_OK);
 }
 
 char* tns_cache_filename(const char *filename) {
 	size_t len;
 	int i;
-	char *cfile, *abspath, *homedir;
+	char *cfile, *abspath;
 
-	if (!filename)
-		return NULL;
-	if (!(homedir = getenv("HOME")))
+	if (!cache_dir || !filename)
 		return NULL;
 	
 	if (*filename != '/') {
@@ -341,9 +347,9 @@ char* tns_cache_filename(const char *filename) {
 			abspath[i] = '%';
 	}
 
-	len += strlen(homedir) + 15;
+	len += strlen(cache_dir) + 6;
 	cfile = (char*) s_malloc(len);
-	snprintf(cfile, len, "%s/.sxiv/%s.png", homedir, abspath + 1);
+	snprintf(cfile, len, "%s/%s.png", cache_dir, abspath + 1);
 	
 	free(abspath);
 
