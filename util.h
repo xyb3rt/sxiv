@@ -30,6 +30,11 @@
 #define TV_TO_DOUBLE(x) ((double) ((x).tv_sec) + 0.000001 * \
                          (double) ((x).tv_usec))
 
+#define TIMESPEC_TO_TIMEVAL(tv, ts) {      \
+		(tv)->tv_sec = (ts)->tv_sec;           \
+		(tv)->tv_usec = (ts)->tv_nsec / 1000;  \
+}
+
 void* s_malloc(size_t);
 void* s_realloc(void*, size_t);
 
@@ -37,6 +42,8 @@ void warn(const char*, ...);
 void die(const char*, ...);
 
 void size_readable(float*, const char**);
+
+char* absolute_path(const char*);
 
 char* readline(FILE*);
 

@@ -18,11 +18,13 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+#include <errno.h>
 
 #include "options.h"
 #include "util.h"
 
-#define FNAME_LEN 512
+#define FNAME_LEN 1024
 
 void cleanup();
 
@@ -76,6 +78,82 @@ void size_readable(float *size, const char **unit) {
 	for (i = 0; i < LEN(units) && *size > 1024; ++i)
 		*size /= 1024;
 	*unit = units[MIN(i, LEN(units) - 1)];
+}
+
+char* absolute_path(const char *filename) {
+	size_t len;
+	char *path = NULL;
+	const char *basename;
+	char *dirname = NULL;
+	char *cwd = NULL;
+	char *twd = NULL;
+	char *dir;
+	char *s;
+
+	if (!filename || *filename == '\0' || *filename == '/')
+		return NULL;
+
+	len = FNAME_LEN;
+	cwd = (char*) s_malloc(len);
+	while (!(s = getcwd(cwd, len)) && errno == ERANGE) {
+		len *= 2;
+		cwd = (char*) s_realloc(cwd, len);
+	}
+	if (!s)
+		goto error;
+
+	s = strrchr(filename, '/');
+	if (s) {
+		len = s - filename;
+		dirname = (char*) s_malloc(len + 1);
+		strncpy(dirname, filename, len);
+		dirname[len] = '\0';
+		basename = s + 1;
+
+		if (chdir(cwd))
+			/* we're not able to come back afterwards */
+			goto error;
+		if (chdir(dirname))
+			goto error;
+
+		len = FNAME_LEN;
+		twd = (char*) s_malloc(len);
+		while (!(s = getcwd(twd, len)) && errno == ERANGE) {
+			len *= 2;
+			twd = (char*) s_realloc(twd, len);
+		}
+		if (chdir(cwd))
+			die("could not revert to working directory");
+		if (!s)
+			goto error;
+		dir = twd;
+	} else {
+		/* only a single filename given */
+		basename = filename;
+		dir = cwd;
+	}
+
+	len = strlen(dir) + strlen(basename) + 2;
+	path = (char*) s_malloc(len);
+	snprintf(path, len, "%s/%s", dir, basename);
+
+goto end;
+
+error:
+	if (path) {
+		free(path);
+		path = NULL;
+	}
+
+end:
+	if (dirname)
+		free(dirname);
+	if (cwd)
+		free(cwd);
+	if (twd)
+		free(twd);
+
+	return path;
 }
 
 char* readline(FILE *stream) {

@@ -18,6 +18,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <sys/time.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -292,6 +293,9 @@ int tns_translate(tns_t *tns, int x, int y) {
 	return -1;
 }
 
+
+/* thumbnail caching */
+
 int tns_cache_enabled() {
 	int len, ret = 0;
 	char *cpath, *homedir;
@@ -309,5 +313,70 @@ int tns_cache_enabled() {
 	return ret;
 }
 
+char* tns_cache_filename(const char *filename) {
+	size_t len;
+	int i;
+	char *cfile, *abspath, *homedir;
+
+	if (!filename)
+		return NULL;
+	if (!(homedir = getenv("HOME")))
+		return NULL;
+	
+	if (*filename != '/') {
+		if (!(abspath = absolute_path(filename)))
+			return NULL;
+	} else {
+		abspath = (char*) s_malloc(strlen(filename) + 1);
+		strcpy(abspath, filename);
+	}
+
+	len = strlen(abspath);
+	for (i = 1; i < len; ++i) {
+		if (abspath[i] == '/')
+			abspath[i] = '%';
+	}
+
+	len += strlen(homedir) + 15;
+	cfile = (char*) s_malloc(len);
+	snprintf(cfile, len, "%s/.sxiv/%s.png", homedir, abspath + 1);
+	
+	free(abspath);
+
+	return cfile;
+}
+
 void tns_cache_write(thumb_t *t, Bool force) {
+	char *cfile;
+	struct stat cstats, fstats;
+	struct timeval times[2];
+	Imlib_Load_Error err;
+
+	if (!t || !t->im || !t->filename)
+		return;
+
+	if ((cfile = tns_cache_filename(t->filename))) {
+		if (stat(t->filename, &fstats))
+			goto end;
+
+		if (force || stat(cfile, &cstats) ||
+		    cstats.st_mtim.tv_sec != fstats.st_mtim.tv_sec ||
+		    cstats.st_mtim.tv_nsec != fstats.st_mtim.tv_nsec)
+		{
+			imlib_context_set_image(t->im);
+			imlib_image_set_format("png");
+			imlib_save_image_with_error_return(cfile, &err);
+
+			if (err) {
+				warn("could not cache thumbnail:", t->filename);
+			} else {
+				TIMESPEC_TO_TIMEVAL(&times[0], &fstats.st_atim);
+				TIMESPEC_TO_TIMEVAL(&times[1], &fstats.st_mtim);
+				utimes(cfile, times);
+			}
+		}
+	}
+
+end:
+	free(cfile);
 }
