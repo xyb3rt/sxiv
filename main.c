@@ -37,7 +37,7 @@
 #include "util.h"
 #include "window.h"
 
-#ifdef EXT_COMMANDS
+#if EXT_COMMANDS
 #include "commands.h"
 #endif
 
@@ -284,7 +284,7 @@ void read_dir_rec(const char *dirname) {
 	free(dirnames);
 }
 
-#ifdef EXT_COMMANDS
+#if EXT_COMMANDS
 int run_command(const char *cline, Bool reload) {
 	int fncnt, fnlen;
 	char *cn, *cmdline;
@@ -382,7 +382,7 @@ void on_keypress(XKeyEvent *kev) {
 	XLookupString(kev, &key, 1, &ksym, NULL);
 	changed = 0;
 
-#ifdef EXT_COMMANDS
+#if EXT_COMMANDS
 	/* external commands from commands.h */
 	if (CLEANMASK(kev->state) & ControlMask) {
 		for (i = 0; i < LEN(commands); ++i) {
