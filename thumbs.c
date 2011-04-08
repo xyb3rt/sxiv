@@ -82,10 +82,8 @@ Imlib_Image* tns_cache_load(const char *filename) {
 		    cstats.st_mtim.tv_sec == fstats.st_mtim.tv_sec &&
 				cstats.st_mtim.tv_nsec == fstats.st_mtim.tv_nsec)
 		{
-			printf("cache hit:  %s\n", filename);
 			im = imlib_load_image(cfile);
-		} else
-			printf("cache MISS: %s\n", filename);
+		}
 		free(cfile);
 	}
 
@@ -127,7 +125,6 @@ void tns_cache_write(thumb_t *t, Bool force) {
 				TIMESPEC_TO_TIMEVAL(&times[0], &fstats.st_atim);
 				TIMESPEC_TO_TIMEVAL(&times[1], &fstats.st_mtim);
 				utimes(cfile, times);
-				printf("thumbnail cache file written: %s\n", t->filename);
 			}
 		}
 		free(cfile);
