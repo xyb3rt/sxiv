@@ -104,6 +104,12 @@ int main(int argc, char **argv) {
 
 	parse_options(argc, argv);
 
+	if (options->clean_cache) {
+		tns_init(&tns, 0);
+		tns_clear_cache(&tns);
+		exit(0);
+	}
+
 	if (!options->filecnt) {
 		print_usage();
 		exit(1);
