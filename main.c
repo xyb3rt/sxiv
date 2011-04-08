@@ -92,11 +92,15 @@ int load_image(int new) {
 	return ret;
 }
 
+int fncmp(const void *a, const void *b) {
+	return strcoll(*((char* const*) a), *((char* const*) b));
+}
+
 int main(int argc, char **argv) {
-	int i, j;
+	int i, start;
 	const char *filename;
-	char **fnames;
 	struct stat fstats;
+	r_dir_t dir;
 
 	parse_options(argc, argv);
 
@@ -121,18 +125,26 @@ int main(int argc, char **argv) {
 	} else {
 		for (i = 0; i < options->filecnt; ++i) {
 			filename = options->filenames[i];
-			if (!stat(filename, &fstats) && S_ISDIR(fstats.st_mode)) {
-				if (options->recursive && (fnames = read_dir_rec(filename))) {
-					for (j = 0; fnames[j]; ++j) {
-						if (!check_append(fnames[j]))
-							free(fnames[j]);
-					}
-					free(fnames);
-				} else {
-					warn("ignoring directory: %s", filename);
-				}
-			} else {
+
+			if (stat(filename, &fstats) || !S_ISDIR(fstats.st_mode)) {
 				check_append(filename);
+			} else {
+				if (!options->recursive) {
+					warn("ignoring directory: %s", filename);
+					continue;
+				}
+				if (r_opendir(&dir, filename)) {
+					warn("could not open directory: %s", filename);
+					continue;
+				}
+				start = fileidx;
+				while ((filename = r_readdir(&dir))) {
+					if (!check_append(filename))
+						free((void*) filename);
+				}
+				r_closedir(&dir);
+				if (fileidx - start > 1)
+					qsort(filenames + start, fileidx - start, sizeof(char*), fncmp);
 			}
 		}
 	}

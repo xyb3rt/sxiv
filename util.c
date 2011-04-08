@@ -18,7 +18,6 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <dirent.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -28,7 +27,6 @@
 #include "util.h"
 
 #define DNAME_CNT 512
-#define FNAME_CNT 1024
 #define FNAME_LEN 1024
 
 void cleanup();
@@ -161,7 +159,105 @@ end:
 	return path;
 }
 
-int create_dir_rec(const char *path) {
+int r_opendir(r_dir_t *rdir, const char *dirname) {
+	if (!rdir || !dirname || !*dirname)
+		return -1;
+
+	if (!(rdir->dir = opendir(dirname))) {
+		rdir->name = NULL;
+		rdir->stack = NULL;
+		return -1;
+	}
+
+	rdir->stcap = DNAME_CNT;
+	rdir->stack = (char**) s_malloc(rdir->stcap * sizeof(char*));
+	rdir->stlen = 0;
+
+	rdir->name = (char*) dirname;
+	rdir->d = 0;
+
+	return 0;
+}
+
+int r_closedir(r_dir_t *rdir) {
+	int ret = 0;
+
+	if (!rdir)
+		return -1;
+	
+	if (rdir->stack) {
+		while (rdir->stlen > 0)
+			free(rdir->stack[--rdir->stlen]);
+		free(rdir->stack);
+		rdir->stack = NULL;
+	}
+
+	if (rdir->dir) {
+		if (!(ret = closedir(rdir->dir)))
+			rdir->dir = NULL;
+	}
+
+	if (rdir->d && rdir->name) {
+		free(rdir->name);
+		rdir->name = NULL;
+	}
+
+	return ret;
+}
+
+char* r_readdir(r_dir_t *rdir) {
+	size_t len;
+	char *filename;
+	struct dirent *dentry;
+	struct stat fstats;
+
+	if (!rdir || !rdir->dir || !rdir->name)
+		return NULL;
+
+	while (1) {
+		if (rdir->dir && (dentry = readdir(rdir->dir))) {
+			if (!strcmp(dentry->d_name, ".") || !strcmp(dentry->d_name, ".."))
+				continue;
+
+			len = strlen(rdir->name) + strlen(dentry->d_name) + 2;
+			filename = (char*) s_malloc(len);
+			snprintf(filename, len, "%s%s%s", rdir->name,
+			         rdir->name[strlen(rdir->name)-1] == '/' ? "" : "/",
+			         dentry->d_name);
+
+			if (!stat(filename, &fstats) && S_ISDIR(fstats.st_mode)) {
+				/* put subdirectory on the stack */
+				if (rdir->stlen == rdir->stcap) {
+					rdir->stcap *= 2;
+					rdir->stack = (char**) s_realloc(rdir->stack,
+					                                 rdir->stcap * sizeof(char*));
+				}
+				rdir->stack[rdir->stlen++] = filename;
+				continue;
+			}
+			return filename;
+		}
+		
+		if (rdir->stlen > 0) {
+			/* open next subdirectory */
+			closedir(rdir->dir);
+			if (rdir->d)
+				free(rdir->name);
+			rdir->name = rdir->stack[--rdir->stlen];
+			rdir->d = 1;
+			if (!(rdir->dir = opendir(rdir->name)))
+				warn("could not open directory: %s", rdir->name);
+			continue;
+		}
+
+		/* no more entries */
+		break;
+	}
+
+	return NULL;
+}
+
+int r_mkdir(const char *path) {
 	char *dir, *d;
 	struct stat stats;
 	int err = 0;
@@ -200,82 +296,6 @@ int create_dir_rec(const char *path) {
 	free(dir);
 
 	return err;
-}
-
-int fncmp(const void *a, const void *b) {
-	return strcoll(*((char* const*) a), *((char* const*) b));
-}
-
-char** read_dir_rec(const char *dirname) {
-	int dcnt, didx, fcnt, fidx;
-	char **dnames, **fnames, *filename;
-	unsigned char first;
-	size_t len;
-	DIR *dir;
-	struct dirent *dentry;
-	struct stat fstats;
-
-	if (!dirname)
-		return NULL;
-
-	dcnt = DNAME_CNT;
-	didx = first = 1;
-	dnames = (char**) s_malloc(dcnt * sizeof(char*));
-	dnames[0] = (char*) dirname;
-
-	fcnt = FNAME_CNT;
-	fidx = 0;
-	fnames = (char**) s_malloc(fcnt * sizeof(char*));
-
-	while (didx > 0) {
-		dirname = dnames[--didx];
-		if (!(dir = opendir(dirname))) {
-			warn("could not open directory: %s", dirname);
-		} else {
-			while ((dentry = readdir(dir))) {
-				if (!strcmp(dentry->d_name, ".") || !strcmp(dentry->d_name, ".."))
-					continue;
-
-				len = strlen(dirname) + strlen(dentry->d_name) + 2;
-				filename = (char*) s_malloc(len * sizeof(char));
-				snprintf(filename, len, "%s%s%s", dirname,
-				         dirname[strlen(dirname)-1] == '/' ? "" : "/", dentry->d_name);
-
-				if (!stat(filename, &fstats) && S_ISDIR(fstats.st_mode)) {
-					if (didx == dcnt) {
-						dcnt *= 2;
-						dnames = (char**) s_realloc(dnames, dcnt * sizeof(char*));
-					}
-					dnames[didx++] = filename;
-				} else {
-					if (fidx + 1 == fcnt) {
-						fcnt *= 2;
-						fnames = (char**) s_realloc(fnames, fcnt * sizeof(char*));
-					}
-					fnames[fidx++] = filename;
-				}
-			}
-			closedir(dir);
-		}
-
-		if (!first)
-			free((void*) dirname);
-		else
-			first = 0;
-	}
-
-	if (!fidx) {
-		free(fnames);
-		fnames = NULL;
-	} else {
-		if (fidx > 1)
-			qsort(fnames, fidx, sizeof(char*), fncmp);
-		fnames[fidx] = NULL;
-	}
-
-	free(dnames);
-
-	return fnames;
 }
 
 char* readline(FILE *stream) {
