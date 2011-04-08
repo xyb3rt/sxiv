@@ -32,9 +32,104 @@ extern Imlib_Image *im_invalid;
 const int thumb_dim = THUMB_SIZE + 10;
 char *cache_dir = NULL;
 
-int tns_cache_enabled();
-Imlib_Image* tns_cache_load(const char*);
-void tns_cache_write(thumb_t*, Bool);
+int tns_cache_enabled() {
+	struct stat stats;
+
+	return cache_dir && !stat(cache_dir, &stats) && S_ISDIR(stats.st_mode) &&
+	       !access(cache_dir, W_OK);
+}
+
+char* tns_cache_filename(const char *filename) {
+	size_t len;
+	char *cfile = NULL;
+	const char *abspath;
+
+	if (!cache_dir || !filename)
+		return NULL;
+	
+	if (*filename != '/') {
+		if (!(abspath = absolute_path(filename)))
+			return NULL;
+	} else {
+		abspath = filename;
+	}
+
+	if (strncmp(abspath, cache_dir, strlen(cache_dir))) {
+		len = strlen(cache_dir) + strlen(abspath) + 6;
+		cfile = (char*) s_malloc(len);
+		snprintf(cfile, len, "%s/%s.png", cache_dir, abspath + 1);
+	}
+	
+	if (abspath != filename)
+		free((void*) abspath);
+
+	return cfile;
+}
+
+Imlib_Image* tns_cache_load(const char *filename) {
+	char *cfile;
+	struct stat cstats, fstats;
+	Imlib_Image *im = NULL;
+
+	if (!filename || stat(filename, &fstats))
+		return NULL;
+
+	if ((cfile = tns_cache_filename(filename))) {
+		if (!stat(cfile, &cstats) &&
+		    cstats.st_mtim.tv_sec == fstats.st_mtim.tv_sec &&
+				cstats.st_mtim.tv_nsec == fstats.st_mtim.tv_nsec)
+		{
+			printf("cache hit:  %s\n", filename);
+			im = imlib_load_image(cfile);
+		} else
+			printf("cache MISS: %s\n", filename);
+		free(cfile);
+	}
+
+	return im;
+}
+
+void tns_cache_write(thumb_t *t, Bool force) {
+	char *cfile, *dirend;
+	struct stat cstats, fstats;
+	struct timeval times[2];
+	Imlib_Load_Error err = 0;
+
+	if (!t || !t->im || !t->filename)
+		return;
+	if (stat(t->filename, &fstats))
+		return;
+
+	if ((cfile = tns_cache_filename(t->filename))) {
+		if (force || stat(cfile, &cstats) ||
+		    cstats.st_mtim.tv_sec != fstats.st_mtim.tv_sec ||
+		    cstats.st_mtim.tv_nsec != fstats.st_mtim.tv_nsec)
+		{
+			if ((dirend = strrchr(cfile, '/'))) {
+				*dirend = '\0';
+				err = r_mkdir(cfile);
+				*dirend = '/';
+			}
+
+			if (!err) {
+				imlib_context_set_image(t->im);
+				imlib_image_set_format("png");
+				imlib_save_image_with_error_return(cfile, &err);
+			}
+
+			if (err) {
+				warn("could not cache thumbnail: %s", t->filename);
+			} else {
+				TIMESPEC_TO_TIMEVAL(&times[0], &fstats.st_atim);
+				TIMESPEC_TO_TIMEVAL(&times[1], &fstats.st_mtim);
+				utimes(cfile, times);
+				printf("thumbnail cache file written: %s\n", t->filename);
+			}
+		}
+		free(cfile);
+	}
+}
+
 
 void tns_init(tns_t *tns, int cnt) {
 	int len;
@@ -313,105 +408,4 @@ int tns_translate(tns_t *tns, int x, int y) {
 	}
 
 	return -1;
-}
-
-
-/* thumbnail caching */
-
-int tns_cache_enabled() {
-	struct stat stats;
-
-	return cache_dir && !stat(cache_dir, &stats) && S_ISDIR(stats.st_mode) &&
-	       !access(cache_dir, W_OK);
-}
-
-char* tns_cache_filename(const char *filename) {
-	size_t len;
-	char *cfile = NULL;
-	const char *abspath;
-
-	if (!cache_dir || !filename)
-		return NULL;
-	
-	if (*filename != '/') {
-		if (!(abspath = absolute_path(filename)))
-			return NULL;
-	} else {
-		abspath = filename;
-	}
-
-	if (strncmp(abspath, cache_dir, strlen(cache_dir))) {
-		len = strlen(cache_dir) + strlen(abspath) + 6;
-		cfile = (char*) s_malloc(len);
-		snprintf(cfile, len, "%s/%s.png", cache_dir, abspath + 1);
-	}
-	
-	if (abspath != filename)
-		free((void*) abspath);
-
-	return cfile;
-}
-
-Imlib_Image* tns_cache_load(const char *filename) {
-	char *cfile;
-	struct stat cstats, fstats;
-	Imlib_Image *im = NULL;
-
-	if (!filename || stat(filename, &fstats))
-		return NULL;
-
-	if ((cfile = tns_cache_filename(filename))) {
-		if (!stat(cfile, &cstats) &&
-		    cstats.st_mtim.tv_sec == fstats.st_mtim.tv_sec &&
-				cstats.st_mtim.tv_nsec == fstats.st_mtim.tv_nsec)
-		{
-			printf("cache hit:  %s\n", filename);
-			im = imlib_load_image(cfile);
-		} else
-			printf("cache MISS: %s\n", filename);
-		free(cfile);
-	}
-
-	return im;
-}
-
-void tns_cache_write(thumb_t *t, Bool force) {
-	char *cfile, *dirend;
-	struct stat cstats, fstats;
-	struct timeval times[2];
-	Imlib_Load_Error err = 0;
-
-	if (!t || !t->im || !t->filename)
-		return;
-	if (stat(t->filename, &fstats))
-		return;
-
-	if ((cfile = tns_cache_filename(t->filename))) {
-		if (force || stat(cfile, &cstats) ||
-		    cstats.st_mtim.tv_sec != fstats.st_mtim.tv_sec ||
-		    cstats.st_mtim.tv_nsec != fstats.st_mtim.tv_nsec)
-		{
-			if ((dirend = strrchr(cfile, '/'))) {
-				*dirend = '\0';
-				err = create_dir_rec(cfile);
-				*dirend = '/';
-			}
-
-			if (!err) {
-				imlib_context_set_image(t->im);
-				imlib_image_set_format("png");
-				imlib_save_image_with_error_return(cfile, &err);
-			}
-
-			if (err) {
-				warn("could not cache thumbnail: %s", t->filename);
-			} else {
-				TIMESPEC_TO_TIMEVAL(&times[0], &fstats.st_atim);
-				TIMESPEC_TO_TIMEVAL(&times[1], &fstats.st_mtim);
-				utimes(cfile, times);
-				printf("thumbnail cache file written: %s\n", t->filename);
-			}
-		}
-		free(cfile);
-	}
 }
