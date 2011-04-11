@@ -35,7 +35,6 @@ typedef struct {
 	unsigned char fullscreen;
 	char *geometry;
 
-	unsigned char all;
 	unsigned char quiet;
 	unsigned char clean_cache;
 	unsigned char recursive;

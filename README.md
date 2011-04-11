@@ -34,8 +34,6 @@ small previews is displayed, making it easy to choose an image to open.
 
 sxiv supports the following command-line options:
 
-    -a           Display all given files, do not filter out unsupported files
-                 (shorter startup time for long file list or slow file types)
     -C           Remove all orphaned cache files from thumbnail cache and exit
     -d           Scale all images to 100%, but fit large images into window
     -F           Use size-hints to make the window fixed/floating
