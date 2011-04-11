@@ -45,8 +45,6 @@ typedef enum {
 	MODE_THUMBS
 } appmode_t;
 
-void update_title();
-int check_append(const char*);
 void run();
 
 appmode_t mode;
@@ -90,6 +88,57 @@ int load_image(int new) {
 	}
 
 	return ret;
+}
+
+void update_title() {
+	int n;
+	float size;
+	const char *unit;
+
+	if (mode == MODE_THUMBS) {
+		n = snprintf(win_title, TITLE_LEN, "sxiv: [%d/%d] %s",
+		             tns.cnt ? tns.sel + 1 : 0, tns.cnt,
+		             tns.cnt ? filenames[tns.sel] : "");
+	} else {
+		if (img.im) {
+			size = filesize;
+			size_readable(&size, &unit);
+			n = snprintf(win_title, TITLE_LEN, "sxiv: [%d/%d] <%d%%> (%.2f%s) %s",
+			             fileidx + 1, filecnt, (int) (img.zoom * 100.0), size, unit,
+			             filenames[fileidx]);
+		} else {
+			n = snprintf(win_title, TITLE_LEN, "sxiv: [%d/%d] invalid: %s",
+			             fileidx + 1, filecnt, filenames[fileidx]);
+		}
+	}
+
+	if (n >= TITLE_LEN) {
+		win_title[TITLE_LEN - 2] = '.';
+		win_title[TITLE_LEN - 3] = '.';
+		win_title[TITLE_LEN - 4] = '.';
+	}
+
+	win_set_title(&win, win_title);
+}
+
+int check_append(const char *filename) {
+	if (!filename)
+		return 0;
+
+	if (access(filename, R_OK)) {
+		warn("could not open file: %s", filename);
+		return 0;
+	} else if (options->all || img_check(filename)) {
+		if (fileidx == filecnt) {
+			filecnt *= 2;
+			filenames = (const char**) s_realloc(filenames,
+			                                     filecnt * sizeof(const char*));
+		}
+		filenames[fileidx++] = filename;
+		return 1;
+	} else {
+		return 0;
+	}
 }
 
 int fncmp(const void *a, const void *b) {
@@ -185,57 +234,6 @@ int main(int argc, char **argv) {
 	return 0;
 }
 
-void update_title() {
-	int n;
-	float size;
-	const char *unit;
-
-	if (mode == MODE_THUMBS) {
-		n = snprintf(win_title, TITLE_LEN, "sxiv: [%d/%d] %s",
-		             tns.cnt ? tns.sel + 1 : 0, tns.cnt,
-		             tns.cnt ? filenames[tns.sel] : "");
-	} else {
-		if (img.im) {
-			size = filesize;
-			size_readable(&size, &unit);
-			n = snprintf(win_title, TITLE_LEN, "sxiv: [%d/%d] <%d%%> (%.2f%s) %s",
-			             fileidx + 1, filecnt, (int) (img.zoom * 100.0), size, unit,
-			             filenames[fileidx]);
-		} else {
-			n = snprintf(win_title, TITLE_LEN, "sxiv: [%d/%d] invalid: %s",
-			             fileidx + 1, filecnt, filenames[fileidx]);
-		}
-	}
-
-	if (n >= TITLE_LEN) {
-		win_title[TITLE_LEN - 2] = '.';
-		win_title[TITLE_LEN - 3] = '.';
-		win_title[TITLE_LEN - 4] = '.';
-	}
-
-	win_set_title(&win, win_title);
-}
-
-int check_append(const char *filename) {
-	if (!filename)
-		return 0;
-
-	if (access(filename, R_OK)) {
-		warn("could not open file: %s", filename);
-		return 0;
-	} else if (options->all || img_check(filename)) {
-		if (fileidx == filecnt) {
-			filecnt *= 2;
-			filenames = (const char**) s_realloc(filenames,
-			                                     filecnt * sizeof(const char*));
-		}
-		filenames[fileidx++] = filename;
-		return 1;
-	} else {
-		return 0;
-	}
-}
-
 #if EXT_COMMANDS
 int run_command(const char *cline, Bool reload) {
 	int fncnt, fnlen;
@@ -294,6 +292,29 @@ int run_command(const char *cline, Bool reload) {
 }
 #endif /* EXT_COMMANDS */
 
+void remove_file(int n) {
+	if (n < 0 || n >= filecnt)
+		return;
+
+	if (filecnt == 1) {
+		cleanup();
+		exit(0);
+	}
+
+	if (n + 1 < filecnt)
+		memmove(filenames + n, filenames + n + 1, (filecnt - n - 1) *
+		        sizeof(const char*));
+	if (n + 1 < tns.cnt) {
+		memmove(tns.thumbs + n, tns.thumbs + n + 1, (tns.cnt - n - 1) *
+		        sizeof(thumb_t));
+		memset(tns.thumbs + tns.cnt - 1, 0, sizeof(thumb_t));
+	}
+
+	--filecnt;
+	if (n < tns.cnt)
+		--tns.cnt;
+}
+
 
 /* event handling */
 
@@ -322,7 +343,7 @@ void redraw() {
 }
 
 void on_keypress(XKeyEvent *kev) {
-	int i, x, y;
+	int x, y;
 	unsigned int w, h;
 	char key;
 	KeySym ksym;
@@ -337,10 +358,10 @@ void on_keypress(XKeyEvent *kev) {
 #if EXT_COMMANDS
 	/* external commands from commands.h */
 	if (CLEANMASK(kev->state) & ControlMask) {
-		for (i = 0; i < LEN(commands); ++i) {
-			if (commands[i].ksym == ksym) {
+		for (x = 0; x < LEN(commands); ++x) {
+			if (commands[x].ksym == ksym) {
 				win_set_cursor(&win, CURSOR_WATCH);
-				if (run_command(commands[i].cmdline, commands[i].reload)) {
+				if (run_command(commands[x].cmdline, commands[x].reload)) {
 					if (mode == MODE_NORMAL) {
 						img_close(&img, 1);
 						load_image(fileidx);
@@ -465,6 +486,10 @@ void on_keypress(XKeyEvent *kev) {
 				img.alpha ^= 1;
 				changed = 1;
 				break;
+			case XK_D:
+				remove_file(fileidx);
+				changed = load_image(fileidx >= filecnt ? filecnt - 1 : fileidx);
+				break;
 			case XK_r:
 				changed = load_image(fileidx);
 				break;
@@ -507,6 +532,16 @@ void on_keypress(XKeyEvent *kev) {
 					tns.sel = tns.cnt - 1;
 					changed = tns.dirty = 1;
 				}
+
+			/* miscellaneous */
+			case XK_D:
+				if (tns.sel < tns.cnt) {
+					remove_file(tns.sel);
+					changed = tns.dirty = 1;
+					if (tns.sel >= tns.cnt)
+						tns.sel = tns.cnt - 1;
+				}
+				break;
 		}
 	}
 
@@ -515,42 +550,9 @@ void on_keypress(XKeyEvent *kev) {
 		case XK_q:
 			cleanup();
 			exit(0);
-
 		case XK_f:
 			win_toggle_fullscreen(&win);
 			/* render on next configurenotify */
-			break;
-
-		case XK_D:
-			if (mode == MODE_THUMBS) {
-				if (tns.sel >= tns.cnt)
-					break;
-				i = tns.sel;
-			} else {
-				i = fileidx;
-			}
-			if (filecnt == 1) {
-				cleanup();
-				exit(0);
-			}
-			if (i + 1 < filecnt)
-				memmove(filenames + i, filenames + i + 1, (filecnt - i - 1) *
-				        sizeof(const char*));
-			else if (fileidx)
-				fileidx--;
-			if (i + 1 < tns.cnt) {
-				memmove(tns.thumbs + i, tns.thumbs + i + 1, (tns.cnt - i - 1) *
-				        sizeof(thumb_t));
-				memset(tns.thumbs + tns.cnt - 1, 0, sizeof(thumb_t));
-			} else if (tns.sel) {
-				tns.sel--;
-			}
-			filecnt--;
-			if (mode == MODE_NORMAL)
-				load_image(fileidx);
-			if (i < tns.cnt)
-				tns.cnt--;
-			changed = tns.dirty = 1;
 			break;
 	}
 
