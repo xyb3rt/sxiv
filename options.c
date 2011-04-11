@@ -31,7 +31,7 @@ options_t _options;
 const options_t *options = (const options_t*) &_options;
 
 void print_usage() {
-	printf("usage: sxiv [-CdFfhpqrstvZ] [-g GEOMETRY] [-z ZOOM] FILES...\n");
+	printf("usage: sxiv [-cdFfhpqrstvZ] [-g GEOMETRY] [-z ZOOM] FILES...\n");
 }
 
 void print_version() {
@@ -55,12 +55,12 @@ void parse_options(int argc, char **argv) {
 	_options.clean_cache = 0;
 	_options.recursive = 0;
 
-	while ((opt = getopt(argc, argv, "CdFfg:hpqrstvZz:")) != -1) {
+	while ((opt = getopt(argc, argv, "cdFfg:hpqrstvZz:")) != -1) {
 		switch (opt) {
 			case '?':
 				print_usage();
 				exit(1);
-			case 'C':
+			case 'c':
 				_options.clean_cache = 1;
 				break;
 			case 'd':
