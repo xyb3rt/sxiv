@@ -37,6 +37,7 @@ typedef struct {
 
 	unsigned char all;
 	unsigned char quiet;
+	unsigned char clean_cache;
 	unsigned char recursive;
 } options_t;
 

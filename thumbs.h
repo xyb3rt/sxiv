@@ -32,6 +32,7 @@ typedef enum {
 
 typedef struct {
 	Imlib_Image *im;
+	const char *filename;
 	int x;
 	int y;
 	int w;
@@ -50,6 +51,8 @@ typedef struct {
 	int sel;
 	unsigned char dirty;
 } tns_t;
+
+void tns_clear_cache(tns_t*);
 
 void tns_init(tns_t*, int);
 void tns_free(tns_t*, win_t*);

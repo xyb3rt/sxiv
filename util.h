@@ -21,6 +21,7 @@
 
 #include <stdio.h>
 #include <stdarg.h>
+#include <dirent.h>
 
 #define ABS(a)   ((a) < 0 ? (-(a)) : (a))
 #define MIN(a,b) ((a) < (b) ? (a) : (b))
@@ -30,6 +31,21 @@
 #define TV_TO_DOUBLE(x) ((double) ((x).tv_sec) + 0.000001 * \
                          (double) ((x).tv_usec))
 
+#define TIMESPEC_TO_TIMEVAL(tv, ts) {      \
+		(tv)->tv_sec = (ts)->tv_sec;           \
+		(tv)->tv_usec = (ts)->tv_nsec / 1000;  \
+}
+
+typedef struct {
+	DIR *dir;
+	char *name;
+	int d;
+
+	char **stack;
+	int stcap;
+	int stlen;
+} r_dir_t;
+
 void* s_malloc(size_t);
 void* s_realloc(void*, size_t);
 
@@ -37,6 +53,13 @@ void warn(const char*, ...);
 void die(const char*, ...);
 
 void size_readable(float*, const char**);
+
+char* absolute_path(const char*);
+
+int r_opendir(r_dir_t*, const char*);
+int r_closedir(r_dir_t*);
+char* r_readdir(r_dir_t*);
+int r_mkdir(const char *);
 
 char* readline(FILE*);
 
