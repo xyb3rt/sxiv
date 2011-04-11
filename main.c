@@ -87,7 +87,7 @@ void remove_file(int n, unsigned char silent) {
 
 	if (filecnt == 1) {
 		if (!silent)
-			fprintf(stderr, "sxiv: no more files to display\n");
+			fprintf(stderr, "sxiv: no more files to display, aborting\n");
 		cleanup();
 		exit(!silent);
 	}
