@@ -54,9 +54,7 @@ typedef struct {
 } img_t;
 
 void img_init(img_t*, win_t*);
-void img_free(img_t*);
 
-int img_check(const char*);
 int img_load(img_t*, const char*);
 void img_close(img_t*, int);
 

@@ -27,8 +27,6 @@
 #include "thumbs.h"
 #include "util.h"
 
-extern Imlib_Image *im_invalid;
-
 const int thumb_dim = THUMB_SIZE + 10;
 char *cache_dir = NULL;
 
@@ -131,7 +129,7 @@ void tns_cache_write(thumb_t *t, Bool force) {
 	}
 }
 
-void tns_clear_cache(tns_t *tns) {
+void tns_clean_cache(tns_t *tns) {
 	int dirlen, delete;
 	char *cfile, *filename, *tpos;
 	r_dir_t dir;
@@ -195,7 +193,7 @@ void tns_init(tns_t *tns, int cnt) {
 	}
 }
 
-void tns_free(tns_t *tns, win_t *win) {
+void tns_free(tns_t *tns) {
 	int i;
 
 	if (!tns)
@@ -218,22 +216,21 @@ void tns_free(tns_t *tns, win_t *win) {
 	}
 }
 
-void tns_load(tns_t *tns, win_t *win, int n, const char *filename) {
+int tns_load(tns_t *tns, int n, const char *filename, unsigned char silent) {
 	int w, h;
 	int use_cache, cached = 0;
 	float z, zw, zh;
 	thumb_t *t;
 	Imlib_Image *im;
 
-	if (!tns || !tns->thumbs || !win || !filename)
-		return;
+	if (!tns || !tns->thumbs || !filename)
+		return 0;
 
-	if (n >= tns->cap)
-		return;
-	else if (n >= tns->cnt)
-		tns->cnt = n + 1;
+	if (n < 0 || n >= tns->cap)
+		return 0;
 
 	t = &tns->thumbs[n];
+	t->filename = filename;
 
 	if (t->im) {
 		imlib_context_set_image(t->im);
@@ -245,36 +242,35 @@ void tns_load(tns_t *tns, win_t *win, int n, const char *filename) {
 			cached = 1;
 	}
 
-	if (cached || (im = imlib_load_image(filename)))
-		imlib_context_set_image(im);
-	else
-		imlib_context_set_image(im_invalid);
+	if (!cached &&
+	    (access(filename, R_OK) || !(im = imlib_load_image(filename))))
+	{
+		if (!silent)
+			warn("could not open image: %s", filename);
+		return 0;
+	}
+
+	imlib_context_set_image(im);
+	imlib_context_set_anti_alias(1);
 
 	w = imlib_image_get_width();
 	h = imlib_image_get_height();
-
-	if (im) {
-		t->filename = filename;
-		zw = (float) THUMB_SIZE / (float) w;
-		zh = (float) THUMB_SIZE / (float) h;
-		z = MIN(zw, zh);
-	} else {
-		t->filename = NULL;
-		z = 1.0;
-	}
-
+	zw = (float) THUMB_SIZE / (float) w;
+	zh = (float) THUMB_SIZE / (float) h;
+	z = MIN(zw, zh);
 	t->w = z * w;
 	t->h = z * h;
 
-	imlib_context_set_anti_alias(1);
 	if (!(t->im = imlib_create_cropped_scaled_image(0, 0, w, h, t->w, t->h)))
 		die("could not allocate memory");
-	if (im)
-		imlib_free_image_and_decache();
+
+	imlib_free_image_and_decache();
+
 	if (use_cache && !cached)
 		tns_cache_write(t, False);
 
 	tns->dirty = 1;
+	return 1;
 }
 
 void tns_check_view(tns_t *tns, Bool scrolled) {

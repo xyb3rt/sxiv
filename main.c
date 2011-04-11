@@ -40,6 +40,14 @@
 #include "commands.h"
 #endif
 
+#define FNAME_CNT 1024
+#define TITLE_LEN 256
+
+#define TO_WIN_RESIZE  75000
+#define TO_IMAGE_DRAG  1000
+#define TO_CURSOR_HIDE 1500000
+#define TO_THUMBS_LOAD 75000
+
 typedef enum {
 	MODE_NORMAL = 0,
 	MODE_THUMBS
@@ -52,42 +60,74 @@ img_t img;
 tns_t tns;
 win_t win;
 
-#define FNAME_CNT 1024
 const char **filenames;
 int filecnt, fileidx;
 size_t filesize;
 
-#define TITLE_LEN 256
 char win_title[TITLE_LEN];
+
+int timo_cursor;
+int timo_redraw;
+unsigned char drag;
+int mox, moy;
 
 void cleanup() {
 	static int in = 0;
 
 	if (!in++) {
 		img_close(&img, 0);
-		img_free(&img);
-		tns_free(&tns, &win);
+		tns_free(&tns);
 		win_close(&win);
 	}
 }
 
+void remove_file(int n, unsigned char silent) {
+	if (n < 0 || n >= filecnt)
+		return;
+
+	if (filecnt == 1) {
+		if (!silent)
+			fprintf(stderr, "sxiv: no more files to display\n");
+		cleanup();
+		exit(!silent);
+	}
+
+	if (n + 1 < filecnt)
+		memmove(filenames + n, filenames + n + 1, (filecnt - n - 1) *
+		        sizeof(const char*));
+	if (n + 1 < tns.cnt) {
+		memmove(tns.thumbs + n, tns.thumbs + n + 1, (tns.cnt - n - 1) *
+		        sizeof(thumb_t));
+		memset(tns.thumbs + tns.cnt - 1, 0, sizeof(thumb_t));
+	}
+
+	--filecnt;
+	if (n < tns.cnt)
+		--tns.cnt;
+}
+
 int load_image(int new) {
-	int ret = 0;
 	struct stat fstats;
 
 	if (new >= 0 && new < filecnt) {
 		win_set_cursor(&win, CURSOR_WATCH);
 		img_close(&img, 0);
+		
+		while (!img_load(&img, filenames[new])) {
+			remove_file(new, 0);
+			if (new >= filecnt)
+				new = filecnt - 1;
+		}
 		fileidx = new;
-		if (!stat(filenames[fileidx], &fstats))
+		if (!stat(filenames[new], &fstats))
 			filesize = fstats.st_size;
 		else
 			filesize = 0;
-		if (!(ret = img_load(&img, filenames[fileidx])))
+
+		if (!timo_cursor)
 			win_set_cursor(&win, CURSOR_NONE);
 	}
-
-	return ret;
+	return 1;
 }
 
 void update_title() {
@@ -100,16 +140,11 @@ void update_title() {
 		             tns.cnt ? tns.sel + 1 : 0, tns.cnt,
 		             tns.cnt ? filenames[tns.sel] : "");
 	} else {
-		if (img.im) {
-			size = filesize;
-			size_readable(&size, &unit);
-			n = snprintf(win_title, TITLE_LEN, "sxiv: [%d/%d] <%d%%> (%.2f%s) %s",
-			             fileidx + 1, filecnt, (int) (img.zoom * 100.0), size, unit,
-			             filenames[fileidx]);
-		} else {
-			n = snprintf(win_title, TITLE_LEN, "sxiv: [%d/%d] invalid: %s",
-			             fileidx + 1, filecnt, filenames[fileidx]);
-		}
+		size = filesize;
+		size_readable(&size, &unit);
+		n = snprintf(win_title, TITLE_LEN, "sxiv: [%d/%d] <%d%%> (%.2f%s) %s",
+		             fileidx + 1, filecnt, (int) (img.zoom * 100.0), size, unit,
+		             filenames[fileidx]);
 	}
 
 	if (n >= TITLE_LEN) {
@@ -128,7 +163,7 @@ int check_append(const char *filename) {
 	if (access(filename, R_OK)) {
 		warn("could not open file: %s", filename);
 		return 0;
-	} else if (options->all || img_check(filename)) {
+	} else {
 		if (fileidx == filecnt) {
 			filecnt *= 2;
 			filenames = (const char**) s_realloc(filenames,
@@ -136,8 +171,6 @@ int check_append(const char *filename) {
 		}
 		filenames[fileidx++] = filename;
 		return 1;
-	} else {
-		return 0;
 	}
 }
 
@@ -155,7 +188,7 @@ int main(int argc, char **argv) {
 
 	if (options->clean_cache) {
 		tns_init(&tns, 0);
-		tns_clear_cache(&tns);
+		tns_clean_cache(&tns);
 		exit(0);
 	}
 
@@ -208,26 +241,27 @@ int main(int argc, char **argv) {
 	fileidx = 0;
 
 	if (!filecnt) {
-		fprintf(stderr, "sxiv: no valid image filename given, aborting\n");
+		fprintf(stderr, "sxiv: no valid image file given, aborting\n");
 		exit(1);
 	}
 
-	win_open(&win);
+	win_init(&win);
 	img_init(&img, &win);
 
 	if (options->thumbnails) {
 		mode = MODE_THUMBS;
 		tns_init(&tns, filecnt);
-		win_clear(&win);
-		win_draw(&win);
+		while (!tns_load(&tns, 0, filenames[0], 0))
+			remove_file(0, 0);
+		tns.cnt = 1;
 	} else {
 		mode = MODE_NORMAL;
 		tns.thumbs = NULL;
 		load_image(fileidx);
-		img_render(&img, &win);
 	}
 
-	update_title();
+	win_open(&win);
+	
 	run();
 	cleanup();
 
@@ -292,41 +326,8 @@ int run_command(const char *cline, Bool reload) {
 }
 #endif /* EXT_COMMANDS */
 
-void remove_file(int n) {
-	if (n < 0 || n >= filecnt)
-		return;
-
-	if (filecnt == 1) {
-		cleanup();
-		exit(0);
-	}
-
-	if (n + 1 < filecnt)
-		memmove(filenames + n, filenames + n + 1, (filecnt - n - 1) *
-		        sizeof(const char*));
-	if (n + 1 < tns.cnt) {
-		memmove(tns.thumbs + n, tns.thumbs + n + 1, (tns.cnt - n - 1) *
-		        sizeof(thumb_t));
-		memset(tns.thumbs + tns.cnt - 1, 0, sizeof(thumb_t));
-	}
-
-	--filecnt;
-	if (n < tns.cnt)
-		--tns.cnt;
-}
-
 
 /* event handling */
-
-#define TO_WIN_RESIZE  75000;
-#define TO_IMAGE_DRAG  1000;
-#define TO_CURSOR_HIDE 1500000;
-#define TO_THUMBS_LOAD 75000;
-int timo_cursor;
-int timo_redraw;
-
-unsigned char drag;
-int mox, moy;
 
 void redraw() {
 	if (mode == MODE_NORMAL) {
@@ -363,16 +364,24 @@ void on_keypress(XKeyEvent *kev) {
 				win_set_cursor(&win, CURSOR_WATCH);
 				if (run_command(commands[x].cmdline, commands[x].reload)) {
 					if (mode == MODE_NORMAL) {
+						if (fileidx < tns.cnt)
+							tns_load(&tns, fileidx, filenames[fileidx], 1);
 						img_close(&img, 1);
 						load_image(fileidx);
-						tns_load(&tns, &win, fileidx, filenames[fileidx]);
 					} else {
-						tns_load(&tns, &win, tns.sel, filenames[tns.sel]);
+						if (!tns_load(&tns, tns.sel, filenames[tns.sel], 0)) {
+							remove_file(tns.sel, 0);
+							tns.dirty = 1;
+							if (tns.sel >= tns.cnt)
+								tns.sel = tns.cnt - 1;
+						}
 					}
 					redraw();
 				}
 				if (mode == MODE_THUMBS)
 					win_set_cursor(&win, CURSOR_ARROW);
+				else if (!timo_cursor)
+					win_set_cursor(&win, CURSOR_NONE);
 				return;
 			}
 		}
@@ -487,7 +496,7 @@ void on_keypress(XKeyEvent *kev) {
 				changed = 1;
 				break;
 			case XK_D:
-				remove_file(fileidx);
+				remove_file(fileidx, 1);
 				changed = load_image(fileidx >= filecnt ? filecnt - 1 : fileidx);
 				break;
 			case XK_r:
@@ -532,11 +541,12 @@ void on_keypress(XKeyEvent *kev) {
 					tns.sel = tns.cnt - 1;
 					changed = tns.dirty = 1;
 				}
+				break;
 
 			/* miscellaneous */
 			case XK_D:
 				if (tns.sel < tns.cnt) {
-					remove_file(tns.sel);
+					remove_file(tns.sel, 1);
 					changed = tns.dirty = 1;
 					if (tns.sel >= tns.cnt)
 						tns.sel = tns.cnt - 1;
@@ -663,17 +673,21 @@ void run() {
 	struct timeval tt, t0, t1;
 	XEvent ev;
 
-	timo_cursor = timo_redraw = 0;
 	drag = 0;
+	timo_cursor = mode == MODE_NORMAL ? TO_CURSOR_HIDE : 0;
+
+	redraw();
 
 	while (1) {
 		if (mode == MODE_THUMBS && tns.cnt < filecnt) {
 			win_set_cursor(&win, CURSOR_WATCH);
 			gettimeofday(&t0, 0);
 
-			while (!XPending(win.env.dpy) && tns.cnt < filecnt) {
-				/* tns.cnt is increased inside tns_load */
-				tns_load(&tns, &win, tns.cnt, filenames[tns.cnt]);
+			while (tns.cnt < filecnt && !XPending(win.env.dpy)) {
+				if (tns_load(&tns, tns.cnt, filenames[tns.cnt], 0))
+					++tns.cnt;
+				else
+					remove_file(tns.cnt, 0);
 				gettimeofday(&t1, 0);
 				if (TV_TO_DOUBLE(t1) - TV_TO_DOUBLE(t0) >= 0.25)
 					break;

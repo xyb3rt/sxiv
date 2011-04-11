@@ -34,10 +34,52 @@ static GC gc;
 
 Atom wm_delete_win;
 
+void win_init(win_t *win) {
+	win_env_t *e;
+	XColor col;
+
+	if (!win)
+		return;
+
+	e = &win->env;
+	if (!(e->dpy = XOpenDisplay(NULL)))
+		die("could not open display");
+
+	e->scr = DefaultScreen(e->dpy);
+	e->scrw = DisplayWidth(e->dpy, e->scr);
+	e->scrh = DisplayHeight(e->dpy, e->scr);
+	e->vis = DefaultVisual(e->dpy, e->scr);
+	e->cmap = DefaultColormap(e->dpy, e->scr);
+	e->depth = DefaultDepth(e->dpy, e->scr);
+
+	win->black = BlackPixel(e->dpy, e->scr);
+	win->white = WhitePixel(e->dpy, e->scr);
+
+	if (XAllocNamedColor(e->dpy, DefaultColormap(e->dpy, e->scr), BG_COLOR,
+		                   &col, &col))
+	{
+		win->bgcol = col.pixel;
+	} else {
+		die("could not allocate color: %s", BG_COLOR);
+	}
+
+	if (XAllocNamedColor(e->dpy, DefaultColormap(e->dpy, e->scr), SEL_COLOR,
+		                   &col, &col))
+	{
+		win->selcol = col.pixel;
+	} else {
+		die("could not allocate color: %s", SEL_COLOR);
+	}
+
+	win->xwin = 0;
+	win->pm = 0;
+	win->fullscreen = 0;
+}
+
 void win_set_sizehints(win_t *win) {
 	XSizeHints sizehints;
 
-	if (!win)
+	if (!win || !win->xwin)
 		return;
 
 	sizehints.flags = PMinSize | PMaxSize;
@@ -60,33 +102,7 @@ void win_open(win_t *win) {
 		return;
 
 	e = &win->env;
-	if (!(e->dpy = XOpenDisplay(NULL)))
-		die("could not open display");
 
-	e->scr = DefaultScreen(e->dpy);
-	e->scrw = DisplayWidth(e->dpy, e->scr);
-	e->scrh = DisplayHeight(e->dpy, e->scr);
-	e->vis = DefaultVisual(e->dpy, e->scr);
-	e->cmap = DefaultColormap(e->dpy, e->scr);
-	e->depth = DefaultDepth(e->dpy, e->scr);
-
-	win->black = BlackPixel(e->dpy, e->scr);
-	win->white = WhitePixel(e->dpy, e->scr);
-
-	if (XAllocNamedColor(e->dpy, DefaultColormap(e->dpy, e->scr), BG_COLOR,
-		                   &col, &col))
-		win->bgcol = col.pixel;
-	else
-		die("could not allocate color: %s", BG_COLOR);
-	if (XAllocNamedColor(e->dpy, DefaultColormap(e->dpy, e->scr), SEL_COLOR,
-		                   &col, &col))
-		win->selcol = col.pixel;
-	else
-		die("could not allocate color: %s", BG_COLOR);
-
-	win->pm = 0;
-	win->fullscreen = 0;
-	
 	/* determine window offsets, width & height */
 	if (!options->geometry)
 		gmask = 0;
@@ -125,7 +141,9 @@ void win_open(win_t *win) {
 
 	if (!XAllocNamedColor(e->dpy, DefaultColormap(e->dpy, e->scr), "black",
 		                    &col, &col))
+	{
 		die("could not allocate color: black");
+	}
 	none = XCreateBitmapFromData(e->dpy, win->xwin, none_data, 8, 8);
 	cnone = XCreatePixmapCursor(e->dpy, none, none, &col, &col, 0, 0);
 
@@ -151,7 +169,7 @@ void win_open(win_t *win) {
 }
 
 void win_close(win_t *win) {
-	if (!win)
+	if (!win || !win->xwin)
 		return;
 
 	XFreeCursor(win->env.dpy, carrow);
@@ -183,7 +201,7 @@ int win_configure(win_t *win, XConfigureEvent *c) {
 }
 
 int win_moveresize(win_t *win, int x, int y, unsigned int w, unsigned int h) {
-	if (!win)
+	if (!win || !win->xwin)
 		return 0;
 
 	x = MAX(0, x);
@@ -211,7 +229,7 @@ void win_toggle_fullscreen(win_t *win) {
 	XEvent ev;
 	XClientMessageEvent *cm;
 
-	if (!win)
+	if (!win || !win->xwin)
 		return;
 
 	win->fullscreen ^= 1;
@@ -236,7 +254,7 @@ void win_clear(win_t *win) {
 	win_env_t *e;
 	XGCValues gcval;
 
-	if (!win)
+	if (!win || !win->xwin)
 		return;
 
 	e = &win->env;
@@ -251,7 +269,7 @@ void win_clear(win_t *win) {
 }
 
 void win_draw(win_t *win) {
-	if (!win)
+	if (!win || !win->xwin)
 		return;
 
 	XSetWindowBackgroundPixmap(win->env.dpy, win->xwin, win->pm);
@@ -276,7 +294,7 @@ void win_draw_rect(win_t *win, Pixmap pm, int x, int y, int w, int h,
 }
 
 void win_set_title(win_t *win, const char *title) {
-	if (!win)
+	if (!win || !win->xwin)
 		return;
 
 	if (!title)
@@ -296,7 +314,7 @@ void win_set_title(win_t *win, const char *title) {
 }
 
 void win_set_cursor(win_t *win, win_cur_t cursor) {
-	if (!win)
+	if (!win || !win->xwin)
 		return;
 
 	switch (cursor) {

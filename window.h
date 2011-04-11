@@ -60,6 +60,7 @@ typedef struct {
 
 extern Atom wm_delete_win;
 
+void win_init(win_t*);
 void win_open(win_t*);
 void win_close(win_t*);
 
