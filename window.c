@@ -247,7 +247,7 @@ void win_toggle_fullscreen(win_t *win) {
 	cm->data.l[3] = 0;
 
 	XSendEvent(win->env.dpy, DefaultRootWindow(win->env.dpy), False,
-	           SubstructureNotifyMask, &ev);
+	           SubstructureNotifyMask | SubstructureRedirectMask, &ev);
 }
 
 void win_clear(win_t *win) {
