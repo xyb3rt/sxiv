@@ -29,16 +29,11 @@
 #include <X11/Xutil.h>
 #include <X11/keysym.h>
 
-#include "config.h"
 #include "image.h"
 #include "options.h"
 #include "thumbs.h"
 #include "util.h"
 #include "window.h"
-
-#if EXT_COMMANDS
-#include "commands.h"
-#endif
 
 #define FNAME_CNT 1024
 #define TITLE_LEN 256
@@ -48,10 +43,19 @@
 #define TO_CURSOR_HIDE 1500000
 #define TO_THUMBS_LOAD 75000
 
+typedef struct {
+	KeySym ksym;
+	Bool reload;
+	const char *cmdline;
+} command_t;
+
 typedef enum {
 	MODE_NORMAL = 0,
 	MODE_THUMBS
 } appmode_t;
+
+#define MAIN_C
+#include "config.h"
 
 void run();
 
