@@ -38,21 +38,16 @@
 #define FNAME_CNT 1024
 #define TITLE_LEN 256
 
-#define TO_WIN_RESIZE  75000
-#define TO_IMAGE_DRAG  1000
-#define TO_CURSOR_HIDE 1500000
-#define TO_THUMBS_LOAD 75000
+typedef enum {
+	MODE_NORMAL = 0,
+	MODE_THUMBS
+} appmode_t;
 
 typedef struct {
 	KeySym ksym;
 	Bool reload;
 	const char *cmdline;
 } command_t;
-
-typedef enum {
-	MODE_NORMAL = 0,
-	MODE_THUMBS
-} appmode_t;
 
 #define MAIN_C
 #include "config.h"
@@ -69,11 +64,6 @@ int filecnt, fileidx;
 size_t filesize;
 
 char win_title[TITLE_LEN];
-
-int timo_cursor;
-int timo_redraw;
-unsigned char drag;
-int mox, moy;
 
 void cleanup() {
 	static int in = 0;
@@ -128,8 +118,7 @@ int load_image(int new) {
 		else
 			filesize = 0;
 
-		if (!timo_cursor)
-			win_set_cursor(&win, CURSOR_NONE);
+		/* cursor is reset in redraw() */
 	}
 	return 1;
 }
@@ -332,6 +321,16 @@ int run_command(const char *cline, Bool reload) {
 
 
 /* event handling */
+
+#define TO_WIN_RESIZE  75000
+#define TO_IMAGE_DRAG  1000
+#define TO_CURSOR_HIDE 1500000
+#define TO_THUMBS_LOAD 75000
+
+int timo_cursor;
+int timo_redraw;
+unsigned char drag;
+int mox, moy;
 
 void redraw() {
 	if (mode == MODE_NORMAL) {
@@ -585,8 +584,10 @@ void on_buttonpress(XButtonEvent *bev) {
 	changed = 0;
 
 	if (mode == MODE_NORMAL) {
-		win_set_cursor(&win, CURSOR_ARROW);
-		timo_cursor = TO_CURSOR_HIDE;
+		if (!drag) {
+			win_set_cursor(&win, CURSOR_ARROW);
+			timo_cursor = TO_CURSOR_HIDE;
+		}
 
 		switch (bev->button) {
 			case Button1:
