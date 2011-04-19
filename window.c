@@ -243,8 +243,7 @@ void win_toggle_fullscreen(win_t *win) {
 	cm->format = 32;
 	cm->data.l[0] = win->fullscreen;
 	cm->data.l[1] = XInternAtom(win->env.dpy, "_NET_WM_STATE_FULLSCREEN", False);
-	cm->data.l[2] = XInternAtom(win->env.dpy, "_NET_WM_STATE_ABOVE", False);
-	cm->data.l[3] = 0;
+	cm->data.l[2] = cm->data.l[3] = 0;
 
 	XSendEvent(win->env.dpy, DefaultRootWindow(win->env.dpy), False,
 	           SubstructureNotifyMask | SubstructureRedirectMask, &ev);
