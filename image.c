@@ -212,8 +212,8 @@ int img_center(img_t *img, win_t *win) {
 	return ox != img->x || oy != img->y;
 }
 
-int img_zoom(img_t *img, float z) {
-	if (!img || !img->im)
+int img_zoom(img_t *img, win_t *win, float z) {
+	if (!img || !img->im || !win)
 		return 0;
 
 	z = MAX(z, zoom_min);
@@ -222,8 +222,8 @@ int img_zoom(img_t *img, float z) {
 	img->scalemode = SCALE_ZOOM;
 
 	if (z != img->zoom) {
-		img->x -= (img->w * z - img->w * img->zoom) / 2;
-		img->y -= (img->h * z - img->h * img->zoom) / 2;
+		img->x = win->w / 2 - (win->w / 2 - img->x) * z / img->zoom;
+		img->y = win->h / 2 - (win->h / 2 - img->y) * z / img->zoom;
 		img->zoom = z;
 		img->checkpan = 1;
 		return 1;
@@ -232,28 +232,28 @@ int img_zoom(img_t *img, float z) {
 	}
 }
 
-int img_zoom_in(img_t *img) {
+int img_zoom_in(img_t *img, win_t *win) {
 	int i;
 
-	if (!img || !img->im)
+	if (!img || !img->im || !win)
 		return 0;
 
 	for (i = 1; i < zl_cnt; ++i) {
 		if (zoom_levels[i] > img->zoom * 100.0)
-			return img_zoom(img, zoom_levels[i] / 100.0);
+			return img_zoom(img, win, zoom_levels[i] / 100.0);
 	}
 	return 0;
 }
 
-int img_zoom_out(img_t *img) {
+int img_zoom_out(img_t *img, win_t *win) {
 	int i;
 
-	if (!img || !img->im)
+	if (!img || !img->im || !win)
 		return 0;
 
 	for (i = zl_cnt - 2; i >= 0; --i) {
 		if (zoom_levels[i] < img->zoom * 100.0)
-			return img_zoom(img, zoom_levels[i] / 100.0);
+			return img_zoom(img, win, zoom_levels[i] / 100.0);
 	}
 	return 0;
 }

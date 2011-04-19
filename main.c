@@ -424,13 +424,13 @@ void on_keypress(XKeyEvent *kev) {
 			/* zooming */
 			case XK_plus:
 			case XK_equal:
-				changed = img_zoom_in(&img);
+				changed = img_zoom_in(&img, &win);
 				break;
 			case XK_minus:
-				changed = img_zoom_out(&img);
+				changed = img_zoom_out(&img, &win);
 				break;
 			case XK_0:
-				changed = img_zoom(&img, 1.0);
+				changed = img_zoom(&img, &win, 1.0);
 				break;
 			case XK_w:
 				if ((changed = img_fit_win(&img, &win)))
@@ -607,7 +607,7 @@ void on_buttonpress(XButtonEvent *bev) {
 				break;
 			case Button4:
 				if (mask == ControlMask)
-					changed = img_zoom_in(&img);
+					changed = img_zoom_in(&img, &win);
 				else if (mask == ShiftMask)
 					changed = img_pan(&img, &win, PAN_LEFT);
 				else
@@ -615,7 +615,7 @@ void on_buttonpress(XButtonEvent *bev) {
 				break;
 			case Button5:
 				if (mask == ControlMask)
-					changed = img_zoom_out(&img);
+					changed = img_zoom_out(&img, &win);
 				else if (mask == ShiftMask)
 					changed = img_pan(&img, &win, PAN_RIGHT);
 				else

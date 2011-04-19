@@ -63,9 +63,9 @@ void img_render(img_t*, win_t*);
 int img_fit_win(img_t*, win_t*);
 int img_center(img_t*, win_t*);
 
-int img_zoom(img_t*, float);
-int img_zoom_in(img_t*);
-int img_zoom_out(img_t*);
+int img_zoom(img_t*, win_t*, float);
+int img_zoom_in(img_t*, win_t*);
+int img_zoom_out(img_t*, win_t*);
 
 int img_move(img_t*, win_t*, int, int);
 int img_pan(img_t*, win_t*, pandir_t);
