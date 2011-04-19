@@ -565,7 +565,11 @@ void on_keypress(XKeyEvent *kev) {
 			exit(0);
 		case XK_f:
 			win_toggle_fullscreen(&win);
-			/* render on next configurenotify */
+			if (mode == MODE_NORMAL)
+				img.checkpan = 1;
+			else
+				tns.dirty = 1;
+			timo_redraw = TO_WIN_RESIZE;
 			break;
 	}
 
