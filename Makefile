@@ -3,6 +3,7 @@ all: sxiv
 VERSION=0.8.1
 
 CC?=gcc
+DESTDIR?=
 PREFIX?=/usr/local
 CFLAGS+= -Wall -pedantic -DVERSION=\"$(VERSION)\"
 LDFLAGS+= 
@@ -18,10 +19,10 @@ sxiv:	$(OBJFILES)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 install: all
-	install -D -m 755 -o root -g root sxiv $(PREFIX)/bin/sxiv
-	mkdir -p $(PREFIX)/share/man/man1
-	sed "s/VERSION/$(VERSION)/g" sxiv.1 > $(PREFIX)/share/man/man1/sxiv.1
-	chmod 644 $(PREFIX)/share/man/man1/sxiv.1
+	install -D -m 755 -o root -g root sxiv ${DESTDIR}$(PREFIX)/bin/sxiv
+	mkdir -p ${DESTDIR}$(PREFIX)/share/man/man1
+	sed "s/VERSION/$(VERSION)/g" sxiv.1 > ${DESTDIR}$(PREFIX)/share/man/man1/sxiv.1
+	chmod 644 ${DESTDIR}$(PREFIX)/share/man/man1/sxiv.1
 
 clean:
 	rm -f sxiv *.o
