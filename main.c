@@ -455,6 +455,19 @@ void on_keypress(XKeyEvent *kev) {
 				changed = img_pan(&img, &win, PAN_RIGHT);
 				break;
 
+			case XK_H:
+				changed = img_pan_edge(&img, &win, PAN_LEFT);
+				break;
+			case XK_J:
+				changed = img_pan_edge(&img, &win, PAN_DOWN);
+				break;
+			case XK_K:
+				changed = img_pan_edge(&img, &win, PAN_UP);
+				break;
+			case XK_L:
+				changed = img_pan_edge(&img, &win, PAN_RIGHT);
+				break;
+
 			/* rotation */
 			case XK_less:
 				img_rotate_left(&img, &win);

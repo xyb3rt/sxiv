@@ -293,6 +293,35 @@ int img_pan(img_t *img, win_t *win, pandir_t dir) {
 	return 0;
 }
 
+int img_pan_edge(img_t *img, win_t *win, pandir_t dir) {
+	int ox, oy;
+
+	if (!img || !img->im || !win)
+		return 0;
+
+	ox = img->x;
+	oy = img->y;
+
+	switch (dir) {
+		case PAN_LEFT:
+			img->x = 0;
+			break;
+		case PAN_RIGHT:
+			img->x = win->w - img->w * img->zoom;
+			break;
+		case PAN_UP:
+			img->y = 0;
+			break;
+		case PAN_DOWN:
+			img->y = win->h - img->h * img->zoom;
+			break;
+	}
+
+	img_check_pan(img, win);
+
+	return ox != img->x || oy != img->y;
+}
+
 void img_rotate(img_t *img, win_t *win, int d) {
 	int ox, oy, tmp;
 
