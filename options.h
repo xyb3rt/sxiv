@@ -23,8 +23,9 @@
 
 typedef struct {
 	const char **filenames;
-	int filecnt;
 	unsigned char from_stdin;
+	int filecnt;
+	int startnum;
 
 	scalemode_t scalemode;
 	float zoom;

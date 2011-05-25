@@ -40,6 +40,7 @@ sxiv supports the following command-line options:
     -f           Start in fullscreen mode
     -g GEOMETRY  Set window position and size
                  (see section GEOMETRY SPECIFICATIONS of X(7))
+    -n NUM       Start at picture NUM
     -p           Pixelize, i.e. turn off image anti-aliasing
     -q           Be quiet, disable warnings
     -r           Search given directories recursively for images

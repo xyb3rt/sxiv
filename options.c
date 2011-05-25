@@ -31,7 +31,7 @@ options_t _options;
 const options_t *options = (const options_t*) &_options;
 
 void print_usage() {
-	printf("usage: sxiv [-cdFfhpqrstvZ] [-g GEOMETRY] [-z ZOOM] FILES...\n");
+	printf("usage: sxiv [-cdFfhpqrstvZ] [-g GEOMETRY] [-n NUM] [-z ZOOM] FILES...\n");
 }
 
 void print_version() {
@@ -40,7 +40,9 @@ void print_version() {
 
 void parse_options(int argc, char **argv) {
 	float z;
-	int opt;
+	int n, opt;
+
+	_options.startnum = 0;
 
 	_options.scalemode = SCALE_MODE;
 	_options.zoom = 1.0;
@@ -55,7 +57,7 @@ void parse_options(int argc, char **argv) {
 	_options.clean_cache = 0;
 	_options.recursive = 0;
 
-	while ((opt = getopt(argc, argv, "cdFfg:hpqrstvZz:")) != -1) {
+	while ((opt = getopt(argc, argv, "cdFfg:hn:pqrstvZz:")) != -1) {
 		switch (opt) {
 			case '?':
 				print_usage();
@@ -78,6 +80,15 @@ void parse_options(int argc, char **argv) {
 			case 'h':
 				print_usage();
 				exit(0);
+			case 'n':
+				if (!sscanf(optarg, "%d", &n) || n < 1) {
+					fprintf(stderr, "sxiv: invalid argument for option -n: %s\n",
+					        optarg);
+					exit(1);
+				} else {
+					_options.startnum = n - 1;
+				}
+				break;
 			case 'p':
 				_options.aa = 0;
 				break;

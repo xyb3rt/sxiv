@@ -231,13 +231,13 @@ int main(int argc, char **argv) {
 		}
 	}
 
-	filecnt = fileidx;
-	fileidx = 0;
-
-	if (!filecnt) {
+	if (!fileidx) {
 		fprintf(stderr, "sxiv: no valid image file given, aborting\n");
 		exit(1);
 	}
+
+	filecnt = fileidx;
+	fileidx = options->startnum < filecnt ? options->startnum : filecnt - 1;
 
 	win_init(&win);
 	img_init(&img, &win);
