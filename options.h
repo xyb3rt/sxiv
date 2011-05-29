@@ -22,7 +22,7 @@
 #include "image.h"
 
 typedef struct {
-	const char **filenames;
+	char **filenames;
 	unsigned char from_stdin;
 	int filecnt;
 	int startnum;

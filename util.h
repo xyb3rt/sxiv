@@ -61,6 +61,4 @@ int r_closedir(r_dir_t*);
 char* r_readdir(r_dir_t*);
 int r_mkdir(const char *);
 
-char* readline(FILE*);
-
 #endif /* UTIL_H */

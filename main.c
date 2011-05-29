@@ -16,6 +16,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+#define _XOPEN_SOURCE 700
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -59,7 +61,7 @@ img_t img;
 tns_t tns;
 win_t win;
 
-const char **filenames;
+char **filenames;
 int filecnt, fileidx;
 size_t filesize;
 
@@ -88,7 +90,7 @@ void remove_file(int n, unsigned char silent) {
 
 	if (n + 1 < filecnt)
 		memmove(filenames + n, filenames + n + 1, (filecnt - n - 1) *
-		        sizeof(const char*));
+		        sizeof(char*));
 	if (n + 1 < tns.cnt) {
 		memmove(tns.thumbs + n, tns.thumbs + n + 1, (tns.cnt - n - 1) *
 		        sizeof(thumb_t));
@@ -150,7 +152,7 @@ void update_title() {
 	win_set_title(&win, win_title);
 }
 
-int check_append(const char *filename) {
+int check_append(char *filename) {
 	if (!filename)
 		return 0;
 
@@ -160,8 +162,7 @@ int check_append(const char *filename) {
 	} else {
 		if (fileidx == filecnt) {
 			filecnt *= 2;
-			filenames = (const char**) s_realloc(filenames,
-			                                     filecnt * sizeof(const char*));
+			filenames = (char**) s_realloc(filenames, filecnt * sizeof(char*));
 		}
 		filenames[fileidx++] = filename;
 		return 1;
@@ -173,8 +174,9 @@ int fncmp(const void *a, const void *b) {
 }
 
 int main(int argc, char **argv) {
-	int i, start;
-	const char *filename;
+	int i, len, start;
+	size_t n;
+	char *filename = NULL;
 	struct stat fstats;
 	r_dir_t dir;
 
@@ -196,13 +198,16 @@ int main(int argc, char **argv) {
 	else
 		filecnt = options->filecnt;
 
-	filenames = (const char**) s_malloc(filecnt * sizeof(const char*));
+	filenames = (char**) s_malloc(filecnt * sizeof(char*));
 	fileidx = 0;
 
 	if (options->from_stdin) {
-		while ((filename = readline(stdin))) {
+		while ((len = getline(&filename, &n, stdin)) > 0) {
+			if (filename[len-1] == '\n')
+				filename[len-1] = '\0';
 			if (!*filename || !check_append(filename))
-				free((void*) filename);
+				free(filename);
+			filename = NULL;
 		}
 	} else {
 		for (i = 0; i < options->filecnt; ++i) {
