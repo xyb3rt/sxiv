@@ -1,6 +1,6 @@
 all: sxiv
 
-VERSION=git-20110529
+VERSION=git-20110603
 
 CC?=gcc
 DESTDIR?=

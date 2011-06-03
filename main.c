@@ -357,17 +357,18 @@ void on_keypress(XKeyEvent *kev) {
 	unsigned int w, h;
 	char key;
 	KeySym ksym;
-	int changed;
+	int changed, ctrl;
 
 	if (!kev)
 		return;
 	
 	XLookupString(kev, &key, 1, &ksym, NULL);
 	changed = 0;
+	ctrl = CLEANMASK(kev->state) & ControlMask;
 
 #if EXT_COMMANDS
 	/* external commands from commands.h */
-	if (CLEANMASK(kev->state) & ControlMask) {
+	if (ctrl) {
 		for (x = 0; x < LEN(commands); ++x) {
 			if (commands[x].ksym == ksym) {
 				win_set_cursor(&win, CURSOR_WATCH);
@@ -446,19 +447,25 @@ void on_keypress(XKeyEvent *kev) {
 			/* panning */
 			case XK_h:
 			case XK_Left:
-				changed = img_pan(&img, &win, PAN_LEFT);
+				changed = img_pan(&img, &win, PAN_LEFT, ctrl);
 				break;
 			case XK_j:
 			case XK_Down:
-				changed = img_pan(&img, &win, PAN_DOWN);
+				changed = img_pan(&img, &win, PAN_DOWN, ctrl);
 				break;
 			case XK_k:
 			case XK_Up:
-				changed = img_pan(&img, &win, PAN_UP);
+				changed = img_pan(&img, &win, PAN_UP, ctrl);
 				break;
 			case XK_l:
 			case XK_Right:
-				changed = img_pan(&img, &win, PAN_RIGHT);
+				changed = img_pan(&img, &win, PAN_RIGHT, ctrl);
+				break;
+			case XK_Prior:
+				changed = img_pan(&img, &win, PAN_UP, 1);
+				break;
+			case XK_Next:
+				changed = img_pan(&img, &win, PAN_DOWN, 1);
 				break;
 
 			case XK_H:
@@ -632,23 +639,23 @@ void on_buttonpress(XButtonEvent *bev) {
 				if (mask == ControlMask)
 					changed = img_zoom_in(&img, &win);
 				else if (mask == ShiftMask)
-					changed = img_pan(&img, &win, PAN_LEFT);
+					changed = img_pan(&img, &win, PAN_LEFT, 0);
 				else
-					changed = img_pan(&img, &win, PAN_UP);
+					changed = img_pan(&img, &win, PAN_UP, 0);
 				break;
 			case Button5:
 				if (mask == ControlMask)
 					changed = img_zoom_out(&img, &win);
 				else if (mask == ShiftMask)
-					changed = img_pan(&img, &win, PAN_RIGHT);
+					changed = img_pan(&img, &win, PAN_RIGHT, 0);
 				else
-					changed = img_pan(&img, &win, PAN_DOWN);
+					changed = img_pan(&img, &win, PAN_DOWN, 0);
 				break;
 			case 6:
-				changed = img_pan(&img, &win, PAN_LEFT);
+				changed = img_pan(&img, &win, PAN_LEFT, 0);
 				break;
 			case 7:
-				changed = img_pan(&img, &win, PAN_RIGHT);
+				changed = img_pan(&img, &win, PAN_RIGHT, 0);
 				break;
 		}
 	} else {

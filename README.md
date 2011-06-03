@@ -69,6 +69,8 @@ thumbnail mode are denoted via brackets:
     h,j,k,l      Pan image [move selection] left/down/up/right
                  (also with arrow keys)
     H,J,K,L      Pan to left/bottom/top/right image edge
+    Ctrl-h,j,k,l Pan image one window width/height left/down/up/right
+                 (also with Ctrl-arrow keys)
 
     <,>          Rotate image (counter-)clockwise by 90 degrees
 

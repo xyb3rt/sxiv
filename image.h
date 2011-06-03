@@ -68,7 +68,7 @@ int img_zoom_in(img_t*, win_t*);
 int img_zoom_out(img_t*, win_t*);
 
 int img_move(img_t*, win_t*, int, int);
-int img_pan(img_t*, win_t*, pandir_t);
+int img_pan(img_t*, win_t*, pandir_t, int);
 int img_pan_edge(img_t*, win_t*, pandir_t);
 
 void img_rotate_left(img_t*, win_t*);
