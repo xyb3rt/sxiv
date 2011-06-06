@@ -78,7 +78,7 @@ Imlib_Image* tns_cache_load(const char *filename) {
 	if ((cfile = tns_cache_filename(filename))) {
 		if (!stat(cfile, &cstats) &&
 		    cstats.st_mtim.tv_sec == fstats.st_mtim.tv_sec &&
-				cstats.st_mtim.tv_nsec == fstats.st_mtim.tv_nsec)
+		    cstats.st_mtim.tv_nsec / 1000 == fstats.st_mtim.tv_nsec / 1000)
 		{
 			im = imlib_load_image(cfile);
 		}
@@ -103,7 +103,7 @@ void tns_cache_write(thumb_t *t, Bool force) {
 	if ((cfile = tns_cache_filename(t->filename))) {
 		if (force || stat(cfile, &cstats) ||
 		    cstats.st_mtim.tv_sec != fstats.st_mtim.tv_sec ||
-		    cstats.st_mtim.tv_nsec != fstats.st_mtim.tv_nsec)
+		    cstats.st_mtim.tv_nsec / 1000 != fstats.st_mtim.tv_nsec / 1000)
 		{
 			if ((dirend = strrchr(cfile, '/'))) {
 				*dirend = '\0';
