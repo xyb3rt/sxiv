@@ -144,9 +144,8 @@ void update_title() {
 	}
 
 	if (n >= TITLE_LEN) {
-		win_title[TITLE_LEN - 2] = '.';
-		win_title[TITLE_LEN - 3] = '.';
-		win_title[TITLE_LEN - 4] = '.';
+		for (n = 0; n < 3; n++)
+			win_title[TITLE_LEN - n - 2] = '.';
 	}
 
 	win_set_title(&win, win_title);
