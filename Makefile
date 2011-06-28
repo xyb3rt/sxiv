@@ -13,7 +13,7 @@ SRC = image.c main.c options.c thumbs.c util.c window.c
 OBJ = $(SRC:.c=.o)
 
 sxiv:	$(OBJ)
-	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
+	$(CC) $(LDFLAGS) -o $@ $(OBJ) $(LIBS)
 
 .c.o: Makefile config.h
 	$(CC) $(CFLAGS) -c -o $@ $<
