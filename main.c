@@ -241,7 +241,7 @@ int main(int argc, char **argv) {
 	}
 
 	filecnt = fileidx;
-	fileidx = options->startnum < filecnt ? options->startnum : filecnt - 1;
+	fileidx = options->startnum < filecnt ? options->startnum : 0;
 
 	win_init(&win);
 	img_init(&img, &win);
@@ -327,10 +327,11 @@ int run_command(const char *cline, Bool reload) {
 
 /* event handling */
 
-#define TO_WIN_RESIZE  75000
-#define TO_IMAGE_DRAG  1000
-#define TO_CURSOR_HIDE 1500000
-#define TO_THUMBS_LOAD 75000
+/* timeouts in milliseconds: */
+#define TO_WIN_RESIZE  75
+#define TO_IMAGE_DRAG  1
+#define TO_CURSOR_HIDE 1500
+#define TO_THUMBS_LOAD 200
 
 int timo_cursor;
 int timo_redraw;
@@ -723,7 +724,7 @@ void run() {
 				else
 					remove_file(tns.cnt, 0);
 				gettimeofday(&t1, 0);
-				if (TV_TO_DOUBLE(t1) - TV_TO_DOUBLE(t0) >= 0.25)
+				if (TIMEDIFF(&t1, &t0) >= TO_THUMBS_LOAD)
 					break;
 			}
 			if (tns.cnt == filecnt)
@@ -742,8 +743,7 @@ void run() {
 				timeout = timo_cursor;
 			else
 				timeout = timo_redraw;
-			tt.tv_sec = timeout / 1000000;
-			tt.tv_usec = timeout % 1000000;
+			MSEC_TO_TIMEVAL(timeout, &tt);
 			xfd = ConnectionNumber(win.env.dpy);
 			FD_ZERO(&fds);
 			FD_SET(xfd, &fds);
@@ -751,7 +751,7 @@ void run() {
 			if (!XPending(win.env.dpy))
 				select(xfd + 1, &fds, 0, 0, &tt);
 			gettimeofday(&t1, 0);
-			timeout = MIN((TV_TO_DOUBLE(t1) - TV_TO_DOUBLE(t0)) * 1000000, timeout);
+			timeout = MIN(TIMEDIFF(&t1, &t0), timeout);
 
 			/* timeouts fired? */
 			if (timo_cursor) {

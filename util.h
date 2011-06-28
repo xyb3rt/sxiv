@@ -28,13 +28,20 @@
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
 #define LEN(a)   (sizeof(a) / sizeof(a[0]))
 
-#define TV_TO_DOUBLE(x) ((double) ((x).tv_sec) + 0.000001 * \
-                         (double) ((x).tv_usec))
+#define TIMEDIFF(t1,t2) (((t1)->tv_sec - (t2)->tv_sec) * 1000 +  \
+                         ((t1)->tv_usec - (t2)->tv_usec) / 1000)
 
-#define TIMESPEC_TO_TIMEVAL(tv, ts) {      \
-		(tv)->tv_sec = (ts)->tv_sec;           \
-		(tv)->tv_usec = (ts)->tv_nsec / 1000;  \
+#define MSEC_TO_TIMEVAL(t,tv) {         \
+  (tv)->tv_sec = (t) / 1000;            \
+	(tv)->tv_usec = (t) % 1000 * 1000;    \
 }
+
+#ifndef TIMESPEC_TO_TIMEVAL
+#define TIMESPEC_TO_TIMEVAL(tv,ts) {    \
+  (tv)->tv_sec = (ts)->tv_sec;          \
+  (tv)->tv_usec = (ts)->tv_nsec / 1000; \
+}
+#endif
 
 typedef struct {
 	DIR *dir;
