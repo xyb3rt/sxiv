@@ -431,12 +431,15 @@ void on_keypress(XKeyEvent *kev) {
 			/* zooming */
 			case XK_plus:
 			case XK_equal:
+			case XK_KP_Add:
 				changed = img_zoom_in(&img, &win);
 				break;
 			case XK_minus:
+			case XK_KP_Subtract:
 				changed = img_zoom_out(&img, &win);
 				break;
 			case XK_0:
+			case XK_KP_0:
 				changed = img_zoom(&img, &win, 1.0);
 				break;
 			case XK_w:
