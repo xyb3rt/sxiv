@@ -27,6 +27,11 @@
 #include "thumbs.h"
 #include "util.h"
 
+#ifdef __NetBSD__
+#define st_mtim st_mtimespec
+#define st_atim st_atimespec
+#endif
+
 const int thumb_dim = THUMB_SIZE + 10;
 char *cache_dir = NULL;
 
