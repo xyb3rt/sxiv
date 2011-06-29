@@ -1,6 +1,6 @@
 all: sxiv
 
-VERSION = git-20110628
+VERSION = 0.8.2
 
 CC = gcc
 DESTDIR =
