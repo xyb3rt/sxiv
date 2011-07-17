@@ -6,7 +6,7 @@
  * (see X(7) "COLOR NAMES" section for valid values)      */
 #define BG_COLOR     "#999999"
 /* default color for thumbnail selection:                 */
-#define SEL_COLOR    "#0040FF"
+#define SEL_COLOR    "#0066FF"
 
 /* how should images be scaled when they are loaded?:     *
  * (also controllable via -d/-s/-Z/-z options)            *
