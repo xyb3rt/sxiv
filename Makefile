@@ -15,7 +15,9 @@ OBJ = $(SRC:.c=.o)
 sxiv:	$(OBJ)
 	$(CC) $(LDFLAGS) -o $@ $(OBJ) $(LIBS)
 
-.c.o: Makefile config.h
+$(OBJ): Makefile config.h
+
+.c.o:
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 install: all
