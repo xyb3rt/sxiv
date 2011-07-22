@@ -21,14 +21,9 @@
 
 #include <X11/Xlib.h>
 
-#define CLEANMASK(mask) ((mask) & ~LockMask)
+#include "types.h"
 
-typedef enum {
-	CURSOR_ARROW = 0,
-	CURSOR_NONE,
-	CURSOR_HAND,
-	CURSOR_WATCH
-} win_cur_t;
+#define CLEANMASK(mask) ((mask) & ~LockMask)
 
 typedef struct {
 	Display *dpy;
@@ -75,6 +70,6 @@ void win_draw_rect(win_t*, Pixmap, int, int, int, int, Bool, int,
                    unsigned long);
 
 void win_set_title(win_t*, const char*);
-void win_set_cursor(win_t*, win_cur_t);
+void win_set_cursor(win_t*, cursor_t);
 
 #endif /* WINDOW_H */

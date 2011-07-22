@@ -34,25 +34,12 @@
 #include "image.h"
 #include "options.h"
 #include "thumbs.h"
+#include "types.h"
 #include "util.h"
 #include "window.h"
-
-#define FNAME_CNT 1024
-#define TITLE_LEN 256
-
-typedef enum {
-	MODE_NORMAL = 0,
-	MODE_THUMBS
-} appmode_t;
-
-typedef struct {
-	KeySym ksym;
-	Bool reload;
-	const char *cmdline;
-} command_t;
-
-#define MAIN_C
 #include "config.h"
+
+enum { TITLE_LEN = 256, FNAME_CNT = 1024 };
 
 void run();
 
@@ -266,7 +253,6 @@ int main(int argc, char **argv) {
 	return 0;
 }
 
-#if EXT_COMMANDS
 int run_command(const char *cline, Bool reload) {
 	int fncnt, fnlen;
 	char *cn, *cmdline;
@@ -322,16 +308,17 @@ int run_command(const char *cline, Bool reload) {
 	free(cmdline);
 	return ret;
 }
-#endif /* EXT_COMMANDS */
 
 
 /* event handling */
 
 /* timeouts in milliseconds: */
-#define TO_WIN_RESIZE  75
-#define TO_IMAGE_DRAG  1
-#define TO_CURSOR_HIDE 1500
-#define TO_THUMBS_LOAD 200
+enum {
+	TO_WIN_RESIZE  = 75,
+	TO_IMAGE_DRAG  = 1,
+	TO_CURSOR_HIDE = 1500,
+	TO_THUMBS_LOAD = 200
+};
 
 int timo_cursor;
 int timo_redraw;
@@ -366,11 +353,10 @@ void on_keypress(XKeyEvent *kev) {
 	changed = 0;
 	ctrl = CLEANMASK(kev->state) & ControlMask;
 
-#if EXT_COMMANDS
 	/* external commands from commands.h */
-	if (ctrl) {
+	if (EXT_COMMANDS && ctrl) {
 		for (x = 0; x < LEN(commands); ++x) {
-			if (commands[x].ksym == ksym) {
+			if (commands[x].key == key) {
 				win_set_cursor(&win, CURSOR_WATCH);
 				if (run_command(commands[x].cmdline, commands[x].reload)) {
 					if (mode == MODE_NORMAL) {
@@ -396,7 +382,6 @@ void on_keypress(XKeyEvent *kev) {
 			}
 		}
 	}
-#endif
 
 	if (mode == MODE_NORMAL) {
 		switch (ksym) {
@@ -450,38 +435,38 @@ void on_keypress(XKeyEvent *kev) {
 			/* panning */
 			case XK_h:
 			case XK_Left:
-				changed = img_pan(&img, &win, PAN_LEFT, ctrl);
+				changed = img_pan(&img, &win, DIR_LEFT, ctrl);
 				break;
 			case XK_j:
 			case XK_Down:
-				changed = img_pan(&img, &win, PAN_DOWN, ctrl);
+				changed = img_pan(&img, &win, DIR_DOWN, ctrl);
 				break;
 			case XK_k:
 			case XK_Up:
-				changed = img_pan(&img, &win, PAN_UP, ctrl);
+				changed = img_pan(&img, &win, DIR_UP, ctrl);
 				break;
 			case XK_l:
 			case XK_Right:
-				changed = img_pan(&img, &win, PAN_RIGHT, ctrl);
+				changed = img_pan(&img, &win, DIR_RIGHT, ctrl);
 				break;
 			case XK_Prior:
-				changed = img_pan(&img, &win, PAN_UP, 1);
+				changed = img_pan(&img, &win, DIR_UP, 1);
 				break;
 			case XK_Next:
-				changed = img_pan(&img, &win, PAN_DOWN, 1);
+				changed = img_pan(&img, &win, DIR_DOWN, 1);
 				break;
 
 			case XK_H:
-				changed = img_pan_edge(&img, &win, PAN_LEFT);
+				changed = img_pan_edge(&img, &win, DIR_LEFT);
 				break;
 			case XK_J:
-				changed = img_pan_edge(&img, &win, PAN_DOWN);
+				changed = img_pan_edge(&img, &win, DIR_DOWN);
 				break;
 			case XK_K:
-				changed = img_pan_edge(&img, &win, PAN_UP);
+				changed = img_pan_edge(&img, &win, DIR_UP);
 				break;
 			case XK_L:
-				changed = img_pan_edge(&img, &win, PAN_RIGHT);
+				changed = img_pan_edge(&img, &win, DIR_RIGHT);
 				break;
 
 			/* rotation */
@@ -548,19 +533,19 @@ void on_keypress(XKeyEvent *kev) {
 			/* move selection */
 			case XK_h:
 			case XK_Left:
-				changed = tns_move_selection(&tns, &win, TNS_LEFT);
+				changed = tns_move_selection(&tns, &win, DIR_LEFT);
 				break;
 			case XK_j:
 			case XK_Down:
-				changed = tns_move_selection(&tns, &win, TNS_DOWN);
+				changed = tns_move_selection(&tns, &win, DIR_DOWN);
 				break;
 			case XK_k:
 			case XK_Up:
-				changed = tns_move_selection(&tns, &win, TNS_UP);
+				changed = tns_move_selection(&tns, &win, DIR_UP);
 				break;
 			case XK_l:
 			case XK_Right:
-				changed = tns_move_selection(&tns, &win, TNS_RIGHT);
+				changed = tns_move_selection(&tns, &win, DIR_RIGHT);
 				break;
 			case XK_g:
 				if (tns.sel != 0) {
@@ -642,23 +627,23 @@ void on_buttonpress(XButtonEvent *bev) {
 				if (mask == ControlMask)
 					changed = img_zoom_in(&img, &win);
 				else if (mask == ShiftMask)
-					changed = img_pan(&img, &win, PAN_LEFT, 0);
+					changed = img_pan(&img, &win, DIR_LEFT, 0);
 				else
-					changed = img_pan(&img, &win, PAN_UP, 0);
+					changed = img_pan(&img, &win, DIR_UP, 0);
 				break;
 			case Button5:
 				if (mask == ControlMask)
 					changed = img_zoom_out(&img, &win);
 				else if (mask == ShiftMask)
-					changed = img_pan(&img, &win, PAN_RIGHT, 0);
+					changed = img_pan(&img, &win, DIR_RIGHT, 0);
 				else
-					changed = img_pan(&img, &win, PAN_DOWN, 0);
+					changed = img_pan(&img, &win, DIR_DOWN, 0);
 				break;
 			case 6:
-				changed = img_pan(&img, &win, PAN_LEFT, 0);
+				changed = img_pan(&img, &win, DIR_LEFT, 0);
 				break;
 			case 7:
-				changed = img_pan(&img, &win, PAN_RIGHT, 0);
+				changed = img_pan(&img, &win, DIR_RIGHT, 0);
 				break;
 		}
 	} else {
@@ -680,10 +665,10 @@ void on_buttonpress(XButtonEvent *bev) {
 				}
 				break;
 			case Button4:
-				changed = tns_scroll(&tns, TNS_UP);
+				changed = tns_scroll(&tns, DIR_UP);
 				break;
 			case Button5:
-				changed = tns_scroll(&tns, TNS_DOWN);
+				changed = tns_scroll(&tns, DIR_DOWN);
 				break;
 		}
 	}

@@ -21,14 +21,8 @@
 
 #include <Imlib2.h>
 
+#include "types.h"
 #include "window.h"
-
-typedef enum {
-	TNS_LEFT = 0,
-	TNS_RIGHT,
-	TNS_UP,
-	TNS_DOWN
-} tnsdir_t;
 
 typedef struct {
 	Imlib_Image *im;
@@ -62,8 +56,8 @@ int tns_load(tns_t*, int, const char*, unsigned char);
 void tns_render(tns_t*, win_t*);
 void tns_highlight(tns_t*, win_t*, int, Bool);
 
-int tns_move_selection(tns_t*, win_t*, tnsdir_t);
-int tns_scroll(tns_t*, tnsdir_t);
+int tns_move_selection(tns_t*, win_t*, direction_t);
+int tns_scroll(tns_t*, direction_t);
 
 int tns_translate(tns_t*, int, int);
 

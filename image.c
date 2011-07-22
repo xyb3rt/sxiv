@@ -18,10 +18,10 @@
 
 #include <unistd.h>
 
-#include "config.h"
 #include "image.h"
 #include "options.h"
 #include "util.h"
+#include "config.h"
 
 int zl_cnt;
 float zoom_min;
@@ -275,25 +275,25 @@ int img_move(img_t *img, win_t *win, int dx, int dy) {
 	return ox != img->x || oy != img->y;
 }
 
-int img_pan(img_t *img, win_t *win, pandir_t dir, int page) {
+int img_pan(img_t *img, win_t *win, direction_t dir, int page) {
 	if (!img || !img->im || !win)
 		return 0;
 
 	switch (dir) {
-		case PAN_LEFT:
+		case DIR_LEFT:
 			return img_move(img, win, win->w / (page ? 1 : 5), 0);
-		case PAN_RIGHT:
+		case DIR_RIGHT:
 			return img_move(img, win, win->w / (page ? 1 : 5) * -1, 0);
-		case PAN_UP:
+		case DIR_UP:
 			return img_move(img, win, 0, win->h / (page ? 1 : 5));
-		case PAN_DOWN:
+		case DIR_DOWN:
 			return img_move(img, win, 0, win->h / (page ? 1 : 5) * -1);
 	}
 
 	return 0;
 }
 
-int img_pan_edge(img_t *img, win_t *win, pandir_t dir) {
+int img_pan_edge(img_t *img, win_t *win, direction_t dir) {
 	int ox, oy;
 
 	if (!img || !img->im || !win)
@@ -303,16 +303,16 @@ int img_pan_edge(img_t *img, win_t *win, pandir_t dir) {
 	oy = img->y;
 
 	switch (dir) {
-		case PAN_LEFT:
+		case DIR_LEFT:
 			img->x = 0;
 			break;
-		case PAN_RIGHT:
+		case DIR_RIGHT:
 			img->x = win->w - img->w * img->zoom;
 			break;
-		case PAN_UP:
+		case DIR_UP:
 			img->y = 0;
 			break;
-		case PAN_DOWN:
+		case DIR_DOWN:
 			img->y = win->h - img->h * img->zoom;
 			break;
 	}

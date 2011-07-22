@@ -21,10 +21,10 @@
 #include <X11/Xutil.h>
 #include <X11/cursorfont.h>
 
-#include "config.h"
 #include "options.h"
 #include "util.h"
 #include "window.h"
+#include "config.h"
 
 static Cursor carrow;
 static Cursor cnone;
@@ -312,7 +312,7 @@ void win_set_title(win_t *win, const char *title) {
 	                PropModeReplace, (unsigned char *) title, strlen(title));
 }
 
-void win_set_cursor(win_t *win, win_cur_t cursor) {
+void win_set_cursor(win_t *win, cursor_t cursor) {
 	if (!win || !win->xwin)
 		return;
 

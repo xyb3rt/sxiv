@@ -23,9 +23,9 @@
 #include <stdio.h>
 #include <unistd.h>
 
-#include "config.h"
 #include "options.h"
 #include "util.h"
+#include "config.h"
 
 options_t _options;
 const options_t *options = (const options_t*) &_options;

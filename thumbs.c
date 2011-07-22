@@ -23,9 +23,9 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include "config.h"
 #include "thumbs.h"
 #include "util.h"
+#include "config.h"
 
 #ifdef __NetBSD__
 #define st_mtim st_mtimespec
@@ -380,7 +380,7 @@ void tns_highlight(tns_t *tns, win_t *win, int n, Bool hl) {
 	win_draw(win);
 }
 
-int tns_move_selection(tns_t *tns, win_t *win, tnsdir_t dir) {
+int tns_move_selection(tns_t *tns, win_t *win, direction_t dir) {
 	int old;
 
 	if (!tns || !tns->thumbs || !win)
@@ -389,19 +389,19 @@ int tns_move_selection(tns_t *tns, win_t *win, tnsdir_t dir) {
 	old = tns->sel;
 
 	switch (dir) {
-		case TNS_LEFT:
+		case DIR_LEFT:
 			if (tns->sel > 0)
 				--tns->sel;
 			break;
-		case TNS_RIGHT:
+		case DIR_RIGHT:
 			if (tns->sel < tns->cnt - 1)
 				++tns->sel;
 			break;
-		case TNS_UP:
+		case DIR_UP:
 			if (tns->sel >= tns->cols)
 				tns->sel -= tns->cols;
 			break;
-		case TNS_DOWN:
+		case DIR_DOWN:
 			if (tns->sel + tns->cols < tns->cnt)
 				tns->sel += tns->cols;
 			break;
@@ -417,7 +417,7 @@ int tns_move_selection(tns_t *tns, win_t *win, tnsdir_t dir) {
 	return tns->sel != old;
 }
 
-int tns_scroll(tns_t *tns, tnsdir_t dir) {
+int tns_scroll(tns_t *tns, direction_t dir) {
 	int old;
 
 	if (!tns)
@@ -425,11 +425,11 @@ int tns_scroll(tns_t *tns, tnsdir_t dir) {
 
 	old = tns->first;
 
-	if (dir == TNS_DOWN && tns->first + tns->cols * tns->rows < tns->cnt) {
+	if (dir == DIR_DOWN && tns->first + tns->cols * tns->rows < tns->cnt) {
 		tns->first += tns->cols;
 		tns_check_view(tns, True);
 		tns->dirty = 1;
-	} else if (dir == TNS_UP && tns->first >= tns->cols) {
+	} else if (dir == DIR_UP && tns->first >= tns->cols) {
 		tns->first -= tns->cols;
 		tns_check_view(tns, True);
 		tns->dirty = 1;

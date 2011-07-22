@@ -20,6 +20,7 @@
 #define OPTIONS_H
 
 #include "image.h"
+#include "types.h"
 
 typedef struct {
 	char **filenames;

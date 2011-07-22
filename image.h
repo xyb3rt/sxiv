@@ -21,20 +21,8 @@
 
 #include <Imlib2.h>
 
+#include "types.h"
 #include "window.h"
-
-typedef enum {
-	SCALE_DOWN = 0,
-	SCALE_FIT,
-	SCALE_ZOOM
-} scalemode_t;
-
-typedef enum {
-	PAN_LEFT = 0,
-	PAN_RIGHT,
-	PAN_UP,
-	PAN_DOWN
-} pandir_t;
 
 typedef struct {
 	Imlib_Image *im;
@@ -68,8 +56,8 @@ int img_zoom_in(img_t*, win_t*);
 int img_zoom_out(img_t*, win_t*);
 
 int img_move(img_t*, win_t*, int, int);
-int img_pan(img_t*, win_t*, pandir_t, int);
-int img_pan_edge(img_t*, win_t*, pandir_t);
+int img_pan(img_t*, win_t*, direction_t, int);
+int img_pan_edge(img_t*, win_t*, direction_t);
 
 void img_rotate_left(img_t*, win_t*);
 void img_rotate_right(img_t*, win_t*);
