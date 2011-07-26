@@ -1,6 +1,6 @@
 all: sxiv
 
-VERSION = git-20110722
+VERSION = git-20110726
 
 CC = gcc
 DESTDIR =
@@ -9,7 +9,7 @@ CFLAGS = -Wall -pedantic -DVERSION=\"$(VERSION)\"
 LDFLAGS =
 LIBS = -lX11 -lImlib2
 
-SRC = image.c main.c options.c thumbs.c util.c window.c
+SRC = events.o image.c main.c options.c thumbs.c util.c window.c
 OBJ = $(SRC:.c=.o)
 
 sxiv:	$(OBJ)

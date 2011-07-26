@@ -16,6 +16,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+#define _THUMBS_CONFIG
+
 #include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
@@ -205,7 +207,7 @@ void tns_free(tns_t *tns) {
 		return;
 
 	if (tns->thumbs) {
-		for (i = 0; i < tns->cnt; ++i) {
+		for (i = 0; i < tns->cnt; i++) {
 			if (tns->thumbs[i].im) {
 				imlib_context_set_image(tns->thumbs[i].im);
 				imlib_free_image();
@@ -337,7 +339,7 @@ void tns_render(tns_t *tns, win_t *win) {
 	tns->x = x = (win->w - MIN(cnt, tns->cols) * thumb_dim) / 2 + 5;
 	tns->y = y = (win->h - (cnt / tns->cols + r) * thumb_dim) / 2 + 5;
 
-	for (i = 0; i < cnt; ++i) {
+	for (i = 0; i < cnt; i++) {
 		t = &tns->thumbs[tns->first + i];
 		t->x = x + (THUMB_SIZE - t->w) / 2;
 		t->y = y + (THUMB_SIZE - t->h) / 2;
@@ -391,11 +393,11 @@ int tns_move_selection(tns_t *tns, win_t *win, direction_t dir) {
 	switch (dir) {
 		case DIR_LEFT:
 			if (tns->sel > 0)
-				--tns->sel;
+				tns->sel--;
 			break;
 		case DIR_RIGHT:
 			if (tns->sel < tns->cnt - 1)
-				++tns->sel;
+				tns->sel++;
 			break;
 		case DIR_UP:
 			if (tns->sel >= tns->cols)

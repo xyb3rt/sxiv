@@ -17,6 +17,7 @@
  */
 
 #define _XOPEN_SOURCE
+#define _IMAGE_CONFIG
 
 #include <stdlib.h>
 #include <string.h>

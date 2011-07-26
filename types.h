@@ -2,31 +2,25 @@
 #define TYPES_H
 
 typedef enum {
-	MODE_NORMAL = 0,
+	MODE_NORMAL,
 	MODE_THUMBS
 } appmode_t;
 
-typedef struct {
-	char key;
-	int reload;
-	const char *cmdline;
-} command_t;
-
 typedef enum {
-	DIR_LEFT = 0,
+	DIR_LEFT,
 	DIR_RIGHT,
 	DIR_UP,
 	DIR_DOWN
 } direction_t;
 
 typedef enum {
-	SCALE_DOWN = 0,
+	SCALE_DOWN,
 	SCALE_FIT,
 	SCALE_ZOOM
 } scalemode_t;
 
 typedef enum {
-	CURSOR_ARROW = 0,
+	CURSOR_ARROW,
 	CURSOR_NONE,
 	CURSOR_HAND,
 	CURSOR_WATCH

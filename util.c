@@ -26,8 +26,10 @@
 #include "options.h"
 #include "util.h"
 
-#define DNAME_CNT 512
-#define FNAME_LEN 1024
+enum {
+	DNAME_CNT = 512,
+	FNAME_LEN = 1024
+};
 
 void cleanup();
 
@@ -78,7 +80,7 @@ void size_readable(float *size, const char **unit) {
 	const char *units[] = { "", "K", "M", "G" };
 	int i;
 
-	for (i = 0; i < LEN(units) && *size > 1024; ++i)
+	for (i = 0; i < LEN(units) && *size > 1024; i++)
 		*size /= 1024;
 	*unit = units[MIN(i, LEN(units) - 1)];
 }

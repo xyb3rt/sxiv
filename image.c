@@ -16,6 +16,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+#define _IMAGE_CONFIG
+
 #include <unistd.h>
 
 #include "image.h"
@@ -238,7 +240,7 @@ int img_zoom_in(img_t *img, win_t *win) {
 	if (!img || !img->im || !win)
 		return 0;
 
-	for (i = 1; i < zl_cnt; ++i) {
+	for (i = 1; i < zl_cnt; i++) {
 		if (zoom_levels[i] > img->zoom * 100.0)
 			return img_zoom(img, win, zoom_levels[i] / 100.0);
 	}
@@ -251,7 +253,7 @@ int img_zoom_out(img_t *img, win_t *win) {
 	if (!img || !img->im || !win)
 		return 0;
 
-	for (i = zl_cnt - 2; i >= 0; --i) {
+	for (i = zl_cnt - 2; i >= 0; i--) {
 		if (zoom_levels[i] < img->zoom * 100.0)
 			return img_zoom(img, win, zoom_levels[i] / 100.0);
 	}
