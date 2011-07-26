@@ -11,9 +11,9 @@ enum { WIN_WIDTH  = 800, WIN_HEIGHT = 600 };
 
 /* default color for window background:                        *
  * (see X(7) "COLOR NAMES" section for valid values)           */
-static const char * const BG_COLOR  = "#999999";
+static const char * const BG_COLOR  = "#777777";
 /* default color for thumbnail selection:                      */
-static const char * const SEL_COLOR = "#0066FF";
+static const char * const SEL_COLOR = "#DDDDDD";
 
 #endif
 #ifdef _IMAGE_CONFIG

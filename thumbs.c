@@ -375,8 +375,11 @@ void tns_highlight(tns_t *tns, win_t *win, int n, Bool hl) {
 		else
 			col = win->bgcol;
 
+		win_draw_rect(win, win->pm, t->x - 3, t->y - 3, t->w + 6, t->h + 6,
+		              False, 4, col);
+		if (hl)
 		win_draw_rect(win, win->pm, t->x - 3, t->y - 3, t->w + 5, t->h + 5,
-		              False, 3, col);
+		              False, 1, win->black);
 	}
 
 	win_draw(win);
