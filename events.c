@@ -483,7 +483,7 @@ int move(XEvent *e, arg_t dir) {
 		return tns_move_selection(&tns, &win, dir);
 }
 
-int scroll(XEvent *e, arg_t dir) {
+int pan_screen(XEvent *e, arg_t dir) {
 	if (mode == MODE_NORMAL)
 		return img_pan(&img, &win, dir, 1);
 	else

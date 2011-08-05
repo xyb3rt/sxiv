@@ -70,10 +70,10 @@ static const keymap_t keys[] = {
 	{ XK_l,             move,               DIR_RIGHT },
 	{ XK_Right,         move,               DIR_RIGHT },
 
-	{ XK_braceleft,     scroll,             DIR_LEFT },
-	{ XK_Next,          scroll,             DIR_DOWN },
-	{ XK_Prior,         scroll,             DIR_UP },
-	{ XK_braceright,    scroll,             DIR_RIGHT },
+	{ XK_braceleft,     pan_screen,         DIR_LEFT },
+	{ XK_Next,          pan_screen,         DIR_DOWN },
+	{ XK_Prior,         pan_screen,         DIR_UP },
+	{ XK_braceright,    pan_screen,         DIR_RIGHT },
 
 	{ XK_H,             pan_edge,           DIR_LEFT },
 	{ XK_J,             pan_edge,           DIR_DOWN },

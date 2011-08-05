@@ -277,19 +277,19 @@ int img_move(img_t *img, win_t *win, int dx, int dy) {
 	return ox != img->x || oy != img->y;
 }
 
-int img_pan(img_t *img, win_t *win, direction_t dir, int page) {
+int img_pan(img_t *img, win_t *win, direction_t dir, int screen) {
 	if (!img || !img->im || !win)
 		return 0;
 
 	switch (dir) {
 		case DIR_LEFT:
-			return img_move(img, win, win->w / (page ? 1 : 5), 0);
+			return img_move(img, win, win->w / (screen ? 1 : 5), 0);
 		case DIR_RIGHT:
-			return img_move(img, win, win->w / (page ? 1 : 5) * -1, 0);
+			return img_move(img, win, win->w / (screen ? 1 : 5) * -1, 0);
 		case DIR_UP:
-			return img_move(img, win, 0, win->h / (page ? 1 : 5));
+			return img_move(img, win, 0, win->h / (screen ? 1 : 5));
 		case DIR_DOWN:
-			return img_move(img, win, 0, win->h / (page ? 1 : 5) * -1);
+			return img_move(img, win, 0, win->h / (screen ? 1 : 5) * -1);
 	}
 
 	return 0;

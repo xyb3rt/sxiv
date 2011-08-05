@@ -56,7 +56,7 @@ int first(XEvent*, arg_t);
 int last(XEvent*, arg_t);
 int remove_image(XEvent*, arg_t);
 int move(XEvent*, arg_t);
-int scroll(XEvent*, arg_t);
+int pan_screen(XEvent*, arg_t);
 int pan_edge(XEvent*, arg_t);
 int drag(XEvent*, arg_t);
 int rotate(XEvent*, arg_t);
