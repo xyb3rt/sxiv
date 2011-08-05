@@ -1,11 +1,11 @@
 all: sxiv
 
-VERSION = git-20110726
+VERSION = git-20110805
 
 CC = gcc
 DESTDIR =
 PREFIX = /usr/local
-CFLAGS = -Wall -pedantic -DVERSION=\"$(VERSION)\"
+CFLAGS = -Wall -pedantic -O2 -DVERSION=\"$(VERSION)\"
 LDFLAGS =
 LIBS = -lX11 -lImlib2
 
