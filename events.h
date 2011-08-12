@@ -21,22 +21,18 @@
 
 #include <X11/Xlib.h>
 
-typedef struct {
-	KeySym ksym;
-	Bool reload;
-	const char *cmdline;
-} command_t;
-
-typedef int arg_t;
+typedef void* arg_t;
 
 typedef struct {
+	Bool ctrl;
 	KeySym ksym;
 	int (*handler)(arg_t);
 	arg_t arg;
 } keymap_t;
 
 typedef struct {
-	unsigned int mod;
+	Bool ctrl;
+	Bool shift;
 	unsigned int button;
 	int (*handler)(arg_t);
 	arg_t arg;
@@ -63,5 +59,7 @@ int rotate(arg_t);
 int zoom(arg_t);
 int fit_to_win(arg_t);
 int fit_to_img(arg_t);
+int open_with(arg_t);
+int run_command(arg_t);
 
 #endif /* EVENTS_H */

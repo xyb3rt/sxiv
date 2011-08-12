@@ -1,9 +1,3 @@
-#ifdef _GENERAL_CONFIG
-
-/* enable external commands (defined below)? 0 = off, 1 = on:  */
-enum { EXT_COMMANDS = 0 };
-
-#endif
 #ifdef _WINDOW_CONFIG
 
 /* default window dimensions (overwritten via -g option):      */
@@ -42,79 +36,80 @@ enum { THUMB_SIZE = 60 };
 
 /* keyboard mappings for image and thumbnail mode:             */
 static const keymap_t keys[] = {
-	/* key              function            argument */
-	{ XK_q,             quit,               None },
-	{ XK_r,             reload,             None },
-	{ XK_f,             toggle_fullscreen,  None },
-	{ XK_a,             toggle_antialias,   None },
-	{ XK_A,             toggle_alpha,       None },
-	{ XK_Return,        switch_mode,        None },
+	/* ctrl    key              function           argument      */
+	{ False,   XK_q,            quit,              (arg_t) None },
+	{ False,   XK_r,            reload,            (arg_t) None },
+	{ False,   XK_f,            toggle_fullscreen, (arg_t) None },
+	{ False,   XK_a,            toggle_antialias,  (arg_t) None },
+	{ False,   XK_A,            toggle_alpha,      (arg_t) None },
+	{ False,   XK_Return,       switch_mode,       (arg_t) None },
 
-	{ XK_g,             first,              None },
-	{ XK_G,             last,               None },
-	{ XK_n,             navigate,           +1 },
-	{ XK_space,         navigate,           +1 },
-	{ XK_p,             navigate,           -1 },
-	{ XK_BackSpace,     navigate,           -1 },
-	{ XK_bracketright,  navigate,           +10 },
-	{ XK_bracketleft,   navigate,           -10 },
+	{ False,   XK_g,            first,             (arg_t) None },
+	{ False,   XK_G,            last,              (arg_t) None },
+	{ False,   XK_n,            navigate,          (arg_t) +1 },
+	{ False,   XK_space,        navigate,          (arg_t) +1 },
+	{ False,   XK_p,            navigate,          (arg_t) -1 },
+	{ False,   XK_BackSpace,    navigate,          (arg_t) -1 },
+	{ False,   XK_bracketright, navigate,          (arg_t) +10 },
+	{ False,   XK_bracketleft,  navigate,          (arg_t) -10 },
 
-	{ XK_D,             remove_image,       None },
+	{ False,   XK_D,            remove_image,      (arg_t) None },
 
-	{ XK_h,             move,               DIR_LEFT },
-	{ XK_Left,          move,               DIR_LEFT },
-	{ XK_j,             move,               DIR_DOWN },
-	{ XK_Down,          move,               DIR_DOWN },
-	{ XK_k,             move,               DIR_UP },
-	{ XK_Up,            move,               DIR_UP },
-	{ XK_l,             move,               DIR_RIGHT },
-	{ XK_Right,         move,               DIR_RIGHT },
+	{ False,   XK_h,            move,              (arg_t) DIR_LEFT },
+	{ False,   XK_Left,         move,              (arg_t) DIR_LEFT },
+	{ False,   XK_j,            move,              (arg_t) DIR_DOWN },
+	{ False,   XK_Down,         move,              (arg_t) DIR_DOWN },
+	{ False,   XK_k,            move,              (arg_t) DIR_UP },
+	{ False,   XK_Up,           move,              (arg_t) DIR_UP },
+	{ False,   XK_l,            move,              (arg_t) DIR_RIGHT },
+	{ False,   XK_Right,        move,              (arg_t) DIR_RIGHT },
 
-	{ XK_braceleft,     pan_screen,         DIR_LEFT },
-	{ XK_Next,          pan_screen,         DIR_DOWN },
-	{ XK_Prior,         pan_screen,         DIR_UP },
-	{ XK_braceright,    pan_screen,         DIR_RIGHT },
+	{ False,   XK_braceleft,    pan_screen,        (arg_t) DIR_LEFT },
+	{ False,   XK_Next,         pan_screen,        (arg_t) DIR_DOWN },
+	{ False,   XK_Prior,        pan_screen,        (arg_t) DIR_UP },
+	{ False,   XK_braceright,   pan_screen,        (arg_t) DIR_RIGHT },
 
-	{ XK_H,             pan_edge,           DIR_LEFT },
-	{ XK_J,             pan_edge,           DIR_DOWN },
-	{ XK_K,             pan_edge,           DIR_UP },
-	{ XK_L,             pan_edge,           DIR_RIGHT },
+	{ False,   XK_H,            pan_edge,          (arg_t) DIR_LEFT },
+	{ False,   XK_J,            pan_edge,          (arg_t) DIR_DOWN },
+	{ False,   XK_K,            pan_edge,          (arg_t) DIR_UP },
+	{ False,   XK_L,            pan_edge,          (arg_t) DIR_RIGHT },
 
-	{ XK_plus,          zoom,               +1 },
-	{ XK_equal,         zoom,               +1 },
-	{ XK_KP_Add,        zoom,               +1 },
-	{ XK_minus,         zoom,               -1 },
-	{ XK_KP_Subtract,   zoom,               -1 },
-	{ XK_0,             zoom,               0 },
-	{ XK_KP_0,          zoom,               0 },
-	{ XK_w,             fit_to_win,         None },
-	{ XK_W,             fit_to_img,         None },
+	{ False,   XK_plus,         zoom,              (arg_t) +1 },
+	{ False,   XK_equal,        zoom,              (arg_t) +1 },
+	{ False,   XK_KP_Add,       zoom,              (arg_t) +1 },
+	{ False,   XK_minus,        zoom,              (arg_t) -1 },
+	{ False,   XK_KP_Subtract,  zoom,              (arg_t) -1 },
+	{ False,   XK_0,            zoom,              (arg_t) None },
+	{ False,   XK_KP_0,         zoom,              (arg_t) None },
+	{ False,   XK_w,            fit_to_win,        (arg_t) None },
+	{ False,   XK_W,            fit_to_img,        (arg_t) None },
 
-	{ XK_less,          rotate,             DIR_LEFT },
-	{ XK_greater,       rotate,             DIR_RIGHT },
-};
+	{ False,   XK_less,         rotate,            (arg_t) DIR_LEFT },
+	{ False,   XK_greater,      rotate,            (arg_t) DIR_RIGHT },
 
-/* external commands and corresponding key mappings:           */
-static const command_t commands[] = {
-	/* ctrl-...    reload?  command, '#' is replaced by filename */
-	{ XK_comma,    True,    "jpegtran -rotate 270 -copy all -outfile # #" },
-	{ XK_period,   True,    "jpegtran -rotate 90 -copy all -outfile # #" },
-	{ XK_less,     True,    "mogrify -rotate -90 #" },
-	{ XK_greater,  True,    "mogrify -rotate +90 #" }
+	                            /* open the current image with given program:  */
+	{ True,    XK_g,            open_with,         (arg_t) "gimp" },
+
+	                            /* run shell command line on the current file,
+	                             * '#' is replaced by filename:                */
+	{ True,    XK_less,         run_command,       (arg_t) "mogrify -rotate -90 #" },
+	{ True,    XK_greater,      run_command,       (arg_t) "mogrify -rotate +90 #" },
+	{ True,    XK_comma,        run_command,       (arg_t) "jpegtran -rotate 270 -copy all -outfile # #" },
+	{ True,    XK_period,       run_command,       (arg_t) "jpegtran -rotate 90 -copy all -outfile # #" },
 };
 
 /* mouse button mappings for image mode:                       */
 static const button_t buttons[] = {
-	/* modifier     button       function    argument            */
-	{ None,         Button1,     navigate,   +1 },
-	{ None,         Button3,     navigate,   -1 },
-	{ None,         Button2,     drag,       None },
-	{ None,         Button4,     move,       DIR_UP },
-	{ None,         Button5,     move,       DIR_DOWN },
-	{ ShiftMask,    Button4,     move,       DIR_LEFT },
-	{ ShiftMask,    Button5,     move,       DIR_RIGHT },
-	{ ControlMask,  Button4,     zoom,       +1 },
-	{ ControlMask,  Button5,     zoom,       -1 },
+	/* ctrl    shift    button       function      argument      */
+	{ False,   False,   Button1,     navigate,     (arg_t) +1 },
+	{ False,   False,   Button3,     navigate,     (arg_t) -1 },
+	{ False,   False,   Button2,     drag,         (arg_t) None },
+	{ False,   False,   Button4,     move,         (arg_t) DIR_UP },
+	{ False,   False,   Button5,     move,         (arg_t) DIR_DOWN },
+	{ False,   True,    Button4,     move,         (arg_t) DIR_LEFT },
+	{ False,   True,    Button5,     move,         (arg_t) DIR_RIGHT },
+	{ True,    False,   Button4,     zoom,         (arg_t) +1 },
+	{ True,    False,   Button5,     zoom,         (arg_t) -1 },
 };
 
 #endif

@@ -58,62 +58,6 @@ extern int filecnt, fileidx;
 int timo_cursor;
 int timo_redraw;
 
-int run_command(const char *cline, Bool reload) {
-	int fncnt, fnlen;
-	char *cn, *cmdline;
-	const char *co, *fname;
-	pid_t pid;
-	int ret, status;
-
-	if (!cline || !*cline)
-		return 0;
-
-	fncnt = 0;
-	co = cline - 1;
-	while ((co = strchr(co + 1, '#')))
-		fncnt++;
-
-	if (!fncnt)
-		return 0;
-
-	ret = 0;
-	fname = filenames[mode == MODE_NORMAL ? fileidx : tns.sel];
-	fnlen = strlen(fname);
-	cn = cmdline = (char*) s_malloc((strlen(cline) + fncnt * (fnlen + 2)) *
-	                                sizeof(char));
-
-	/* replace all '#' with filename */
-	for (co = cline; *co; co++) {
-		if (*co == '#') {
-			*cn++ = '"';
-			strcpy(cn, fname);
-			cn += fnlen;
-			*cn++ = '"';
-		} else {
-			*cn++ = *co;
-		}
-	}
-	*cn = '\0';
-
-	if ((pid = fork()) == 0) {
-		execlp("/bin/sh", "/bin/sh", "-c", cmdline, NULL);
-		warn("could not exec: /bin/sh");
-		exit(1);
-	} else if (pid < 0) {
-		warn("could not fork. command line was: %s", cmdline);
-	} else if (reload) {
-		waitpid(pid, &status, 0);
-		if (WIFEXITED(status) && WEXITSTATUS(status) == 0)
-			ret = 1;
-		else
-			warn("child exited with non-zero return value: %d. command line was: %s",
-			     WEXITSTATUS(status), cmdline);
-	}
-	
-	free(cmdline);
-	return ret;
-}
-
 void redraw() {
 	if (mode == MODE_NORMAL) {
 		img_render(&img, &win);
@@ -128,6 +72,15 @@ void redraw() {
 	timo_redraw = 0;
 }
 
+Bool keymask(const keymap_t *k, unsigned int state) {
+	return (k->ctrl ? ControlMask : 0) == (state & ControlMask);
+}
+
+Bool buttonmask(const button_t *b, unsigned int state) {
+	return ((b->ctrl ? ControlMask : 0) | (b->shift ? ShiftMask : 0)) ==
+	       (state & (ControlMask | ShiftMask));
+}
+
 void on_keypress(XKeyEvent *kev) {
 	int i;
 	KeySym ksym;
@@ -138,38 +91,9 @@ void on_keypress(XKeyEvent *kev) {
 
 	XLookupString(kev, &key, 1, &ksym, NULL);
 
-	if (EXT_COMMANDS && (CLEANMASK(kev->state) & ControlMask)) {
-		for (i = 0; i < LEN(commands); i++) {
-			if (commands[i].ksym == ksym) {
-				win_set_cursor(&win, CURSOR_WATCH);
-				if (run_command(commands[i].cmdline, commands[i].reload)) {
-					if (mode == MODE_NORMAL) {
-						if (fileidx < tns.cnt)
-							tns_load(&tns, fileidx, filenames[fileidx], 1);
-						img_close(&img, 1);
-						load_image(fileidx);
-					} else {
-						if (!tns_load(&tns, tns.sel, filenames[tns.sel], 0)) {
-							remove_file(tns.sel, 0);
-							tns.dirty = 1;
-							if (tns.sel >= tns.cnt)
-								tns.sel = tns.cnt - 1;
-						}
-					}
-					redraw();
-				}
-				if (mode == MODE_THUMBS)
-					win_set_cursor(&win, CURSOR_ARROW);
-				else if (!timo_cursor)
-					win_set_cursor(&win, CURSOR_NONE);
-				return;
-			}
-		}
-	}
-
 	for (i = 0; i < LEN(keys); i++) {
-		if (ksym == keys[i].ksym && keys[i].handler) {
-			if (keys[i].handler(keys[i].arg))
+		if (keymask(&keys[i], kev->state) && ksym == keys[i].ksym) {
+			if (keys[i].handler && keys[i].handler(keys[i].arg))
 				redraw();
 			return;
 		}
@@ -187,10 +111,10 @@ void on_buttonpress(XButtonEvent *bev) {
 		timo_cursor = TO_CURSOR_HIDE;
 
 		for (i = 0; i < LEN(buttons); i++) {
-			if (CLEANMASK(bev->state) == CLEANMASK(buttons[i].mod) &&
-			    bev->button == buttons[i].button && buttons[i].handler)
+			if (buttonmask(&buttons[i], bev->state) &&
+			    bev->button == buttons[i].button)
 			{
-				if (buttons[i].handler(buttons[i].arg))
+				if (buttons[i].handler && buttons[i].handler(buttons[i].arg))
 					redraw();
 				return;
 			}
@@ -379,7 +303,9 @@ int switch_mode(arg_t a) {
 	return 1;
 }
 
-int navigate(arg_t n) {
+int navigate(arg_t a) {
+	int n = (int) a;
+
 	if (mode == MODE_NORMAL) {
 		n += fileidx;
 		if (n < 0)
@@ -437,21 +363,27 @@ int remove_image(arg_t a) {
 	}
 }
 
-int move(arg_t dir) {
+int move(arg_t a) {
+	direction_t dir = (direction_t) a;
+
 	if (mode == MODE_NORMAL)
 		return img_pan(&img, &win, dir, 0);
 	else
 		return tns_move_selection(&tns, &win, dir);
 }
 
-int pan_screen(arg_t dir) {
+int pan_screen(arg_t a) {
+	direction_t dir = (direction_t) a;
+
 	if (mode == MODE_NORMAL)
 		return img_pan(&img, &win, dir, 1);
 	else
 		return 0;
 }
 
-int pan_edge(arg_t dir) {
+int pan_edge(arg_t a) {
+	direction_t dir = (direction_t) a;
+
 	if (mode == MODE_NORMAL)
 		return img_pan_edge(&img, &win, dir);
 	else
@@ -459,7 +391,7 @@ int pan_edge(arg_t dir) {
 }
 
 /* Xlib helper function for drag() */
-Bool ismnotify(Display *d, XEvent *e, XPointer a) {
+Bool is_motionnotify(Display *d, XEvent *e, XPointer a) {
 	return e != NULL && e->type == MotionNotify;
 }
 
@@ -498,7 +430,7 @@ int drag(arg_t a) {
 				break;
 		}
 		if (dragging)
-			next = XCheckIfEvent(win.env.dpy, &e, ismnotify, None);
+			next = XCheckIfEvent(win.env.dpy, &e, is_motionnotify, None);
 		if ((!dragging || !next) && (dx != 0 || dy != 0)) {
 			if (img_move(&img, &win, dx, dy))
 				img_render(&img, &win);
@@ -513,7 +445,9 @@ int drag(arg_t a) {
 	return 0;
 }
 
-int rotate(arg_t dir) {
+int rotate(arg_t a) {
+	direction_t dir = (direction_t) a;
+
 	if (mode == MODE_NORMAL) {
 		if (dir == DIR_LEFT) {
 			img_rotate_left(&img, &win);
@@ -526,7 +460,9 @@ int rotate(arg_t dir) {
 	return 0;
 }
 
-int zoom(arg_t scale) {
+int zoom(arg_t a) {
+	int scale = (int) a;
+
 	if (mode != MODE_NORMAL)
 		return 0;
 	if (scale > 0)
@@ -537,7 +473,9 @@ int zoom(arg_t scale) {
 		return img_zoom(&img, &win, 1.0);
 }
 
-int fit_to_win(arg_t ret) {
+int fit_to_win(arg_t a) {
+	int ret;
+
 	if (mode == MODE_NORMAL) {
 		if ((ret = img_fit_win(&img, &win)))
 			img_center(&img, &win);
@@ -547,8 +485,8 @@ int fit_to_win(arg_t ret) {
 	}
 }
 
-int fit_to_img(arg_t ret) {
-	int x, y;
+int fit_to_img(arg_t a) {
+	int ret, x, y;
 	unsigned int w, h;
 
 	if (mode == MODE_NORMAL) {
@@ -564,4 +502,97 @@ int fit_to_img(arg_t ret) {
 	} else {
 		return 0;
 	}
+}
+
+int open_with(arg_t a) {
+	const char *prog = (const char*) a;
+	pid_t pid;
+
+	if (!prog || !*prog)
+		return 0;
+
+	if((pid = fork()) == 0) {
+		execlp(prog, prog,
+		       filenames[mode == MODE_NORMAL ? fileidx : tns.sel], NULL);
+		warn("could not exec: %s", prog);
+		exit(1);
+	} else if (pid < 0) {
+		warn("could not for. program was: %s", prog);
+	}
+	
+	return 0;
+}
+
+int run_command(arg_t a) {
+	const char *cline = (const char*) a;
+	char *cn, *cmdline;
+	const char *co, *fname;
+	int fncnt, fnlen, status;
+	pid_t pid;
+
+	if (!cline || !*cline)
+		return 0;
+
+	/* build command line: */
+	fncnt = 0;
+	co = cline - 1;
+	while ((co = strchr(co + 1, '#')))
+		fncnt++;
+	if (!fncnt)
+		return 0;
+	fname = filenames[mode == MODE_NORMAL ? fileidx : tns.sel];
+	fnlen = strlen(fname);
+	cn = cmdline = (char*) s_malloc((strlen(cline) + fncnt * (fnlen + 2)) *
+	                                sizeof(char));
+	/* replace all '#' with filename: */
+	for (co = cline; *co; co++) {
+		if (*co == '#') {
+			*cn++ = '"';
+			strcpy(cn, fname);
+			cn += fnlen;
+			*cn++ = '"';
+		} else {
+			*cn++ = *co;
+		}
+	}
+	*cn = '\0';
+
+	win_set_cursor(&win, CURSOR_WATCH);
+
+	if ((pid = fork()) == 0) {
+		execl("/bin/sh", "/bin/sh", "-c", cmdline, NULL);
+		warn("could not exec: /bin/sh");
+		exit(1);
+	} else if (pid < 0) {
+		warn("could not fork. command line was: %s", cmdline);
+		goto end;
+	}
+
+	waitpid(pid, &status, 0);
+	if (!WIFEXITED(status) || WEXITSTATUS(status) != 0)
+		warn("child exited with non-zero return value: %d. command line was: %s",
+		     WEXITSTATUS(status), cmdline);
+	
+	if (mode == MODE_NORMAL) {
+		if (fileidx < tns.cnt)
+			tns_load(&tns, fileidx, filenames[fileidx], 1);
+		img_close(&img, 1);
+		load_image(fileidx);
+	} else {
+		if (!tns_load(&tns, tns.sel, filenames[tns.sel], 0)) {
+			remove_file(tns.sel, 0);
+			tns.dirty = 1;
+			if (tns.sel >= tns.cnt)
+				tns.sel = tns.cnt - 1;
+		}
+	}
+
+end:
+	if (mode == MODE_THUMBS)
+		win_set_cursor(&win, CURSOR_ARROW);
+	/* else: cursor is reset in redraw() */
+
+	free(cmdline);
+
+	return 1;
 }
