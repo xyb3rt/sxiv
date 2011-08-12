@@ -38,7 +38,6 @@
 /* timeouts in milliseconds: */
 enum {
 	TO_WIN_RESIZE  = 75,
-	TO_IMAGE_DRAG  = 1,
 	TO_CURSOR_HIDE = 1500,
 	TO_THUMBS_LOAD = 200
 };
@@ -58,8 +57,6 @@ extern int filecnt, fileidx;
 
 int timo_cursor;
 int timo_redraw;
-unsigned char dragging;
-int mox, moy;
 
 int run_command(const char *cline, Bool reload) {
 	int fncnt, fnlen;
@@ -122,7 +119,7 @@ void redraw() {
 		img_render(&img, &win);
 		if (timo_cursor)
 			win_set_cursor(&win, CURSOR_ARROW);
-		else if (!dragging)
+		else
 			win_set_cursor(&win, CURSOR_NONE);
 	} else {
 		tns_render(&tns, &win);
@@ -131,16 +128,14 @@ void redraw() {
 	timo_redraw = 0;
 }
 
-void on_keypress(XEvent *ev) {
+void on_keypress(XKeyEvent *kev) {
 	int i;
-	XKeyEvent *kev;
 	KeySym ksym;
 	char key;
 
-	if (!ev || ev->type != KeyPress)
+	if (!kev)
 		return;
-	
-	kev = &ev->xkey;
+
 	XLookupString(kev, &key, 1, &ksym, NULL);
 
 	if (EXT_COMMANDS && (CLEANMASK(kev->state) & ControlMask)) {
@@ -174,39 +169,34 @@ void on_keypress(XEvent *ev) {
 
 	for (i = 0; i < LEN(keys); i++) {
 		if (ksym == keys[i].ksym && keys[i].handler) {
-			if (keys[i].handler(ev, keys[i].arg))
+			if (keys[i].handler(keys[i].arg))
 				redraw();
 			return;
 		}
 	}
 }
 
-void on_buttonpress(XEvent *ev) {
+void on_buttonpress(XButtonEvent *bev) {
 	int i, sel;
-	XButtonEvent *bev;
 
-	if (!ev || ev->type != ButtonPress)
+	if (!bev)
 		return;
 
-	bev = &ev->xbutton;
-
 	if (mode == MODE_NORMAL) {
-		if (!dragging) {
-			win_set_cursor(&win, CURSOR_ARROW);
-			timo_cursor = TO_CURSOR_HIDE;
-		}
+		win_set_cursor(&win, CURSOR_ARROW);
+		timo_cursor = TO_CURSOR_HIDE;
 
 		for (i = 0; i < LEN(buttons); i++) {
 			if (CLEANMASK(bev->state) == CLEANMASK(buttons[i].mod) &&
 			    bev->button == buttons[i].button && buttons[i].handler)
 			{
-				if (buttons[i].handler(ev, buttons[i].arg))
+				if (buttons[i].handler(buttons[i].arg))
 					redraw();
 				return;
 			}
 		}
 	} else {
-		/* thumbnail mode */
+		/* thumbnail mode (hard-coded) */
 		switch (bev->button) {
 			case Button1:
 				if ((sel = tns_translate(&tns, bev->x, bev->y)) >= 0) {
@@ -232,29 +222,12 @@ void on_buttonpress(XEvent *ev) {
 	}
 }
 
-void on_motionnotify(XEvent *ev) {
-	XMotionEvent *mev;
-
-	if (!ev || ev->type != MotionNotify)
-		return;
-
-	mev = &ev->xmotion;
-
-	if (mev->x >= 0 && mev->x <= win.w && mev->y >= 0 && mev->y <= win.h) {
-		if (img_move(&img, &win, mev->x - mox, mev->y - moy))
-			timo_redraw = TO_IMAGE_DRAG;
-		mox = mev->x;
-		moy = mev->y;
-	}
-}
-
 void run() {
 	int xfd, timeout;
 	fd_set fds;
 	struct timeval tt, t0, t1;
 	XEvent ev;
 
-	dragging = 0;
 	timo_cursor = mode == MODE_NORMAL ? TO_CURSOR_HIDE : 0;
 
 	redraw();
@@ -312,18 +285,10 @@ void run() {
 		}
 
 		if (!XNextEvent(win.env.dpy, &ev)) {
+			/* handle events */
 			switch (ev.type) {
 				case ButtonPress:
-					on_buttonpress(&ev);
-					break;
-				case ButtonRelease:
-					if (dragging) {
-						dragging = 0;
-						if (mode == MODE_NORMAL) {
-							win_set_cursor(&win, CURSOR_ARROW);
-							timo_cursor = TO_CURSOR_HIDE;
-						}
-					}
+					on_buttonpress(&ev.xbutton);
 					break;
 				case ClientMessage:
 					if ((Atom) ev.xclient.data.l[0] == wm_delete_win)
@@ -339,16 +304,12 @@ void run() {
 					}
 					break;
 				case KeyPress:
-					on_keypress(&ev);
+					on_keypress(&ev.xkey);
 					break;
 				case MotionNotify:
-					if (dragging) {
-						on_motionnotify(&ev);
-					} else if (mode == MODE_NORMAL) {
-						if (!timo_cursor)
-							win_set_cursor(&win, CURSOR_ARROW);
-						timo_cursor = TO_CURSOR_HIDE;
-					}
+					if (!timo_cursor)
+						win_set_cursor(&win, CURSOR_ARROW);
+					timo_cursor = TO_CURSOR_HIDE;
 					break;
 			}
 		}
@@ -358,12 +319,12 @@ void run() {
 
 /* handler functions for key and button mappings: */
 
-int quit(XEvent *e, arg_t a) {
+int quit(arg_t a) {
 	cleanup();
 	exit(0);
 }
 
-int reload(XEvent *e, arg_t a) {
+int reload(arg_t a) {
 	if (mode == MODE_NORMAL) {
 		load_image(fileidx);
 		return 1;
@@ -372,7 +333,7 @@ int reload(XEvent *e, arg_t a) {
 	}
 }
 
-int toggle_fullscreen(XEvent *e, arg_t a) {
+int toggle_fullscreen(arg_t a) {
 	win_toggle_fullscreen(&win);
 	if (mode == MODE_NORMAL)
 		img.checkpan = 1;
@@ -382,7 +343,7 @@ int toggle_fullscreen(XEvent *e, arg_t a) {
 	return 0;
 }
 
-int toggle_antialias(XEvent *e, arg_t a) {
+int toggle_antialias(arg_t a) {
 	if (mode == MODE_NORMAL) {
 		img_toggle_antialias(&img);
 		return 1;
@@ -391,7 +352,7 @@ int toggle_antialias(XEvent *e, arg_t a) {
 	}
 }
 
-int toggle_alpha(XEvent *e, arg_t a) {
+int toggle_alpha(arg_t a) {
 	if (mode == MODE_NORMAL) {
 		img.alpha ^= 1;
 		return 1;
@@ -400,7 +361,7 @@ int toggle_alpha(XEvent *e, arg_t a) {
 	}
 }
 
-int switch_mode(XEvent *e, arg_t a) {
+int switch_mode(arg_t a) {
 	if (mode == MODE_NORMAL) {
 		if (!tns.thumbs)
 			tns_init(&tns, filecnt);
@@ -418,7 +379,7 @@ int switch_mode(XEvent *e, arg_t a) {
 	return 1;
 }
 
-int navigate(XEvent *e, arg_t n) {
+int navigate(arg_t n) {
 	if (mode == MODE_NORMAL) {
 		n += fileidx;
 		if (n < 0)
@@ -434,7 +395,7 @@ int navigate(XEvent *e, arg_t n) {
 	return 0;
 }
 
-int first(XEvent *e, arg_t a) {
+int first(arg_t a) {
 	if (mode == MODE_NORMAL && fileidx != 0) {
 		load_image(0);
 		return 1;
@@ -447,7 +408,7 @@ int first(XEvent *e, arg_t a) {
 	}
 }
 
-int last(XEvent *e, arg_t a) {
+int last(arg_t a) {
 	if (mode == MODE_NORMAL && fileidx != filecnt - 1) {
 		load_image(filecnt - 1);
 		return 1;
@@ -460,7 +421,7 @@ int last(XEvent *e, arg_t a) {
 	}
 }
 
-int remove_image(XEvent *e, arg_t a) {
+int remove_image(arg_t a) {
 	if (mode == MODE_NORMAL) {
 		remove_file(fileidx, 1);
 		load_image(fileidx >= filecnt ? filecnt - 1 : fileidx);
@@ -476,39 +437,83 @@ int remove_image(XEvent *e, arg_t a) {
 	}
 }
 
-int move(XEvent *e, arg_t dir) {
+int move(arg_t dir) {
 	if (mode == MODE_NORMAL)
 		return img_pan(&img, &win, dir, 0);
 	else
 		return tns_move_selection(&tns, &win, dir);
 }
 
-int pan_screen(XEvent *e, arg_t dir) {
+int pan_screen(arg_t dir) {
 	if (mode == MODE_NORMAL)
 		return img_pan(&img, &win, dir, 1);
 	else
 		return 0;
 }
 
-int pan_edge(XEvent *e, arg_t dir) {
+int pan_edge(arg_t dir) {
 	if (mode == MODE_NORMAL)
 		return img_pan_edge(&img, &win, dir);
 	else
 		return 0;
 }
 
-int drag(XEvent *e, arg_t a) {
-	if (mode == MODE_NORMAL) {
-		mox = e->xbutton.x;
-		moy = e->xbutton.y;
-		win_set_cursor(&win, CURSOR_HAND);
-		timo_cursor = 0;
-		dragging = 1;
+/* Xlib helper function for drag() */
+Bool ismnotify(Display *d, XEvent *e, XPointer a) {
+	return e != NULL && e->type == MotionNotify;
+}
+
+int drag(arg_t a) {
+	int dx = 0, dy = 0, i, ox, oy, x, y;
+	unsigned int ui;
+	Bool dragging = True, next = False;
+	XEvent e;
+	Window w;
+
+	if (mode != MODE_NORMAL)
+		return 0;
+	if (!XQueryPointer(win.env.dpy, win.xwin, &w, &w, &i, &i, &ox, &oy, &ui))
+		return 0;
+	
+	win_set_cursor(&win, CURSOR_HAND);
+
+	while (dragging) {
+		if (!next)
+			XMaskEvent(win.env.dpy,
+			           ButtonPressMask | ButtonReleaseMask | PointerMotionMask, &e);
+		switch (e.type) {
+			case ButtonPress:
+			case ButtonRelease:
+				dragging = False;
+				break;
+			case MotionNotify:
+				x = e.xmotion.x;
+				y = e.xmotion.y;
+				if (x >= 0 && x <= win.w && y >= 0 && y <= win.h) {
+					dx += x - ox;
+					dy += y - oy;
+				}
+				ox = x;
+				oy = y;
+				break;
+		}
+		if (dragging)
+			next = XCheckIfEvent(win.env.dpy, &e, ismnotify, None);
+		if ((!dragging || !next) && (dx != 0 || dy != 0)) {
+			if (img_move(&img, &win, dx, dy))
+				img_render(&img, &win);
+			dx = dy = 0;
+		}
 	}
+	
+	win_set_cursor(&win, CURSOR_ARROW);
+	timo_cursor = TO_CURSOR_HIDE;
+	timo_redraw = 0;
+
 	return 0;
 }
 
-int rotate(XEvent *e, arg_t dir) {
+int rotate(arg_t dir) {
 	if (mode == MODE_NORMAL) {
 		if (dir == DIR_LEFT) {
 			img_rotate_left(&img, &win);
@@ -521,7 +526,7 @@ int rotate(XEvent *e, arg_t dir) {
 	return 0;
 }
 
-int zoom(XEvent *e, arg_t scale) {
+int zoom(arg_t scale) {
 	if (mode != MODE_NORMAL)
 		return 0;
 	if (scale > 0)
@@ -532,7 +537,7 @@ int zoom(XEvent *e, arg_t scale) {
 		return img_zoom(&img, &win, 1.0);
 }
 
-int fit_to_win(XEvent *e, arg_t ret) {
+int fit_to_win(arg_t ret) {
 	if (mode == MODE_NORMAL) {
 		if ((ret = img_fit_win(&img, &win)))
 			img_center(&img, &win);
@@ -542,7 +547,7 @@ int fit_to_win(XEvent *e, arg_t ret) {
 	}
 }
 
-int fit_to_img(XEvent *e, arg_t ret) {
+int fit_to_img(arg_t ret) {
 	int x, y;
 	unsigned int w, h;
 

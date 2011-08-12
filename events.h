@@ -31,37 +31,37 @@ typedef int arg_t;
 
 typedef struct {
 	KeySym ksym;
-	int (*handler)(XEvent*, arg_t);
+	int (*handler)(arg_t);
 	arg_t arg;
 } keymap_t;
 
 typedef struct {
 	unsigned int mod;
 	unsigned int button;
-	int (*handler)(XEvent*, arg_t);
+	int (*handler)(arg_t);
 	arg_t arg;
 } button_t;
 
 void run();
 
 /* handler functions for key and button mappings: */
-int quit(XEvent*, arg_t);
-int reload(XEvent*, arg_t);
-int toggle_fullscreen(XEvent*, arg_t);
-int toggle_antialias(XEvent*, arg_t);
-int toggle_alpha(XEvent*, arg_t);
-int switch_mode(XEvent*, arg_t);
-int navigate(XEvent*, arg_t);
-int first(XEvent*, arg_t);
-int last(XEvent*, arg_t);
-int remove_image(XEvent*, arg_t);
-int move(XEvent*, arg_t);
-int pan_screen(XEvent*, arg_t);
-int pan_edge(XEvent*, arg_t);
-int drag(XEvent*, arg_t);
-int rotate(XEvent*, arg_t);
-int zoom(XEvent*, arg_t);
-int fit_to_win(XEvent*, arg_t);
-int fit_to_img(XEvent*, arg_t);
+int quit(arg_t);
+int reload(arg_t);
+int toggle_fullscreen(arg_t);
+int toggle_antialias(arg_t);
+int toggle_alpha(arg_t);
+int switch_mode(arg_t);
+int navigate(arg_t);
+int first(arg_t);
+int last(arg_t);
+int remove_image(arg_t);
+int move(arg_t);
+int pan_screen(arg_t);
+int pan_edge(arg_t);
+int drag(arg_t);
+int rotate(arg_t);
+int zoom(arg_t);
+int fit_to_win(arg_t);
+int fit_to_img(arg_t);
 
 #endif /* EVENTS_H */
