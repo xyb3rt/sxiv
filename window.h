@@ -23,8 +23,6 @@
 
 #include "types.h"
 
-#define CLEANMASK(mask) ((mask) & ~LockMask)
-
 typedef struct {
 	Display *dpy;
 	int scr;
