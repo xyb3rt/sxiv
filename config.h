@@ -64,10 +64,14 @@ static const keymap_t keys[] = {
 	{ False,   XK_l,            move,              (arg_t) DIR_RIGHT },
 	{ False,   XK_Right,        move,              (arg_t) DIR_RIGHT },
 
-	{ False,   XK_braceleft,    pan_screen,        (arg_t) DIR_LEFT },
-	{ False,   XK_Next,         pan_screen,        (arg_t) DIR_DOWN },
-	{ False,   XK_Prior,        pan_screen,        (arg_t) DIR_UP },
-	{ False,   XK_braceright,   pan_screen,        (arg_t) DIR_RIGHT },
+	{ True,    XK_h,            pan_screen,        (arg_t) DIR_LEFT },
+	{ True,    XK_Left,         pan_screen,        (arg_t) DIR_LEFT },
+	{ True,    XK_j,            pan_screen,        (arg_t) DIR_DOWN },
+	{ True,    XK_Down,         pan_screen,        (arg_t) DIR_DOWN },
+	{ True,    XK_k,            pan_screen,        (arg_t) DIR_UP },
+	{ True,    XK_Up,           pan_screen,        (arg_t) DIR_UP },
+	{ True,    XK_l,            pan_screen,        (arg_t) DIR_RIGHT },
+	{ True,    XK_Right,        pan_screen,        (arg_t) DIR_RIGHT },
 
 	{ False,   XK_H,            pan_edge,          (arg_t) DIR_LEFT },
 	{ False,   XK_J,            pan_edge,          (arg_t) DIR_DOWN },
