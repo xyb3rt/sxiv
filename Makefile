@@ -7,7 +7,7 @@ DESTDIR =
 PREFIX = /usr/local
 CFLAGS = -Wall -pedantic -O2 -DVERSION=\"$(VERSION)\"
 LDFLAGS =
-LIBS = -lX11 -lImlib2
+LIBS = -lX11 -lImlib2 -lgif
 
 SRC = commands.c image.c main.c options.c thumbs.c util.c window.c
 OBJ = $(SRC:.c=.o)

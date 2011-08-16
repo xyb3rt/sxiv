@@ -57,6 +57,9 @@ static const keymap_t keys[] = {
 	{ False,  XK_g,             it_first,             (arg_t) None },
 	{ False,  XK_G,             it_last,              (arg_t) None },
 
+	{ False,  XK_N,             i_navigate_frame,     (arg_t) +1 },
+	{ False,  XK_P,             i_navigate_frame,     (arg_t) -1 },
+
 	{ False,  XK_h,             it_move,              (arg_t) DIR_LEFT },
 	{ False,  XK_Left,          it_move,              (arg_t) DIR_LEFT },
 	{ False,  XK_j,             it_move,              (arg_t) DIR_DOWN },

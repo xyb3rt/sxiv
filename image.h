@@ -25,7 +25,15 @@
 #include "window.h"
 
 typedef struct {
+	int cap;
+	int cnt;
+	int cur;
+	Imlib_Image **frames;
+} multi_img_t;
+
+typedef struct {
 	Imlib_Image *im;
+	multi_img_t multi;
 
 	float zoom;
 	scalemode_t scalemode;
@@ -47,6 +55,8 @@ int img_load(img_t*, const fileinfo_t*);
 void img_close(img_t*, int);
 
 void img_render(img_t*, win_t*);
+
+int img_change_frame(img_t*, int);
 
 int img_fit_win(img_t*, win_t*);
 int img_center(img_t*, win_t*);

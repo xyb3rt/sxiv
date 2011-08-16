@@ -18,7 +18,11 @@
 
 #define _IMAGE_CONFIG
 
+#include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <gif_lib.h>
 
 #include "image.h"
 #include "options.h"
@@ -36,6 +40,7 @@ void img_init(img_t *img, win_t *win) {
 
 	if (img) {
 		img->im = NULL;
+		img->multi.cap = img->multi.cnt = 0;
 		img->zoom = options->zoom;
 		img->zoom = MAX(img->zoom, zoom_min);
 		img->zoom = MIN(img->zoom, zoom_max);
@@ -50,7 +55,153 @@ void img_init(img_t *img, win_t *win) {
 	}
 }
 
+int img_load_gif(img_t *img, const fileinfo_t *file) {
+	DATA32 *data, *ptr;
+	DATA32 *prev_frame = NULL;
+	Imlib_Image *im;
+	GifFileType *gif;
+	GifRowType *rows = NULL;
+	GifRecordType rec;
+	ColorMapObject *cmap;
+	int i, j;
+	int bg, r, g, b;
+	int w = 0, h = 0;
+	int intoffset[] = { 0, 4, 2, 1 };
+	int intjump[] = { 8, 8, 4, 2 };
+	int transp = -1;
+	int err = 0;
+
+	if (img->multi.cap == 0) {
+		img->multi.cap = 8;
+		img->multi.frames = (Imlib_Image**)
+		                    s_malloc(sizeof(Imlib_Image*) * img->multi.cap);
+	}
+	img->multi.cnt = 0;
+	img->multi.cur = 0;
+
+	gif = DGifOpenFileName(file->path);
+	if (!gif) {
+		warn("could not open gif file: %s", file->name);
+		return 0;
+	}
+
+	do {
+		if (DGifGetRecordType(gif, &rec) == GIF_ERROR) {
+			warn("could not open gif file: %s", file->name);
+			err = 1;
+			break;
+		}
+		if (rec == EXTENSION_RECORD_TYPE) {
+			int ext_code;
+			GifByteType *ext = NULL;
+
+			DGifGetExtension(gif, &ext_code, &ext);
+			while (ext) {
+				if ((ext_code == 0xf9) && (ext[1] & 1) && (transp < 0))
+					transp = (int) ext[4];
+				ext = NULL;
+				DGifGetExtensionNext(gif, &ext);
+			}
+		} else if (rec == IMAGE_DESC_RECORD_TYPE) {
+			if (DGifGetImageDesc(gif) == GIF_ERROR) {
+				warn("could not open gif frame # %d: %s", img->multi.cnt, file->name);
+				err = 1;
+				break;
+			}
+			w = gif->Image.Width;
+			h = gif->Image.Height;
+			rows = (GifRowType*) s_malloc(h * sizeof(GifRowType));
+			for (i = 0; i < h; i++)
+				rows[i] = (GifRowType) s_malloc(w * sizeof(GifPixelType));
+			if (gif->Image.Interlace) {
+				for (i = 0; i < 4; i++) {
+					for (j = intoffset[i]; j < h; j += intjump[i])
+						DGifGetLine(gif, rows[j], w);
+				}
+			} else {
+				for (i = 0; i < h; i++)
+					DGifGetLine(gif, rows[i], w);
+			}
+
+			bg = gif->SBackGroundColor;
+			cmap = gif->Image.ColorMap ? gif->Image.ColorMap : gif->SColorMap;
+			ptr = data = (DATA32*) s_malloc(sizeof(DATA32) * w * h);
+
+			if (img->multi.cnt) {
+				imlib_context_set_image(img->multi.frames[img->multi.cnt - 1]);
+				prev_frame = imlib_image_get_data_for_reading_only();
+			}
+
+			for (i = 0; i < h; i++) {
+				for (j = 0; j < w; j++) {
+					if (rows[i][j] == transp) {
+						if (prev_frame) {
+							*ptr++ = prev_frame[i * w + j];
+						} else {
+							r = cmap->Colors[bg].Red;
+							g = cmap->Colors[bg].Green;
+							b = cmap->Colors[bg].Blue;
+							*ptr++ = 0x00ffffff & ((r << 16) | (g << 8) | b);
+						}
+					} else {
+						r = cmap->Colors[rows[i][j]].Red;
+						g = cmap->Colors[rows[i][j]].Green;
+						b = cmap->Colors[rows[i][j]].Blue;
+						*ptr++ = (0xff << 24) | (r << 16) | (g << 8) | b;
+					}
+				}
+			}
+
+			im = imlib_create_image_using_copied_data(w, h, data);
+
+			for (i = 0; i < h; i++)
+				free(rows[i]);
+			free(rows);
+			free(data);
+
+			if (!im) {
+				warn("could not open gif frame # %d: %s", img->multi.cnt, file->name);
+				err = 1;
+				break;
+			}
+
+			imlib_context_set_image(im);
+			imlib_image_set_format("gif");
+			if (transp >= 0)
+				imlib_image_set_has_alpha(1);
+
+			if (img->multi.cnt == img->multi.cap) {
+				img->multi.cap *= 2;
+				img->multi.frames = (Imlib_Image**)
+				                    s_realloc(img->multi.frames,
+				                              img->multi.cap * sizeof(Imlib_Image*));
+			}
+			img->multi.frames[img->multi.cnt++] = im;
+		}
+	} while (rec != TERMINATE_RECORD_TYPE);
+
+	DGifCloseFile(gif);
+
+	if (!err && img->multi.cnt > 1) {
+		imlib_context_set_image(img->im);
+		imlib_free_image();
+		img->im = img->multi.frames[0];
+	} else {
+		for (i = 0; i < img->multi.cnt; i++) {
+			imlib_context_set_image(img->multi.frames[i]);
+			imlib_free_image();
+		}
+		img->multi.cnt = 0;
+	}
+
+	imlib_context_set_image(img->im);
+
+	return !err;
+}
+
 int img_load(img_t *img, const fileinfo_t *file) {
+	char *fmt;
+
 	if (!img || !file || !file->name || !file->path)
 		return 0;
 
@@ -62,6 +213,10 @@ int img_load(img_t *img, const fileinfo_t *file) {
 	imlib_context_set_image(img->im);
 	imlib_image_set_changes_on_disk();
 	imlib_context_set_anti_alias(img->aa);
+
+	fmt = imlib_image_format();
+	if (!strcmp(fmt, "gif"))
+		img_load_gif(img, file);
 
 	img->scalemode = options->scalemode;
 	img->re = 0;
@@ -189,6 +344,27 @@ void img_render(img_t *img, win_t *win) {
 	imlib_render_image_part_on_drawable_at_size(sx, sy, sw, sh, dx, dy, dw, dh);
 
 	win_draw(win);
+}
+
+int img_change_frame(img_t *img, int d) {
+	if (!img || !img->multi.cnt || !d)
+		return 0;
+
+	d += img->multi.cur;
+	if (d < 0)
+		d = 0;
+	else if (d >= img->multi.cnt)
+		d = img->multi.cnt - 1;
+
+	img->multi.cur = d;
+	img->im = img->multi.frames[d];
+
+	imlib_context_set_image(img->im);
+	img->w = imlib_image_get_width();
+	img->h = imlib_image_get_height();
+	img->checkpan = 1;
+
+	return 1;
 }
 
 int img_fit_win(img_t *img, win_t *win) {
