@@ -158,7 +158,7 @@ void update_title() {
 			n = snprintf(win_title, TITLE_LEN,
 			             "sxiv: [%d/%d] <%d%%> <%dx%d> (%.2f%s) {%d/%d} %s",
 			             fileidx + 1, filecnt, (int) (img.zoom * 100.0), img.w,
-			             img.h, size, unit, img.multi.cur + 1, img.multi.cnt,
+			             img.h, size, unit, img.multi.sel + 1, img.multi.cnt,
 			             files[fileidx].name);
 		else
 			n = snprintf(win_title, TITLE_LEN,

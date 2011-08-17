@@ -27,7 +27,7 @@
 typedef struct {
 	int cap;
 	int cnt;
-	int cur;
+	int sel;
 	Imlib_Image **frames;
 } multi_img_t;
 
