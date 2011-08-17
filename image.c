@@ -18,11 +18,14 @@
 
 #define _IMAGE_CONFIG
 
+#include <unistd.h>
+
+#ifdef HAVE_GIFLIB
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 #include <sys/types.h>
 #include <gif_lib.h>
+#endif
 
 #include "image.h"
 #include "options.h"
@@ -55,6 +58,7 @@ void img_init(img_t *img, win_t *win) {
 	}
 }
 
+#ifdef HAVE_GIFLIB
 int img_load_gif(img_t *img, const fileinfo_t *file) {
 	GifFileType *gif;
 	GifRowType *rows = NULL;
@@ -208,6 +212,7 @@ int img_load_gif(img_t *img, const fileinfo_t *file) {
 
 	return !err;
 }
+#endif /* HAVE_GIFLIB */
 
 int img_load(img_t *img, const fileinfo_t *file) {
 	const char *fmt;
@@ -225,8 +230,13 @@ int img_load(img_t *img, const fileinfo_t *file) {
 	imlib_context_set_anti_alias(img->aa);
 
 	fmt = imlib_image_format();
+#ifdef HAVE_GIFLIB
 	if (!strcmp(fmt, "gif"))
 		img_load_gif(img, file);
+#else
+	/* avoid unused-but-set-variable warning */
+	(void) fmt;
+#endif
 
 	img->scalemode = options->scalemode;
 	img->re = 0;

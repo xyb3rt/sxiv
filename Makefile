@@ -5,7 +5,7 @@ VERSION = git-20110819
 CC = gcc
 DESTDIR =
 PREFIX = /usr/local
-CFLAGS = -Wall -pedantic -O2 -DVERSION=\"$(VERSION)\"
+CFLAGS = -Wall -pedantic -O2 -DVERSION=\"$(VERSION)\" -DHAVE_GIFLIB
 LDFLAGS =
 LIBS = -lX11 -lImlib2 -lgif
 
