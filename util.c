@@ -47,6 +47,17 @@ void* s_realloc(void *ptr, size_t size) {
 	return ptr;
 }
 
+char* s_strdup(char *s) {
+	char *d = NULL;
+
+	if (s) {
+		if (!(d = malloc(strlen(s) + 1)))
+			die("could not allocate memory");
+		strcpy(d, s);
+	}
+	return d;
+}
+
 void warn(const char* fmt, ...) {
 	va_list args;
 

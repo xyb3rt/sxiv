@@ -44,45 +44,34 @@ int tns_cache_enabled() {
 	       !access(cache_dir, W_OK);
 }
 
-char* tns_cache_filename(const char *filename) {
+char* tns_cache_filepath(const char *filepath) {
 	size_t len;
 	char *cfile = NULL;
-	const char *abspath;
 
-	if (!cache_dir || !filename)
+	if (!cache_dir || !filepath || *filepath != '/')
 		return NULL;
 	
-	if (*filename != '/') {
-		if (!(abspath = absolute_path(filename)))
-			return NULL;
-	} else {
-		abspath = filename;
-	}
-
-	if (strncmp(abspath, cache_dir, strlen(cache_dir))) {
-		len = strlen(cache_dir) + strlen(abspath) + 6;
+	if (strncmp(filepath, cache_dir, strlen(cache_dir))) {
+		len = strlen(cache_dir) + strlen(filepath) + 6;
 		cfile = (char*) s_malloc(len);
-		snprintf(cfile, len, "%s/%s.png", cache_dir, abspath + 1);
+		snprintf(cfile, len, "%s/%s.png", cache_dir, filepath + 1);
 	}
 	
-	if (abspath != filename)
-		free((void*) abspath);
-
 	return cfile;
 }
 
-Imlib_Image* tns_cache_load(const char *filename) {
+Imlib_Image* tns_cache_load(const char *filepath) {
 	char *cfile;
 	struct stat cstats, fstats;
 	Imlib_Image *im = NULL;
 
-	if (!filename)
+	if (!filepath)
 		return NULL;
 
-	if (stat(filename, &fstats))
+	if (stat(filepath, &fstats))
 		return NULL;
 
-	if ((cfile = tns_cache_filename(filename))) {
+	if ((cfile = tns_cache_filepath(filepath))) {
 		if (!stat(cfile, &cstats) &&
 		    cstats.st_mtim.tv_sec == fstats.st_mtim.tv_sec &&
 		    cstats.st_mtim.tv_nsec / 1000 == fstats.st_mtim.tv_nsec / 1000)
@@ -101,13 +90,13 @@ void tns_cache_write(thumb_t *t, Bool force) {
 	struct timeval times[2];
 	Imlib_Load_Error err = 0;
 
-	if (!t || !t->im || !t->filename)
+	if (!t || !t->im || !t->file || !t->file->name || !t->file->path)
 		return;
 
-	if (stat(t->filename, &fstats))
+	if (stat(t->file->path, &fstats))
 		return;
 
-	if ((cfile = tns_cache_filename(t->filename))) {
+	if ((cfile = tns_cache_filepath(t->file->path))) {
 		if (force || stat(cfile, &cstats) ||
 		    cstats.st_mtim.tv_sec != fstats.st_mtim.tv_sec ||
 		    cstats.st_mtim.tv_nsec / 1000 != fstats.st_mtim.tv_nsec / 1000)
@@ -125,7 +114,7 @@ void tns_cache_write(thumb_t *t, Bool force) {
 			}
 
 			if (err) {
-				warn("could not cache thumbnail: %s", t->filename);
+				warn("could not cache thumbnail: %s", t->file->name);
 			} else {
 				TIMESPEC_TO_TIMEVAL(&times[0], &fstats.st_atim);
 				TIMESPEC_TO_TIMEVAL(&times[1], &fstats.st_mtim);
@@ -223,21 +212,21 @@ void tns_free(tns_t *tns) {
 	}
 }
 
-int tns_load(tns_t *tns, int n, const char *filename, unsigned char silent) {
+int tns_load(tns_t *tns, int n, const fileinfo_t *file, unsigned char silent) {
 	int w, h;
 	int use_cache, cached = 0;
 	float z, zw, zh;
 	thumb_t *t;
 	Imlib_Image *im;
 
-	if (!tns || !tns->thumbs || !filename)
+	if (!tns || !tns->thumbs || !file || !file->name || !file->path)
 		return 0;
 
 	if (n < 0 || n >= tns->cap)
 		return 0;
 
 	t = &tns->thumbs[n];
-	t->filename = filename;
+	t->file = file;
 
 	if (t->im) {
 		imlib_context_set_image(t->im);
@@ -245,15 +234,15 @@ int tns_load(tns_t *tns, int n, const char *filename, unsigned char silent) {
 	}
 
 	if ((use_cache = tns_cache_enabled())) {
-		if ((im = tns_cache_load(filename)))
+		if ((im = tns_cache_load(file->path)))
 			cached = 1;
 	}
 
 	if (!cached &&
-	    (access(filename, R_OK) || !(im = imlib_load_image(filename))))
+	    (access(file->path, R_OK) || !(im = imlib_load_image(file->path))))
 	{
 		if (!silent)
-			warn("could not open image: %s", filename);
+			warn("could not open image: %s", file->name);
 		return 0;
 	}
 

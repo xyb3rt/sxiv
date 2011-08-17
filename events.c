@@ -52,7 +52,7 @@ extern img_t img;
 extern tns_t tns;
 extern win_t win;
 
-extern char **filenames;
+extern fileinfo_t *files;
 extern int filecnt, fileidx;
 
 int timo_cursor;
@@ -163,7 +163,7 @@ void run() {
 			gettimeofday(&t0, 0);
 
 			while (tns.cnt < filecnt && !XPending(win.env.dpy)) {
-				if (tns_load(&tns, tns.cnt, filenames[tns.cnt], 0))
+				if (tns_load(&tns, tns.cnt, &files[tns.cnt], 0))
 					tns.cnt++;
 				else
 					remove_file(tns.cnt, 0);
@@ -513,7 +513,7 @@ int open_with(arg_t a) {
 
 	if((pid = fork()) == 0) {
 		execlp(prog, prog,
-		       filenames[mode == MODE_NORMAL ? fileidx : tns.sel], NULL);
+		       files[mode == MODE_NORMAL ? fileidx : tns.sel].path, NULL);
 		warn("could not exec: %s", prog);
 		exit(1);
 	} else if (pid < 0) {
@@ -526,30 +526,30 @@ int open_with(arg_t a) {
 int run_command(arg_t a) {
 	const char *cline = (const char*) a;
 	char *cn, *cmdline;
-	const char *co, *fname;
-	int fncnt, fnlen, status;
+	const char *co, *fpath;
+	int fpcnt, fplen, status;
 	pid_t pid;
 
 	if (!cline || !*cline)
 		return 0;
 
 	/* build command line: */
-	fncnt = 0;
+	fpcnt = 0;
 	co = cline - 1;
 	while ((co = strchr(co + 1, '#')))
-		fncnt++;
-	if (!fncnt)
+		fpcnt++;
+	if (!fpcnt)
 		return 0;
-	fname = filenames[mode == MODE_NORMAL ? fileidx : tns.sel];
-	fnlen = strlen(fname);
-	cn = cmdline = (char*) s_malloc((strlen(cline) + fncnt * (fnlen + 2)) *
+	fpath = files[mode == MODE_NORMAL ? fileidx : tns.sel].path;
+	fplen = strlen(fpath);
+	cn = cmdline = (char*) s_malloc((strlen(cline) + fpcnt * (fplen + 2)) *
 	                                sizeof(char));
 	/* replace all '#' with filename: */
 	for (co = cline; *co; co++) {
 		if (*co == '#') {
 			*cn++ = '"';
-			strcpy(cn, fname);
-			cn += fnlen;
+			strcpy(cn, fpath);
+			cn += fplen;
 			*cn++ = '"';
 		} else {
 			*cn++ = *co;
@@ -575,11 +575,11 @@ int run_command(arg_t a) {
 	
 	if (mode == MODE_NORMAL) {
 		if (fileidx < tns.cnt)
-			tns_load(&tns, fileidx, filenames[fileidx], 1);
+			tns_load(&tns, fileidx, &files[fileidx], 1);
 		img_close(&img, 1);
 		load_image(fileidx);
 	} else {
-		if (!tns_load(&tns, tns.sel, filenames[tns.sel], 0)) {
+		if (!tns_load(&tns, tns.sel, &files[tns.sel], 0)) {
 			remove_file(tns.sel, 0);
 			tns.dirty = 1;
 			if (tns.sel >= tns.cnt)

@@ -50,12 +50,12 @@ void img_init(img_t *img, win_t *win) {
 	}
 }
 
-int img_load(img_t *img, const char *filename) {
-	if (!img || !filename)
+int img_load(img_t *img, const fileinfo_t *file) {
+	if (!img || !file || !file->name || !file->path)
 		return 0;
 
-	if (access(filename, R_OK) || !(img->im = imlib_load_image(filename))) {
-		warn("could not open image: %s", filename);
+	if (access(file->path, R_OK) || !(img->im = imlib_load_image(file->path))) {
+		warn("could not open image: %s", file->name);
 		return 0;
 	}
 

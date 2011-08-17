@@ -43,7 +43,7 @@ typedef struct {
 
 void img_init(img_t*, win_t*);
 
-int img_load(img_t*, const char*);
+int img_load(img_t*, const fileinfo_t*);
 void img_close(img_t*, int);
 
 void img_render(img_t*, win_t*);

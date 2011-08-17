@@ -25,6 +25,7 @@
 #include "image.h"
 #include "options.h"
 #include "thumbs.h"
+#include "types.h"
 #include "util.h"
 #include "window.h"
 
@@ -38,7 +39,7 @@ img_t img;
 tns_t tns;
 win_t win;
 
-char **filenames;
+fileinfo_t *files;
 int filecnt, fileidx;
 size_t filesize;
 
@@ -54,21 +55,30 @@ void cleanup() {
 	}
 }
 
-int check_add_file(char *filename) {
-	if (!filename)
-		return 0;
+void check_add_file(char *filename) {
+	if (!filename || !*filename)
+		return;
 
 	if (access(filename, R_OK)) {
 		warn("could not open file: %s", filename);
-		return 0;
-	} else {
-		if (fileidx == filecnt) {
-			filecnt *= 2;
-			filenames = (char**) s_realloc(filenames, filecnt * sizeof(char*));
-		}
-		filenames[fileidx++] = filename;
-		return 1;
+		return;
 	}
+
+	if (fileidx == filecnt) {
+		filecnt *= 2;
+		files = (fileinfo_t*) s_realloc(files, filecnt * sizeof(fileinfo_t));
+	}
+	if (*filename != '/') {
+		files[fileidx].path = absolute_path(filename);
+		if (!files[fileidx].path) {
+			warn("could not get absolute path of file: %s\n", filename);
+			return;
+		}
+	}
+	files[fileidx].name = s_strdup(filename);
+	if (*filename == '/')
+		files[fileidx].path = files[fileidx].name;
+	fileidx++;
 }
 
 void remove_file(int n, unsigned char silent) {
@@ -82,9 +92,12 @@ void remove_file(int n, unsigned char silent) {
 		exit(!silent);
 	}
 
-	if (n + 1 < filecnt)
-		memmove(filenames + n, filenames + n + 1, (filecnt - n - 1) *
-		        sizeof(char*));
+	if (n + 1 < filecnt) {
+		if (files[n].path != files[n].name)
+			free((void*) files[n].path);
+		free((void*) files[n].name);
+		memmove(files + n, files + n + 1, (filecnt - n - 1) * sizeof(fileinfo_t));
+	}
 	if (n + 1 < tns.cnt) {
 		memmove(tns.thumbs + n, tns.thumbs + n + 1, (tns.cnt - n - 1) *
 		        sizeof(thumb_t));
@@ -106,14 +119,14 @@ void load_image(int new) {
 	win_set_cursor(&win, CURSOR_WATCH);
 	img_close(&img, 0);
 		
-	while (!img_load(&img, filenames[new])) {
+	while (!img_load(&img, &files[new])) {
 		remove_file(new, 0);
 		if (new >= filecnt)
 			new = filecnt - 1;
 	}
 
 	fileidx = new;
-	if (!stat(filenames[new], &fstats))
+	if (!stat(files[new].path, &fstats))
 		filesize = fstats.st_size;
 	else
 		filesize = 0;
@@ -127,14 +140,14 @@ void update_title() {
 	if (mode == MODE_THUMBS) {
 		n = snprintf(win_title, TITLE_LEN, "sxiv: [%d/%d] %s",
 		             tns.cnt ? tns.sel + 1 : 0, tns.cnt,
-		             tns.cnt ? filenames[tns.sel] : "");
+		             tns.cnt ? files[tns.sel].name : "");
 	} else {
 		size = filesize;
 		size_readable(&size, &unit);
 		n = snprintf(win_title, TITLE_LEN,
 		             "sxiv: [%d/%d] <%d%%> <%dx%d> (%.2f%s) %s",
 		             fileidx + 1, filecnt, (int) (img.zoom * 100.0), img.w, img.h,
-		             size, unit, filenames[fileidx]);
+		             size, unit, files[fileidx].name);
 	}
 
 	if (n >= TITLE_LEN) {
@@ -146,13 +159,13 @@ void update_title() {
 }
 
 int fncmp(const void *a, const void *b) {
-	return strcoll(*((char* const*) a), *((char* const*) b));
+	return strcoll(((fileinfo_t*) a)->name, ((fileinfo_t*) b)->name);
 }
 
 int main(int argc, char **argv) {
 	int i, len, start;
 	size_t n;
-	char *filename = NULL;
+	char *filename;
 	struct stat fstats;
 	r_dir_t dir;
 
@@ -174,17 +187,16 @@ int main(int argc, char **argv) {
 	else
 		filecnt = options->filecnt;
 
-	filenames = (char**) s_malloc(filecnt * sizeof(char*));
+	files = (fileinfo_t*) s_malloc(filecnt * sizeof(fileinfo_t));
 	fileidx = 0;
 
 	/* build file list: */
 	if (options->from_stdin) {
+		filename = NULL;
 		while ((len = getline(&filename, &n, stdin)) > 0) {
 			if (filename[len-1] == '\n')
 				filename[len-1] = '\0';
-			if (!*filename || !check_add_file(filename))
-				free(filename);
-			filename = NULL;
+			check_add_file(filename);
 		}
 	} else {
 		for (i = 0; i < options->filecnt; i++) {
@@ -202,13 +214,14 @@ int main(int argc, char **argv) {
 					continue;
 				}
 				start = fileidx;
+				printf("reading dir: %s\n", filename);
 				while ((filename = r_readdir(&dir))) {
-					if (!check_add_file(filename))
-						free((void*) filename);
+					check_add_file(filename);
+					free((void*) filename);
 				}
 				r_closedir(&dir);
 				if (fileidx - start > 1)
-					qsort(filenames + start, fileidx - start, sizeof(char*), fncmp);
+					qsort(files + start, fileidx - start, sizeof(fileinfo_t), fncmp);
 			}
 		}
 	}
@@ -227,7 +240,7 @@ int main(int argc, char **argv) {
 	if (options->thumbnails) {
 		mode = MODE_THUMBS;
 		tns_init(&tns, filecnt);
-		while (!tns_load(&tns, 0, filenames[0], 0))
+		while (!tns_load(&tns, 0, &files[0], 0))
 			remove_file(0, 0);
 		tns.cnt = 1;
 	} else {

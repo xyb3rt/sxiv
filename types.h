@@ -26,4 +26,9 @@ typedef enum {
 	CURSOR_WATCH
 } cursor_t;
 
+typedef struct {
+	const char *name;
+	const char *path;
+} fileinfo_t;
+
 #endif /* TYPES_H */
