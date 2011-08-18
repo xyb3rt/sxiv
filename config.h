@@ -29,6 +29,13 @@ static const float zoom_levels[] = {
 	100.0, 150.0, 200.0, 400.0, 800.0
 };
 
+/* default settings for gif images: */
+enum {
+	GIF_DELAY    = 100, /* delay time (in ms) */
+	GIF_AUTOPLAY = 1,   /* autoplay when loaded [0/1] */
+	GIF_LOOP     = 0    /* endless loop [0/1] */
+};
+
 #endif
 #ifdef _THUMBS_CONFIG
 

@@ -41,6 +41,7 @@ extern int filecnt, fileidx;
 
 extern int timo_cursor;
 extern int timo_redraw;
+extern int timo_delay;
 
 int it_quit(arg_t a) {
 	cleanup();
@@ -148,7 +149,7 @@ int it_last(arg_t a) {
 }
 
 int i_navigate_frame(arg_t a) {
-	return img_change_frame(&img, (int) a);
+	return img_frame_navigate(&img, (int) a);
 }
 
 int it_move(arg_t a) {

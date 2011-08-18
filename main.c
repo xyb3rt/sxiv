@@ -54,6 +54,7 @@ char win_title[TITLE_LEN];
 
 int timo_cursor;
 int timo_redraw;
+int timo_adelay; /* multi-frame animation delay time */
 
 void cleanup() {
 	static int in = 0;
@@ -140,6 +141,9 @@ void load_image(int new) {
 		filesize = fstats.st_size;
 	else
 		filesize = 0;
+
+	if (img.multi.cnt && img.multi.animate)
+		timo_adelay = img.multi.frames[img.multi.sel].delay;
 }
 
 void update_title() {
@@ -296,10 +300,12 @@ void run() {
 			} else {
 				timo_redraw = TO_THUMBS_LOAD;
 			}
-		} else if (timo_cursor || timo_redraw) {
+		}
+		
+		if (timo_cursor || timo_redraw || timo_adelay) {
 			/* check active timeouts */
 			gettimeofday(&t0, 0);
-			timeout = MIN(timo_cursor + 1, timo_redraw + 1);
+			timeout = min_int_nz(3, timo_cursor, timo_redraw, timo_adelay);
 			MSEC_TO_TIMEVAL(timeout, &tt);
 			xfd = ConnectionNumber(win.env.dpy);
 			FD_ZERO(&fds);
@@ -321,7 +327,15 @@ void run() {
 				if (!timo_redraw)
 					redraw();
 			}
-			if ((timo_cursor || timo_redraw) && !XPending(win.env.dpy))
+			if (timo_adelay) {
+				timo_adelay = MAX(0, timo_adelay - timeout);
+				if (!timo_adelay) {
+					if ((timo_adelay = img_frame_animate(&img, 0)))
+						redraw();
+				}
+			}
+			if ((timo_cursor || timo_redraw || timo_adelay) &&
+			    !XPending(win.env.dpy))
 				continue;
 		}
 

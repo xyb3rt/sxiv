@@ -25,10 +25,16 @@
 #include "window.h"
 
 typedef struct {
+	Imlib_Image *im;
+	unsigned int delay;
+} img_frame_t;
+
+typedef struct {
+	img_frame_t *frames;
 	int cap;
 	int cnt;
 	int sel;
-	Imlib_Image **frames;
+	unsigned char animate;
 } multi_img_t;
 
 typedef struct {
@@ -56,8 +62,6 @@ void img_close(img_t*, int);
 
 void img_render(img_t*, win_t*);
 
-int img_change_frame(img_t*, int);
-
 int img_fit_win(img_t*, win_t*);
 int img_center(img_t*, win_t*);
 
@@ -73,5 +77,8 @@ void img_rotate_left(img_t*, win_t*);
 void img_rotate_right(img_t*, win_t*);
 
 void img_toggle_antialias(img_t*);
+
+int img_frame_navigate(img_t*, int);
+int img_frame_animate(img_t*, int);
 
 #endif /* IMAGE_H */

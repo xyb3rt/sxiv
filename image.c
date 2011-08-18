@@ -32,6 +32,8 @@
 #include "util.h"
 #include "config.h"
 
+enum { MIN_GIF_DELAY = 50 };
+
 int zl_cnt;
 float zoom_min;
 float zoom_max;
@@ -44,6 +46,7 @@ void img_init(img_t *img, win_t *win) {
 	if (img) {
 		img->im = NULL;
 		img->multi.cap = img->multi.cnt = 0;
+		img->multi.animate = 0;
 		img->zoom = options->zoom;
 		img->zoom = MAX(img->zoom, zoom_min);
 		img->zoom = MIN(img->zoom, zoom_max);
@@ -72,11 +75,12 @@ int img_load_gif(img_t *img, const fileinfo_t *file) {
 	int intoffset[] = { 0, 4, 2, 1 };
 	int intjump[] = { 8, 8, 4, 2 };
 	int err = 0, transp = -1;
+	unsigned int delay = 0;
 
 	if (img->multi.cap == 0) {
 		img->multi.cap = 8;
-		img->multi.frames = (Imlib_Image**)
-		                    s_malloc(sizeof(Imlib_Image*) * img->multi.cap);
+		img->multi.frames = (img_frame_t*)
+		                    s_malloc(sizeof(img_frame_t) * img->multi.cap);
 	}
 	img->multi.cnt = 0;
 	img->multi.sel = 0;
@@ -107,6 +111,10 @@ int img_load_gif(img_t *img, const fileinfo_t *file) {
 						transp = (int) ext[4];
 					else
 						transp = -1;
+
+					delay = 10 * ((unsigned int) ext[3] << 8 | (unsigned int) ext[2]);
+					if (delay)
+						delay = MAX(delay, MIN_GIF_DELAY);
 				}
 				ext = NULL;
 				DGifGetExtensionNext(gif, &ext);
@@ -186,11 +194,13 @@ int img_load_gif(img_t *img, const fileinfo_t *file) {
 
 			if (img->multi.cnt == img->multi.cap) {
 				img->multi.cap *= 2;
-				img->multi.frames = (Imlib_Image**)
+				img->multi.frames = (img_frame_t*)
 				                    s_realloc(img->multi.frames,
-				                              img->multi.cap * sizeof(Imlib_Image*));
+				                              img->multi.cap * sizeof(img_frame_t));
 			}
-			img->multi.frames[img->multi.cnt++] = im;
+			img->multi.frames[img->multi.cnt].im = im;
+			img->multi.frames[img->multi.cnt].delay = delay ? delay : GIF_DELAY;
+			img->multi.cnt++;
 		}
 	} while (rec != TERMINATE_RECORD_TYPE);
 
@@ -199,13 +209,15 @@ int img_load_gif(img_t *img, const fileinfo_t *file) {
 	if (!err && img->multi.cnt > 1) {
 		imlib_context_set_image(img->im);
 		imlib_free_image();
-		img->im = img->multi.frames[0];
+		img->im = img->multi.frames[0].im;
+		img->multi.animate = GIF_AUTOPLAY;
 	} else {
 		for (i = 0; i < img->multi.cnt; i++) {
-			imlib_context_set_image(img->multi.frames[i]);
+			imlib_context_set_image(img->multi.frames[i].im);
 			imlib_free_image();
 		}
 		img->multi.cnt = 0;
+		img->multi.animate = 0;
 	}
 
 	imlib_context_set_image(img->im);
@@ -256,7 +268,7 @@ void img_close(img_t *img, int decache) {
 
 	if (img->multi.cnt) {
 		for (i = 0; i < img->multi.cnt; i++) {
-			imlib_context_set_image(img->multi.frames[i]);
+			imlib_context_set_image(img->multi.frames[i].im);
 			imlib_free_image();
 		}
 		img->multi.cnt = 0;
@@ -376,27 +388,6 @@ void img_render(img_t *img, win_t *win) {
 	imlib_render_image_part_on_drawable_at_size(sx, sy, sw, sh, dx, dy, dw, dh);
 
 	win_draw(win);
-}
-
-int img_change_frame(img_t *img, int d) {
-	if (!img || !img->multi.cnt || !d)
-		return 0;
-
-	d += img->multi.sel;
-	if (d < 0)
-		d = 0;
-	else if (d >= img->multi.cnt)
-		d = img->multi.cnt - 1;
-
-	img->multi.sel = d;
-	img->im = img->multi.frames[d];
-
-	imlib_context_set_image(img->im);
-	img->w = imlib_image_get_width();
-	img->h = imlib_image_get_height();
-	img->checkpan = 1;
-
-	return 1;
 }
 
 int img_fit_win(img_t *img, win_t *win) {
@@ -568,4 +559,59 @@ void img_toggle_antialias(img_t *img) {
 		imlib_context_set_image(img->im);
 		imlib_context_set_anti_alias(img->aa);
 	}
+}
+
+int img_frame_goto(img_t *img, int n) {
+	if (!img || n < 0 || n >= img->multi.cnt)
+		return 0;
+
+	if (n == img->multi.sel)
+		return 0;
+
+	img->multi.sel = n;
+	img->im = img->multi.frames[n].im;
+
+	imlib_context_set_image(img->im);
+	img->w = imlib_image_get_width();
+	img->h = imlib_image_get_height();
+	img->checkpan = 1;
+
+	return 1;
+}
+
+int img_frame_navigate(img_t *img, int d) {
+	if (!img || !img->multi.cnt || !d)
+		return 0;
+
+	d += img->multi.sel;
+	if (d < 0)
+		d = 0;
+	else if (d >= img->multi.cnt)
+		d = img->multi.cnt - 1;
+
+	return img_frame_goto(img, d);
+}
+
+int img_frame_animate(img_t *img, int restart) {
+	if (!img || !img->multi.cnt)
+		return 0;
+
+	if (!img->multi.animate && !restart)
+		return 0;
+
+	if (restart) {
+		img_frame_goto(img, 0);
+		img->multi.animate = 1;
+	} else if (img->multi.sel + 1 >= img->multi.cnt) {
+		if (!GIF_LOOP) {
+			img->multi.animate = 0;
+			return 0;
+		} else {
+			img_frame_goto(img, 0);
+		}
+	} else {
+		img_frame_goto(img, img->multi.sel + 1);
+	}
+
+	return img->multi.frames[img->multi.sel].delay;
 }

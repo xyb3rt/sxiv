@@ -60,6 +60,8 @@ char* s_strdup(char*);
 void warn(const char*, ...);
 void die(const char*, ...);
 
+int min_int_nz(int, ...);
+
 void size_readable(float*, const char**);
 
 char* absolute_path(const char*);
