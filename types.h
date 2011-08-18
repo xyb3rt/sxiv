@@ -27,8 +27,8 @@ typedef enum {
 } cursor_t;
 
 typedef struct {
-	const char *name;
-	const char *path;
+	const char *name; /* as given by user */
+	const char *path; /* always absolute */
 } fileinfo_t;
 
 #endif /* TYPES_H */

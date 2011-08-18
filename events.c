@@ -92,7 +92,7 @@ void on_keypress(XKeyEvent *kev) {
 	XLookupString(kev, &key, 1, &ksym, NULL);
 
 	for (i = 0; i < LEN(keys); i++) {
-		if (keymask(&keys[i], kev->state) && ksym == keys[i].ksym) {
+		if (keys[i].ksym == ksym && keymask(&keys[i], kev->state)) {
 			if (keys[i].handler && keys[i].handler(keys[i].arg))
 				redraw();
 			return;
@@ -111,8 +111,8 @@ void on_buttonpress(XButtonEvent *bev) {
 		timo_cursor = TO_CURSOR_HIDE;
 
 		for (i = 0; i < LEN(buttons); i++) {
-			if (buttonmask(&buttons[i], bev->state) &&
-			    bev->button == buttons[i].button)
+			if (buttons[i].button == bev->button &&
+			    buttonmask(&buttons[i], bev->state))
 			{
 				if (buttons[i].handler && buttons[i].handler(buttons[i].arg))
 					redraw();
