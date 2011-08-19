@@ -163,7 +163,7 @@ void run() {
 			gettimeofday(&t0, 0);
 
 			while (tns.cnt < filecnt && !XPending(win.env.dpy)) {
-				if (tns_load(&tns, tns.cnt, &files[tns.cnt], 0))
+				if (tns_load(&tns, tns.cnt, &files[tns.cnt], False, False))
 					tns.cnt++;
 				else
 					remove_file(tns.cnt, 0);
@@ -279,7 +279,7 @@ int it_toggle_fullscreen(arg_t a) {
 int it_reload_image(arg_t a) {
 	if (mode == MODE_IMAGE) {
 		load_image(fileidx);
-	} else if (!tns_load(&tns, tns.sel, &files[tns.sel], 0)) {
+	} else if (!tns_load(&tns, tns.sel, &files[tns.sel], True, False)) {
 		remove_file(tns.sel, 0);
 		tns.dirty = 1;
 		if (tns.sel >= tns.cnt)
@@ -578,11 +578,11 @@ int it_shell_cmd(arg_t a) {
 	
 	if (mode == MODE_IMAGE) {
 		if (fileidx < tns.cnt)
-			tns_load(&tns, fileidx, &files[fileidx], 1);
+			tns_load(&tns, fileidx, &files[fileidx], False, True);
 		img_close(&img, 1);
 		load_image(fileidx);
 	} else {
-		if (!tns_load(&tns, tns.sel, &files[tns.sel], 0)) {
+		if (!tns_load(&tns, tns.sel, &files[tns.sel], True, False)) {
 			remove_file(tns.sel, 0);
 			tns.dirty = 1;
 			if (tns.sel >= tns.cnt)

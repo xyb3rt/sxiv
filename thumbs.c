@@ -212,9 +212,11 @@ void tns_free(tns_t *tns) {
 	}
 }
 
-int tns_load(tns_t *tns, int n, const fileinfo_t *file, unsigned char silent) {
+int tns_load(tns_t *tns, int n, const fileinfo_t *file,
+             Bool force, Bool silent)
+{
 	int w, h;
-	int use_cache, cached = 0;
+	int use_cache, cache_hit = 0;
 	float z, zw, zh;
 	thumb_t *t;
 	Imlib_Image *im;
@@ -234,11 +236,11 @@ int tns_load(tns_t *tns, int n, const fileinfo_t *file, unsigned char silent) {
 	}
 
 	if ((use_cache = tns_cache_enabled())) {
-		if ((im = tns_cache_load(file->path)))
-			cached = 1;
+		if (!force && (im = tns_cache_load(file->path)))
+			cache_hit = 1;
 	}
 
-	if (!cached &&
+	if (!cache_hit &&
 	    (access(file->path, R_OK) || !(im = imlib_load_image(file->path))))
 	{
 		if (!silent)
@@ -262,7 +264,7 @@ int tns_load(tns_t *tns, int n, const fileinfo_t *file, unsigned char silent) {
 
 	imlib_free_image_and_decache();
 
-	if (use_cache && !cached)
+	if (use_cache && !cache_hit)
 		tns_cache_write(t, False);
 
 	tns->dirty = 1;

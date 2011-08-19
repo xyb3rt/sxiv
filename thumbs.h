@@ -51,7 +51,7 @@ void tns_clean_cache(tns_t*);
 void tns_init(tns_t*, int);
 void tns_free(tns_t*);
 
-int tns_load(tns_t*, int, const fileinfo_t*, unsigned char);
+int tns_load(tns_t*, int, const fileinfo_t*, Bool, Bool);
 
 void tns_render(tns_t*, win_t*);
 void tns_highlight(tns_t*, win_t*, int, Bool);

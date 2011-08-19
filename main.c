@@ -240,7 +240,7 @@ int main(int argc, char **argv) {
 	if (options->thumbnails) {
 		mode = MODE_THUMB;
 		tns_init(&tns, filecnt);
-		while (!tns_load(&tns, 0, &files[0], 0))
+		while (!tns_load(&tns, 0, &files[0], False, False))
 			remove_file(0, 0);
 		tns.cnt = 1;
 	} else {
