@@ -59,7 +59,7 @@ int timo_cursor;
 int timo_redraw;
 
 void redraw() {
-	if (mode == MODE_NORMAL) {
+	if (mode == MODE_IMAGE) {
 		img_render(&img, &win);
 		if (timo_cursor)
 			win_set_cursor(&win, CURSOR_ARROW);
@@ -106,7 +106,7 @@ void on_buttonpress(XButtonEvent *bev) {
 	if (!bev)
 		return;
 
-	if (mode == MODE_NORMAL) {
+	if (mode == MODE_IMAGE) {
 		win_set_cursor(&win, CURSOR_ARROW);
 		timo_cursor = TO_CURSOR_HIDE;
 
@@ -126,7 +126,7 @@ void on_buttonpress(XButtonEvent *bev) {
 				if ((sel = tns_translate(&tns, bev->x, bev->y)) >= 0) {
 					if (sel == tns.sel) {
 						load_image(tns.sel);
-						mode = MODE_NORMAL;
+						mode = MODE_IMAGE;
 						timo_cursor = TO_CURSOR_HIDE;
 					} else {
 						tns_highlight(&tns, &win, tns.sel, False);
@@ -152,12 +152,12 @@ void run() {
 	struct timeval tt, t0, t1;
 	XEvent ev;
 
-	timo_cursor = mode == MODE_NORMAL ? TO_CURSOR_HIDE : 0;
+	timo_cursor = mode == MODE_IMAGE ? TO_CURSOR_HIDE : 0;
 
 	redraw();
 
 	while (1) {
-		if (mode == MODE_THUMBS && tns.cnt < filecnt) {
+		if (mode == MODE_THUMB && tns.cnt < filecnt) {
 			/* load thumbnails */
 			win_set_cursor(&win, CURSOR_WATCH);
 			gettimeofday(&t0, 0);
@@ -221,7 +221,7 @@ void run() {
 				case ConfigureNotify:
 					if (win_configure(&win, &ev.xconfigure)) {
 						timo_redraw = TO_WIN_RESIZE;
-						if (mode == MODE_NORMAL)
+						if (mode == MODE_IMAGE)
 							img.checkpan = 1;
 						else
 							tns.dirty = 1;
@@ -249,7 +249,7 @@ int it_quit(arg_t a) {
 }
 
 int it_switch_mode(arg_t a) {
-	if (mode == MODE_NORMAL) {
+	if (mode == MODE_IMAGE) {
 		if (!tns.thumbs)
 			tns_init(&tns, filecnt);
 		img_close(&img, 0);
@@ -257,18 +257,18 @@ int it_switch_mode(arg_t a) {
 		timo_cursor = 0;
 		tns.sel = fileidx;
 		tns.dirty = 1;
-		mode = MODE_THUMBS;
+		mode = MODE_THUMB;
 	} else {
 		timo_cursor = TO_CURSOR_HIDE;
 		load_image(tns.sel);
-		mode = MODE_NORMAL;
+		mode = MODE_IMAGE;
 	}
 	return 1;
 }
 
 int it_toggle_fullscreen(arg_t a) {
 	win_toggle_fullscreen(&win);
-	if (mode == MODE_NORMAL)
+	if (mode == MODE_IMAGE)
 		img.checkpan = 1;
 	else
 		tns.dirty = 1;
@@ -277,7 +277,7 @@ int it_toggle_fullscreen(arg_t a) {
 }
 
 int it_reload_image(arg_t a) {
-	if (mode == MODE_NORMAL) {
+	if (mode == MODE_IMAGE) {
 		load_image(fileidx);
 	} else if (!tns_load(&tns, tns.sel, &files[tns.sel], 0)) {
 		remove_file(tns.sel, 0);
@@ -289,7 +289,7 @@ int it_reload_image(arg_t a) {
 }
 
 int it_remove_image(arg_t a) {
-	if (mode == MODE_NORMAL) {
+	if (mode == MODE_IMAGE) {
 		remove_file(fileidx, 1);
 		load_image(fileidx >= filecnt ? filecnt - 1 : fileidx);
 		return 1;
@@ -307,7 +307,7 @@ int it_remove_image(arg_t a) {
 int i_navigate(arg_t a) {
 	int n = (int) a;
 
-	if (mode == MODE_NORMAL) {
+	if (mode == MODE_IMAGE) {
 		n += fileidx;
 		if (n < 0)
 			n = 0;
@@ -323,10 +323,10 @@ int i_navigate(arg_t a) {
 }
 
 int it_first(arg_t a) {
-	if (mode == MODE_NORMAL && fileidx != 0) {
+	if (mode == MODE_IMAGE && fileidx != 0) {
 		load_image(0);
 		return 1;
-	} else if (mode == MODE_THUMBS && tns.sel != 0) {
+	} else if (mode == MODE_THUMB && tns.sel != 0) {
 		tns.sel = 0;
 		tns.dirty = 1;
 		return 1;
@@ -336,10 +336,10 @@ int it_first(arg_t a) {
 }
 
 int it_last(arg_t a) {
-	if (mode == MODE_NORMAL && fileidx != filecnt - 1) {
+	if (mode == MODE_IMAGE && fileidx != filecnt - 1) {
 		load_image(filecnt - 1);
 		return 1;
-	} else if (mode == MODE_THUMBS && tns.sel != tns.cnt - 1) {
+	} else if (mode == MODE_THUMB && tns.sel != tns.cnt - 1) {
 		tns.sel = tns.cnt - 1;
 		tns.dirty = 1;
 		return 1;
@@ -351,7 +351,7 @@ int it_last(arg_t a) {
 int it_move(arg_t a) {
 	direction_t dir = (direction_t) a;
 
-	if (mode == MODE_NORMAL)
+	if (mode == MODE_IMAGE)
 		return img_pan(&img, &win, dir, 0);
 	else
 		return tns_move_selection(&tns, &win, dir);
@@ -360,7 +360,7 @@ int it_move(arg_t a) {
 int i_pan_screen(arg_t a) {
 	direction_t dir = (direction_t) a;
 
-	if (mode == MODE_NORMAL)
+	if (mode == MODE_IMAGE)
 		return img_pan(&img, &win, dir, 1);
 	else
 		return 0;
@@ -369,7 +369,7 @@ int i_pan_screen(arg_t a) {
 int i_pan_edge(arg_t a) {
 	direction_t dir = (direction_t) a;
 
-	if (mode == MODE_NORMAL)
+	if (mode == MODE_IMAGE)
 		return img_pan_edge(&img, &win, dir);
 	else
 		return 0;
@@ -387,7 +387,7 @@ int i_drag(arg_t a) {
 	XEvent e;
 	Window w;
 
-	if (mode != MODE_NORMAL)
+	if (mode != MODE_IMAGE)
 		return 0;
 	if (!XQueryPointer(win.env.dpy, win.xwin, &w, &w, &i, &i, &ox, &oy, &ui))
 		return 0;
@@ -433,7 +433,7 @@ int i_drag(arg_t a) {
 int i_zoom(arg_t a) {
 	int scale = (int) a;
 
-	if (mode != MODE_NORMAL)
+	if (mode != MODE_IMAGE)
 		return 0;
 	if (scale > 0)
 		return img_zoom_in(&img, &win);
@@ -446,7 +446,7 @@ int i_zoom(arg_t a) {
 int i_fit_to_win(arg_t a) {
 	int ret;
 
-	if (mode == MODE_NORMAL) {
+	if (mode == MODE_IMAGE) {
 		if ((ret = img_fit_win(&img, &win)))
 			img_center(&img, &win);
 		return ret;
@@ -459,7 +459,7 @@ int i_fit_to_img(arg_t a) {
 	int ret, x, y;
 	unsigned int w, h;
 
-	if (mode == MODE_NORMAL) {
+	if (mode == MODE_IMAGE) {
 		x = MAX(0, win.x + img.x);
 		y = MAX(0, win.y + img.y);
 		w = img.w * img.zoom;
@@ -477,7 +477,7 @@ int i_fit_to_img(arg_t a) {
 int i_rotate(arg_t a) {
 	direction_t dir = (direction_t) a;
 
-	if (mode == MODE_NORMAL) {
+	if (mode == MODE_IMAGE) {
 		if (dir == DIR_LEFT) {
 			img_rotate_left(&img, &win);
 			return 1;
@@ -490,7 +490,7 @@ int i_rotate(arg_t a) {
 }
 
 int i_toggle_antialias(arg_t a) {
-	if (mode == MODE_NORMAL) {
+	if (mode == MODE_IMAGE) {
 		img_toggle_antialias(&img);
 		return 1;
 	} else {
@@ -499,7 +499,7 @@ int i_toggle_antialias(arg_t a) {
 }
 
 int i_toggle_alpha(arg_t a) {
-	if (mode == MODE_NORMAL) {
+	if (mode == MODE_IMAGE) {
 		img.alpha ^= 1;
 		return 1;
 	} else {
@@ -516,7 +516,7 @@ int it_open_with(arg_t a) {
 
 	if((pid = fork()) == 0) {
 		execlp(prog, prog,
-		       files[mode == MODE_NORMAL ? fileidx : tns.sel].path, NULL);
+		       files[mode == MODE_IMAGE ? fileidx : tns.sel].path, NULL);
 		warn("could not exec: %s", prog);
 		exit(1);
 	} else if (pid < 0) {
@@ -543,7 +543,7 @@ int it_shell_cmd(arg_t a) {
 		fpcnt++;
 	if (!fpcnt)
 		return 0;
-	fpath = files[mode == MODE_NORMAL ? fileidx : tns.sel].path;
+	fpath = files[mode == MODE_IMAGE ? fileidx : tns.sel].path;
 	fplen = strlen(fpath);
 	cn = cmdline = (char*) s_malloc((strlen(cline) + fpcnt * (fplen + 2)) *
 	                                sizeof(char));
@@ -576,7 +576,7 @@ int it_shell_cmd(arg_t a) {
 		warn("child exited with non-zero return value: %d. command line was: %s",
 		     WEXITSTATUS(status), cmdline);
 	
-	if (mode == MODE_NORMAL) {
+	if (mode == MODE_IMAGE) {
 		if (fileidx < tns.cnt)
 			tns_load(&tns, fileidx, &files[fileidx], 1);
 		img_close(&img, 1);
@@ -591,7 +591,7 @@ int it_shell_cmd(arg_t a) {
 	}
 
 end:
-	if (mode == MODE_THUMBS)
+	if (mode == MODE_THUMB)
 		win_set_cursor(&win, CURSOR_ARROW);
 	/* else: cursor is reset in redraw() */
 

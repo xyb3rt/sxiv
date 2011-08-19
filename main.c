@@ -137,7 +137,7 @@ void update_title() {
 	float size;
 	const char *unit;
 
-	if (mode == MODE_THUMBS) {
+	if (mode == MODE_THUMB) {
 		n = snprintf(win_title, TITLE_LEN, "sxiv: [%d/%d] %s",
 		             tns.cnt ? tns.sel + 1 : 0, tns.cnt,
 		             tns.cnt ? files[tns.sel].name : "");
@@ -238,13 +238,13 @@ int main(int argc, char **argv) {
 	img_init(&img, &win);
 
 	if (options->thumbnails) {
-		mode = MODE_THUMBS;
+		mode = MODE_THUMB;
 		tns_init(&tns, filecnt);
 		while (!tns_load(&tns, 0, &files[0], 0))
 			remove_file(0, 0);
 		tns.cnt = 1;
 	} else {
-		mode = MODE_NORMAL;
+		mode = MODE_IMAGE;
 		tns.thumbs = NULL;
 		load_image(fileidx);
 	}

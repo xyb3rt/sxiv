@@ -2,8 +2,8 @@
 #define TYPES_H
 
 typedef enum {
-	MODE_NORMAL,
-	MODE_THUMBS
+	MODE_IMAGE,
+	MODE_THUMB
 } appmode_t;
 
 typedef enum {
