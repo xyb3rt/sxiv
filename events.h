@@ -22,11 +22,12 @@
 #include <X11/Xlib.h>
 
 typedef void* arg_t;
+typedef int (*command_f)(arg_t);
 
 typedef struct {
 	Bool ctrl;
 	KeySym ksym;
-	int (*handler)(arg_t);
+	command_f cmd;
 	arg_t arg;
 } keymap_t;
 
@@ -34,32 +35,32 @@ typedef struct {
 	Bool ctrl;
 	Bool shift;
 	unsigned int button;
-	int (*handler)(arg_t);
+	command_f cmd;
 	arg_t arg;
 } button_t;
 
 void run();
 
-/* handler functions for key and button mappings: */
-int quit(arg_t);
-int reload(arg_t);
-int toggle_fullscreen(arg_t);
-int toggle_antialias(arg_t);
-int toggle_alpha(arg_t);
-int switch_mode(arg_t);
-int navigate(arg_t);
-int first(arg_t);
-int last(arg_t);
-int remove_image(arg_t);
-int move(arg_t);
-int pan_screen(arg_t);
-int pan_edge(arg_t);
-int drag(arg_t);
-int rotate(arg_t);
-int zoom(arg_t);
-int fit_to_win(arg_t);
-int fit_to_img(arg_t);
-int open_with(arg_t);
-int run_command(arg_t);
+/* command functions for key and button mappings: */
+int it_quit(arg_t);
+int it_switch_mode(arg_t);
+int it_toggle_fullscreen(arg_t);
+int it_reload_image(arg_t);
+int it_remove_image(arg_t);
+int i_navigate(arg_t);
+int it_first(arg_t);
+int it_last(arg_t);
+int it_move(arg_t);
+int i_pan_screen(arg_t);
+int i_pan_edge(arg_t);
+int i_drag(arg_t);
+int i_zoom(arg_t);
+int i_fit_to_win(arg_t);
+int i_fit_to_img(arg_t);
+int i_rotate(arg_t);
+int i_toggle_antialias(arg_t);
+int i_toggle_alpha(arg_t);
+int it_open_with(arg_t);
+int it_shell_cmd(arg_t);
 
 #endif /* EVENTS_H */

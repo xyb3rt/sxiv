@@ -93,7 +93,7 @@ void on_keypress(XKeyEvent *kev) {
 
 	for (i = 0; i < LEN(keys); i++) {
 		if (keys[i].ksym == ksym && keymask(&keys[i], kev->state)) {
-			if (keys[i].handler && keys[i].handler(keys[i].arg))
+			if (keys[i].cmd && keys[i].cmd(keys[i].arg))
 				redraw();
 			return;
 		}
@@ -114,7 +114,7 @@ void on_buttonpress(XButtonEvent *bev) {
 			if (buttons[i].button == bev->button &&
 			    buttonmask(&buttons[i], bev->state))
 			{
-				if (buttons[i].handler && buttons[i].handler(buttons[i].arg))
+				if (buttons[i].cmd && buttons[i].cmd(buttons[i].arg))
 					redraw();
 				return;
 			}
@@ -241,51 +241,14 @@ void run() {
 }
 
 
-/* handler functions for key and button mappings: */
+/* command functions for key and button mappings: */
 
-int quit(arg_t a) {
+int it_quit(arg_t a) {
 	cleanup();
 	exit(0);
 }
 
-int reload(arg_t a) {
-	if (mode == MODE_NORMAL) {
-		load_image(fileidx);
-		return 1;
-	} else {
-		return 0;
-	}
-}
-
-int toggle_fullscreen(arg_t a) {
-	win_toggle_fullscreen(&win);
-	if (mode == MODE_NORMAL)
-		img.checkpan = 1;
-	else
-		tns.dirty = 1;
-	timo_redraw = TO_WIN_RESIZE;
-	return 0;
-}
-
-int toggle_antialias(arg_t a) {
-	if (mode == MODE_NORMAL) {
-		img_toggle_antialias(&img);
-		return 1;
-	} else {
-		return 0;
-	}
-}
-
-int toggle_alpha(arg_t a) {
-	if (mode == MODE_NORMAL) {
-		img.alpha ^= 1;
-		return 1;
-	} else {
-		return 0;
-	}
-}
-
-int switch_mode(arg_t a) {
+int it_switch_mode(arg_t a) {
 	if (mode == MODE_NORMAL) {
 		if (!tns.thumbs)
 			tns_init(&tns, filecnt);
@@ -303,7 +266,45 @@ int switch_mode(arg_t a) {
 	return 1;
 }
 
-int navigate(arg_t a) {
+int it_toggle_fullscreen(arg_t a) {
+	win_toggle_fullscreen(&win);
+	if (mode == MODE_NORMAL)
+		img.checkpan = 1;
+	else
+		tns.dirty = 1;
+	timo_redraw = TO_WIN_RESIZE;
+	return 0;
+}
+
+int it_reload_image(arg_t a) {
+	if (mode == MODE_NORMAL) {
+		load_image(fileidx);
+	} else if (!tns_load(&tns, tns.sel, &files[tns.sel], 0)) {
+		remove_file(tns.sel, 0);
+		tns.dirty = 1;
+		if (tns.sel >= tns.cnt)
+			tns.sel = tns.cnt - 1;
+	}
+	return 1;
+}
+
+int it_remove_image(arg_t a) {
+	if (mode == MODE_NORMAL) {
+		remove_file(fileidx, 1);
+		load_image(fileidx >= filecnt ? filecnt - 1 : fileidx);
+		return 1;
+	} else if (tns.sel < tns.cnt) {
+		remove_file(tns.sel, 1);
+		tns.dirty = 1;
+		if (tns.sel >= tns.cnt)
+			tns.sel = tns.cnt - 1;
+		return 1;
+	} else {
+		return 0;
+	}
+}
+
+int i_navigate(arg_t a) {
 	int n = (int) a;
 
 	if (mode == MODE_NORMAL) {
@@ -321,7 +322,7 @@ int navigate(arg_t a) {
 	return 0;
 }
 
-int first(arg_t a) {
+int it_first(arg_t a) {
 	if (mode == MODE_NORMAL && fileidx != 0) {
 		load_image(0);
 		return 1;
@@ -334,7 +335,7 @@ int first(arg_t a) {
 	}
 }
 
-int last(arg_t a) {
+int it_last(arg_t a) {
 	if (mode == MODE_NORMAL && fileidx != filecnt - 1) {
 		load_image(filecnt - 1);
 		return 1;
@@ -347,23 +348,7 @@ int last(arg_t a) {
 	}
 }
 
-int remove_image(arg_t a) {
-	if (mode == MODE_NORMAL) {
-		remove_file(fileidx, 1);
-		load_image(fileidx >= filecnt ? filecnt - 1 : fileidx);
-		return 1;
-	} else if (tns.sel < tns.cnt) {
-		remove_file(tns.sel, 1);
-		tns.dirty = 1;
-		if (tns.sel >= tns.cnt)
-			tns.sel = tns.cnt - 1;
-		return 1;
-	} else {
-		return 0;
-	}
-}
-
-int move(arg_t a) {
+int it_move(arg_t a) {
 	direction_t dir = (direction_t) a;
 
 	if (mode == MODE_NORMAL)
@@ -372,7 +357,7 @@ int move(arg_t a) {
 		return tns_move_selection(&tns, &win, dir);
 }
 
-int pan_screen(arg_t a) {
+int i_pan_screen(arg_t a) {
 	direction_t dir = (direction_t) a;
 
 	if (mode == MODE_NORMAL)
@@ -381,7 +366,7 @@ int pan_screen(arg_t a) {
 		return 0;
 }
 
-int pan_edge(arg_t a) {
+int i_pan_edge(arg_t a) {
 	direction_t dir = (direction_t) a;
 
 	if (mode == MODE_NORMAL)
@@ -390,12 +375,12 @@ int pan_edge(arg_t a) {
 		return 0;
 }
 
-/* Xlib helper function for drag() */
+/* Xlib helper function for i_drag() */
 Bool is_motionnotify(Display *d, XEvent *e, XPointer a) {
 	return e != NULL && e->type == MotionNotify;
 }
 
-int drag(arg_t a) {
+int i_drag(arg_t a) {
 	int dx = 0, dy = 0, i, ox, oy, x, y;
 	unsigned int ui;
 	Bool dragging = True, next = False;
@@ -445,22 +430,7 @@ int drag(arg_t a) {
 	return 0;
 }
 
-int rotate(arg_t a) {
-	direction_t dir = (direction_t) a;
-
-	if (mode == MODE_NORMAL) {
-		if (dir == DIR_LEFT) {
-			img_rotate_left(&img, &win);
-			return 1;
-		} else if (dir == DIR_RIGHT) {
-			img_rotate_right(&img, &win);
-			return 1;
-		}
-	}
-	return 0;
-}
-
-int zoom(arg_t a) {
+int i_zoom(arg_t a) {
 	int scale = (int) a;
 
 	if (mode != MODE_NORMAL)
@@ -473,7 +443,7 @@ int zoom(arg_t a) {
 		return img_zoom(&img, &win, 1.0);
 }
 
-int fit_to_win(arg_t a) {
+int i_fit_to_win(arg_t a) {
 	int ret;
 
 	if (mode == MODE_NORMAL) {
@@ -485,7 +455,7 @@ int fit_to_win(arg_t a) {
 	}
 }
 
-int fit_to_img(arg_t a) {
+int i_fit_to_img(arg_t a) {
 	int ret, x, y;
 	unsigned int w, h;
 
@@ -504,7 +474,40 @@ int fit_to_img(arg_t a) {
 	}
 }
 
-int open_with(arg_t a) {
+int i_rotate(arg_t a) {
+	direction_t dir = (direction_t) a;
+
+	if (mode == MODE_NORMAL) {
+		if (dir == DIR_LEFT) {
+			img_rotate_left(&img, &win);
+			return 1;
+		} else if (dir == DIR_RIGHT) {
+			img_rotate_right(&img, &win);
+			return 1;
+		}
+	}
+	return 0;
+}
+
+int i_toggle_antialias(arg_t a) {
+	if (mode == MODE_NORMAL) {
+		img_toggle_antialias(&img);
+		return 1;
+	} else {
+		return 0;
+	}
+}
+
+int i_toggle_alpha(arg_t a) {
+	if (mode == MODE_NORMAL) {
+		img.alpha ^= 1;
+		return 1;
+	} else {
+		return 0;
+	}
+}
+
+int it_open_with(arg_t a) {
 	const char *prog = (const char*) a;
 	pid_t pid;
 
@@ -523,7 +526,7 @@ int open_with(arg_t a) {
 	return 0;
 }
 
-int run_command(arg_t a) {
+int it_shell_cmd(arg_t a) {
 	const char *cline = (const char*) a;
 	char *cn, *cmdline;
 	const char *co, *fpath;
