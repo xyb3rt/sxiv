@@ -29,7 +29,7 @@ static const float zoom_levels[] = {
 	100.0, 150.0, 200.0, 400.0, 800.0
 };
 
-/* default settings for gif images: */
+/* default settings for multi-frame gif images: */
 enum {
 	GIF_DELAY    = 100, /* delay time (in ms) */
 	GIF_AUTOPLAY = 1,   /* autoplay when loaded [0/1] */
@@ -64,8 +64,9 @@ static const keymap_t keys[] = {
 	{ False,  XK_g,             it_first,             (arg_t) None },
 	{ False,  XK_G,             it_last,              (arg_t) None },
 
-	{ False,  XK_N,             i_navigate_frame,     (arg_t) +1 },
-	{ False,  XK_P,             i_navigate_frame,     (arg_t) -1 },
+	{ True,   XK_n,             i_navigate_frame,     (arg_t) +1 },
+	{ True,   XK_p,             i_navigate_frame,     (arg_t) -1 },
+	{ True,   XK_space,         i_toggle_animation,   (arg_t) None },
 
 	{ False,  XK_h,             it_move,              (arg_t) DIR_LEFT },
 	{ False,  XK_Left,          it_move,              (arg_t) DIR_LEFT },

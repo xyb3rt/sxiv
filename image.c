@@ -596,22 +596,18 @@ int img_frame_animate(img_t *img, int restart) {
 	if (!img || !img->multi.cnt)
 		return 0;
 
-	if (!img->multi.animate && !restart)
-		return 0;
-
-	if (restart) {
-		img_frame_goto(img, 0);
-		img->multi.animate = 1;
-	} else if (img->multi.sel + 1 >= img->multi.cnt) {
-		if (!GIF_LOOP) {
+	if (img->multi.sel + 1 >= img->multi.cnt) {
+		if (restart || GIF_LOOP) {
+			img_frame_goto(img, 0);
+		} else {
 			img->multi.animate = 0;
 			return 0;
-		} else {
-			img_frame_goto(img, 0);
 		}
-	} else {
+	} else if (!restart) {
 		img_frame_goto(img, img->multi.sel + 1);
 	}
+
+	img->multi.animate = 1;
 
 	return img->multi.frames[img->multi.sel].delay;
 }

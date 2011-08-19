@@ -142,8 +142,12 @@ void load_image(int new) {
 	else
 		filesize = 0;
 
-	if (img.multi.cnt && img.multi.animate)
-		timo_adelay = img.multi.frames[img.multi.sel].delay;
+	if (img.multi.cnt) {
+		if (img.multi.animate)
+			timo_adelay = img.multi.frames[img.multi.sel].delay;
+		else
+			timo_adelay = 0;
+	}
 }
 
 void update_title() {

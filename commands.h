@@ -48,6 +48,7 @@ int i_navigate(arg_t);
 int it_first(arg_t);
 int it_last(arg_t);
 int i_navigate_frame(arg_t);
+int i_toggle_animation(arg_t);
 int it_move(arg_t);
 int i_pan_screen(arg_t);
 int i_pan_edge(arg_t);

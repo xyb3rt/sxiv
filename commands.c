@@ -41,7 +41,7 @@ extern int filecnt, fileidx;
 
 extern int timo_cursor;
 extern int timo_redraw;
-extern int timo_delay;
+extern int timo_adelay;
 
 int it_quit(arg_t a) {
 	cleanup();
@@ -149,7 +149,24 @@ int it_last(arg_t a) {
 }
 
 int i_navigate_frame(arg_t a) {
-	return img_frame_navigate(&img, (int) a);
+	if (mode == MODE_IMAGE && !img.multi.animate)
+		return img_frame_navigate(&img, (int) a);
+	else
+		return 0;
+}
+
+int i_toggle_animation(arg_t a) {
+	if (mode != MODE_IMAGE)
+		return 0;
+
+	if (img.multi.animate) {
+		timo_adelay = 0;
+		img.multi.animate = 0;
+		return 0;
+	} else {
+		timo_adelay = img_frame_animate(&img, 1);
+		return 1;
+	}
 }
 
 int it_move(arg_t a) {
@@ -239,6 +256,7 @@ int i_zoom(arg_t a) {
 
 	if (mode != MODE_IMAGE)
 		return 0;
+
 	if (scale > 0)
 		return img_zoom_in(&img, &win);
 	else if (scale < 0)
