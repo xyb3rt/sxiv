@@ -19,6 +19,7 @@
 #ifndef THUMBS_H
 #define THUMBS_H
 
+#include <X11/Xlib.h>
 #include <Imlib2.h>
 
 #include "types.h"
