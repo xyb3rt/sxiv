@@ -349,6 +349,7 @@ void tns_render(tns_t *tns, win_t *win) {
 
 void tns_highlight(tns_t *tns, win_t *win, int n, Bool hl) {
 	thumb_t *t;
+	int x, y;
 	unsigned long col;
 
 	if (!tns || !tns->thumbs || !win)
@@ -364,7 +365,9 @@ void tns_highlight(tns_t *tns, win_t *win, int n, Bool hl) {
 		else
 			col = win->bgcol;
 
-		win_draw_rect(win, win->pm, t->x - 4, t->y - 4, t->w + 8, t->h + 8,
+		x = t->x - (THUMB_SIZE - t->w) / 2;
+		y = t->y - (THUMB_SIZE - t->h) / 2;
+		win_draw_rect(win, win->pm, x - 3, y - 3, THUMB_SIZE + 6, THUMB_SIZE + 6,
 		              False, 2, col);
 	}
 
@@ -431,7 +434,6 @@ int tns_scroll(tns_t *tns, direction_t dir) {
 
 int tns_translate(tns_t *tns, int x, int y) {
 	int n;
-	thumb_t *t;
 
 	if (!tns || !tns->thumbs)
 		return -1;
@@ -441,12 +443,8 @@ int tns_translate(tns_t *tns, int x, int y) {
 
 	n = tns->first + (y - tns->y) / thumb_dim * tns->cols +
 	    (x - tns->x) / thumb_dim;
+	if (n >= tns->cnt)
+		n = -1;
 
-	if (n < tns->cnt) {
-		t = &tns->thumbs[n];
-		if (x >= t->x && x <= t->x + t->w && y >= t->y && y <= t->y + t->h)
-			return n;
-	}
-
-	return -1;
+	return n;
 }
