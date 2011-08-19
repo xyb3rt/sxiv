@@ -17,17 +17,24 @@
  */
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <unistd.h>
 #include <sys/stat.h>
+#include <sys/time.h>
+#include <X11/Xutil.h>
+#include <X11/keysym.h>
 
-#include "events.h"
+#include "commands.h"
 #include "image.h"
 #include "options.h"
 #include "thumbs.h"
 #include "types.h"
 #include "util.h"
 #include "window.h"
+
+#define _MAPPINGS_CONFIG
+#include "config.h"
 
 enum {
 	TITLE_LEN = 256,
@@ -44,6 +51,9 @@ int filecnt, fileidx;
 size_t filesize;
 
 char win_title[TITLE_LEN];
+
+int timo_cursor;
+int timo_redraw;
 
 void cleanup() {
 	static int in = 0;
@@ -115,7 +125,7 @@ void load_image(int new) {
 	if (new < 0 || new >= filecnt)
 		return;
 
-	/* cursor is reset in redraw() */
+	/* cursor gets reset in redraw() */
 	win_set_cursor(&win, CURSOR_WATCH);
 	img_close(&img, 0);
 		
@@ -156,6 +166,188 @@ void update_title() {
 	}
 
 	win_set_title(&win, win_title);
+}
+
+void redraw() {
+	if (mode == MODE_IMAGE) {
+		img_render(&img, &win);
+		if (timo_cursor)
+			win_set_cursor(&win, CURSOR_ARROW);
+		else
+			win_set_cursor(&win, CURSOR_NONE);
+	} else {
+		tns_render(&tns, &win);
+	}
+	update_title();
+	timo_redraw = 0;
+}
+
+Bool keymask(const keymap_t *k, unsigned int state) {
+	return (k->ctrl ? ControlMask : 0) == (state & ControlMask);
+}
+
+Bool buttonmask(const button_t *b, unsigned int state) {
+	return ((b->ctrl ? ControlMask : 0) | (b->shift ? ShiftMask : 0)) ==
+	       (state & (ControlMask | ShiftMask));
+}
+
+void on_keypress(XKeyEvent *kev) {
+	int i;
+	KeySym ksym;
+	char key;
+
+	if (!kev)
+		return;
+
+	XLookupString(kev, &key, 1, &ksym, NULL);
+
+	for (i = 0; i < LEN(keys); i++) {
+		if (keys[i].ksym == ksym && keymask(&keys[i], kev->state)) {
+			if (keys[i].cmd && keys[i].cmd(keys[i].arg))
+				redraw();
+			return;
+		}
+	}
+}
+
+void on_buttonpress(XButtonEvent *bev) {
+	int i, sel;
+
+	if (!bev)
+		return;
+
+	if (mode == MODE_IMAGE) {
+		win_set_cursor(&win, CURSOR_ARROW);
+		timo_cursor = TO_CURSOR_HIDE;
+
+		for (i = 0; i < LEN(buttons); i++) {
+			if (buttons[i].button == bev->button &&
+			    buttonmask(&buttons[i], bev->state))
+			{
+				if (buttons[i].cmd && buttons[i].cmd(buttons[i].arg))
+					redraw();
+				return;
+			}
+		}
+	} else {
+		/* thumbnail mode (hard-coded) */
+		switch (bev->button) {
+			case Button1:
+				if ((sel = tns_translate(&tns, bev->x, bev->y)) >= 0) {
+					if (sel == tns.sel) {
+						load_image(tns.sel);
+						mode = MODE_IMAGE;
+						timo_cursor = TO_CURSOR_HIDE;
+					} else {
+						tns_highlight(&tns, &win, tns.sel, False);
+						tns_highlight(&tns, &win, sel, True);
+						tns.sel = sel;
+					}
+					redraw();
+					break;
+				}
+				break;
+			case Button4:
+			case Button5:
+				if (tns_scroll(&tns, bev->button == Button4 ? DIR_UP : DIR_DOWN))
+					redraw();
+				break;
+		}
+	}
+}
+
+void run() {
+	int xfd, timeout;
+	fd_set fds;
+	struct timeval tt, t0, t1;
+	XEvent ev;
+
+	timo_cursor = mode == MODE_IMAGE ? TO_CURSOR_HIDE : 0;
+
+	redraw();
+
+	while (1) {
+		if (mode == MODE_THUMB && tns.cnt < filecnt) {
+			/* load thumbnails */
+			win_set_cursor(&win, CURSOR_WATCH);
+			gettimeofday(&t0, 0);
+
+			while (tns.cnt < filecnt && !XPending(win.env.dpy)) {
+				if (tns_load(&tns, tns.cnt, &files[tns.cnt], False, False))
+					tns.cnt++;
+				else
+					remove_file(tns.cnt, 0);
+				gettimeofday(&t1, 0);
+				if (TIMEDIFF(&t1, &t0) >= TO_THUMBS_LOAD)
+					break;
+			}
+			if (tns.cnt == filecnt)
+				win_set_cursor(&win, CURSOR_ARROW);
+			if (!XPending(win.env.dpy)) {
+				redraw();
+				continue;
+			} else {
+				timo_redraw = TO_THUMBS_LOAD;
+			}
+		} else if (timo_cursor || timo_redraw) {
+			/* check active timeouts */
+			gettimeofday(&t0, 0);
+			timeout = MIN(timo_cursor + 1, timo_redraw + 1);
+			MSEC_TO_TIMEVAL(timeout, &tt);
+			xfd = ConnectionNumber(win.env.dpy);
+			FD_ZERO(&fds);
+			FD_SET(xfd, &fds);
+
+			if (!XPending(win.env.dpy))
+				select(xfd + 1, &fds, 0, 0, &tt);
+			gettimeofday(&t1, 0);
+			timeout = MIN(TIMEDIFF(&t1, &t0), timeout);
+
+			/* timeouts fired? */
+			if (timo_cursor) {
+				timo_cursor = MAX(0, timo_cursor - timeout);
+				if (!timo_cursor)
+					win_set_cursor(&win, CURSOR_NONE);
+			}
+			if (timo_redraw) {
+				timo_redraw = MAX(0, timo_redraw - timeout);
+				if (!timo_redraw)
+					redraw();
+			}
+			if ((timo_cursor || timo_redraw) && !XPending(win.env.dpy))
+				continue;
+		}
+
+		if (!XNextEvent(win.env.dpy, &ev)) {
+			/* handle events */
+			switch (ev.type) {
+				case ButtonPress:
+					on_buttonpress(&ev.xbutton);
+					break;
+				case ClientMessage:
+					if ((Atom) ev.xclient.data.l[0] == wm_delete_win)
+						return;
+					break;
+				case ConfigureNotify:
+					if (win_configure(&win, &ev.xconfigure)) {
+						timo_redraw = TO_WIN_RESIZE;
+						if (mode == MODE_IMAGE)
+							img.checkpan = 1;
+						else
+							tns.dirty = 1;
+					}
+					break;
+				case KeyPress:
+					on_keypress(&ev.xkey);
+					break;
+				case MotionNotify:
+					if (!timo_cursor)
+						win_set_cursor(&win, CURSOR_ARROW);
+					timo_cursor = TO_CURSOR_HIDE;
+					break;
+			}
+		}
+	}
 }
 
 int fncmp(const void *a, const void *b) {

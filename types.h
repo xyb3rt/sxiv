@@ -31,4 +31,11 @@ typedef struct {
 	const char *path; /* always absolute */
 } fileinfo_t;
 
+/* timeouts in milliseconds: */
+enum {
+	TO_WIN_RESIZE  = 75,
+	TO_CURSOR_HIDE = 1500,
+	TO_THUMBS_LOAD = 200
+};
+
 #endif /* TYPES_H */

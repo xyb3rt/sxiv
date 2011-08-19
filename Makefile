@@ -9,7 +9,7 @@ CFLAGS = -Wall -pedantic -O2 -DVERSION=\"$(VERSION)\"
 LDFLAGS =
 LIBS = -lX11 -lImlib2
 
-SRC = events.o image.c main.c options.c thumbs.c util.c window.c
+SRC = commands.c image.c main.c options.c thumbs.c util.c window.c
 OBJ = $(SRC:.c=.o)
 
 sxiv:	$(OBJ)

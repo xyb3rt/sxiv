@@ -1,4 +1,4 @@
-/* sxiv: events.h
+/* sxiv: commands.h
  * Copyright (c) 2011 Bert Muennich <muennich at informatik.hu-berlin.de>
  *
  * This program is free software; you can redistribute it and/or
@@ -16,8 +16,8 @@
  * Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, USA.
  */
 
-#ifndef EVENTS_H
-#define EVENTS_H
+#ifndef COMMANDS_H
+#define COMMANDS_H
 
 #include <X11/Xlib.h>
 
@@ -39,9 +39,6 @@ typedef struct {
 	arg_t arg;
 } button_t;
 
-void run();
-
-/* command functions for key and button mappings: */
 int it_quit(arg_t);
 int it_switch_mode(arg_t);
 int it_toggle_fullscreen(arg_t);
@@ -63,4 +60,4 @@ int i_toggle_alpha(arg_t);
 int it_open_with(arg_t);
 int it_shell_cmd(arg_t);
 
-#endif /* EVENTS_H */
+#endif /* COMMANDS_H */
