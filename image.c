@@ -62,6 +62,9 @@ void img_init(img_t *img, win_t *win) {
 }
 
 #ifdef HAVE_GIFLIB
+/* originally based on, but in it's current form merely inspired by Imlib2's
+ * src/modules/loaders/loader_gif.c:load(), written by Carsten Haitzler.
+ */
 int img_load_gif(img_t *img, const fileinfo_t *file) {
 	GifFileType *gif;
 	GifRowType *rows = NULL;
