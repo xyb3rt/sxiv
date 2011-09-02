@@ -357,31 +357,31 @@ void run() {
 	redraw();
 
 	while (1) {
-		if (!XPending(win.env.dpy)) {
+		while (mode == MODE_THUMB && tns.cnt < filecnt &&
+		       !XPending(win.env.dpy))
+		{
 			/* load thumbnails */
-			while (mode == MODE_THUMB && tns.cnt < filecnt) {
-				win_set_cursor(&win, CURSOR_WATCH);
-				if (tns_load(&tns, tns.cnt, &files[tns.cnt], False, False))
-					tns.cnt++;
-				else
-					remove_file(tns.cnt, 0);
-				if (tns.cnt == filecnt) {
-					redraw();
-					win_set_cursor(&win, CURSOR_ARROW);
-				} else {
-					set_timeout(redraw, TO_REDRAW_THUMBS, 0);
-					check_timeouts(NULL);
-				}
+			win_set_cursor(&win, CURSOR_WATCH);
+			set_timeout(redraw, TO_REDRAW_THUMBS, 0);
+			if (tns_load(&tns, tns.cnt, &files[tns.cnt], False, False))
+				tns.cnt++;
+			else
+				remove_file(tns.cnt, 0);
+			if (tns.cnt == filecnt) {
+				redraw();
+				win_set_cursor(&win, CURSOR_ARROW);
+			} else {
+				check_timeouts(NULL);
 			}
+		}
 
+		if (!XPending(win.env.dpy) && check_timeouts(&timeout)) {
 			/* handle timeouts */
-			if (check_timeouts(&timeout)) {
-				xfd = ConnectionNumber(win.env.dpy);
-				FD_ZERO(&fds);
-				FD_SET(xfd, &fds);
-				if (!select(xfd + 1, &fds, 0, 0, &timeout))
-					check_timeouts(NULL);
-			}
+			xfd = ConnectionNumber(win.env.dpy);
+			FD_ZERO(&fds);
+			FD_SET(xfd, &fds);
+			if (!select(xfd + 1, &fds, 0, 0, &timeout))
+				check_timeouts(NULL);
 		}
 
 		if (!XNextEvent(win.env.dpy, &ev)) {
