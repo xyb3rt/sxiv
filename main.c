@@ -160,21 +160,23 @@ void reset_timeout(timeout_f handler) {
 }
 
 int check_timeouts(struct timeval *t) {
-	int i, tdiff, tmin = -1;
+	int i = 0, tdiff, tmin = -1;
 	struct timeval now;
 
 	gettimeofday(&now, 0);
-	for (i = 0; i < LEN(timeouts); i++) {
+	while (i < LEN(timeouts)) {
 		if (timeouts[i].active) {
 			tdiff = TIMEDIFF(&timeouts[i].when, &now);
 			if (tdiff <= 0) {
 				timeouts[i].active = False;
 				if (timeouts[i].handler)
 					timeouts[i].handler();
+				i = tmin = -1;
 			} else if (tmin < 0 || tdiff < tmin) {
 				tmin = tdiff;
 			}
 		}
+		i++;
 	}
 	if (tmin > 0 && t)
 		MSEC_TO_TIMEVAL(tmin, t);
@@ -375,13 +377,12 @@ void run() {
 			}
 		}
 
-		if (!XPending(win.env.dpy) && check_timeouts(&timeout)) {
-			/* handle timeouts */
+		while (!XPending(win.env.dpy) && check_timeouts(&timeout)) {
+			/* wait for timeouts */
 			xfd = ConnectionNumber(win.env.dpy);
 			FD_ZERO(&fds);
 			FD_SET(xfd, &fds);
-			if (!select(xfd + 1, &fds, 0, 0, &timeout))
-				check_timeouts(NULL);
+			select(xfd + 1, &fds, 0, 0, &timeout);
 		}
 
 		if (!XNextEvent(win.env.dpy, &ev)) {
