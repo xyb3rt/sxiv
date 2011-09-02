@@ -58,8 +58,11 @@ thumbnail mode are denoted via brackets:
 
     n,Space      Go to the next image
     p,Backspace  Go to the previous image
-    g/G          Go to [select] first/last image
-    [/]          Go 10 images backward/forward
+    g,G          Go to [select] first/last image
+    [,]          Go 10 images backward/forward
+
+    Ctrl-n,p     Go to the next/previous frame of a multi-frame image
+    Ctrl-Space   Play/pause animation of a multi-frame image
 
     +,=          Zoom in
     -            Zoom out
