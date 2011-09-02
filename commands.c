@@ -30,6 +30,11 @@
 void cleanup();
 void remove_file(int, unsigned char);
 void load_image(int);
+void redraw();
+void hide_cursor();
+void animate();
+void set_timeout(timeout_f, int, int);
+void reset_timeout(timeout_f);
 
 extern appmode_t mode;
 extern img_t img;
@@ -38,10 +43,6 @@ extern win_t win;
 
 extern fileinfo_t *files;
 extern int filecnt, fileidx;
-
-extern int timo_cursor;
-extern int timo_redraw;
-extern int timo_adelay;
 
 int it_quit(arg_t a) {
 	cleanup();
@@ -54,12 +55,11 @@ int it_switch_mode(arg_t a) {
 			tns_init(&tns, filecnt);
 		img_close(&img, 0);
 		win_set_cursor(&win, CURSOR_ARROW);
-		timo_cursor = 0;
+		reset_timeout(hide_cursor);
 		tns.sel = fileidx;
 		tns.dirty = 1;
 		mode = MODE_THUMB;
 	} else {
-		timo_cursor = TO_CURSOR_HIDE;
 		load_image(tns.sel);
 		mode = MODE_IMAGE;
 	}
@@ -68,11 +68,11 @@ int it_switch_mode(arg_t a) {
 
 int it_toggle_fullscreen(arg_t a) {
 	win_toggle_fullscreen(&win);
+	set_timeout(redraw, TO_REDRAW_RESIZE, 0);
 	if (mode == MODE_IMAGE)
 		img.checkpan = 1;
 	else
 		tns.dirty = 1;
-	timo_redraw = TO_WIN_RESIZE;
 	return 0;
 }
 
@@ -156,15 +156,18 @@ int i_navigate_frame(arg_t a) {
 }
 
 int i_toggle_animation(arg_t a) {
+	int delay;
+
 	if (mode != MODE_IMAGE)
 		return 0;
 
 	if (img.multi.animate) {
-		timo_adelay = 0;
+		reset_timeout(animate);
 		img.multi.animate = 0;
 		return 0;
 	} else {
-		timo_adelay = img_frame_animate(&img, 1);
+		delay = img_frame_animate(&img, 1);
+		set_timeout(animate, delay, 1);
 		return 1;
 	}
 }
@@ -245,8 +248,8 @@ int i_drag(arg_t a) {
 	}
 	
 	win_set_cursor(&win, CURSOR_ARROW);
-	timo_cursor = TO_CURSOR_HIDE;
-	timo_redraw = 0;
+	set_timeout(hide_cursor, TO_CURSOR_HIDE, 1);
+	reset_timeout(redraw);
 
 	return 0;
 }

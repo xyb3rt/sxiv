@@ -41,6 +41,17 @@ enum {
 	FNAME_CNT = 1024
 };
 
+typedef struct {
+	struct timeval when;
+	Bool active;
+	timeout_f handler;
+} timeout_t;
+
+/* timeout handler functions: */
+void redraw();
+void hide_cursor();
+void animate();
+
 appmode_t mode;
 img_t img;
 tns_t tns;
@@ -52,9 +63,11 @@ size_t filesize;
 
 char win_title[TITLE_LEN];
 
-int timo_cursor;
-int timo_redraw;
-int timo_adelay; /* multi-frame animation delay time */
+timeout_t timeouts[] = {
+	{ { 0, 0 }, False, redraw },
+	{ { 0, 0 }, False, hide_cursor },
+	{ { 0, 0 }, False, animate }
+};
 
 void cleanup() {
 	static int in = 0;
@@ -120,6 +133,54 @@ void remove_file(int n, unsigned char silent) {
 		tns.cnt--;
 }
 
+void set_timeout(timeout_f handler, int time, int overwrite) {
+	int i;
+
+	for (i = 0; i < LEN(timeouts); i++) {
+		if (timeouts[i].handler == handler) {
+			if (!timeouts[i].active || overwrite) {
+				gettimeofday(&timeouts[i].when, 0);
+				MSEC_ADD_TO_TIMEVAL(time, &timeouts[i].when);
+				timeouts[i].active = True;
+			}
+			return;
+		}
+	}
+}
+
+void reset_timeout(timeout_f handler) {
+	int i;
+
+	for (i = 0; i < LEN(timeouts); i++) {
+		if (timeouts[i].handler == handler) {
+			timeouts[i].active = False;
+			return;
+		}
+	}
+}
+
+int check_timeouts(struct timeval *t) {
+	int i, tdiff, tmin = -1;
+	struct timeval now;
+
+	gettimeofday(&now, 0);
+	for (i = 0; i < LEN(timeouts); i++) {
+		if (timeouts[i].active) {
+			tdiff = TIMEDIFF(&timeouts[i].when, &now);
+			if (tdiff <= 0) {
+				timeouts[i].active = False;
+				if (timeouts[i].handler)
+					timeouts[i].handler();
+			} else if (tmin < 0 || tdiff < tmin) {
+				tmin = tdiff;
+			}
+		}
+	}
+	if (tmin > 0 && t)
+		MSEC_TO_TIMEVAL(tmin, t);
+	return tmin > 0;
+}
+
 void load_image(int new) {
 	struct stat fstats;
 
@@ -144,9 +205,9 @@ void load_image(int new) {
 
 	if (img.multi.cnt) {
 		if (img.multi.animate)
-			timo_adelay = img.multi.frames[img.multi.sel].delay;
+			set_timeout(animate, img.multi.frames[img.multi.sel].delay, 1);
 		else
-			timo_adelay = 0;
+			reset_timeout(animate);
 	}
 }
 
@@ -186,15 +247,31 @@ void update_title() {
 void redraw() {
 	if (mode == MODE_IMAGE) {
 		img_render(&img, &win);
-		if (timo_cursor)
-			win_set_cursor(&win, CURSOR_ARROW);
-		else
+		if (img.multi.animate) {
 			win_set_cursor(&win, CURSOR_NONE);
+		} else {
+			win_set_cursor(&win, CURSOR_ARROW);
+			set_timeout(hide_cursor, TO_CURSOR_HIDE, 1);
+		}
 	} else {
 		tns_render(&tns, &win);
 	}
 	update_title();
-	timo_redraw = 0;
+	reset_timeout(redraw);
+}
+
+void hide_cursor() {
+	win_set_cursor(&win, CURSOR_NONE);
+}
+
+void animate() {
+	int delay;
+
+	delay = img_frame_animate(&img, 0);
+	if (delay) {
+		set_timeout(animate, delay, 1);
+		redraw();
+	}
 }
 
 Bool keymask(const keymap_t *k, unsigned int state) {
@@ -233,7 +310,7 @@ void on_buttonpress(XButtonEvent *bev) {
 
 	if (mode == MODE_IMAGE) {
 		win_set_cursor(&win, CURSOR_ARROW);
-		timo_cursor = TO_CURSOR_HIDE;
+		set_timeout(hide_cursor, TO_CURSOR_HIDE, 1);
 
 		for (i = 0; i < LEN(buttons); i++) {
 			if (buttons[i].button == bev->button &&
@@ -252,7 +329,7 @@ void on_buttonpress(XButtonEvent *bev) {
 					if (sel == tns.sel) {
 						load_image(tns.sel);
 						mode = MODE_IMAGE;
-						timo_cursor = TO_CURSOR_HIDE;
+						set_timeout(hide_cursor, TO_CURSOR_HIDE, 1);
 					} else {
 						tns_highlight(&tns, &win, tns.sel, False);
 						tns_highlight(&tns, &win, sel, True);
@@ -272,75 +349,39 @@ void on_buttonpress(XButtonEvent *bev) {
 }
 
 void run() {
-	int xfd, timeout;
+	int xfd;
 	fd_set fds;
-	struct timeval tt, t0, t1;
+	struct timeval timeout;
 	XEvent ev;
-
-	timo_cursor = mode == MODE_IMAGE ? TO_CURSOR_HIDE : 0;
 
 	redraw();
 
 	while (1) {
-		if (mode == MODE_THUMB && tns.cnt < filecnt) {
+		if (!XPending(win.env.dpy)) {
 			/* load thumbnails */
-			win_set_cursor(&win, CURSOR_WATCH);
-			gettimeofday(&t0, 0);
-
-			while (tns.cnt < filecnt && !XPending(win.env.dpy)) {
+			while (mode == MODE_THUMB && tns.cnt < filecnt) {
+				win_set_cursor(&win, CURSOR_WATCH);
 				if (tns_load(&tns, tns.cnt, &files[tns.cnt], False, False))
 					tns.cnt++;
 				else
 					remove_file(tns.cnt, 0);
-				gettimeofday(&t1, 0);
-				if (TIMEDIFF(&t1, &t0) >= TO_THUMBS_LOAD)
-					break;
-			}
-			if (tns.cnt == filecnt)
-				win_set_cursor(&win, CURSOR_ARROW);
-			if (!XPending(win.env.dpy)) {
-				redraw();
-				continue;
-			} else {
-				timo_redraw = TO_THUMBS_LOAD;
-			}
-		}
-		
-		if (timo_cursor || timo_redraw || timo_adelay) {
-			/* check active timeouts */
-			gettimeofday(&t0, 0);
-			timeout = min_int_nz(3, timo_cursor, timo_redraw, timo_adelay);
-			MSEC_TO_TIMEVAL(timeout, &tt);
-			xfd = ConnectionNumber(win.env.dpy);
-			FD_ZERO(&fds);
-			FD_SET(xfd, &fds);
-
-			if (!XPending(win.env.dpy))
-				select(xfd + 1, &fds, 0, 0, &tt);
-			gettimeofday(&t1, 0);
-			timeout = MIN(TIMEDIFF(&t1, &t0), timeout);
-
-			/* timeouts fired? */
-			if (timo_cursor) {
-				timo_cursor = MAX(0, timo_cursor - timeout);
-				if (!timo_cursor)
-					win_set_cursor(&win, CURSOR_NONE);
-			}
-			if (timo_redraw) {
-				timo_redraw = MAX(0, timo_redraw - timeout);
-				if (!timo_redraw)
+				if (tns.cnt == filecnt) {
 					redraw();
-			}
-			if (timo_adelay) {
-				timo_adelay = MAX(0, timo_adelay - timeout);
-				if (!timo_adelay) {
-					if ((timo_adelay = img_frame_animate(&img, 0)))
-						redraw();
+					win_set_cursor(&win, CURSOR_ARROW);
+				} else {
+					set_timeout(redraw, TO_REDRAW_THUMBS, 0);
+					check_timeouts(NULL);
 				}
 			}
-			if ((timo_cursor || timo_redraw || timo_adelay) &&
-			    !XPending(win.env.dpy))
-				continue;
+
+			/* handle timeouts */
+			if (check_timeouts(&timeout)) {
+				xfd = ConnectionNumber(win.env.dpy);
+				FD_ZERO(&fds);
+				FD_SET(xfd, &fds);
+				if (!select(xfd + 1, &fds, 0, 0, &timeout))
+					check_timeouts(NULL);
+			}
 		}
 
 		if (!XNextEvent(win.env.dpy, &ev)) {
@@ -355,7 +396,7 @@ void run() {
 					break;
 				case ConfigureNotify:
 					if (win_configure(&win, &ev.xconfigure)) {
-						timo_redraw = TO_WIN_RESIZE;
+						set_timeout(redraw, TO_REDRAW_RESIZE, 0);
 						if (mode == MODE_IMAGE)
 							img.checkpan = 1;
 						else
@@ -366,9 +407,10 @@ void run() {
 					on_keypress(&ev.xkey);
 					break;
 				case MotionNotify:
-					if (!timo_cursor)
+					if (mode == MODE_IMAGE) {
 						win_set_cursor(&win, CURSOR_ARROW);
-					timo_cursor = TO_CURSOR_HIDE;
+						set_timeout(hide_cursor, TO_CURSOR_HIDE, 1);
+					}
 					break;
 			}
 		}

@@ -87,19 +87,6 @@ void die(const char* fmt, ...) {
 	exit(1);
 }
 
-int min_int_nz(int n, ...) {
-	va_list args;
-	int i, a, m = 0;
-
-	va_start(args, n);
-	for (i = 0; i < n; i++) {
-		if ((a = va_arg(args, int)) && (!m || a < m))
-			m = a;
-	}
-	va_end(args);
-	return m;
-}
-
 void size_readable(float *size, const char **unit) {
 	const char *units[] = { "", "K", "M", "G" };
 	int i;

@@ -33,9 +33,11 @@ typedef struct {
 
 /* timeouts in milliseconds: */
 enum {
-	TO_WIN_RESIZE  = 75,
-	TO_CURSOR_HIDE = 1500,
-	TO_THUMBS_LOAD = 200
+	TO_REDRAW_RESIZE = 75,
+	TO_REDRAW_THUMBS = 200,
+	TO_CURSOR_HIDE   = 1500
 };
+
+typedef void (*timeout_f)(void);
 
 #endif /* TYPES_H */

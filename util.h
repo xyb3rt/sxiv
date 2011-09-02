@@ -33,7 +33,12 @@
 
 #define MSEC_TO_TIMEVAL(t,tv) {         \
   (tv)->tv_sec = (t) / 1000;            \
-	(tv)->tv_usec = (t) % 1000 * 1000;    \
+  (tv)->tv_usec = (t) % 1000 * 1000;    \
+}
+
+#define MSEC_ADD_TO_TIMEVAL(t,tv) {     \
+  (tv)->tv_sec += (t) / 1000;           \
+  (tv)->tv_usec += (t) % 1000 * 1000;   \
 }
 
 #ifndef TIMESPEC_TO_TIMEVAL
@@ -59,8 +64,6 @@ char* s_strdup(char*);
 
 void warn(const char*, ...);
 void die(const char*, ...);
-
-int min_int_nz(int, ...);
 
 void size_readable(float*, const char**);
 
