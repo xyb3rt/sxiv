@@ -116,12 +116,12 @@ void remove_file(int n, unsigned char silent) {
 		exit(!silent);
 	}
 
-	if (n + 1 < filecnt) {
-		if (files[n].path != files[n].name)
-			free((void*) files[n].path);
-		free((void*) files[n].name);
+	if (files[n].path != files[n].name)
+		free((void*) files[n].path);
+	free((void*) files[n].name);
+
+	if (n + 1 < filecnt)
 		memmove(files + n, files + n + 1, (filecnt - n - 1) * sizeof(fileinfo_t));
-	}
 	if (n + 1 < tns.cnt) {
 		memmove(tns.thumbs + n, tns.thumbs + n + 1, (tns.cnt - n - 1) *
 		        sizeof(thumb_t));
