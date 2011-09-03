@@ -16,7 +16,9 @@
  * Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, USA.
  */
 
+#define _POSIX_C_SOURCE 200112L /* for setenv(3) */
 #include <stdlib.h>
+
 #include <string.h>
 #include <unistd.h>
 #include <sys/wait.h>
@@ -345,45 +347,27 @@ int it_open_with(arg_t a) {
 		warn("could not exec: %s", prog);
 		exit(1);
 	} else if (pid < 0) {
-		warn("could not for. program was: %s", prog);
+		warn("could not fork. program was: %s", prog);
 	}
 	
 	return 0;
 }
 
 int it_shell_cmd(arg_t a) {
-	const char *cline = (const char*) a;
-	char *cn, *cmdline;
-	const char *co, *fpath;
-	int fpcnt, fplen, status;
+	int n, status;
+	const char *cmdline = (const char*) a;
 	pid_t pid;
 
-	if (!cline || !*cline)
+	if (!cmdline || !*cmdline)
 		return 0;
 
-	/* build command line: */
-	fpcnt = 0;
-	co = cline - 1;
-	while ((co = strchr(co + 1, '#')))
-		fpcnt++;
-	if (!fpcnt)
+	n = mode == MODE_IMAGE ? fileidx : tns.sel;
+
+	if (setenv("SXIV_IMG", files[n].path, 1) < 0) {
+		warn("could not change env.-variable: SXIV_IMG. command line was: %s",
+		     cmdline);
 		return 0;
-	fpath = files[mode == MODE_IMAGE ? fileidx : tns.sel].path;
-	fplen = strlen(fpath);
-	cn = cmdline = (char*) s_malloc((strlen(cline) + fpcnt * (fplen + 2)) *
-	                                sizeof(char));
-	/* replace all '#' with filename: */
-	for (co = cline; *co; co++) {
-		if (*co == '#') {
-			*cn++ = '"';
-			strcpy(cn, fpath);
-			cn += fplen;
-			*cn++ = '"';
-		} else {
-			*cn++ = *co;
-		}
 	}
-	*cn = '\0';
 
 	win_set_cursor(&win, CURSOR_WATCH);
 
@@ -402,25 +386,22 @@ int it_shell_cmd(arg_t a) {
 		     WEXITSTATUS(status), cmdline);
 	
 	if (mode == MODE_IMAGE) {
-		if (fileidx < tns.cnt)
-			tns_load(&tns, fileidx, &files[fileidx], False, True);
 		img_close(&img, 1);
 		load_image(fileidx);
-	} else {
-		if (!tns_load(&tns, tns.sel, &files[tns.sel], True, False)) {
-			remove_file(tns.sel, 0);
-			tns.dirty = 1;
-			if (tns.sel >= tns.cnt)
-				tns.sel = tns.cnt - 1;
-		}
+	}
+	if (!tns_load(&tns, n, &files[n], True, mode == MODE_IMAGE) &&
+	    mode == MODE_THUMB)
+	{
+		remove_file(tns.sel, 0);
+		tns.dirty = 1;
+		if (tns.sel >= tns.cnt)
+			tns.sel = tns.cnt - 1;
 	}
 
 end:
 	if (mode == MODE_THUMB)
 		win_set_cursor(&win, CURSOR_ARROW);
 	/* else: cursor gets reset in redraw() */
-
-	free(cmdline);
 
 	return 1;
 }
