@@ -16,8 +16,6 @@
  * Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, USA.
  */
 
-#define _THUMBS_CONFIG
-
 #include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
@@ -27,6 +25,8 @@
 
 #include "thumbs.h"
 #include "util.h"
+
+#define _THUMBS_CONFIG
 #include "config.h"
 
 #ifdef __NetBSD__

@@ -16,8 +16,6 @@
  * Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, USA.
  */
 
-#define _IMAGE_CONFIG
-
 #include <unistd.h>
 
 #ifdef HAVE_GIFLIB
@@ -30,6 +28,8 @@
 #include "image.h"
 #include "options.h"
 #include "util.h"
+
+#define _IMAGE_CONFIG
 #include "config.h"
 
 enum { MIN_GIF_DELAY = 50 };

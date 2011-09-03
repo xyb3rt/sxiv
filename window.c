@@ -16,16 +16,15 @@
  * Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, USA.
  */
 
-#define _WINDOW_CONFIG
-
 #include <string.h>
-
 #include <X11/Xutil.h>
 #include <X11/cursorfont.h>
 
 #include "options.h"
 #include "util.h"
 #include "window.h"
+
+#define _WINDOW_CONFIG
 #include "config.h"
 
 static Cursor carrow;

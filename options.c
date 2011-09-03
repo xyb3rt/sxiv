@@ -16,16 +16,17 @@
  * Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, USA.
  */
 
-#define _XOPEN_SOURCE
-#define _IMAGE_CONFIG
+#define _POSIX_C_SOURCE 2 /* for getopt(3) */
+#include <unistd.h>
 
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include <unistd.h>
 
 #include "options.h"
 #include "util.h"
+
+#define _IMAGE_CONFIG
 #include "config.h"
 
 options_t _options;
