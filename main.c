@@ -49,7 +49,7 @@ typedef struct {
 
 /* timeout handler functions: */
 void redraw();
-void hide_cursor();
+void reset_cursor();
 void animate();
 
 appmode_t mode;
@@ -65,7 +65,7 @@ char win_title[TITLE_LEN];
 
 timeout_t timeouts[] = {
 	{ { 0, 0 }, False, redraw },
-	{ { 0, 0 }, False, hide_cursor },
+	{ { 0, 0 }, False, reset_cursor },
 	{ { 0, 0 }, False, animate }
 };
 
@@ -189,10 +189,9 @@ void load_image(int new) {
 	if (new < 0 || new >= filecnt)
 		return;
 
-	/* cursor gets reset in redraw() */
 	win_set_cursor(&win, CURSOR_WATCH);
+
 	img_close(&img, 0);
-		
 	while (!img_load(&img, &files[new])) {
 		remove_file(new, 0);
 		if (new >= filecnt)
@@ -247,23 +246,34 @@ void update_title() {
 }
 
 void redraw() {
-	if (mode == MODE_IMAGE) {
+	if (mode == MODE_IMAGE)
 		img_render(&img, &win);
-		if (img.multi.animate) {
-			win_set_cursor(&win, CURSOR_NONE);
-		} else {
-			win_set_cursor(&win, CURSOR_ARROW);
-			set_timeout(hide_cursor, TO_CURSOR_HIDE, 1);
-		}
-	} else {
+	else
 		tns_render(&tns, &win);
-	}
 	update_title();
 	reset_timeout(redraw);
+	reset_cursor();
 }
 
-void hide_cursor() {
-	win_set_cursor(&win, CURSOR_NONE);
+void reset_cursor() {
+	int i;
+	cursor_t cursor = CURSOR_NONE;
+
+	if (mode == MODE_IMAGE) {
+		for (i = 0; i < LEN(timeouts); i++) {
+			if (timeouts[i].handler == reset_cursor) {
+				if (timeouts[i].active)
+					cursor = CURSOR_ARROW;
+				break;
+			}
+		}
+	} else {
+		if (tns.cnt != filecnt)
+			cursor = CURSOR_WATCH;
+		else
+			cursor = CURSOR_ARROW;
+	}
+	win_set_cursor(&win, cursor);
 }
 
 void animate() {
@@ -312,7 +322,7 @@ void on_buttonpress(XButtonEvent *bev) {
 
 	if (mode == MODE_IMAGE) {
 		win_set_cursor(&win, CURSOR_ARROW);
-		set_timeout(hide_cursor, TO_CURSOR_HIDE, 1);
+		set_timeout(reset_cursor, TO_CURSOR_HIDE, 1);
 
 		for (i = 0; i < LEN(buttons); i++) {
 			if (buttons[i].button == bev->button &&
@@ -329,15 +339,15 @@ void on_buttonpress(XButtonEvent *bev) {
 			case Button1:
 				if ((sel = tns_translate(&tns, bev->x, bev->y)) >= 0) {
 					if (sel == tns.sel) {
-						load_image(tns.sel);
 						mode = MODE_IMAGE;
-						set_timeout(hide_cursor, TO_CURSOR_HIDE, 1);
+						set_timeout(reset_cursor, TO_CURSOR_HIDE, 1);
+						load_image(tns.sel);
+						redraw();
 					} else {
 						tns_highlight(&tns, &win, tns.sel, False);
 						tns_highlight(&tns, &win, sel, True);
 						tns.sel = sel;
 					}
-					redraw();
 					break;
 				}
 				break;
@@ -363,18 +373,15 @@ void run() {
 		       !XPending(win.env.dpy))
 		{
 			/* load thumbnails */
-			win_set_cursor(&win, CURSOR_WATCH);
 			set_timeout(redraw, TO_REDRAW_THUMBS, 0);
 			if (tns_load(&tns, tns.cnt, &files[tns.cnt], False, False))
 				tns.cnt++;
 			else
 				remove_file(tns.cnt, 0);
-			if (tns.cnt == filecnt) {
+			if (tns.cnt == filecnt)
 				redraw();
-				win_set_cursor(&win, CURSOR_ARROW);
-			} else {
+			else
 				check_timeouts(NULL);
-			}
 		}
 
 		while (!XPending(win.env.dpy) && check_timeouts(&timeout)) {
@@ -410,7 +417,7 @@ void run() {
 				case MotionNotify:
 					if (mode == MODE_IMAGE) {
 						win_set_cursor(&win, CURSOR_ARROW);
-						set_timeout(hide_cursor, TO_CURSOR_HIDE, 1);
+						set_timeout(reset_cursor, TO_CURSOR_HIDE, 1);
 					}
 					break;
 			}

@@ -33,7 +33,7 @@ void cleanup();
 void remove_file(int, unsigned char);
 void load_image(int);
 void redraw();
-void hide_cursor();
+void reset_cursor();
 void animate();
 void set_timeout(timeout_f, int, int);
 void reset_timeout(timeout_f);
@@ -56,8 +56,7 @@ int it_switch_mode(arg_t a) {
 		if (!tns.thumbs)
 			tns_init(&tns, filecnt);
 		img_close(&img, 0);
-		win_set_cursor(&win, CURSOR_ARROW);
-		reset_timeout(hide_cursor);
+		reset_timeout(reset_cursor);
 		tns.sel = fileidx;
 		tns.dirty = 1;
 		mode = MODE_THUMB;
@@ -81,11 +80,14 @@ int it_toggle_fullscreen(arg_t a) {
 int it_reload_image(arg_t a) {
 	if (mode == MODE_IMAGE) {
 		load_image(fileidx);
-	} else if (!tns_load(&tns, tns.sel, &files[tns.sel], True, False)) {
-		remove_file(tns.sel, 0);
-		tns.dirty = 1;
-		if (tns.sel >= tns.cnt)
-			tns.sel = tns.cnt - 1;
+	} else {
+		win_set_cursor(&win, CURSOR_WATCH);
+		if (!tns_load(&tns, tns.sel, &files[tns.sel], True, False)) {
+			remove_file(tns.sel, 0);
+			tns.dirty = 1;
+			if (tns.sel >= tns.cnt)
+				tns.sel = tns.cnt - 1;
+		}
 	}
 	return 1;
 }
@@ -250,7 +252,7 @@ int i_drag(arg_t a) {
 	}
 	
 	win_set_cursor(&win, CURSOR_ARROW);
-	set_timeout(hide_cursor, TO_CURSOR_HIDE, 1);
+	set_timeout(reset_cursor, TO_CURSOR_HIDE, 1);
 	reset_timeout(redraw);
 
 	return 0;
@@ -369,16 +371,16 @@ int it_shell_cmd(arg_t a) {
 		return 0;
 	}
 
-	win_set_cursor(&win, CURSOR_WATCH);
-
 	if ((pid = fork()) == 0) {
 		execl("/bin/sh", "/bin/sh", "-c", cmdline, NULL);
 		warn("could not exec: /bin/sh");
 		exit(1);
 	} else if (pid < 0) {
 		warn("could not fork. command line was: %s", cmdline);
-		goto end;
+		return 0;
 	}
+
+	win_set_cursor(&win, CURSOR_WATCH);
 
 	waitpid(pid, &status, 0);
 	if (!WIFEXITED(status) || WEXITSTATUS(status) != 0)
@@ -397,11 +399,6 @@ int it_shell_cmd(arg_t a) {
 		if (tns.sel >= tns.cnt)
 			tns.sel = tns.cnt - 1;
 	}
-
-end:
-	if (mode == MODE_THUMB)
-		win_set_cursor(&win, CURSOR_ARROW);
-	/* else: cursor gets reset in redraw() */
 
 	return 1;
 }
