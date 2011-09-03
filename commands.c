@@ -109,7 +109,7 @@ int it_remove_image(arg_t a) {
 }
 
 int i_navigate(arg_t a) {
-	int n = (int) a;
+	long n = (long) a;
 
 	if (mode == MODE_IMAGE) {
 		n += fileidx;
@@ -154,7 +154,7 @@ int it_last(arg_t a) {
 
 int i_navigate_frame(arg_t a) {
 	if (mode == MODE_IMAGE && !img.multi.animate)
-		return img_frame_navigate(&img, (int) a);
+		return img_frame_navigate(&img, (long) a);
 	else
 		return 0;
 }
@@ -259,7 +259,7 @@ int i_drag(arg_t a) {
 }
 
 int i_zoom(arg_t a) {
-	int scale = (int) a;
+	long scale = (long) a;
 
 	if (mode != MODE_IMAGE)
 		return 0;
