@@ -342,12 +342,12 @@ void on_buttonpress(XButtonEvent *bev) {
 						mode = MODE_IMAGE;
 						set_timeout(reset_cursor, TO_CURSOR_HIDE, 1);
 						load_image(tns.sel);
-						redraw();
 					} else {
 						tns_highlight(&tns, &win, tns.sel, False);
 						tns_highlight(&tns, &win, sel, True);
 						tns.sel = sel;
 					}
+					redraw();
 					break;
 				}
 				break;
