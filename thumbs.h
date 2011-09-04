@@ -44,6 +44,7 @@ typedef struct {
 	int rows;
 	int first;
 	int sel;
+	unsigned char alpha;
 	unsigned char dirty;
 } tns_t;
 

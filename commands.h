@@ -58,7 +58,7 @@ int i_fit_to_win(arg_t);
 int i_fit_to_img(arg_t);
 int i_rotate(arg_t);
 int i_toggle_antialias(arg_t);
-int i_toggle_alpha(arg_t);
+int it_toggle_alpha(arg_t);
 int it_open_with(arg_t);
 int it_shell_cmd(arg_t);
 

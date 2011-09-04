@@ -105,7 +105,7 @@ static const keymap_t keys[] = {
 	{ False,  XK_greater,       i_rotate,             (arg_t) DIR_RIGHT },
 
 	{ False,  XK_a,             i_toggle_antialias,   (arg_t) None },
-	{ False,  XK_A,             i_toggle_alpha,       (arg_t) None },
+	{ False,  XK_A,             it_toggle_alpha,      (arg_t) None },
 
 	/* open current image with given program: */
 	{ True,   XK_g,             it_open_with,         (arg_t) "gimp" },

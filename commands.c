@@ -327,13 +327,12 @@ int i_toggle_antialias(arg_t a) {
 	}
 }
 
-int i_toggle_alpha(arg_t a) {
-	if (mode == MODE_IMAGE) {
-		img.alpha ^= 1;
-		return 1;
-	} else {
-		return 0;
-	}
+int it_toggle_alpha(arg_t a) {
+	img.alpha ^= 1;
+	tns.alpha = img.alpha;
+	if (mode == MODE_THUMB)
+		tns.dirty = 1;
+	return 1;
 }
 
 int it_open_with(arg_t a) {

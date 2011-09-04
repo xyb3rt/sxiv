@@ -176,6 +176,7 @@ void tns_init(tns_t *tns, int cnt) {
 
 	tns->cnt = tns->first = tns->sel = 0;
 	tns->cap = cnt;
+	tns->alpha = 1;
 	tns->dirty = 0;
 
 	if ((homedir = getenv("HOME"))) {
@@ -335,6 +336,10 @@ void tns_render(tns_t *tns, win_t *win) {
 		t->x = x + (THUMB_SIZE - t->w) / 2;
 		t->y = y + (THUMB_SIZE - t->h) / 2;
 		imlib_context_set_image(t->im);
+
+		if (imlib_image_has_alpha() && !tns->alpha)
+			win_draw_rect(win, win->pm, t->x, t->y, t->w, t->h, True, 0, win->white);
+
 		imlib_render_image_part_on_drawable_at_size(0, 0, t->w, t->h,
 		                                            t->x, t->y, t->w, t->h);
 		if ((i + 1) % tns->cols == 0) {
