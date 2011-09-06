@@ -16,11 +16,12 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
+#include <string.h>
 #include <unistd.h>
+#include <libexif/exif-data.h>
 
 #ifdef GIF_SUPPORT
 #include <stdlib.h>
-#include <string.h>
 #include <sys/types.h>
 #include <gif_lib.h>
 #endif
@@ -36,6 +37,49 @@ enum { MIN_GIF_DELAY = 50 };
 
 float zoom_min;
 float zoom_max;
+
+void exif_auto_orientate(const fileinfo_t *file) {
+	ExifData *ed;
+	ExifEntry *entry;
+	int byte_order, orientation;
+
+	if (!(ed = exif_data_new_from_file(file->path)))
+		return;
+	entry = exif_content_get_entry(ed->ifd[EXIF_IFD_0], EXIF_TAG_ORIENTATION);
+	if (entry) {
+		byte_order = exif_data_get_byte_order(ed);
+		orientation = exif_get_short(entry->data, byte_order);
+	}
+	exif_data_unref(ed);
+	if (!entry)
+		return;
+
+	switch (orientation) {
+		case 5:
+			imlib_image_orientate(1);
+		case 2:
+			imlib_image_flip_vertical();
+			break;
+
+		case 3:
+			imlib_image_orientate(2);
+			break;
+
+		case 7:
+			imlib_image_orientate(1);
+		case 4:
+			imlib_image_flip_horizontal();
+			break;
+
+		case 6:
+			imlib_image_orientate(1);
+			break;
+
+		case 8:
+			imlib_image_orientate(270);
+			break;
+	}
+}
 
 void img_init(img_t *img, win_t *win) {
 	zoom_min = zoom_levels[0] / 100.0;
@@ -241,6 +285,8 @@ int img_load(img_t *img, const fileinfo_t *file) {
 	imlib_context_set_anti_alias(img->aa);
 
 	fmt = imlib_image_format();
+	if (!strcmp(fmt, "jpeg"))
+		exif_auto_orientate(file);
 #ifdef GIF_SUPPORT
 	if (!strcmp(fmt, "gif"))
 		img_load_gif(img, file);
