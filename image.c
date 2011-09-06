@@ -60,7 +60,7 @@ void img_init(img_t *img, win_t *win) {
 }
 
 #ifdef HAVE_GIFLIB
-/* originally based on, but in it's current form merely inspired by Imlib2's
+/* Originally based on, but in its current form merely inspired by Imlib2's
  * src/modules/loaders/loader_gif.c:load(), written by Carsten Haitzler.
  */
 int img_load_gif(img_t *img, const fileinfo_t *file) {
@@ -97,7 +97,6 @@ int img_load_gif(img_t *img, const fileinfo_t *file) {
 
 	do {
 		if (DGifGetRecordType(gif, &rec) == GIF_ERROR) {
-			warn("could not open gif file: %s", file->name);
 			err = 1;
 			break;
 		}
@@ -122,7 +121,6 @@ int img_load_gif(img_t *img, const fileinfo_t *file) {
 			}
 		} else if (rec == IMAGE_DESC_RECORD_TYPE) {
 			if (DGifGetImageDesc(gif) == GIF_ERROR) {
-				warn("could not open gif frame # %d: %s", img->multi.cnt, file->name);
 				err = 1;
 				break;
 			}
@@ -181,7 +179,6 @@ int img_load_gif(img_t *img, const fileinfo_t *file) {
 			free(data);
 
 			if (!im) {
-				warn("could not open gif frame # %d: %s", img->multi.cnt, file->name);
 				err = 1;
 				break;
 			}
@@ -207,16 +204,17 @@ int img_load_gif(img_t *img, const fileinfo_t *file) {
 
 	DGifCloseFile(gif);
 
-	if (!err && img->multi.cnt > 1) {
+	if (err && !file->loaded)
+		warn("corrupted gif file: %s", file->name);
+
+	if (img->multi.cnt > 1) {
 		imlib_context_set_image(img->im);
 		imlib_free_image();
 		img->im = img->multi.frames[0].im;
 		img->multi.animate = GIF_AUTOPLAY;
-	} else {
-		for (i = 0; i < img->multi.cnt; i++) {
-			imlib_context_set_image(img->multi.frames[i].im);
-			imlib_free_image();
-		}
+	} else if (img->multi.cnt == 1) {
+		imlib_context_set_image(img->multi.frames[0].im);
+		imlib_free_image();
 		img->multi.cnt = 0;
 		img->multi.animate = 0;
 	}

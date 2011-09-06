@@ -29,6 +29,7 @@ typedef enum {
 typedef struct {
 	const char *name; /* as given by user */
 	const char *path; /* always absolute */
+	unsigned char loaded;
 } fileinfo_t;
 
 /* timeouts in milliseconds: */

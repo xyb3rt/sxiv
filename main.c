@@ -99,6 +99,7 @@ void check_add_file(char *filename) {
 			return;
 		}
 	}
+	files[fileidx].loaded = 0;
 	files[fileidx].name = s_strdup(filename);
 	if (*filename == '/')
 		files[fileidx].path = files[fileidx].name;
@@ -198,18 +199,17 @@ void load_image(int new) {
 			new = filecnt - 1;
 	}
 
+	files[new].loaded = 1;
 	fileidx = new;
 	if (!stat(files[new].path, &fstats))
 		filesize = fstats.st_size;
 	else
 		filesize = 0;
 
-	if (img.multi.cnt) {
-		if (img.multi.animate)
-			set_timeout(animate, img.multi.frames[img.multi.sel].delay, 1);
-		else
-			reset_timeout(animate);
-	}
+	if (img.multi.cnt && img.multi.animate)
+		set_timeout(animate, img.multi.frames[img.multi.sel].delay, 1);
+	else
+		reset_timeout(animate);
 }
 
 void update_title() {
