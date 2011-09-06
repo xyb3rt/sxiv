@@ -34,14 +34,12 @@
 
 enum { MIN_GIF_DELAY = 50 };
 
-int zl_cnt;
 float zoom_min;
 float zoom_max;
 
 void img_init(img_t *img, win_t *win) {
-	zl_cnt = sizeof(zoom_levels) / sizeof(zoom_levels[0]);
 	zoom_min = zoom_levels[0] / 100.0;
-	zoom_max = zoom_levels[zl_cnt - 1] / 100.0;
+	zoom_max = zoom_levels[ARRLEN(zoom_levels) - 1] / 100.0;
 
 	if (img) {
 		img->im = NULL;
@@ -442,7 +440,7 @@ int img_zoom_in(img_t *img, win_t *win) {
 	if (!img || !img->im || !win)
 		return 0;
 
-	for (i = 1; i < zl_cnt; i++) {
+	for (i = 1; i < ARRLEN(zoom_levels); i++) {
 		if (zoom_levels[i] > img->zoom * 100.0)
 			return img_zoom(img, win, zoom_levels[i] / 100.0);
 	}
@@ -455,7 +453,7 @@ int img_zoom_out(img_t *img, win_t *win) {
 	if (!img || !img->im || !win)
 		return 0;
 
-	for (i = zl_cnt - 2; i >= 0; i--) {
+	for (i = ARRLEN(zoom_levels) - 2; i >= 0; i--) {
 		if (zoom_levels[i] < img->zoom * 100.0)
 			return img_zoom(img, win, zoom_levels[i] / 100.0);
 	}
