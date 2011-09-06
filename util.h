@@ -23,10 +23,14 @@
 #include <stdarg.h>
 #include <dirent.h>
 
-#define ABS(a)   ((a) < 0 ? (-(a)) : (a))
+#ifndef MIN
 #define MIN(a,b) ((a) < (b) ? (a) : (b))
+#endif
+#ifndef MAX
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
-#define LEN(a)   (sizeof(a) / sizeof(a[0]))
+#endif
+
+#define ARRLEN(a) (sizeof(a) / sizeof(a[0]))
 
 #define TIMEDIFF(t1,t2) (((t1)->tv_sec - (t2)->tv_sec) * 1000 +  \
                          ((t1)->tv_usec - (t2)->tv_usec) / 1000)

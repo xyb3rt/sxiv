@@ -136,7 +136,7 @@ void remove_file(int n, unsigned char silent) {
 void set_timeout(timeout_f handler, int time, int overwrite) {
 	int i;
 
-	for (i = 0; i < LEN(timeouts); i++) {
+	for (i = 0; i < ARRLEN(timeouts); i++) {
 		if (timeouts[i].handler == handler) {
 			if (!timeouts[i].active || overwrite) {
 				gettimeofday(&timeouts[i].when, 0);
@@ -151,7 +151,7 @@ void set_timeout(timeout_f handler, int time, int overwrite) {
 void reset_timeout(timeout_f handler) {
 	int i;
 
-	for (i = 0; i < LEN(timeouts); i++) {
+	for (i = 0; i < ARRLEN(timeouts); i++) {
 		if (timeouts[i].handler == handler) {
 			timeouts[i].active = False;
 			return;
@@ -164,7 +164,7 @@ int check_timeouts(struct timeval *t) {
 	struct timeval now;
 
 	gettimeofday(&now, 0);
-	while (i < LEN(timeouts)) {
+	while (i < ARRLEN(timeouts)) {
 		if (timeouts[i].active) {
 			tdiff = TIMEDIFF(&timeouts[i].when, &now);
 			if (tdiff <= 0) {
@@ -260,7 +260,7 @@ void reset_cursor() {
 	cursor_t cursor = CURSOR_NONE;
 
 	if (mode == MODE_IMAGE) {
-		for (i = 0; i < LEN(timeouts); i++) {
+		for (i = 0; i < ARRLEN(timeouts); i++) {
 			if (timeouts[i].handler == reset_cursor) {
 				if (timeouts[i].active)
 					cursor = CURSOR_ARROW;
@@ -305,7 +305,7 @@ void on_keypress(XKeyEvent *kev) {
 
 	XLookupString(kev, &key, 1, &ksym, NULL);
 
-	for (i = 0; i < LEN(keys); i++) {
+	for (i = 0; i < ARRLEN(keys); i++) {
 		if (keys[i].ksym == ksym && keymask(&keys[i], kev->state)) {
 			if (keys[i].cmd && keys[i].cmd(keys[i].arg))
 				redraw();
@@ -324,7 +324,7 @@ void on_buttonpress(XButtonEvent *bev) {
 		win_set_cursor(&win, CURSOR_ARROW);
 		set_timeout(reset_cursor, TO_CURSOR_HIDE, 1);
 
-		for (i = 0; i < LEN(buttons); i++) {
+		for (i = 0; i < ARRLEN(buttons); i++) {
 			if (buttons[i].button == bev->button &&
 			    buttonmask(&buttons[i], bev->state))
 			{

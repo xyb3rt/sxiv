@@ -91,9 +91,9 @@ void size_readable(float *size, const char **unit) {
 	const char *units[] = { "", "K", "M", "G" };
 	int i;
 
-	for (i = 0; i < LEN(units) && *size > 1024; i++)
+	for (i = 0; i < ARRLEN(units) && *size > 1024; i++)
 		*size /= 1024;
-	*unit = units[MIN(i, LEN(units) - 1)];
+	*unit = units[MIN(i, ARRLEN(units) - 1)];
 }
 
 char* absolute_path(const char *filename) {
