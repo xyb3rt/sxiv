@@ -18,7 +18,10 @@
 
 #include <string.h>
 #include <unistd.h>
+
+#ifdef EXIF_SUPPORT
 #include <libexif/exif-data.h>
+#endif
 
 #ifdef GIF_SUPPORT
 #include <stdlib.h>
@@ -38,6 +41,29 @@ enum { MIN_GIF_DELAY = 50 };
 float zoom_min;
 float zoom_max;
 
+void img_init(img_t *img, win_t *win) {
+	zoom_min = zoom_levels[0] / 100.0;
+	zoom_max = zoom_levels[ARRLEN(zoom_levels) - 1] / 100.0;
+
+	if (img) {
+		img->im = NULL;
+		img->multi.cap = img->multi.cnt = 0;
+		img->multi.animate = 0;
+		img->zoom = options->zoom;
+		img->zoom = MAX(img->zoom, zoom_min);
+		img->zoom = MIN(img->zoom, zoom_max);
+		img->aa = options->aa;
+		img->alpha = 1;
+	}
+
+	if (win) {
+		imlib_context_set_display(win->env.dpy);
+		imlib_context_set_visual(win->env.vis);
+		imlib_context_set_colormap(win->env.cmap);
+	}
+}
+
+#ifdef EXIF_SUPPORT
 void exif_auto_orientate(const fileinfo_t *file) {
 	ExifData *ed;
 	ExifEntry *entry;
@@ -80,28 +106,7 @@ void exif_auto_orientate(const fileinfo_t *file) {
 			break;
 	}
 }
-
-void img_init(img_t *img, win_t *win) {
-	zoom_min = zoom_levels[0] / 100.0;
-	zoom_max = zoom_levels[ARRLEN(zoom_levels) - 1] / 100.0;
-
-	if (img) {
-		img->im = NULL;
-		img->multi.cap = img->multi.cnt = 0;
-		img->multi.animate = 0;
-		img->zoom = options->zoom;
-		img->zoom = MAX(img->zoom, zoom_min);
-		img->zoom = MIN(img->zoom, zoom_max);
-		img->aa = options->aa;
-		img->alpha = 1;
-	}
-
-	if (win) {
-		imlib_context_set_display(win->env.dpy);
-		imlib_context_set_visual(win->env.vis);
-		imlib_context_set_colormap(win->env.cmap);
-	}
-}
+#endif /* EXIF_SUPPORT */
 
 #ifdef GIF_SUPPORT
 /* Originally based on, but in its current form merely inspired by Imlib2's
@@ -285,14 +290,16 @@ int img_load(img_t *img, const fileinfo_t *file) {
 	imlib_context_set_anti_alias(img->aa);
 
 	fmt = imlib_image_format();
+	/* avoid unused-but-set-variable warning */
+	(void) fmt;
+
+#ifdef EXIF_SUPPORT
 	if (!strcmp(fmt, "jpeg"))
 		exif_auto_orientate(file);
+#endif
 #ifdef GIF_SUPPORT
 	if (!strcmp(fmt, "gif"))
 		img_load_gif(img, file);
-#else
-	/* avoid unused-but-set-variable warning */
-	(void) fmt;
 #endif
 
 	img->scalemode = options->scalemode;

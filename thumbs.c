@@ -34,7 +34,9 @@
 #define st_atim st_atimespec
 #endif
 
+#ifdef EXIF_SUPPORT
 void exif_auto_orientate(const fileinfo_t*);
+#endif
 
 const int thumb_dim = THUMB_SIZE + 10;
 char *cache_dir = NULL;
@@ -255,11 +257,14 @@ int tns_load(tns_t *tns, int n, const fileinfo_t *file,
 	imlib_context_set_image(im);
 	imlib_context_set_anti_alias(1);
 
-	if (!cache_hit) {
-		fmt = imlib_image_format();
-		if (!strcmp(fmt, "jpeg"))
-			exif_auto_orientate(file);
-	}
+	fmt = imlib_image_format();
+	/* avoid unused-but-set-variable warning */
+	(void) fmt;
+
+#ifdef EXIF_SUPPORT
+	if (!cache_hit !strcmp(fmt, "jpeg"))
+		exif_auto_orientate(file);
+#endif
 
 	w = imlib_image_get_width();
 	h = imlib_image_get_height();
