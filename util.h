@@ -45,13 +45,6 @@
   (tv)->tv_usec += (t) % 1000 * 1000;   \
 }
 
-#ifndef TIMESPEC_TO_TIMEVAL
-#define TIMESPEC_TO_TIMEVAL(tv,ts) {    \
-  (tv)->tv_sec = (ts)->tv_sec;          \
-  (tv)->tv_usec = (ts)->tv_nsec / 1000; \
-}
-#endif
-
 typedef struct {
 	DIR *dir;
 	char *name;
@@ -68,6 +61,8 @@ char* s_strdup(char*);
 
 void warn(const char*, ...);
 void die(const char*, ...);
+
+ssize_t get_line(char**, size_t*, FILE*);
 
 void size_readable(float*, const char**);
 

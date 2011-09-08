@@ -16,6 +16,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
+#define _POSIX_C_SOURCE 200112L
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -430,8 +432,9 @@ int fncmp(const void *a, const void *b) {
 }
 
 int main(int argc, char **argv) {
-	int i, len, start;
+	int i, start;
 	size_t n;
+	ssize_t len;
 	char *filename;
 	struct stat fstats;
 	r_dir_t dir;
@@ -460,11 +463,13 @@ int main(int argc, char **argv) {
 	/* build file list: */
 	if (options->from_stdin) {
 		filename = NULL;
-		while ((len = getline(&filename, &n, stdin)) > 0) {
+		while ((len = get_line(&filename, &n, stdin)) > 0) {
 			if (filename[len-1] == '\n')
 				filename[len-1] = '\0';
 			check_add_file(filename);
 		}
+		if (filename)
+			free(filename);
 	} else {
 		for (i = 0; i < options->filecnt; i++) {
 			filename = options->filenames[i];

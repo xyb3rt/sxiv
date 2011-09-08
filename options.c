@@ -16,12 +16,12 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-#define _POSIX_C_SOURCE 2 /* for getopt(3) */
-#include <unistd.h>
+#define _POSIX_C_SOURCE 200112L
 
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <unistd.h>
 
 #include "options.h"
 #include "util.h"

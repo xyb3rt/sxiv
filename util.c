@@ -16,6 +16,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
+#define _POSIX_C_SOURCE 200112L
+
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
@@ -27,6 +29,7 @@
 #include "util.h"
 
 enum {
+	BUF_SIZE  = 1024,
 	DNAME_CNT = 512,
 	FNAME_LEN = 1024
 };
@@ -87,6 +90,39 @@ void die(const char* fmt, ...) {
 	exit(1);
 }
 
+ssize_t get_line(char **buf, size_t *n, FILE *stream) {
+	size_t len;
+	char *s;
+
+	if (!stream || feof(stream) || ferror(stream))
+		return -1;
+
+	if (!*buf || !*n) {
+		*n = BUF_SIZE;
+		*buf = (char*) s_malloc(*n);
+	}
+	s = *buf;
+
+	while (1) {
+		if (!fgets(s, *n - (s - *buf), stream))
+			return -1;
+		len = strlen(s);
+		if (feof(stream))
+			break;
+		if (len > 0 && s[len-1] == '\n')
+			break;
+		if (len + 1 == *n - (s - *buf)) {
+			*buf = (char*) s_realloc(*buf, 2 * *n);
+			s = *buf + *n - 1;
+			*n *= 2;
+		} else {
+			s += len;
+		}
+	}
+
+	return s - *buf + len;
+}
+
 void size_readable(float *size, const char **unit) {
 	const char *units[] = { "", "K", "M", "G" };
 	int i;
@@ -98,13 +134,9 @@ void size_readable(float *size, const char **unit) {
 
 char* absolute_path(const char *filename) {
 	size_t len;
-	char *path = NULL;
 	const char *basename;
-	char *dirname = NULL;
-	char *cwd = NULL;
-	char *twd = NULL;
-	char *dir;
-	char *s;
+	char *dir, *dirname = NULL, *path = NULL, *s;
+	char *cwd = NULL, *twd = NULL;
 
 	if (!filename || *filename == '\0' || *filename == '/')
 		return NULL;

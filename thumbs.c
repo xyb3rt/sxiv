@@ -16,23 +16,20 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
+#define _POSIX_C_SOURCE 200112L
+
 #include <stdlib.h>
 #include <string.h>
-#include <sys/time.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <utime.h>
 
 #include "thumbs.h"
 #include "util.h"
 
 #define _THUMBS_CONFIG
 #include "config.h"
-
-#ifdef __NetBSD__
-#define st_mtim st_mtimespec
-#define st_atim st_atimespec
-#endif
 
 #ifdef EXIF_SUPPORT
 void exif_auto_orientate(const fileinfo_t*);
@@ -76,12 +73,8 @@ Imlib_Image* tns_cache_load(const char *filepath) {
 		return NULL;
 
 	if ((cfile = tns_cache_filepath(filepath))) {
-		if (!stat(cfile, &cstats) &&
-		    cstats.st_mtim.tv_sec == fstats.st_mtim.tv_sec &&
-		    cstats.st_mtim.tv_nsec / 1000 == fstats.st_mtim.tv_nsec / 1000)
-		{
+		if (!stat(cfile, &cstats) && cstats.st_mtime == fstats.st_mtime)
 			im = imlib_load_image(cfile);
-		}
 		free(cfile);
 	}
 
@@ -91,7 +84,7 @@ Imlib_Image* tns_cache_load(const char *filepath) {
 void tns_cache_write(thumb_t *t, Bool force) {
 	char *cfile, *dirend;
 	struct stat cstats, fstats;
-	struct timeval times[2];
+	struct utimbuf times;
 	Imlib_Load_Error err = 0;
 
 	if (!t || !t->im || !t->file || !t->file->name || !t->file->path)
@@ -101,10 +94,7 @@ void tns_cache_write(thumb_t *t, Bool force) {
 		return;
 
 	if ((cfile = tns_cache_filepath(t->file->path))) {
-		if (force || stat(cfile, &cstats) ||
-		    cstats.st_mtim.tv_sec != fstats.st_mtim.tv_sec ||
-		    cstats.st_mtim.tv_nsec / 1000 != fstats.st_mtim.tv_nsec / 1000)
-		{
+		if (force || stat(cfile, &cstats) || cstats.st_mtime != fstats.st_mtime) {
 			if ((dirend = strrchr(cfile, '/'))) {
 				*dirend = '\0';
 				err = r_mkdir(cfile);
@@ -120,9 +110,9 @@ void tns_cache_write(thumb_t *t, Bool force) {
 			if (err) {
 				warn("could not cache thumbnail: %s", t->file->name);
 			} else {
-				TIMESPEC_TO_TIMEVAL(&times[0], &fstats.st_atim);
-				TIMESPEC_TO_TIMEVAL(&times[1], &fstats.st_mtim);
-				utimes(cfile, times);
+				times.actime = fstats.st_atime;
+				times.modtime = fstats.st_mtime;
+				utime(cfile, &times);
 			}
 		}
 		free(cfile);
