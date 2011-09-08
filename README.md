@@ -7,6 +7,21 @@ want). It has vi key bindings and works nicely with tiling window managers.
 Its code base should be kept small and clean to make it easy for you to dig
 into it and customize it for your needs.
 
+Features
+========
+
+* Basic image operations, e.g. zooming, panning, rotating
+* Customizable key and mouse button mappings (in *config.h*)
+* Thumbnail mode: grid of selectable previews of all images
+* Ability to cache thumbnails for fast re-loading
+* Basic support for multi-frame images
+
+Additional features, that need to be included at compile-time--see next section
+on how to enable them:
+
+* Play GIF animations
+* Auto-orientate JPEG images according to their EXIF tags
+
 Installation
 ============
 sxiv is built using the commands:
@@ -23,7 +38,7 @@ command to:
 
     # make PREFIX="/your/dir" install
 
-All build-time specific settings can be found in the file "config.h". Please
+All build-time specific settings can be found in the file *config.h*. Please
 check and change them, so that they fit your needs.
 
 Additional features
