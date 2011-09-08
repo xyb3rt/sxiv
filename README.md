@@ -15,12 +15,25 @@ Features
 * Thumbnail mode: grid of selectable previews of all images
 * Ability to cache thumbnails for fast re-loading
 * Basic support for multi-frame images
+* Display image information in window title
 
 Additional features, that need to be included at compile-time--see next section
 on how to enable them:
 
 * Play GIF animations
 * Auto-orientate JPEG images according to their EXIF tags
+
+Screenshots
+===========
+
+Image mode:
+
+  <img src="http://github.com/muennich/sxiv/raw/master/sample/image.png">
+
+
+Thumbnail mode:
+
+  <img src="http://github.com/muennich/sxiv/raw/master/sample/thumb.png">
 
 Installation
 ============
