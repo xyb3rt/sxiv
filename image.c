@@ -18,7 +18,7 @@
 
 #include <unistd.h>
 
-#ifdef HAVE_GIFLIB
+#ifdef GIF_SUPPORT
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
@@ -59,7 +59,7 @@ void img_init(img_t *img, win_t *win) {
 	}
 }
 
-#ifdef HAVE_GIFLIB
+#ifdef GIF_SUPPORT
 /* Originally based on, but in its current form merely inspired by Imlib2's
  * src/modules/loaders/loader_gif.c:load(), written by Carsten Haitzler.
  */
@@ -223,7 +223,7 @@ int img_load_gif(img_t *img, const fileinfo_t *file) {
 
 	return !err;
 }
-#endif /* HAVE_GIFLIB */
+#endif /* GIF_SUPPORT */
 
 int img_load(img_t *img, const fileinfo_t *file) {
 	const char *fmt;
@@ -241,7 +241,7 @@ int img_load(img_t *img, const fileinfo_t *file) {
 	imlib_context_set_anti_alias(img->aa);
 
 	fmt = imlib_image_format();
-#ifdef HAVE_GIFLIB
+#ifdef GIF_SUPPORT
 	if (!strcmp(fmt, "gif"))
 		img_load_gif(img, file);
 #else

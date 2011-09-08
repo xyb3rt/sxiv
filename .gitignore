@@ -1,5 +1,6 @@
+config.h
 *.o
 sxiv
 cscope.out
-release
 tags
+release
