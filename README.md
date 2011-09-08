@@ -8,7 +8,7 @@ Its code base should be kept small and clean to make it easy for you to dig
 into it and customize it for your needs.
 
 Installation
-------------
+============
 sxiv is built using the commands:
 
     $ make
@@ -21,13 +21,40 @@ of the executable will be "/usr/local/bin/sxiv".
 You can install it into a directory of your choice by changing the second
 command to:
 
-    # PREFIX="/your/dir" make install
+    # make PREFIX="/your/dir" install
 
 All build-time specific settings can be found in the file "config.h". Please
 check and change them, so that they fit your needs.
 
+Additional features
+-------------------
+
+The XFLAGS and XLIBS macros/environment variables control which additional
+features (i.e. non-default compile-time features) should be enabled and
+included during compilation.
+
+The following table lists the available additional features--the column
+*Requires* indicates, which libraries need to be installed for a feature; the
+columns *XFLAGS* and *XLIBS* show, what needs to be added to these environment
+variables to enable the corresponding feature:
+
+    Feature                           | Requires | XFLAGS         | XLIBS
+    ----------------------------------+----------+----------------+--------
+    GIF support: Load all frames and  | giflib   | -DGIF_SUPPORT  | -lgif
+    play animations of GIF files      |          |                |
+    ----------------------------------+----------+----------------+--------
+    EXIF support: auto-orientate JPEG | libexif  | -DEXIF_SUPPORT | -lexif
+    files according to their EXIF tag |          |                |
+
+For instance, to enable GIF support, the giflib library needs to be installed
+on your system and you need to execute the following shell commands before
+running make:
+
+    $ export XFLAGS=-DGIF_SUPPORT
+    $ export XLIBS=-lgif
+
 Usage
------
+=====
 sxiv has two modes of operation: image and thumbnail mode. The default is image
 mode, in which only the current image is shown. In thumbnail mode a grid of
 small previews is displayed, making it easy to choose an image to open.
