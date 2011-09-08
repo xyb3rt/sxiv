@@ -35,8 +35,8 @@ included during compilation.
 
 The following table lists the available additional features--the column
 *Requires* indicates, which libraries need to be installed for a feature; the
-columns *XFLAGS* and *XLIBS* show, what needs to be added to these environment
-variables to enable the corresponding feature:
+columns *XFLAGS* and *XLIBS* show, what needs to be added to these
+macros/environment variables to enable the corresponding feature:
 
     Feature                           | Requires | XFLAGS         | XLIBS
     ----------------------------------+----------+----------------+--------
@@ -46,12 +46,16 @@ variables to enable the corresponding feature:
     EXIF support: auto-orientate JPEG | libexif  | -DEXIF_SUPPORT | -lexif
     files according to their EXIF tag |          |                |
 
-For instance, to enable GIF support, the giflib library needs to be installed
-on your system and you need to execute the following shell commands before
-running make:
+For instance, to enable GIF and EXIF support, the giflib and libexif libraries
+need to be installed on your system and you either need to change the first
+build command to:
 
-    $ export XFLAGS=-DGIF_SUPPORT
-    $ export XLIBS=-lgif
+    $ make XFLAGS="-DGIF_SUPPORT -DEXIF_SUPPORT" XLIBS="-lgif -lexif"
+
+Or you need to run the following commands before building sxiv:
+
+    $ export XFLAGS="-DGIF_SUPPORT -DEXIF_SUPPORT"
+    $ export XLIBS="-lgif -lexif"
 
 Usage
 =====
