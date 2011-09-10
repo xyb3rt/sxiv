@@ -17,6 +17,7 @@
  */
 
 #define _POSIX_C_SOURCE 200112L
+#define _IMAGE_CONFIG
 
 #include <string.h>
 #include <unistd.h>
@@ -34,9 +35,9 @@
 #include "image.h"
 #include "options.h"
 #include "util.h"
-
-#define _IMAGE_CONFIG
 #include "config.h"
+
+#define ZOOMDIFF(z1,z2) ((z1) - (z2) > 0.001 || (z1) - (z2) < -0.001)
 
 enum { MIN_GIF_DELAY = 50 };
 
@@ -54,6 +55,8 @@ void img_init(img_t *img, win_t *win) {
 		img->zoom = options->zoom;
 		img->zoom = MAX(img->zoom, zoom_min);
 		img->zoom = MIN(img->zoom, zoom_max);
+		img->checkpan = 0;
+		img->dirty = 0;
 		img->aa = options->aa;
 		img->alpha = 1;
 		img->slideshow = 0;
@@ -313,6 +316,7 @@ int img_load(img_t *img, const fileinfo_t *file) {
 	img->w = imlib_image_get_width();
 	img->h = imlib_image_get_height();
 
+	img->dirty = 1;
 	return 1;
 }
 
@@ -339,9 +343,14 @@ void img_close(img_t *img, int decache) {
 	}
 }
 
-void img_check_pan(img_t *img, win_t *win) {
+void img_check_pan(img_t *img, win_t *win, int moved) {
+	int ox, oy;
+
 	if (!img || !win)
 		return;
+
+	ox = img->x;
+	oy = img->y;
 
 	if (img->w * img->zoom > win->w) {
 		if (img->x > 0 && img->x + img->w * img->zoom > win->w)
@@ -359,23 +368,32 @@ void img_check_pan(img_t *img, win_t *win) {
 	} else {
 		img->y = (win->h - img->h * img->zoom) / 2;
 	}
+
+	if (!moved && (ox != img->x || oy != img->y))
+		img->dirty = 1;
 }
 
 int img_fit(img_t *img, win_t *win) {
-	float oz, zw, zh;
+	float z, zmax, zw, zh;
 
-	if (!img || !win)
+	if (!img || !win || img->scalemode == SCALE_ZOOM)
 		return 0;
 
-	oz = img->zoom;
+	zmax = img->scalemode == SCALE_DOWN ? 1.0 : zoom_max;
 	zw = (float) win->w / (float) img->w;
 	zh = (float) win->h / (float) img->h;
 
-	img->zoom = MIN(zw, zh);
-	img->zoom = MAX(img->zoom, zoom_min);
-	img->zoom = MIN(img->zoom, zoom_max);
+	z = MIN(zw, zh);
+	z = MAX(z, zoom_min);
+	z = MIN(z, zmax);
 
-	return oz != img->zoom;
+	if (ZOOMDIFF(z, img->zoom)) {
+		img->zoom = z;
+		img->dirty = 1;
+		return 1;
+	} else {
+		return 0;
+	}
 }
 
 void img_render(img_t *img, win_t *win) {
@@ -385,11 +403,7 @@ void img_render(img_t *img, win_t *win) {
 	if (!img || !img->im || !win)
 		return;
 
-	if (img->scalemode != SCALE_ZOOM) {
-		img_fit(img, win);
-		if (img->scalemode == SCALE_DOWN && img->zoom > 1.0)
-			img->zoom = 1.0;
-	}
+	img_fit(img, win);
 
 	if (!img->re) {
 		/* rendered for the first time */
@@ -405,9 +419,12 @@ void img_render(img_t *img, win_t *win) {
 	}
 	
 	if (img->checkpan) {
-		img_check_pan(img, win);
+		img_check_pan(img, win, 0);
 		img->checkpan = 0;
 	}
+
+	if (!img->dirty)
+		return;
 
 	/* calculate source and destination offsets */
 	if (img->x < 0) {
@@ -444,6 +461,8 @@ void img_render(img_t *img, win_t *win) {
 	imlib_render_image_part_on_drawable_at_size(sx, sy, sw, sh, dx, dy, dw, dh);
 
 	win_draw(win);
+
+	img->dirty = 0;
 }
 
 int img_fit_win(img_t *img, win_t *win) {
@@ -466,7 +485,12 @@ int img_center(img_t *img, win_t *win) {
 	img->x = (win->w - img->w * img->zoom) / 2;
 	img->y = (win->h - img->h * img->zoom) / 2;
 	
-	return ox != img->x || oy != img->y;
+	if (ox != img->x || oy != img->y) {
+		img->dirty = 1;
+		return 1;
+	} else {
+		return 0;
+	}
 }
 
 int img_zoom(img_t *img, win_t *win, float z) {
@@ -478,11 +502,12 @@ int img_zoom(img_t *img, win_t *win, float z) {
 
 	img->scalemode = SCALE_ZOOM;
 
-	if (z != img->zoom) {
+	if (ZOOMDIFF(z, img->zoom)) {
 		img->x = win->w / 2 - (win->w / 2 - img->x) * z / img->zoom;
 		img->y = win->h / 2 - (win->h / 2 - img->y) * z / img->zoom;
 		img->zoom = z;
 		img->checkpan = 1;
+		img->dirty = 1;
 		return 1;
 	} else {
 		return 0;
@@ -527,9 +552,14 @@ int img_move(img_t *img, win_t *win, int dx, int dy) {
 	img->x += dx;
 	img->y += dy;
 
-	img_check_pan(img, win);
+	img_check_pan(img, win, 1);
 
-	return ox != img->x || oy != img->y;
+	if (ox != img->x || oy != img->y) {
+		img->dirty = 1;
+		return 1;
+	} else {
+		return 0;
+	}
 }
 
 int img_pan(img_t *img, win_t *win, direction_t dir, int screen) {
@@ -546,7 +576,6 @@ int img_pan(img_t *img, win_t *win, direction_t dir, int screen) {
 		case DIR_DOWN:
 			return img_move(img, win, 0, win->h / (screen ? 1 : 5) * -1);
 	}
-
 	return 0;
 }
 
@@ -574,9 +603,14 @@ int img_pan_edge(img_t *img, win_t *win, direction_t dir) {
 			break;
 	}
 
-	img_check_pan(img, win);
+	img_check_pan(img, win, 1);
 
-	return ox != img->x || oy != img->y;
+	if (ox != img->x || oy != img->y) {
+		img->dirty = 1;
+		return 1;
+	} else {
+		return 0;
+	}
 }
 
 void img_rotate(img_t *img, win_t *win, int d) {
@@ -599,6 +633,7 @@ void img_rotate(img_t *img, win_t *win, int d) {
 	img->h = tmp;
 
 	img->checkpan = 1;
+	img->dirty = 1;
 }
 
 void img_rotate_left(img_t *img, win_t *win) {
@@ -610,11 +645,13 @@ void img_rotate_right(img_t *img, win_t *win) {
 }
 
 void img_toggle_antialias(img_t *img) {
-	if (img && img->im) {
-		img->aa ^= 1;
-		imlib_context_set_image(img->im);
-		imlib_context_set_anti_alias(img->aa);
-	}
+	if (!img || !img->im)
+		return;
+
+	img->aa ^= 1;
+	imlib_context_set_image(img->im);
+	imlib_context_set_anti_alias(img->aa);
+	img->dirty = 1;
 }
 
 int img_frame_goto(img_t *img, int n) {
@@ -631,6 +668,7 @@ int img_frame_goto(img_t *img, int n) {
 	img->w = imlib_image_get_width();
 	img->h = imlib_image_get_height();
 	img->checkpan = 1;
+	img->dirty = 1;
 
 	return 1;
 }
@@ -664,5 +702,6 @@ int img_frame_animate(img_t *img, int restart) {
 	}
 	img->multi.animate = 1;
 
+	img->dirty = 1;
 	return img->multi.frames[img->multi.sel].delay;
 }
