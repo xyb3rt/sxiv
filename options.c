@@ -33,11 +33,24 @@ options_t _options;
 const options_t *options = (const options_t*) &_options;
 
 void print_usage() {
-	printf("usage: sxiv [-cdFfhpqrstvZ] [-g GEOMETRY] [-n NUM] [-z ZOOM] FILES...\n");
+	printf("usage: sxiv [-cdFfhpqrstvZ] [-g GEOMETRY] [-n NUM] "
+	       "[-z ZOOM] FILES...\n");
 }
 
 void print_version() {
-	printf("sxiv %s - simple x image viewer\n", VERSION);
+	printf("sxiv %s - Simple X Image Viewer\n", VERSION);
+	printf("Additional features included (+) or not (-): %s, %s\n",
+#ifdef EXIF_SUPPORT
+	       "+exif",
+#else
+	       "-exif",
+#endif
+#ifdef GIF_SUPPORT
+	       "+gif"
+#else
+	       "-gif"
+#endif
+	      );
 }
 
 void parse_options(int argc, char **argv) {
@@ -119,9 +132,8 @@ void parse_options(int argc, char **argv) {
 					fprintf(stderr, "sxiv: invalid argument for option -z: %s\n",
 					        optarg);
 					exit(1);
-				} else {
-					_options.zoom = z / 100.0;
 				}
+				_options.zoom = z / 100.0;
 				break;
 		}
 	}

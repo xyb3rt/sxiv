@@ -17,8 +17,8 @@ Features
 * Basic support for multi-frame images
 * Display image information in window title
 
-Additional features, that need to be included at compile-time--see next section
-on how to enable them:
+Additional features, that need to be included at compile-time--see section
+*Installation* on how to enable them:
 
 * Play GIF animations
 * Auto-orientate JPEG images according to their EXIF tags
@@ -57,14 +57,13 @@ check and change them, so that they fit your needs.
 Additional features
 -------------------
 
-The XFLAGS and XLIBS macros/environment variables control which additional
-features (i.e. non-default compile-time features) should be enabled and
-included during compilation.
+The XFLAGS and XLIBS macros control which additional features (non-default
+compile-time features) should be enabled and included during compilation.
 
 The following table lists the available additional features--the column
 *Requires* indicates, which libraries need to be installed for a feature; the
-columns *XFLAGS* and *XLIBS* show, what needs to be added to these
-macros/environment variables to enable the corresponding feature:
+columns *XFLAGS* and *XLIBS* show, what needs to be added to these macros to
+enable the corresponding feature:
 
     Feature                           | Requires | XFLAGS         | XLIBS
     ----------------------------------+----------+----------------+--------
@@ -87,9 +86,9 @@ Or you need to run the following commands before building sxiv:
 
 Usage
 =====
-sxiv has two modes of operation: image and thumbnail mode. The default is image
-mode, in which only the current image is shown. In thumbnail mode a grid of
-small previews is displayed, making it easy to choose an image to open.
+sxiv has two modes of operation: image and thumbnail mode. The default is
+image mode, in which only the current image is shown. In thumbnail mode a grid
+of small previews is displayed, making it easy to choose an image to open.
 
 sxiv supports the following command-line options:
 
