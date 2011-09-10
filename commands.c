@@ -35,6 +35,7 @@ void load_image(int);
 void redraw();
 void reset_cursor();
 void animate();
+void slideshow();
 void set_timeout(timeout_f, int, int);
 void reset_timeout(timeout_f);
 
@@ -57,6 +58,10 @@ int it_switch_mode(arg_t a) {
 			tns_init(&tns, filecnt);
 		img_close(&img, 0);
 		reset_timeout(reset_cursor);
+		if (img.slideshow) {
+			img.slideshow = 0;
+			reset_timeout(slideshow);
+		}
 		tns.sel = fileidx;
 		tns.dirty = 1;
 		mode = MODE_THUMB;
@@ -168,12 +173,11 @@ int i_toggle_animation(arg_t a) {
 	if (img.multi.animate) {
 		reset_timeout(animate);
 		img.multi.animate = 0;
-		return 0;
 	} else {
 		delay = img_frame_animate(&img, 1);
 		set_timeout(animate, delay, 1);
-		return 1;
 	}
+	return 1;
 }
 
 int it_move(arg_t a) {
@@ -318,6 +322,46 @@ int i_rotate(arg_t a) {
 	return 0;
 }
 
+int i_toggle_slideshow(arg_t a) {
+	if (mode == MODE_IMAGE) {
+		if (img.slideshow) {
+			img.slideshow = 0;
+			reset_timeout(slideshow);
+			return 1;
+		} else if (fileidx + 1 < filecnt) {
+			img.slideshow = 1;
+			set_timeout(slideshow, img.ss_delay, 1);
+			return 1;
+		}
+	}
+	return 0;
+}
+
+int i_adjust_slideshow(arg_t a) {
+	long d = (long) a;
+	int i, delays[] = { 1, 2, 3, 5, 10, 15, 20, 30, 60, 120, 180, 300, 600 };
+
+	if (mode != MODE_IMAGE || !img.slideshow)
+		return 0;
+
+	if (d < 0) {
+		for (i = ARRLEN(delays) - 2; i >= 0; i--) {
+			if (img.ss_delay > delays[i] * 1000) {
+				img.ss_delay = delays[i] * 1000;
+				return 1;
+			}
+		}
+	} else {
+		for (i = 1; i < ARRLEN(delays); i++) {
+			if (img.ss_delay < delays[i] * 1000) {
+				img.ss_delay = delays[i] * 1000;
+				return 1;
+			}
+		}
+	}
+	return 0;
+}
+
 int i_toggle_antialias(arg_t a) {
 	if (mode == MODE_IMAGE) {
 		img_toggle_antialias(&img);
@@ -365,14 +409,14 @@ int it_shell_cmd(arg_t a) {
 	n = mode == MODE_IMAGE ? fileidx : tns.sel;
 
 	if (setenv("SXIV_IMG", files[n].path, 1) < 0) {
-		warn("could not change env.-variable: SXIV_IMG. command line was: %s",
+		warn("could not set env.-variable: SXIV_IMG. command line was: %s",
 		     cmdline);
 		return 0;
 	}
 
 	if ((pid = fork()) == 0) {
 		execl("/bin/sh", "/bin/sh", "-c", cmdline, NULL);
-		warn("could not exec: /bin/sh");
+		warn("could not exec: /bin/sh. command line was: %s", cmdline);
 		exit(1);
 	} else if (pid < 0) {
 		warn("could not fork. command line was: %s", cmdline);

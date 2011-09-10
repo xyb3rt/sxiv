@@ -53,6 +53,7 @@ typedef struct {
 void redraw();
 void reset_cursor();
 void animate();
+void slideshow();
 
 appmode_t mode;
 img_t img;
@@ -68,7 +69,8 @@ char win_title[TITLE_LEN];
 timeout_t timeouts[] = {
 	{ { 0, 0 }, False, redraw },
 	{ { 0, 0 }, False, reset_cursor },
-	{ { 0, 0 }, False, animate }
+	{ { 0, 0 }, False, animate },
+	{ { 0, 0 }, False, slideshow },
 };
 
 void cleanup() {
@@ -216,8 +218,10 @@ void load_image(int new) {
 
 void update_title() {
 	int n;
-	float size;
-	const char *unit;
+	char sshow_info[16];
+	char frame_info[16];
+	float size, time;
+	const char *size_unit, *time_unit;
 
 	if (mode == MODE_THUMB) {
 		n = snprintf(win_title, TITLE_LEN, "sxiv: [%d/%d] %s",
@@ -225,18 +229,27 @@ void update_title() {
 		             tns.cnt ? files[tns.sel].name : "");
 	} else {
 		size = filesize;
-		size_readable(&size, &unit);
+		size_readable(&size, &size_unit);
+
+		if (img.slideshow) {
+			time = img.ss_delay / 1000.0;
+			time_readable(&time, &time_unit);
+			snprintf(sshow_info, sizeof(sshow_info), "*%d%s* ",
+			         (int) time, time_unit);
+		} else {
+			sshow_info[0] = '\0';
+		}
 		if (img.multi.cnt)
-			n = snprintf(win_title, TITLE_LEN,
-			             "sxiv: [%d/%d] <%d%%> <%dx%d> (%.2f%s) {%d/%d} %s",
-			             fileidx + 1, filecnt, (int) (img.zoom * 100.0), img.w,
-			             img.h, size, unit, img.multi.sel + 1, img.multi.cnt,
-			             files[fileidx].name);
+			snprintf(frame_info, sizeof(frame_info), "{%d/%d} ",
+			         img.multi.sel + 1, img.multi.cnt);
 		else
-			n = snprintf(win_title, TITLE_LEN,
-			             "sxiv: [%d/%d] <%d%%> <%dx%d> (%.2f%s) %s",
-			             fileidx + 1, filecnt, (int) (img.zoom * 100.0), img.w,
-			             img.h, size, unit, files[fileidx].name);
+			frame_info[0] = '\0';
+
+		n = snprintf(win_title, TITLE_LEN,
+		             "sxiv: [%d/%d] <%dx%d:%d%%> (%.2f%s) %s%s%s",
+		             fileidx + 1, filecnt, img.w, img.h,
+		             (int) (img.zoom * 100.0), size, size_unit,
+		             sshow_info, frame_info, files[fileidx].name);
 	}
 
 	if (n >= TITLE_LEN) {
@@ -248,10 +261,17 @@ void update_title() {
 }
 
 void redraw() {
-	if (mode == MODE_IMAGE)
+	if (mode == MODE_IMAGE) {
 		img_render(&img, &win);
-	else
+		if (img.slideshow && !img.multi.animate) {
+			if (fileidx + 1 < filecnt)
+				set_timeout(slideshow, img.ss_delay, 1);
+			else
+				img.slideshow = 0;
+		}
+	} else {
 		tns_render(&tns, &win);
+	}
 	update_title();
 	reset_timeout(redraw);
 	reset_cursor();
@@ -282,9 +302,19 @@ void animate() {
 	int delay;
 
 	delay = img_frame_animate(&img, 0);
-	if (delay) {
+	redraw();
+	if (delay)
 		set_timeout(animate, delay, 1);
-		redraw();
+}
+
+void slideshow() {
+	if (mode == MODE_IMAGE && !img.multi.animate) {
+		if (fileidx + 1 < filecnt) {
+			load_image(fileidx + 1);
+			redraw();
+		} else {
+			img.slideshow = 0;
+		}
 	}
 }
 

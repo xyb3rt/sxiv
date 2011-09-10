@@ -23,23 +23,27 @@
 #include "types.h"
 
 typedef struct {
+	/* file list: */
 	char **filenames;
 	unsigned char from_stdin;
+	unsigned char recursive;
 	int filecnt;
 	int startnum;
 
+	/* image: */
 	scalemode_t scalemode;
 	float zoom;
 	unsigned char aa;
-	unsigned char thumbnails;
 
+	/* window: */
 	unsigned char fixed;
 	unsigned char fullscreen;
 	char *geometry;
 
+	/* misc flags: */
 	unsigned char quiet;
+	unsigned char thumbnails;
 	unsigned char clean_cache;
-	unsigned char recursive;
 } options_t;
 
 extern const options_t *options;

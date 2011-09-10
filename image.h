@@ -49,6 +49,9 @@ typedef struct {
 	unsigned char aa;
 	unsigned char alpha;
 
+	unsigned char slideshow;
+	int ss_delay; /* in ms */
+
 	int x;
 	int y;
 	int w;

@@ -127,8 +127,17 @@ void size_readable(float *size, const char **unit) {
 	const char *units[] = { "", "K", "M", "G" };
 	int i;
 
-	for (i = 0; i < ARRLEN(units) && *size > 1024; i++)
-		*size /= 1024;
+	for (i = 0; i < ARRLEN(units) && *size > 1024.0; i++)
+		*size /= 1024.0;
+	*unit = units[MIN(i, ARRLEN(units) - 1)];
+}
+
+void time_readable(float *time, const char **unit) {
+	const char *units[] = { "s", "m", "h" };
+	int i;
+
+	for (i = 0; i < ARRLEN(units) && *time >= 60.0; i++)
+		*time /= 60.0;
 	*unit = units[MIN(i, ARRLEN(units) - 1)];
 }
 

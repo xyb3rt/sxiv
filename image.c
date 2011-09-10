@@ -56,6 +56,8 @@ void img_init(img_t *img, win_t *win) {
 		img->zoom = MIN(img->zoom, zoom_max);
 		img->aa = options->aa;
 		img->alpha = 1;
+		img->slideshow = 0;
+		img->ss_delay = SLIDESHOW_DELAY * 1000;
 	}
 
 	if (win) {
@@ -651,7 +653,7 @@ int img_frame_animate(img_t *img, int restart) {
 		return 0;
 
 	if (img->multi.sel + 1 >= img->multi.cnt) {
-		if (restart || GIF_LOOP) {
+		if (restart || (GIF_LOOP && !img->slideshow)) {
 			img_frame_goto(img, 0);
 		} else {
 			img->multi.animate = 0;
@@ -660,7 +662,6 @@ int img_frame_animate(img_t *img, int restart) {
 	} else if (!restart) {
 		img_frame_goto(img, img->multi.sel + 1);
 	}
-
 	img->multi.animate = 1;
 
 	return img->multi.frames[img->multi.sel].delay;

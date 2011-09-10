@@ -54,23 +54,22 @@ void print_version() {
 }
 
 void parse_options(int argc, char **argv) {
-	float z;
-	int n, opt;
+	int opt, t;
 
+	_options.recursive = 0;
 	_options.startnum = 0;
 
 	_options.scalemode = SCALE_MODE;
 	_options.zoom = 1.0;
 	_options.aa = 1;
-	_options.thumbnails = 0;
 
 	_options.fixed = 0;
 	_options.fullscreen = 0;
 	_options.geometry = NULL;
 
 	_options.quiet = 0;
+	_options.thumbnails = 0;
 	_options.clean_cache = 0;
-	_options.recursive = 0;
 
 	while ((opt = getopt(argc, argv, "cdFfg:hn:pqrstvZz:")) != -1) {
 		switch (opt) {
@@ -96,12 +95,12 @@ void parse_options(int argc, char **argv) {
 				print_usage();
 				exit(0);
 			case 'n':
-				if (!sscanf(optarg, "%d", &n) || n < 1) {
+				if (!sscanf(optarg, "%d", &t) || t < 1) {
 					fprintf(stderr, "sxiv: invalid argument for option -n: %s\n",
 					        optarg);
 					exit(1);
 				} else {
-					_options.startnum = n - 1;
+					_options.startnum = t - 1;
 				}
 				break;
 			case 'p':
@@ -128,12 +127,12 @@ void parse_options(int argc, char **argv) {
 				break;
 			case 'z':
 				_options.scalemode = SCALE_ZOOM;
-				if (!sscanf(optarg, "%f", &z) || z < 0) {
+				if (!sscanf(optarg, "%d", &t) || t <= 0) {
 					fprintf(stderr, "sxiv: invalid argument for option -z: %s\n",
 					        optarg);
 					exit(1);
 				}
-				_options.zoom = z / 100.0;
+				_options.zoom = (float) t / 100.0;
 				break;
 		}
 	}
