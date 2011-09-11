@@ -2,6 +2,11 @@
 #define TYPES_H
 
 typedef enum {
+	false,
+	true
+} bool;
+
+typedef enum {
 	MODE_IMAGE,
 	MODE_THUMB
 } appmode_t;
@@ -29,7 +34,7 @@ typedef enum {
 typedef struct {
 	const char *name; /* as given by user */
 	const char *path; /* always absolute */
-	unsigned char loaded;
+	bool loaded;
 } fileinfo_t;
 
 /* timeouts in milliseconds: */

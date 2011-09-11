@@ -17,6 +17,7 @@
  */
 
 #define _POSIX_C_SOURCE 200112L
+#define _WINDOW_CONFIG
 
 #include <string.h>
 #include <X11/Xutil.h>
@@ -25,8 +26,6 @@
 #include "options.h"
 #include "util.h"
 #include "window.h"
-
-#define _WINDOW_CONFIG
 #include "config.h"
 
 static Cursor carrow;
@@ -76,7 +75,7 @@ void win_init(win_t *win) {
 
 	win->xwin = 0;
 	win->pm = 0;
-	win->fullscreen = 0;
+	win->fullscreen = false;
 }
 
 void win_set_sizehints(win_t *win) {
@@ -97,7 +96,7 @@ void win_open(win_t *win) {
 	win_env_t *e;
 	XClassHint classhint;
 	XColor col;
-	char none_data[] = {0, 0, 0, 0, 0, 0, 0, 0};
+	char none_data[] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 	Pixmap none;
 	int gmask;
 
@@ -158,7 +157,7 @@ void win_open(win_t *win) {
 	classhint.res_class = "sxiv";
 	XSetClassHint(e->dpy, win->xwin, &classhint);
 
-	if (options->fixed)
+	if (options->fixed_win)
 		win_set_sizehints(win);
 
 	XMapWindow(e->dpy, win->xwin);
@@ -186,11 +185,11 @@ void win_close(win_t *win) {
 	XCloseDisplay(win->env.dpy);
 }
 
-int win_configure(win_t *win, XConfigureEvent *c) {
-	int changed;
+bool win_configure(win_t *win, XConfigureEvent *c) {
+	bool changed;
 
 	if (!win)
-		return 0;
+		return false;
 	
 	changed = win->w != c->width || win->h != c->height;
 
@@ -203,9 +202,9 @@ int win_configure(win_t *win, XConfigureEvent *c) {
 	return changed;
 }
 
-int win_moveresize(win_t *win, int x, int y, unsigned int w, unsigned int h) {
+bool win_moveresize(win_t *win, int x, int y, unsigned int w, unsigned int h) {
 	if (!win || !win->xwin)
-		return 0;
+		return false;
 
 	x = MAX(0, x);
 	y = MAX(0, y);
@@ -213,19 +212,19 @@ int win_moveresize(win_t *win, int x, int y, unsigned int w, unsigned int h) {
 	h = MIN(h, win->env.scrh - 2 * win->bw);
 
 	if (win->x == x && win->y == y && win->w == w && win->h == h)
-		return 0;
+		return false;
 
 	win->x = x;
 	win->y = y;
 	win->w = w;
 	win->h = h;
 
-	if (options->fixed)
+	if (options->fixed_win)
 		win_set_sizehints(win);
 
 	XMoveResizeWindow(win->env.dpy, win->xwin, win->x, win->y, win->w, win->h);
 
-	return 1;
+	return true;
 }
 
 void win_toggle_fullscreen(win_t *win) {
@@ -235,7 +234,7 @@ void win_toggle_fullscreen(win_t *win) {
 	if (!win || !win->xwin)
 		return;
 
-	win->fullscreen ^= 1;
+	win->fullscreen = !win->fullscreen;
 
 	memset(&ev, 0, sizeof(ev));
 	ev.type = ClientMessage;
@@ -279,7 +278,7 @@ void win_draw(win_t *win) {
 }
 
 void win_draw_rect(win_t *win, Pixmap pm, int x, int y, int w, int h,
-		Bool fill, int lw, unsigned long col) {
+		bool fill, int lw, unsigned long col) {
 	XGCValues gcval;
 
 	if (!win || !pm)

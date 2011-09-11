@@ -25,25 +25,25 @@
 typedef struct {
 	/* file list: */
 	char **filenames;
-	unsigned char from_stdin;
-	unsigned char recursive;
+	bool from_stdin;
+	bool recursive;
 	int filecnt;
 	int startnum;
 
 	/* image: */
 	scalemode_t scalemode;
 	float zoom;
-	unsigned char aa;
+	bool aa;
 
 	/* window: */
-	unsigned char fixed;
-	unsigned char fullscreen;
+	bool fixed_win;
+	bool fullscreen;
 	char *geometry;
 
 	/* misc flags: */
-	unsigned char quiet;
-	unsigned char thumbnails;
-	unsigned char clean_cache;
+	bool quiet;
+	bool thumb_mode;
+	bool clean_cache;
 } options_t;
 
 extern const options_t *options;

@@ -44,8 +44,8 @@ typedef struct {
 	int rows;
 	int first;
 	int sel;
-	unsigned char alpha;
-	unsigned char dirty;
+	bool alpha;
+	bool dirty;
 } tns_t;
 
 void tns_clean_cache(tns_t*);
@@ -53,13 +53,13 @@ void tns_clean_cache(tns_t*);
 void tns_init(tns_t*, int);
 void tns_free(tns_t*);
 
-int tns_load(tns_t*, int, const fileinfo_t*, Bool, Bool);
+bool tns_load(tns_t*, int, const fileinfo_t*, bool, bool);
 
 void tns_render(tns_t*, win_t*);
-void tns_highlight(tns_t*, win_t*, int, Bool);
+void tns_highlight(tns_t*, win_t*, int, bool);
 
-int tns_move_selection(tns_t*, win_t*, direction_t);
-int tns_scroll(tns_t*, direction_t);
+bool tns_move_selection(tns_t*, win_t*, direction_t);
+bool tns_scroll(tns_t*, direction_t);
 
 int tns_translate(tns_t*, int, int);
 

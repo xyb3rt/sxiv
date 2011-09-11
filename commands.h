@@ -21,47 +21,49 @@
 
 #include <X11/Xlib.h>
 
+#include "types.h"
+
 typedef void* arg_t;
-typedef int (*command_f)(arg_t);
+typedef bool (*command_f)(arg_t);
 
 typedef struct {
-	Bool ctrl;
+	bool ctrl;
 	KeySym ksym;
 	command_f cmd;
 	arg_t arg;
 } keymap_t;
 
 typedef struct {
-	Bool ctrl;
-	Bool shift;
+	bool ctrl;
+	bool shift;
 	unsigned int button;
 	command_f cmd;
 	arg_t arg;
 } button_t;
 
-int it_quit(arg_t);
-int it_switch_mode(arg_t);
-int it_toggle_fullscreen(arg_t);
-int it_reload_image(arg_t);
-int it_remove_image(arg_t);
-int i_navigate(arg_t);
-int it_first(arg_t);
-int it_last(arg_t);
-int i_navigate_frame(arg_t);
-int i_toggle_animation(arg_t);
-int it_move(arg_t);
-int i_pan_screen(arg_t);
-int i_pan_edge(arg_t);
-int i_drag(arg_t);
-int i_zoom(arg_t);
-int i_fit_to_win(arg_t);
-int i_fit_to_img(arg_t);
-int i_rotate(arg_t);
-int i_toggle_slideshow(arg_t);
-int i_adjust_slideshow(arg_t);
-int i_toggle_antialias(arg_t);
-int it_toggle_alpha(arg_t);
-int it_open_with(arg_t);
-int it_shell_cmd(arg_t);
+bool it_quit(arg_t);
+bool it_switch_mode(arg_t);
+bool it_toggle_fullscreen(arg_t);
+bool it_reload_image(arg_t);
+bool it_remove_image(arg_t);
+bool i_navigate(arg_t);
+bool it_first(arg_t);
+bool it_last(arg_t);
+bool i_navigate_frame(arg_t);
+bool i_toggle_animation(arg_t);
+bool it_move(arg_t);
+bool i_pan_screen(arg_t);
+bool i_pan_edge(arg_t);
+bool i_drag(arg_t);
+bool i_zoom(arg_t);
+bool i_fit_to_win(arg_t);
+bool i_fit_to_img(arg_t);
+bool i_rotate(arg_t);
+bool i_toggle_slideshow(arg_t);
+bool i_adjust_slideshow(arg_t);
+bool i_toggle_antialias(arg_t);
+bool it_toggle_alpha(arg_t);
+bool it_open_with(arg_t);
+bool it_shell_cmd(arg_t);
 
 #endif /* COMMANDS_H */

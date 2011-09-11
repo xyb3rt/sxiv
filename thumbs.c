@@ -17,6 +17,7 @@
  */
 
 #define _POSIX_C_SOURCE 200112L
+#define _THUMBS_CONFIG
 
 #include <stdlib.h>
 #include <string.h>
@@ -27,8 +28,6 @@
 
 #include "thumbs.h"
 #include "util.h"
-
-#define _THUMBS_CONFIG
 #include "config.h"
 
 #ifdef EXIF_SUPPORT
@@ -38,7 +37,7 @@ void exif_auto_orientate(const fileinfo_t*);
 const int thumb_dim = THUMB_SIZE + 10;
 char *cache_dir = NULL;
 
-int tns_cache_enabled() {
+bool tns_cache_enabled() {
 	struct stat stats;
 
 	return cache_dir && !stat(cache_dir, &stats) && S_ISDIR(stats.st_mode) &&
@@ -81,7 +80,7 @@ Imlib_Image* tns_cache_load(const char *filepath) {
 	return im;
 }
 
-void tns_cache_write(thumb_t *t, Bool force) {
+void tns_cache_write(thumb_t *t, bool force) {
 	char *cfile, *dirend;
 	struct stat cstats, fstats;
 	struct utimbuf times;
@@ -120,7 +119,8 @@ void tns_cache_write(thumb_t *t, Bool force) {
 }
 
 void tns_clean_cache(tns_t *tns) {
-	int dirlen, delete;
+	int dirlen;
+	bool delete;
 	char *cfile, *filename, *tpos;
 	r_dir_t dir;
 
@@ -136,11 +136,12 @@ void tns_clean_cache(tns_t *tns) {
 
 	while ((cfile = r_readdir(&dir))) {
 		filename = cfile + dirlen;
-		delete = 0;
+		delete = false;
 
 		if ((tpos = strrchr(filename, '.'))) {
 			*tpos = '\0';
-			delete = access(filename, F_OK);
+			if (access(filename, F_OK))
+				delete = true;
 			*tpos = '.';
 		}
 
@@ -170,8 +171,8 @@ void tns_init(tns_t *tns, int cnt) {
 
 	tns->cnt = tns->first = tns->sel = 0;
 	tns->cap = cnt;
-	tns->alpha = 1;
-	tns->dirty = 0;
+	tns->alpha = true;
+	tns->dirty = false;
 
 	if ((homedir = getenv("HOME"))) {
 		if (cache_dir)
@@ -207,21 +208,21 @@ void tns_free(tns_t *tns) {
 	}
 }
 
-int tns_load(tns_t *tns, int n, const fileinfo_t *file,
-             Bool force, Bool silent)
+bool tns_load(tns_t *tns, int n, const fileinfo_t *file,
+             bool force, bool silent)
 {
 	int w, h;
-	int use_cache, cache_hit = 0;
+	bool use_cache, cache_hit = false;
 	float z, zw, zh;
 	thumb_t *t;
 	Imlib_Image *im;
 	const char *fmt;
 
 	if (!tns || !tns->thumbs || !file || !file->name || !file->path)
-		return 0;
+		return false;
 
 	if (n < 0 || n >= tns->cap)
-		return 0;
+		return false;
 
 	t = &tns->thumbs[n];
 	t->file = file;
@@ -233,7 +234,7 @@ int tns_load(tns_t *tns, int n, const fileinfo_t *file,
 
 	if ((use_cache = tns_cache_enabled())) {
 		if (!force && (im = tns_cache_load(file->path)))
-			cache_hit = 1;
+			cache_hit = true;
 	}
 
 	if (!cache_hit &&
@@ -241,7 +242,7 @@ int tns_load(tns_t *tns, int n, const fileinfo_t *file,
 	{
 		if (!silent)
 			warn("could not open image: %s", file->name);
-		return 0;
+		return false;
 	}
 
 	imlib_context_set_image(im);
@@ -270,13 +271,13 @@ int tns_load(tns_t *tns, int n, const fileinfo_t *file,
 	imlib_free_image_and_decache();
 
 	if (use_cache && !cache_hit)
-		tns_cache_write(t, False);
+		tns_cache_write(t, false);
 
-	tns->dirty = 1;
-	return 1;
+	tns->dirty = true;
+	return true;
 }
 
-void tns_check_view(tns_t *tns, Bool scrolled) {
+void tns_check_view(tns_t *tns, bool scrolled) {
 	int r;
 
 	if (!tns)
@@ -295,10 +296,10 @@ void tns_check_view(tns_t *tns, Bool scrolled) {
 		/* scroll to selection */
 		if (tns->first + tns->cols * tns->rows <= tns->sel) {
 			tns->first = tns->sel - r - tns->cols * (tns->rows - 1);
-			tns->dirty = 1;
+			tns->dirty = true;
 		} else if (tns->first > tns->sel) {
 			tns->first = tns->sel - r;
-			tns->dirty = 1;
+			tns->dirty = true;
 		}
 	}
 }
@@ -323,7 +324,7 @@ void tns_render(tns_t *tns, win_t *win) {
 		tns->first = 0;
 		cnt = tns->cnt;
 	} else {
-		tns_check_view(tns, False);
+		tns_check_view(tns, false);
 		cnt = tns->cols * tns->rows;
 		if ((r = tns->first + cnt - tns->cnt) >= tns->cols)
 			tns->first -= r - r % tns->cols;
@@ -342,7 +343,7 @@ void tns_render(tns_t *tns, win_t *win) {
 		imlib_context_set_image(t->im);
 
 		if (imlib_image_has_alpha() && !tns->alpha)
-			win_draw_rect(win, win->pm, t->x, t->y, t->w, t->h, True, 0, win->white);
+			win_draw_rect(win, win->pm, t->x, t->y, t->w, t->h, true, 0, win->white);
 
 		imlib_render_image_part_on_drawable_at_size(0, 0, t->w, t->h,
 		                                            t->x, t->y, t->w, t->h);
@@ -354,11 +355,11 @@ void tns_render(tns_t *tns, win_t *win) {
 		}
 	}
 
-	tns->dirty = 0;
-	tns_highlight(tns, win, tns->sel, True);
+	tns->dirty = false;
+	tns_highlight(tns, win, tns->sel, true);
 }
 
-void tns_highlight(tns_t *tns, win_t *win, int n, Bool hl) {
+void tns_highlight(tns_t *tns, win_t *win, int n, bool hl) {
 	thumb_t *t;
 	int x, y;
 	unsigned long col;
@@ -379,17 +380,17 @@ void tns_highlight(tns_t *tns, win_t *win, int n, Bool hl) {
 		x = t->x - (THUMB_SIZE - t->w) / 2;
 		y = t->y - (THUMB_SIZE - t->h) / 2;
 		win_draw_rect(win, win->pm, x - 3, y - 3, THUMB_SIZE + 6, THUMB_SIZE + 6,
-		              False, 2, col);
+		              false, 2, col);
 	}
 
 	win_draw(win);
 }
 
-int tns_move_selection(tns_t *tns, win_t *win, direction_t dir) {
+bool tns_move_selection(tns_t *tns, win_t *win, direction_t dir) {
 	int old;
 
 	if (!tns || !tns->thumbs || !win)
-		return 0;
+		return false;
 
 	old = tns->sel;
 
@@ -413,31 +414,31 @@ int tns_move_selection(tns_t *tns, win_t *win, direction_t dir) {
 	}
 
 	if (tns->sel != old) {
-		tns_highlight(tns, win, old, False);
-		tns_check_view(tns, False);
+		tns_highlight(tns, win, old, false);
+		tns_check_view(tns, false);
 		if (!tns->dirty)
-			tns_highlight(tns, win, tns->sel, True);
+			tns_highlight(tns, win, tns->sel, true);
 	}
 
 	return tns->sel != old;
 }
 
-int tns_scroll(tns_t *tns, direction_t dir) {
+bool tns_scroll(tns_t *tns, direction_t dir) {
 	int old;
 
 	if (!tns)
-		return 0;
+		return false;
 
 	old = tns->first;
 
 	if (dir == DIR_DOWN && tns->first + tns->cols * tns->rows < tns->cnt) {
 		tns->first += tns->cols;
-		tns_check_view(tns, True);
-		tns->dirty = 1;
+		tns_check_view(tns, true);
+		tns->dirty = true;
 	} else if (dir == DIR_UP && tns->first >= tns->cols) {
 		tns->first -= tns->cols;
-		tns_check_view(tns, True);
-		tns->dirty = 1;
+		tns_check_view(tns, true);
+		tns->dirty = true;
 	}
 
 	return tns->first != old;

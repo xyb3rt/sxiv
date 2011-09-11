@@ -46,9 +46,9 @@ typedef struct {
 	int y;
 	unsigned int w;
 	unsigned int h;
-
 	unsigned int bw;
-	unsigned char fullscreen;
+
+	bool fullscreen;
 } win_t;
 
 extern Atom wm_delete_win;
@@ -57,14 +57,14 @@ void win_init(win_t*);
 void win_open(win_t*);
 void win_close(win_t*);
 
-int win_configure(win_t*, XConfigureEvent*);
-int win_moveresize(win_t*, int, int, unsigned int, unsigned int);
+bool win_configure(win_t*, XConfigureEvent*);
+bool win_moveresize(win_t*, int, int, unsigned int, unsigned int);
 
 void win_toggle_fullscreen(win_t*);
 
 void win_clear(win_t*);
 void win_draw(win_t*);
-void win_draw_rect(win_t*, Pixmap, int, int, int, int, Bool, int,
+void win_draw_rect(win_t*, Pixmap, int, int, int, int, bool, int,
                    unsigned long);
 
 void win_set_title(win_t*, const char*);

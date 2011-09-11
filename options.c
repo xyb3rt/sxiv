@@ -17,6 +17,7 @@
  */
 
 #define _POSIX_C_SOURCE 200112L
+#define _IMAGE_CONFIG
 
 #include <stdlib.h>
 #include <string.h>
@@ -25,8 +26,6 @@
 
 #include "options.h"
 #include "util.h"
-
-#define _IMAGE_CONFIG
 #include "config.h"
 
 options_t _options;
@@ -56,20 +55,20 @@ void print_version() {
 void parse_options(int argc, char **argv) {
 	int opt, t;
 
-	_options.recursive = 0;
+	_options.recursive = false;
 	_options.startnum = 0;
 
 	_options.scalemode = SCALE_MODE;
 	_options.zoom = 1.0;
-	_options.aa = 1;
+	_options.aa = true;
 
-	_options.fixed = 0;
-	_options.fullscreen = 0;
+	_options.fixed_win = false;
+	_options.fullscreen = false;
 	_options.geometry = NULL;
 
-	_options.quiet = 0;
-	_options.thumbnails = 0;
-	_options.clean_cache = 0;
+	_options.quiet = false;
+	_options.thumb_mode = false;
+	_options.clean_cache = false;
 
 	while ((opt = getopt(argc, argv, "cdFfg:hn:pqrstvZz:")) != -1) {
 		switch (opt) {
@@ -77,16 +76,16 @@ void parse_options(int argc, char **argv) {
 				print_usage();
 				exit(1);
 			case 'c':
-				_options.clean_cache = 1;
+				_options.clean_cache = true;
 				break;
 			case 'd':
 				_options.scalemode = SCALE_DOWN;
 				break;
 			case 'F':
-				_options.fixed = 1;
+				_options.fixed_win = true;
 				break;
 			case 'f':
-				_options.fullscreen = 1;
+				_options.fullscreen = true;
 				break;
 			case 'g':
 				_options.geometry = optarg;
@@ -104,19 +103,19 @@ void parse_options(int argc, char **argv) {
 				}
 				break;
 			case 'p':
-				_options.aa = 0;
+				_options.aa = false;
 				break;
 			case 'q':
-				_options.quiet = 1;
+				_options.quiet = true;
 				break;
 			case 'r':
-				_options.recursive = 1;
+				_options.recursive = true;
 				break;
 			case 's':
 				_options.scalemode = SCALE_FIT;
 				break;
 			case 't':
-				_options.thumbnails = 1;
+				_options.thumb_mode = true;
 				break;
 			case 'v':
 				print_version();
@@ -140,5 +139,5 @@ void parse_options(int argc, char **argv) {
 	_options.filenames = argv + optind;
 	_options.filecnt = argc - optind;
 	_options.from_stdin = _options.filecnt == 1 &&
-	                      strcmp(_options.filenames[0], "-") == 0;
+	                      !strcmp(_options.filenames[0], "-");
 }
