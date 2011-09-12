@@ -30,7 +30,6 @@ Image mode:
 
   <img src="http://github.com/muennich/sxiv/raw/master/sample/image.png">
 
-
 Thumbnail mode:
 
   <img src="http://github.com/muennich/sxiv/raw/master/sample/thumb.png">
@@ -60,22 +59,16 @@ Additional features
 The XFLAGS and XLIBS macros control which additional features (non-default
 compile-time features) should be enabled and included during compilation.
 
-The following table lists the available additional features--the column
-*Requires* indicates, which libraries need to be installed for a feature; the
-columns *XFLAGS* and *XLIBS* show, what needs to be added to these macros to
-enable the corresponding feature:
+* GIF support:
 
-    Feature                           | Requires | XFLAGS         | XLIBS
-    ----------------------------------+----------+----------------+--------
-    GIF support: Load all frames and  | giflib   | -DGIF_SUPPORT  | -lgif
-    play animations of GIF files      |          |                |
-    ----------------------------------+----------+----------------+--------
-    EXIF support: auto-orientate JPEG | libexif  | -DEXIF_SUPPORT | -lexif
-    files according to their EXIF tag |          |                |
+    XFLAGS=-DGIF_SUPPORT, XLIBS=-lgif, requires: giflib
 
-For instance, to enable GIF and EXIF support, the giflib and libexif libraries
-need to be installed on your system and you need to change the first build
-command to:
+* EXIF support:
+
+    XFLAGS=-DEXIF_SUPPORT, XLIBS=-lexif, requires: libexif
+
+To enable GIF and EXIF support, the giflib and libexif libraries need to be
+installed on your system and you need to change the first build command to:
 
     $ make XFLAGS="-DGIF_SUPPORT -DEXIF_SUPPORT" XLIBS="-lgif -lexif"
 
