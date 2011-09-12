@@ -17,25 +17,26 @@
  */
 
 #define _POSIX_C_SOURCE 200112L
+#define _FEATURE_CONFIG
 #define _IMAGE_CONFIG
 
 #include <string.h>
 #include <unistd.h>
 
-#ifdef EXIF_SUPPORT
-#include <libexif/exif-data.h>
-#endif
-
-#ifdef GIF_SUPPORT
-#include <stdlib.h>
-#include <sys/types.h>
-#include <gif_lib.h>
-#endif
-
 #include "image.h"
 #include "options.h"
 #include "util.h"
 #include "config.h"
+
+#if EXIF_SUPPORT
+#include <libexif/exif-data.h>
+#endif
+
+#if GIF_SUPPORT
+#include <stdlib.h>
+#include <sys/types.h>
+#include <gif_lib.h>
+#endif
 
 #define ZOOMDIFF(z1,z2) ((z1) - (z2) > 0.001 || (z1) - (z2) < -0.001)
 
@@ -70,7 +71,7 @@ void img_init(img_t *img, win_t *win) {
 	}
 }
 
-#ifdef EXIF_SUPPORT
+#if EXIF_SUPPORT
 void exif_auto_orientate(const fileinfo_t *file) {
 	ExifData *ed;
 	ExifEntry *entry;
@@ -115,7 +116,7 @@ void exif_auto_orientate(const fileinfo_t *file) {
 }
 #endif /* EXIF_SUPPORT */
 
-#ifdef GIF_SUPPORT
+#if GIF_SUPPORT
 /* Originally based on, but in its current form merely inspired by Imlib2's
  * src/modules/loaders/loader_gif.c:load(), written by Carsten Haitzler.
  */
@@ -301,11 +302,11 @@ bool img_load(img_t *img, const fileinfo_t *file) {
 	/* avoid unused-but-set-variable warning */
 	(void) fmt;
 
-#ifdef EXIF_SUPPORT
+#if EXIF_SUPPORT
 	if (!strcmp(fmt, "jpeg"))
 		exif_auto_orientate(file);
 #endif
-#ifdef GIF_SUPPORT
+#if GIF_SUPPORT
 	if (!strcmp(fmt, "gif"))
 		img_load_gif(img, file);
 #endif

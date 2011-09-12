@@ -1,3 +1,4 @@
+XLIBS
 config.h
 *.o
 sxiv

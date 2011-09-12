@@ -5,10 +5,6 @@ CFLAGS  = -Wall -pedantic -O2
 LDFLAGS =
 LIBS    = -lX11 -lImlib2
 
-XFLAGS =
-XLIBS  =
-
-DESTDIR   =
 PREFIX    = /usr/local
 MANPREFIX = $(PREFIX)/share/man
 
@@ -22,33 +18,34 @@ options:
 	@echo "CC      = $(CC)"
 	@echo "CFLAGS  = $(CFLAGS)"
 	@echo "LDFLAGS = $(LDFLAGS)"
-	@echo "XFLAGS  = $(XFLAGS)"
-	@echo "XLIBS   = $(XLIBS)"
 	@echo "PREFIX  = $(PREFIX)"
 
 .c.o:
 	@echo "CC $<"
-	@$(CC) $(CFLAGS) $(XFLAGS) -DVERSION=\"$(VERSION)\" -c -o $@ $<
+	@$(CC) $(CFLAGS) -DVERSION=\"$(VERSION)\" -c -o $@ $<
 
-$(OBJ): Makefile config.h
+$(OBJ) XLIBS: Makefile config.h
+
+XLIBS: XLIBS.c
+	@$(CC) $(CFLAGS) -o $@ $@.c
 
 config.h:
 	@echo "creating $@ from config.def.h"
 	@cp config.def.h $@
 
-sxiv:	$(OBJ)
+sxiv:	$(OBJ) XLIBS
 	@echo "CC -o $@"
-	@$(CC) $(LDFLAGS) -o $@ $(OBJ) $(LIBS) $(XLIBS)
+	@$(CC) $(LDFLAGS) -o $@ $(OBJ) $(LIBS) $$(./XLIBS)
 
 clean:
 	@echo "cleaning"
-	@rm -f $(OBJ) sxiv sxiv-$(VERSION).tar.gz
+	@rm -f $(OBJ) XLIBS sxiv sxiv-$(VERSION).tar.gz
 
 dist: clean
 	@echo "creating dist tarball"
 	@mkdir -p sxiv-$(VERSION)
-	@cp LICENSE Makefile Makefile.netbsd README.md config.def.h \
-	    sxiv.1 $(SRC) sxiv-$(VERSION)
+	@cp LICENSE Makefile README.md config.def.h sxiv.1 $(SRC) XLIBS.c \
+	    sxiv-$(VERSION)
 	@tar -cf sxiv-$(VERSION).tar sxiv-$(VERSION)
 	@gzip sxiv-$(VERSION).tar
 	@rm -rf sxiv-$(VERSION)

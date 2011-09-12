@@ -17,6 +17,7 @@
  */
 
 #define _POSIX_C_SOURCE 200112L
+#define _FEATURE_CONFIG
 #define _THUMBS_CONFIG
 
 #include <stdlib.h>
@@ -30,7 +31,7 @@
 #include "util.h"
 #include "config.h"
 
-#ifdef EXIF_SUPPORT
+#if EXIF_SUPPORT
 void exif_auto_orientate(const fileinfo_t*);
 #endif
 
@@ -252,7 +253,7 @@ bool tns_load(tns_t *tns, int n, const fileinfo_t *file,
 	/* avoid unused-but-set-variable warning */
 	(void) fmt;
 
-#ifdef EXIF_SUPPORT
+#if EXIF_SUPPORT
 	if (!cache_hit && !strcmp(fmt, "jpeg"))
 		exif_auto_orientate(file);
 #endif

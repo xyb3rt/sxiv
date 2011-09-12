@@ -8,7 +8,7 @@ Its code base should be kept small and clean to make it easy for you to dig
 into it and customize it for your needs.
 
 Features
-========
+--------
 
 * Basic image operations, e.g. zooming, panning, rotating
 * Customizable key and mouse button mappings (in *config.h*)
@@ -17,14 +17,13 @@ Features
 * Basic support for multi-frame images
 * Display image information in window title
 
-Additional features, that need to be included at compile-time--see section
-*Installation* on how to enable them:
+Additional features, that need to be enabled at compile-time (in *config.h*):
 
-* Play GIF animations
+* Load all frames from GIF files and play GIF animations
 * Auto-orientate JPEG images according to their EXIF tags
 
 Screenshots
-===========
+-----------
 
 Image mode:
 
@@ -35,7 +34,7 @@ Thumbnail mode:
   <img src="http://github.com/muennich/sxiv/raw/master/sample/thumb.png">
 
 Installation
-============
+------------
 sxiv is built using the commands:
 
     $ make
@@ -45,35 +44,16 @@ Please note, that the latter one requires root privileges.
 By default, sxiv is installed using the prefix "/usr/local", so the full path
 of the executable will be "/usr/local/bin/sxiv".
 
-You can install it into a directory of your choice by changing the second
+You can install sxiv into a directory of your choice by changing the second
 command to:
 
     # make PREFIX="/your/dir" install
 
-All build-time specific settings can be found in the file *config.h*. Please
-check and change them, so that they fit your needs.
-
-Additional features
--------------------
-
-The XFLAGS and XLIBS macros control which additional features (non-default
-compile-time features) should be enabled and included during compilation.
-
-* GIF support:
-
-    XFLAGS=-DGIF_SUPPORT, XLIBS=-lgif, requires: giflib
-
-* EXIF support:
-
-    XFLAGS=-DEXIF_SUPPORT, XLIBS=-lexif, requires: libexif
-
-To enable GIF and EXIF support, the giflib and libexif libraries need to be
-installed on your system and you need to change the first build command to:
-
-    $ make XFLAGS="-DGIF_SUPPORT -DEXIF_SUPPORT" XLIBS="-lgif -lexif"
+The build-time specific settings of sxiv can be found in the file *config.h*.
+Please check and change them, so that they fit your needs.
 
 Usage
-=====
+-----
 sxiv has two modes of operation: image and thumbnail mode. The default is
 image mode, in which only the current image is shown. In thumbnail mode a grid
 of small previews is displayed, making it easy to choose an image to open.
