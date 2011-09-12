@@ -74,15 +74,10 @@ enable the corresponding feature:
     files according to their EXIF tag |          |                |
 
 For instance, to enable GIF and EXIF support, the giflib and libexif libraries
-need to be installed on your system and you either need to change the first
-build command to:
+need to be installed on your system and you need to change the first build
+command to:
 
     $ make XFLAGS="-DGIF_SUPPORT -DEXIF_SUPPORT" XLIBS="-lgif -lexif"
-
-Or you need to run the following commands before building sxiv:
-
-    $ export XFLAGS="-DGIF_SUPPORT -DEXIF_SUPPORT"
-    $ export XLIBS="-lgif -lexif"
 
 Usage
 =====

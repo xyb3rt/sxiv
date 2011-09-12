@@ -1,10 +1,14 @@
-VERSION = git-20110911
+VERSION = git-20110912
 
 CC      = gcc
 CFLAGS  = -Wall -pedantic -O2
 LDFLAGS =
 LIBS    = -lX11 -lImlib2
 
+XFLAGS =
+XLIBS  =
+
+DESTDIR   =
 PREFIX    = /usr/local
 MANPREFIX = $(PREFIX)/share/man
 
@@ -17,8 +21,8 @@ options:
 	@echo "sxiv build options:"
 	@echo "CC      = $(CC)"
 	@echo "CFLAGS  = $(CFLAGS)"
-	@echo "XFLAGS  = $(XFLAGS)"
 	@echo "LDFLAGS = $(LDFLAGS)"
+	@echo "XFLAGS  = $(XFLAGS)"
 	@echo "XLIBS   = $(XLIBS)"
 	@echo "PREFIX  = $(PREFIX)"
 
