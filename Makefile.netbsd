@@ -1,4 +1,0 @@
-.include "Makefile"
-
-CFLAGS  = -Wall -pedantic -O2 -I/usr/X11R7/include -I/usr/pkg/include
-LDFLAGS = -L/usr/X11R7/lib -Wl,-R/usr/X11R7/lib -L/usr/pkg/lib -Wl,-R/usr/pkg/lib
