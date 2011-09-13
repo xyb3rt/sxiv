@@ -17,10 +17,11 @@ Features
 * Basic support for multi-frame images
 * Display image information in window title
 
-Additional features, that need to be enabled at compile-time (in *config.h*):
+Additional features, that need to be enabled at compile-time (in *config.h*),
+because they depend on additional libraries:
 
-* Load all frames from GIF files and play GIF animations
-* Auto-orientate JPEG images according to their EXIF tags
+* Load all frames from GIF files and play GIF animations (requires giflib)
+* Auto-orientate JPEG images according to their EXIF tags (requires libexif)
 
 Screenshots
 -----------
@@ -51,6 +52,10 @@ command to:
 
 The build-time specific settings of sxiv can be found in the file *config.h*.
 Please check and change them, so that they fit your needs.
+If the file *config.h* does not already exist, then you have to create it with
+the following command:
+
+    $ make config.h
 
 Usage
 -----
@@ -114,13 +119,10 @@ thumbnail mode are denoted via brackets:
 
 Additionally, the following mouse mappings are available:
 
-    Button1           Go to the next image
-                      [select image/open image if it is already selected]
-    Button2           Drag image with mouse while keeping it pressed
-    Button3           Go to the previous image
-    ScrollUp          Pan image up [scroll up one thumbnail row]
-    ScrollDown        Pan image down [scroll down one thumbnail row]
-    Shift+ScrollUp    Pan image left
-    Shift+ScrollDown  Pan image right
-    Ctrl+ScrollUp     Zoom in
-    Ctrl+ScrollDown   Zoom out
+    Button1      Go to the next image
+                 [select image/open image if it is already selected]
+    Button2      Drag image with mouse while keeping it pressed
+    Button3      Go to the previous image
+    Scroll       Pan image up/down [scroll up/down one thumbnail row]
+    Shift+Scroll Pan image left/right
+    Ctrl+Scroll  Zoom in/out
