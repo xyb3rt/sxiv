@@ -24,27 +24,27 @@ options:
 	@echo "CC $<"
 	@$(CC) $(CFLAGS) -DVERSION=\"$(VERSION)\" -c -o $@ $<
 
-$(OBJ) XLIBS: Makefile config.h
+$(OBJ) config: Makefile config.h
 
-XLIBS: XLIBS.c
+config: config.c
 	@$(CC) $(CFLAGS) -o $@ $@.c
 
 config.h:
 	@echo "creating $@ from config.def.h"
 	@cp config.def.h $@
 
-sxiv:	$(OBJ) XLIBS
+sxiv:	$(OBJ) config
 	@echo "CC -o $@"
-	@$(CC) $(LDFLAGS) -o $@ $(OBJ) $(LIBS) $$(./XLIBS)
+	@$(CC) $(LDFLAGS) -o $@ $(OBJ) $(LIBS) $$(./config -l)
 
 clean:
 	@echo "cleaning"
-	@rm -f $(OBJ) XLIBS sxiv sxiv-$(VERSION).tar.gz
+	@rm -f $(OBJ) config sxiv sxiv-$(VERSION).tar.gz
 
 dist: clean
 	@echo "creating dist tarball"
 	@mkdir -p sxiv-$(VERSION)
-	@cp LICENSE Makefile README.md config.def.h sxiv.1 $(SRC) XLIBS.c \
+	@cp LICENSE Makefile README.md config.def.h sxiv.1 $(SRC) config.c \
 	    sxiv-$(VERSION)
 	@tar -cf sxiv-$(VERSION).tar sxiv-$(VERSION)
 	@gzip sxiv-$(VERSION).tar
