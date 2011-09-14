@@ -110,7 +110,7 @@ void exif_auto_orientate(const fileinfo_t *file) {
 			break;
 
 		case 8:
-			imlib_image_orientate(270);
+			imlib_image_orientate(3);
 			break;
 	}
 }
