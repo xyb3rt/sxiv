@@ -54,7 +54,7 @@ bool it_quit(arg_t a) {
 bool it_switch_mode(arg_t a) {
 	if (mode == MODE_IMAGE) {
 		if (!tns.thumbs)
-			tns_init(&tns, filecnt);
+			tns_init(&tns, filecnt, &win);
 		img_close(&img, false);
 		reset_timeout(reset_cursor);
 		if (img.slideshow) {
@@ -180,16 +180,16 @@ bool it_move(arg_t a) {
 	direction_t dir = (direction_t) a;
 
 	if (mode == MODE_IMAGE)
-		return img_pan(&img, &win, dir, false);
+		return img_pan(&img, dir, false);
 	else
-		return tns_move_selection(&tns, &win, dir);
+		return tns_move_selection(&tns, dir);
 }
 
 bool i_pan_screen(arg_t a) {
 	direction_t dir = (direction_t) a;
 
 	if (mode == MODE_IMAGE)
-		return img_pan(&img, &win, dir, true);
+		return img_pan(&img, dir, true);
 	else
 		return false;
 }
@@ -198,7 +198,7 @@ bool i_pan_edge(arg_t a) {
 	direction_t dir = (direction_t) a;
 
 	if (mode == MODE_IMAGE)
-		return img_pan_edge(&img, &win, dir);
+		return img_pan_edge(&img, dir);
 	else
 		return false;
 }
@@ -245,8 +245,8 @@ bool i_drag(arg_t a) {
 		if (dragging)
 			next = XCheckIfEvent(win.env.dpy, &e, is_motionnotify, None);
 		if ((!dragging || !next) && (dx != 0 || dy != 0)) {
-			if (img_move(&img, &win, dx, dy))
-				img_render(&img, &win);
+			if (img_move(&img, dx, dy))
+				img_render(&img);
 			dx = dy = 0;
 		}
 	}
@@ -265,19 +265,19 @@ bool i_zoom(arg_t a) {
 		return false;
 
 	if (scale > 0)
-		return img_zoom_in(&img, &win);
+		return img_zoom_in(&img);
 	else if (scale < 0)
-		return img_zoom_out(&img, &win);
+		return img_zoom_out(&img);
 	else
-		return img_zoom(&img, &win, 1.0);
+		return img_zoom(&img, 1.0);
 }
 
 bool i_fit_to_win(arg_t a) {
 	bool ret;
 
 	if (mode == MODE_IMAGE) {
-		if ((ret = img_fit_win(&img, &win)))
-			img_center(&img, &win);
+		if ((ret = img_fit_win(&img)))
+			img_center(&img);
 		return ret;
 	} else {
 		return false;
@@ -309,10 +309,10 @@ bool i_rotate(arg_t a) {
 
 	if (mode == MODE_IMAGE) {
 		if (dir == DIR_LEFT) {
-			img_rotate_left(&img, &win);
+			img_rotate_left(&img);
 			return true;
 		} else if (dir == DIR_RIGHT) {
-			img_rotate_right(&img, &win);
+			img_rotate_right(&img);
 			return true;
 		}
 	}

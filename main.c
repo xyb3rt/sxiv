@@ -261,7 +261,7 @@ void update_title() {
 
 void redraw() {
 	if (mode == MODE_IMAGE) {
-		img_render(&img, &win);
+		img_render(&img);
 		if (img.slideshow && !img.multi.animate) {
 			if (fileidx + 1 < filecnt)
 				set_timeout(slideshow, img.ss_delay, true);
@@ -269,7 +269,7 @@ void redraw() {
 				img.slideshow = false;
 		}
 	} else {
-		tns_render(&tns, &win);
+		tns_render(&tns);
 	}
 	update_title();
 	reset_timeout(redraw);
@@ -372,8 +372,8 @@ void on_buttonpress(XButtonEvent *bev) {
 						set_timeout(reset_cursor, TO_CURSOR_HIDE, true);
 						load_image(tns.sel);
 					} else {
-						tns_highlight(&tns, &win, tns.sel, false);
-						tns_highlight(&tns, &win, sel, true);
+						tns_highlight(&tns, tns.sel, false);
+						tns_highlight(&tns, sel, true);
 						tns.sel = sel;
 					}
 					redraw();
@@ -469,7 +469,7 @@ int main(int argc, char **argv) {
 	parse_options(argc, argv);
 
 	if (options->clean_cache) {
-		tns_init(&tns, 0);
+		tns_init(&tns, 0, NULL);
 		tns_clean_cache(&tns);
 		exit(0);
 	}
@@ -513,7 +513,6 @@ int main(int argc, char **argv) {
 					continue;
 				}
 				start = fileidx;
-				printf("reading dir: %s\n", filename);
 				while ((filename = r_readdir(&dir))) {
 					check_add_file(filename);
 					free((void*) filename);
@@ -538,7 +537,7 @@ int main(int argc, char **argv) {
 
 	if (options->thumb_mode) {
 		mode = MODE_THUMB;
-		tns_init(&tns, filecnt);
+		tns_init(&tns, filecnt, &win);
 		while (!tns_load(&tns, 0, &files[0], false, false))
 			remove_file(0, false);
 		tns.cnt = 1;

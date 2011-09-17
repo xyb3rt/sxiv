@@ -156,7 +156,7 @@ void tns_clean_cache(tns_t *tns) {
 }
 
 
-void tns_init(tns_t *tns, int cnt) {
+void tns_init(tns_t *tns, int cnt, win_t *win) {
 	int len;
 	char *homedir;
 
@@ -170,8 +170,9 @@ void tns_init(tns_t *tns, int cnt) {
 		tns->thumbs = NULL;
 	}
 
-	tns->cnt = tns->first = tns->sel = 0;
 	tns->cap = cnt;
+	tns->cnt = tns->first = tns->sel = 0;
+	tns->win = win;
 	tns->alpha = true;
 	tns->dirty = false;
 
@@ -305,16 +306,17 @@ void tns_check_view(tns_t *tns, bool scrolled) {
 	}
 }
 
-void tns_render(tns_t *tns, win_t *win) {
-	int i, cnt, r, x, y;
+void tns_render(tns_t *tns) {
 	thumb_t *t;
+	win_t *win;
+	int i, cnt, r, x, y;
 
-	if (!tns || !tns->thumbs || !win)
+	if (!tns || !tns->thumbs || !tns->win)
 		return;
-
 	if (!tns->dirty)
 		return;
 
+	win = tns->win;
 	win_clear(win);
 	imlib_context_set_drawable(win->pm);
 
@@ -357,16 +359,19 @@ void tns_render(tns_t *tns, win_t *win) {
 	}
 
 	tns->dirty = false;
-	tns_highlight(tns, win, tns->sel, true);
+	tns_highlight(tns, tns->sel, true);
 }
 
-void tns_highlight(tns_t *tns, win_t *win, int n, bool hl) {
+void tns_highlight(tns_t *tns, int n, bool hl) {
 	thumb_t *t;
+	win_t *win;
 	int x, y;
 	unsigned long col;
 
-	if (!tns || !tns->thumbs || !win)
+	if (!tns || !tns->thumbs || !tns->win)
 		return;
+
+	win = tns->win;
 
 	if (n >= 0 && n < tns->cnt) {
 		t = &tns->thumbs[n];
@@ -387,10 +392,10 @@ void tns_highlight(tns_t *tns, win_t *win, int n, bool hl) {
 	win_draw(win);
 }
 
-bool tns_move_selection(tns_t *tns, win_t *win, direction_t dir) {
+bool tns_move_selection(tns_t *tns, direction_t dir) {
 	int old;
 
-	if (!tns || !tns->thumbs || !win)
+	if (!tns || !tns->thumbs)
 		return false;
 
 	old = tns->sel;
@@ -415,10 +420,10 @@ bool tns_move_selection(tns_t *tns, win_t *win, direction_t dir) {
 	}
 
 	if (tns->sel != old) {
-		tns_highlight(tns, win, old, false);
+		tns_highlight(tns, old, false);
 		tns_check_view(tns, false);
 		if (!tns->dirty)
-			tns_highlight(tns, win, tns->sel, true);
+			tns_highlight(tns, tns->sel, true);
 	}
 
 	return tns->sel != old;

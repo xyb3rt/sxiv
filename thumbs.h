@@ -26,39 +26,42 @@
 #include "window.h"
 
 typedef struct {
-	Imlib_Image *im;
 	const fileinfo_t *file;
-	int x;
-	int y;
+	Imlib_Image *im;
 	int w;
 	int h;
+	int x;
+	int y;
 } thumb_t;
 
 typedef struct {
 	thumb_t *thumbs;
 	int cap;
 	int cnt;
+	int first;
+	int sel;
+
+	win_t *win;
 	int x;
 	int y;
 	int cols;
 	int rows;
-	int first;
-	int sel;
+
 	bool alpha;
 	bool dirty;
 } tns_t;
 
 void tns_clean_cache(tns_t*);
 
-void tns_init(tns_t*, int);
+void tns_init(tns_t*, int, win_t*);
 void tns_free(tns_t*);
 
 bool tns_load(tns_t*, int, const fileinfo_t*, bool, bool);
 
-void tns_render(tns_t*, win_t*);
-void tns_highlight(tns_t*, win_t*, int, bool);
+void tns_render(tns_t*);
+void tns_highlight(tns_t*, int, bool);
 
-bool tns_move_selection(tns_t*, win_t*, direction_t);
+bool tns_move_selection(tns_t*, direction_t);
 bool tns_scroll(tns_t*, direction_t);
 
 int tns_translate(tns_t*, int, int);
