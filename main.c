@@ -60,7 +60,7 @@ tns_t tns;
 win_t win;
 
 fileinfo_t *files;
-int filecnt, fileidx;
+unsigned int filecnt, fileidx;
 size_t filesize;
 
 char win_title[TITLE_LEN];
@@ -73,7 +73,7 @@ timeout_t timeouts[] = {
 };
 
 void cleanup() {
-	static int in = 0;
+	static unsigned int in = 0;
 
 	if (!in++) {
 		img_close(&img, false);
@@ -95,6 +95,7 @@ void check_add_file(char *filename) {
 		filecnt *= 2;
 		files = (fileinfo_t*) s_realloc(files, filecnt * sizeof(fileinfo_t));
 	}
+
 	if (*filename != '/') {
 		files[fileidx].path = absolute_path(filename);
 		if (!files[fileidx].path) {
@@ -102,10 +103,13 @@ void check_add_file(char *filename) {
 			return;
 		}
 	}
+
 	files[fileidx].loaded = false;
 	files[fileidx].name = s_strdup(filename);
+
 	if (*filename == '/')
 		files[fileidx].path = files[fileidx].name;
+
 	fileidx++;
 }
 
@@ -122,10 +126,12 @@ void remove_file(int n, bool silent) {
 
 	if (files[n].path != files[n].name)
 		free((void*) files[n].path);
+
 	free((void*) files[n].name);
 
 	if (n + 1 < filecnt)
 		memmove(files + n, files + n + 1, (filecnt - n - 1) * sizeof(fileinfo_t));
+
 	if (n + 1 < tns.cnt) {
 		memmove(tns.thumbs + n, tns.thumbs + n + 1, (tns.cnt - n - 1) *
 		        sizeof(thumb_t));
@@ -133,12 +139,13 @@ void remove_file(int n, bool silent) {
 	}
 
 	filecnt--;
+
 	if (n < tns.cnt)
 		tns.cnt--;
 }
 
 void set_timeout(timeout_f handler, int time, bool overwrite) {
-	int i;
+	unsigned int i;
 
 	for (i = 0; i < ARRLEN(timeouts); i++) {
 		if (timeouts[i].handler == handler) {
@@ -153,7 +160,7 @@ void set_timeout(timeout_f handler, int time, bool overwrite) {
 }
 
 void reset_timeout(timeout_f handler) {
-	int i;
+	unsigned int i;
 
 	for (i = 0; i < ARRLEN(timeouts); i++) {
 		if (timeouts[i].handler == handler) {
@@ -164,7 +171,8 @@ void reset_timeout(timeout_f handler) {
 }
 
 bool check_timeouts(struct timeval *t) {
-	int i = 0, tdiff, tmin = -1;
+	unsigned int i = 0
+	int tdiff, tmin = -1;
 	struct timeval now;
 
 	gettimeofday(&now, 0);
@@ -182,6 +190,7 @@ bool check_timeouts(struct timeval *t) {
 		}
 		i++;
 	}
+
 	if (tmin > 0 && t)
 		MSEC_TO_TIMEVAL(tmin, t);
 	return tmin > 0;
@@ -196,6 +205,7 @@ void load_image(int new) {
 	win_set_cursor(&win, CURSOR_WATCH);
 
 	img_close(&img, false);
+
 	while (!img_load(&img, &files[new])) {
 		remove_file(new, false);
 		if (new >= filecnt)
@@ -204,6 +214,7 @@ void load_image(int new) {
 
 	files[new].loaded = true;
 	fileidx = new;
+
 	if (!stat(files[new].path, &fstats))
 		filesize = fstats.st_size;
 	else
@@ -271,13 +282,14 @@ void redraw() {
 	} else {
 		tns_render(&tns, &win);
 	}
+
 	update_title();
 	reset_timeout(redraw);
 	reset_cursor();
 }
 
 void reset_cursor() {
-	int i;
+	unsigned int i;
 	cursor_t cursor = CURSOR_NONE;
 
 	if (mode == MODE_IMAGE) {
@@ -294,18 +306,20 @@ void reset_cursor() {
 		else
 			cursor = CURSOR_ARROW;
 	}
+
 	win_set_cursor(&win, cursor);
 }
 
 void animate() {
-	if (img_frame_animate(&img, false)) {
-		redraw();
-		set_timeout(animate, img.multi.frames[img.multi.sel].delay, true);
-	}
+	if (!img_frame_animate(&img, false)) /* Usually is not */
+		return;
+
+	redraw();
+	set_timeout(animate, img.multi.frames[img.multi.sel].delay, true);
 }
 
 void slideshow() {
-	if (mode == MODE_IMAGE && !img.multi.animate) {
+	if ((mode == MODE_IMAGE) && !img.multi.animate) {
 		if (fileidx + 1 < filecnt) {
 			load_image(fileidx + 1);
 			redraw();
@@ -316,7 +330,7 @@ void slideshow() {
 }
 
 bool keymask(const keymap_t *k, unsigned int state) {
-	return (k->ctrl ? ControlMask : 0) == (state & ControlMask);
+	return (k->ctrl ? ControlMask : 0) == (state & ControlMask); /* Ternary is slower than IF! */
 }
 
 bool buttonmask(const button_t *b, unsigned int state) {
@@ -325,13 +339,12 @@ bool buttonmask(const button_t *b, unsigned int state) {
 }
 
 void on_keypress(XKeyEvent *kev) {
-	int i;
-	KeySym ksym;
-	char key;
-
 	if (!kev)
 		return;
 
+	unsigned int i;
+	KeySym ksym;
+	char key;
 	XLookupString(kev, &key, 1, &ksym, NULL);
 
 	for (i = 0; i < ARRLEN(keys); i++) {
@@ -344,15 +357,15 @@ void on_keypress(XKeyEvent *kev) {
 }
 
 void on_buttonpress(XButtonEvent *bev) {
-	int i, sel;
-
 	if (!bev)
 		return;
+
+	unsigned int i
+	int sel;
 
 	if (mode == MODE_IMAGE) {
 		win_set_cursor(&win, CURSOR_ARROW);
 		set_timeout(reset_cursor, TO_CURSOR_HIDE, true);
-
 		for (i = 0; i < ARRLEN(buttons); i++) {
 			if (buttons[i].button == bev->button &&
 			    buttonmask(&buttons[i], bev->state))
@@ -362,31 +375,33 @@ void on_buttonpress(XButtonEvent *bev) {
 				return;
 			}
 		}
-	} else {
-		/* thumbnail mode (hard-coded) */
-		switch (bev->button) {
-			case Button1:
-				if ((sel = tns_translate(&tns, bev->x, bev->y)) >= 0) {
-					if (sel == tns.sel) {
-						mode = MODE_IMAGE;
-						set_timeout(reset_cursor, TO_CURSOR_HIDE, true);
-						load_image(tns.sel);
-					} else {
-						tns_highlight(&tns, &win, tns.sel, false);
-						tns_highlight(&tns, &win, sel, true);
-						tns.sel = sel;
-					}
-					redraw();
-					break;
-				}
-				break;
-			case Button4:
-			case Button5:
-				if (tns_scroll(&tns, bev->button == Button4 ? DIR_UP : DIR_DOWN))
-					redraw();
-				break;
-		}
+		return;
 	}
+
+	/* thumbnail mode (hard-coded) */
+	switch (bev->button) {
+		case Button1:
+			if ((sel = tns_translate(&tns, bev->x, bev->y)) >= 0) {
+				if (sel == tns.sel) {
+					mode = MODE_IMAGE;
+					set_timeout(reset_cursor, TO_CURSOR_HIDE, true);
+					load_image(tns.sel);
+				} else {
+					tns_highlight(&tns, &win, tns.sel, false);
+					tns_highlight(&tns, &win, sel, true);
+					tns.sel = sel;
+				}
+				redraw();
+				break;
+			}
+			break;
+		case Button4:
+		case Button5:
+			if (tns_scroll(&tns, bev->button == Button4 ? DIR_UP : DIR_DOWN))
+				redraw();
+			break;
+	}
+
 }
 
 void run() {
@@ -412,7 +427,6 @@ void run() {
 			else
 				check_timeouts(NULL);
 		}
-
 		while (!XPending(win.env.dpy) && check_timeouts(&timeout)) {
 			/* wait for timeouts */
 			xfd = ConnectionNumber(win.env.dpy);
@@ -420,7 +434,6 @@ void run() {
 			FD_SET(xfd, &fds);
 			select(xfd + 1, &fds, 0, 0, &timeout);
 		}
-
 		if (!XNextEvent(win.env.dpy, &ev)) {
 			/* handle events */
 			switch (ev.type) {
@@ -458,14 +471,7 @@ int fncmp(const void *a, const void *b) {
 	return strcoll(((fileinfo_t*) a)->name, ((fileinfo_t*) b)->name);
 }
 
-int main(int argc, char **argv) {
-	int i, start;
-	size_t n;
-	ssize_t len;
-	char *filename;
-	struct stat fstats;
-	r_dir_t dir;
-
+unsigned int main(int argc, char **argv) {
 	parse_options(argc, argv);
 
 	if (options->clean_cache) {
@@ -478,6 +484,14 @@ int main(int argc, char **argv) {
 		print_usage();
 		exit(1);
 	}
+
+	unsigned int i
+	int start;
+	size_t n;
+	ssize_t len;
+	char *filename;
+	struct stat fstats;
+	r_dir_t dir;
 
 	if (options->recursive || options->from_stdin)
 		filecnt = FNAME_CNT;
@@ -519,7 +533,7 @@ int main(int argc, char **argv) {
 					free((void*) filename);
 				}
 				r_closedir(&dir);
-				if (fileidx - start > 1)
+				if ((fileidx - start) > 1)
 					qsort(files + start, fileidx - start, sizeof(fileinfo_t), fncmp);
 			}
 		}
@@ -532,7 +546,6 @@ int main(int argc, char **argv) {
 
 	filecnt = fileidx;
 	fileidx = options->startnum < filecnt ? options->startnum : 0;
-
 	win_init(&win);
 	img_init(&img, &win);
 
@@ -549,9 +562,7 @@ int main(int argc, char **argv) {
 	}
 
 	win_open(&win);
-	
 	run();
 	cleanup();
-
 	return 0;
 }
