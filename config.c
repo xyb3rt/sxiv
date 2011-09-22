@@ -2,44 +2,36 @@
 #define _FEATURE_CONFIG
 
 #include <stdio.h>
-#include <string.h>
 
 #include "config.h"
 
 #define QUOTE(m) #m
 #define PUT_MACRO(m) \
-	printf("%s-D%s=%s", n++ ? " " : "", #m, QUOTE(m))
+	printf(" -D%s=%s", #m, QUOTE(m))
 
-int n = 0;
-
-inline void puts_if(const char *s, int c) {
-	if (c)
-		printf("%s%s", n++ ? " " : "", s);
-}
-
-inline void endl() {
-	if (n) {
-		printf("\n");
-		n = 0;
-	}
+inline int puts_if(const char *s, int c) {
+	return c ? printf(" %s", s) : 0;
 }
 
 int main(int argc, char **argv) {
-	int i;
+	int i, n = 0;
 
 	for (i = 1; i < argc; i++) {
-		if (!strcmp(argv[i], "-D")) {
-			PUT_MACRO(EXIF_SUPPORT);
-			PUT_MACRO(GIF_SUPPORT);
-			endl();
-		} else if (!strcmp(argv[i], "-l")) {
-			puts_if("-lexif", EXIF_SUPPORT);
-			puts_if("-lgif",  GIF_SUPPORT);
-			endl();
-		} else {
-			fprintf(stderr, "%s: invalid argument: %s\n", argv[0], argv[i]);
-			return 1;
+		switch (argv[i][0] != '-' || argv[i][2] ? -1 : argv[i][1]) {
+			case 'D':
+				n += PUT_MACRO(EXIF_SUPPORT);
+				n += PUT_MACRO(GIF_SUPPORT);
+				break;
+			case 'l':
+				n += puts_if("-lexif", EXIF_SUPPORT);
+				n += puts_if("-lgif",  GIF_SUPPORT);
+				break;
+			default:
+				fprintf(stderr, "%s: invalid argument: %s\n", argv[0], argv[i]);
+				return 1;
 		}
 	}
+	if (n)
+		printf("\n");
 	return 0;
 }
