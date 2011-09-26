@@ -1,4 +1,4 @@
-VERSION = git-20110923
+VERSION = git-20110926
 
 CC      = gcc
 CFLAGS  = -Wall -pedantic -O2

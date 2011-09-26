@@ -109,15 +109,15 @@ void check_add_file(char *filename) {
 	fileidx++;
 }
 
-void remove_file(int n, bool silent) {
+void remove_file(int n, bool manual) {
 	if (n < 0 || n >= filecnt)
 		return;
 
 	if (filecnt == 1) {
-		if (!silent)
+		if (!manual)
 			fprintf(stderr, "sxiv: no more files to display, aborting\n");
 		cleanup();
-		exit(!silent);
+		exit(manual ? EXIT_SUCCESS : EXIT_FAILURE);
 	}
 
 	if (files[n].path != files[n].name)
