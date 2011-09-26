@@ -471,12 +471,12 @@ int main(int argc, char **argv) {
 	if (options->clean_cache) {
 		tns_init(&tns, 0, NULL);
 		tns_clean_cache(&tns);
-		exit(0);
+		exit(EXIT_SUCCESS);
 	}
 
 	if (!options->filecnt) {
 		print_usage();
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 
 	if (options->recursive || options->from_stdin)
@@ -526,7 +526,7 @@ int main(int argc, char **argv) {
 
 	if (!fileidx) {
 		fprintf(stderr, "sxiv: no valid image file given, aborting\n");
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 
 	filecnt = fileidx;

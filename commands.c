@@ -48,7 +48,7 @@ extern int filecnt, fileidx;
 
 bool it_quit(arg_t a) {
 	cleanup();
-	exit(0);
+	exit(EXIT_SUCCESS);
 }
 
 bool it_switch_mode(arg_t a) {
@@ -388,7 +388,7 @@ bool it_open_with(arg_t a) {
 		execlp(prog, prog,
 		       files[mode == MODE_IMAGE ? fileidx : tns.sel].path, NULL);
 		warn("could not exec: %s", prog);
-		exit(1);
+		exit(EXIT_FAILURE);
 	} else if (pid < 0) {
 		warn("could not fork. program was: %s", prog);
 	}
@@ -415,7 +415,7 @@ bool it_shell_cmd(arg_t a) {
 	if ((pid = fork()) == 0) {
 		execl("/bin/sh", "/bin/sh", "-c", cmdline, NULL);
 		warn("could not exec: /bin/sh. command line was: %s", cmdline);
-		exit(1);
+		exit(EXIT_FAILURE);
 	} else if (pid < 0) {
 		warn("could not fork. command line was: %s", cmdline);
 		return false;

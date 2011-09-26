@@ -21,6 +21,7 @@
 
 #include <stdio.h>
 #include <stdarg.h>
+#include <unistd.h> /* ssize_t */
 #include <dirent.h>
 
 #ifndef MIN
@@ -31,6 +32,8 @@
 #endif
 
 #define ARRLEN(a) (sizeof(a) / sizeof(a[0]))
+
+#define STREQ(a,b) (strcmp((a), (b)) == 0)
 
 #define TIMEDIFF(t1,t2) (((t1)->tv_sec - (t2)->tv_sec) * 1000 +  \
                          ((t1)->tv_usec - (t2)->tv_usec) / 1000)

@@ -87,7 +87,7 @@ void die(const char* fmt, ...) {
 	va_end(args);
 
 	cleanup();
-	exit(1);
+	exit(EXIT_FAILURE);
 }
 
 ssize_t get_line(char **buf, size_t *n, FILE *stream) {
@@ -270,7 +270,7 @@ char* r_readdir(r_dir_t *rdir) {
 
 	while (1) {
 		if (rdir->dir && (dentry = readdir(rdir->dir))) {
-			if (!strcmp(dentry->d_name, ".") || !strcmp(dentry->d_name, ".."))
+			if (STREQ(dentry->d_name, ".") || STREQ(dentry->d_name, ".."))
 				continue;
 
 			len = strlen(rdir->name) + strlen(dentry->d_name) + 2;

@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "util.h"
 #include "config.h"
 
 #define QUOTE(m) #m
@@ -28,11 +29,11 @@ int main(int argc, char **argv) {
 	int i;
 
 	for (i = 1; i < argc; i++) {
-		if (!strcmp(argv[i], "-D")) {
+		if (STREQ(argv[i], "-D")) {
 			PUT_MACRO(EXIF_SUPPORT);
 			PUT_MACRO(GIF_SUPPORT);
 			endl();
-		} else if (!strcmp(argv[i], "-l")) {
+		} else if (STREQ(argv[i], "-l")) {
 			puts_if("-lexif", EXIF_SUPPORT);
 			puts_if("-lgif",  GIF_SUPPORT);
 			endl();
