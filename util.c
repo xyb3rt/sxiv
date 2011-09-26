@@ -87,7 +87,7 @@ void die(const char* fmt, ...) {
 	va_end(args);
 
 	cleanup();
-	exit(1);
+	exit(EXIT_FAILURE);
 }
 
 ssize_t get_line(char **buf, size_t *n, FILE *stream) {
