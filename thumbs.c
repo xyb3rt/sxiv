@@ -255,7 +255,7 @@ bool tns_load(tns_t *tns, int n, const fileinfo_t *file,
 	(void) fmt;
 
 #if EXIF_SUPPORT
-	if (!cache_hit && !strcmp(fmt, "jpeg"))
+	if (!cache_hit && STREQ(fmt, "jpeg"))
 		exif_auto_orientate(file);
 #endif
 
