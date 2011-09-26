@@ -75,7 +75,7 @@ void parse_options(int argc, char **argv) {
 		switch (opt) {
 			case '?':
 				print_usage();
-				exit(1);
+				exit(EXIT_FAILURE);
 			case 'c':
 				_options.clean_cache = true;
 				break;
@@ -93,12 +93,12 @@ void parse_options(int argc, char **argv) {
 				break;
 			case 'h':
 				print_usage();
-				exit(0);
+				exit(EXIT_SUCCESS);
 			case 'n':
 				if (!sscanf(optarg, "%d", &t) || t < 1) {
 					fprintf(stderr, "sxiv: invalid argument for option -n: %s\n",
 					        optarg);
-					exit(1);
+					exit(EXIT_FAILURE);
 				} else {
 					_options.startnum = t - 1;
 				}
@@ -120,7 +120,7 @@ void parse_options(int argc, char **argv) {
 				break;
 			case 'v':
 				print_version();
-				exit(0);
+				exit(EXIT_SUCCESS);
 			case 'Z':
 				_options.scalemode = SCALE_ZOOM;
 				_options.zoom = 1.0;
@@ -130,7 +130,7 @@ void parse_options(int argc, char **argv) {
 				if (!sscanf(optarg, "%d", &t) || t <= 0) {
 					fprintf(stderr, "sxiv: invalid argument for option -z: %s\n",
 					        optarg);
-					exit(1);
+					exit(EXIT_FAILURE);
 				}
 				_options.zoom = (float) t / 100.0;
 				break;
