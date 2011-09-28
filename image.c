@@ -173,6 +173,9 @@ bool img_load_gif(img_t *img, const fileinfo_t *file) {
 					delay = 10 * ((unsigned int) ext[3] << 8 | (unsigned int) ext[2]);
 					if (delay)
 						delay = MAX(delay, MIN_GIF_DELAY);
+
+					/* TODO: handle disposal method, section 23.c.iv of
+					         http://www.w3.org/Graphics/GIF/spec-gif89a.txt */
 				}
 				ext = NULL;
 				DGifGetExtensionNext(gif, &ext);
@@ -209,12 +212,9 @@ bool img_load_gif(img_t *img, const fileinfo_t *file) {
 
 			for (i = 0; i < sh; i++) {
 				for (j = 0; j < sw; j++) {
-					if (i < y || i >= y + h || j < x || j >= x + w) {
-						if (transp >= 0 && prev_frame)
-							*ptr = prev_frame[i * sw + j];
-						else
-							*ptr = bgpixel;
-					} else if (rows[i-y][j-x] == transp) {
+					if (i < y || i >= y + h || j < x || j >= x + w ||
+					    rows[i-y][j-x] == transp)
+					{
 						if (prev_frame)
 							*ptr = prev_frame[i * sw + j];
 						else
