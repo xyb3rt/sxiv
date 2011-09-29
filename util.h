@@ -22,7 +22,10 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <dirent.h>
+#include <sys/time.h>
 #include <sys/types.h>
+
+#include "types.h"
 
 #ifndef MIN
 #define MIN(a,b) ((a) < (b) ? (a) : (b))
@@ -33,21 +36,6 @@
 
 #define ARRLEN(a) (sizeof(a) / sizeof((a)[0]))
 
-#define STREQ(a,b) (!strcmp((a), (b)))
-
-#define TIMEDIFF(t1,t2) (((t1)->tv_sec - (t2)->tv_sec) * 1000 +  \
-                         ((t1)->tv_usec - (t2)->tv_usec) / 1000)
-
-#define MSEC_TO_TIMEVAL(t,tv) {         \
-  (tv)->tv_sec = (t) / 1000;            \
-  (tv)->tv_usec = (t) % 1000 * 1000;    \
-}
-
-#define MSEC_ADD_TO_TIMEVAL(t,tv) {     \
-  (tv)->tv_sec += (t) / 1000;           \
-  (tv)->tv_usec += (t) % 1000 * 1000;   \
-}
-
 typedef struct {
 	DIR *dir;
 	char *name;
@@ -57,6 +45,29 @@ typedef struct {
 	int stcap;
 	int stlen;
 } r_dir_t;
+
+static inline
+bool streq(const char *a, const char *b) {
+	return strcmp(a, b) == 0;
+}
+
+static inline
+long tv_diff(const struct timeval *t1, const struct timeval *t2) {
+	return (t1->tv_sec - t2->tv_sec) * 1000 +
+	       (t1->tv_usec - t2->tv_usec) / 1000;
+}
+
+static inline
+void tv_set_msec(struct timeval *t, int msec) {
+	t->tv_sec = msec / 1000;
+	t->tv_usec = msec % 1000 * 1000;
+}
+
+static inline
+void tv_add_msec(struct timeval *t, int msec) {
+	t->tv_sec += msec / 1000;
+	t->tv_usec += msec % 1000 * 1000;
+}
 
 void* s_malloc(size_t);
 void* s_realloc(void*, size_t);

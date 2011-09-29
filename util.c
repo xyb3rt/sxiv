@@ -270,7 +270,7 @@ char* r_readdir(r_dir_t *rdir) {
 
 	while (1) {
 		if (rdir->dir && (dentry = readdir(rdir->dir))) {
-			if (STREQ(dentry->d_name, ".") || STREQ(dentry->d_name, ".."))
+			if (streq(dentry->d_name, ".") || streq(dentry->d_name, ".."))
 				continue;
 
 			len = strlen(rdir->name) + strlen(dentry->d_name) + 2;

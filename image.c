@@ -303,11 +303,11 @@ bool img_load(img_t *img, const fileinfo_t *file) {
 	(void) fmt;
 
 #if EXIF_SUPPORT
-	if (STREQ(fmt, "jpeg"))
+	if (streq(fmt, "jpeg"))
 		exif_auto_orientate(file);
 #endif
 #if GIF_SUPPORT
-	if (STREQ(fmt, "gif"))
+	if (streq(fmt, "gif"))
 		img_load_gif(img, file);
 #endif
 
