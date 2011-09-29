@@ -73,9 +73,10 @@ timeout_t timeouts[] = {
 };
 
 void cleanup() {
-	static int in = 0;
+	static bool in = false;
 
-	if (!in++) {
+	if (!in) {
+		in = true;
 		img_close(&img, false);
 		tns_free(&tns);
 		win_close(&win);
@@ -83,10 +84,10 @@ void cleanup() {
 }
 
 void check_add_file(char *filename) {
-	if (!filename || !*filename)
+	if (filename == NULL || *filename == '\0')
 		return;
 
-	if (access(filename, R_OK)) {
+	if (access(filename, R_OK) < 0) {
 		warn("could not open file: %s", filename);
 		return;
 	}
@@ -97,7 +98,7 @@ void check_add_file(char *filename) {
 	}
 	if (*filename != '/') {
 		files[fileidx].path = absolute_path(filename);
-		if (!files[fileidx].path) {
+		if (files[fileidx].path == NULL) {
 			warn("could not get absolute path of file: %s\n", filename);
 			return;
 		}
@@ -173,7 +174,7 @@ bool check_timeouts(struct timeval *t) {
 			tdiff = tv_diff(&timeouts[i].when, &now);
 			if (tdiff <= 0) {
 				timeouts[i].active = false;
-				if (timeouts[i].handler)
+				if (timeouts[i].handler != NULL)
 					timeouts[i].handler();
 				i = tmin = -1;
 			} else if (tmin < 0 || tdiff < tmin) {
@@ -182,7 +183,7 @@ bool check_timeouts(struct timeval *t) {
 		}
 		i++;
 	}
-	if (tmin > 0 && t)
+	if (tmin > 0 && t != NULL)
 		tv_set_msec(t, tmin);
 	return tmin > 0;
 }
@@ -204,12 +205,12 @@ void load_image(int new) {
 
 	files[new].loaded = true;
 	fileidx = new;
-	if (!stat(files[new].path, &fstats))
+	if (stat(files[new].path, &fstats) == 0)
 		filesize = fstats.st_size;
 	else
 		filesize = 0;
 
-	if (img.multi.cnt && img.multi.animate)
+	if (img.multi.cnt > 0 && img.multi.animate)
 		set_timeout(animate, img.multi.frames[img.multi.sel].delay, true);
 	else
 		reset_timeout(animate);
@@ -238,7 +239,7 @@ void update_title() {
 		} else {
 			sshow_info[0] = '\0';
 		}
-		if (img.multi.cnt)
+		if (img.multi.cnt > 0)
 			snprintf(frame_info, sizeof(frame_info), "{%d/%d} ",
 			         img.multi.sel + 1, img.multi.cnt);
 		else
@@ -329,14 +330,14 @@ void on_keypress(XKeyEvent *kev) {
 	KeySym ksym;
 	char key;
 
-	if (!kev)
+	if (kev == NULL)
 		return;
 
 	XLookupString(kev, &key, 1, &ksym, NULL);
 
 	for (i = 0; i < ARRLEN(keys); i++) {
 		if (keys[i].ksym == ksym && keymask(&keys[i], kev->state)) {
-			if (keys[i].cmd && keys[i].cmd(keys[i].arg))
+			if (keys[i].cmd != NULL && keys[i].cmd(keys[i].arg))
 				redraw();
 			return;
 		}
@@ -346,7 +347,7 @@ void on_keypress(XKeyEvent *kev) {
 void on_buttonpress(XButtonEvent *bev) {
 	int i, sel;
 
-	if (!bev)
+	if (bev == NULL)
 		return;
 
 	if (mode == MODE_IMAGE) {
@@ -357,7 +358,7 @@ void on_buttonpress(XButtonEvent *bev) {
 			if (buttons[i].button == bev->button &&
 			    buttonmask(&buttons[i], bev->state))
 			{
-				if (buttons[i].cmd && buttons[i].cmd(buttons[i].arg))
+				if (buttons[i].cmd != NULL && buttons[i].cmd(buttons[i].arg))
 					redraw();
 				return;
 			}
@@ -397,9 +398,9 @@ void run() {
 
 	redraw();
 
-	while (1) {
+	while (true) {
 		while (mode == MODE_THUMB && tns.cnt < filecnt &&
-		       !XPending(win.env.dpy))
+		       XPending(win.env.dpy) == 0)
 		{
 			/* load thumbnails */
 			set_timeout(redraw, TO_REDRAW_THUMBS, false);
@@ -413,7 +414,7 @@ void run() {
 				check_timeouts(NULL);
 		}
 
-		while (!XPending(win.env.dpy) && check_timeouts(&timeout)) {
+		while (XPending(win.env.dpy) == 0 && check_timeouts(&timeout)) {
 			/* wait for timeouts */
 			xfd = ConnectionNumber(win.env.dpy);
 			FD_ZERO(&fds);
@@ -421,35 +422,34 @@ void run() {
 			select(xfd + 1, &fds, 0, 0, &timeout);
 		}
 
-		if (!XNextEvent(win.env.dpy, &ev)) {
+		XNextEvent(win.env.dpy, &ev);
+		switch (ev.type) {
 			/* handle events */
-			switch (ev.type) {
-				case ButtonPress:
-					on_buttonpress(&ev.xbutton);
-					break;
-				case ClientMessage:
-					if ((Atom) ev.xclient.data.l[0] == wm_delete_win)
-						return;
-					break;
-				case ConfigureNotify:
-					if (win_configure(&win, &ev.xconfigure)) {
-						set_timeout(redraw, TO_REDRAW_RESIZE, false);
-						if (mode == MODE_IMAGE)
-							img.checkpan = true;
-						else
-							tns.dirty = true;
-					}
-					break;
-				case KeyPress:
-					on_keypress(&ev.xkey);
-					break;
-				case MotionNotify:
-					if (mode == MODE_IMAGE) {
-						win_set_cursor(&win, CURSOR_ARROW);
-						set_timeout(reset_cursor, TO_CURSOR_HIDE, true);
-					}
-					break;
-			}
+			case ButtonPress:
+				on_buttonpress(&ev.xbutton);
+				break;
+			case ClientMessage:
+				if ((Atom) ev.xclient.data.l[0] == wm_delete_win)
+					return;
+				break;
+			case ConfigureNotify:
+				if (win_configure(&win, &ev.xconfigure)) {
+					set_timeout(redraw, TO_REDRAW_RESIZE, false);
+					if (mode == MODE_IMAGE)
+						img.checkpan = true;
+					else
+						tns.dirty = true;
+				}
+				break;
+			case KeyPress:
+				on_keypress(&ev.xkey);
+				break;
+			case MotionNotify:
+				if (mode == MODE_IMAGE) {
+					win_set_cursor(&win, CURSOR_ARROW);
+					set_timeout(reset_cursor, TO_CURSOR_HIDE, true);
+				}
+				break;
 		}
 	}
 }
@@ -474,7 +474,7 @@ int main(int argc, char **argv) {
 		exit(EXIT_SUCCESS);
 	}
 
-	if (!options->filecnt) {
+	if (options->filecnt == 0) {
 		print_usage();
 		exit(EXIT_FAILURE);
 	}
@@ -495,25 +495,29 @@ int main(int argc, char **argv) {
 				filename[len-1] = '\0';
 			check_add_file(filename);
 		}
-		if (filename)
+		if (filename != NULL)
 			free(filename);
 	} else {
 		for (i = 0; i < options->filecnt; i++) {
 			filename = options->filenames[i];
 
-			if (stat(filename, &fstats) || !S_ISDIR(fstats.st_mode)) {
+			if (stat(filename, &fstats) < 0) {
+				warn("could not stat file: %s", filename);
+				continue;
+			}
+			if (!S_ISDIR(fstats.st_mode)) {
 				check_add_file(filename);
 			} else {
 				if (!options->recursive) {
 					warn("ignoring directory: %s", filename);
 					continue;
 				}
-				if (r_opendir(&dir, filename)) {
+				if (r_opendir(&dir, filename) < 0) {
 					warn("could not open directory: %s", filename);
 					continue;
 				}
 				start = fileidx;
-				while ((filename = r_readdir(&dir))) {
+				while ((filename = r_readdir(&dir)) != NULL) {
 					check_add_file(filename);
 					free((void*) filename);
 				}
@@ -524,7 +528,7 @@ int main(int argc, char **argv) {
 		}
 	}
 
-	if (!fileidx) {
+	if (fileidx == 0) {
 		fprintf(stderr, "sxiv: no valid image file given, aborting\n");
 		exit(EXIT_FAILURE);
 	}
@@ -548,7 +552,7 @@ int main(int argc, char **argv) {
 	}
 
 	win_open(&win);
-	
+
 	run();
 	cleanup();
 

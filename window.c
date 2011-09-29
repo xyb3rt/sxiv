@@ -40,11 +40,11 @@ void win_init(win_t *win) {
 	win_env_t *e;
 	XColor col;
 
-	if (!win)
+	if (win == NULL)
 		return;
 
 	e = &win->env;
-	if (!(e->dpy = XOpenDisplay(NULL)))
+	if ((e->dpy = XOpenDisplay(NULL)) == NULL)
 		die("could not open display");
 
 	e->scr = DefaultScreen(e->dpy);
@@ -58,7 +58,7 @@ void win_init(win_t *win) {
 	win->white = WhitePixel(e->dpy, e->scr);
 
 	if (XAllocNamedColor(e->dpy, DefaultColormap(e->dpy, e->scr), BG_COLOR,
-		                   &col, &col))
+		                   &col, &col) != 0)
 	{
 		win->bgcol = col.pixel;
 	} else {
@@ -66,7 +66,7 @@ void win_init(win_t *win) {
 	}
 
 	if (XAllocNamedColor(e->dpy, DefaultColormap(e->dpy, e->scr), SEL_COLOR,
-		                   &col, &col))
+		                   &col, &col) != 0)
 	{
 		win->selcol = col.pixel;
 	} else {
@@ -81,7 +81,7 @@ void win_init(win_t *win) {
 void win_set_sizehints(win_t *win) {
 	XSizeHints sizehints;
 
-	if (!win || !win->xwin)
+	if (win == NULL || win->xwin == None)
 		return;
 
 	sizehints.flags = PMinSize | PMaxSize;
@@ -100,32 +100,32 @@ void win_open(win_t *win) {
 	Pixmap none;
 	int gmask;
 
-	if (!win)
+	if (win == NULL)
 		return;
 
 	e = &win->env;
 
 	/* determine window offsets, width & height */
-	if (!options->geometry)
+	if (options->geometry == NULL)
 		gmask = 0;
 	else
 		gmask = XParseGeometry(options->geometry, &win->x, &win->y,
 		                       &win->w, &win->h);
-	if (!(gmask & WidthValue))
+	if ((gmask & WidthValue) == 0)
 		win->w = WIN_WIDTH;
 	if (win->w > e->scrw)
 		win->w = e->scrw;
-	if (!(gmask & HeightValue))
+	if ((gmask & HeightValue) == 0)
 		win->h = WIN_HEIGHT;
 	if (win->h > e->scrh)
 		win->h = e->scrh;
-	if (!(gmask & XValue))
+	if ((gmask & XValue) == 0)
 		win->x = (e->scrw - win->w) / 2;
-	else if (gmask & XNegative)
+	else if ((gmask & XNegative) != 0)
 		win->x += e->scrw - win->w;
-	if (!(gmask & YValue))
+	if ((gmask & YValue) == 0)
 		win->y = (e->scrh - win->h) / 2;
-	else if (gmask & YNegative)
+	else if ((gmask & YNegative) != 0)
 		win->y += e->scrh - win->h;
 
 	win->xwin = XCreateWindow(e->dpy, RootWindow(e->dpy, e->scr),
@@ -141,8 +141,8 @@ void win_open(win_t *win) {
 	chand = XCreateFontCursor(e->dpy, XC_fleur);
 	cwatch = XCreateFontCursor(e->dpy, XC_watch);
 
-	if (!XAllocNamedColor(e->dpy, DefaultColormap(e->dpy, e->scr), "black",
-		                    &col, &col))
+	if (XAllocNamedColor(e->dpy, DefaultColormap(e->dpy, e->scr), "black",
+		                    &col, &col) == 0)
 	{
 		die("could not allocate color: black");
 	}
@@ -171,7 +171,7 @@ void win_open(win_t *win) {
 }
 
 void win_close(win_t *win) {
-	if (!win || !win->xwin)
+	if (win == NULL || win->xwin == None)
 		return;
 
 	XFreeCursor(win->env.dpy, carrow);
@@ -188,7 +188,7 @@ void win_close(win_t *win) {
 bool win_configure(win_t *win, XConfigureEvent *c) {
 	bool changed;
 
-	if (!win)
+	if (win == NULL)
 		return false;
 	
 	changed = win->w != c->width || win->h != c->height;
@@ -203,7 +203,7 @@ bool win_configure(win_t *win, XConfigureEvent *c) {
 }
 
 bool win_moveresize(win_t *win, int x, int y, unsigned int w, unsigned int h) {
-	if (!win || !win->xwin)
+	if (win == NULL || win->xwin == None)
 		return false;
 
 	x = MAX(0, x);
@@ -231,7 +231,7 @@ void win_toggle_fullscreen(win_t *win) {
 	XEvent ev;
 	XClientMessageEvent *cm;
 
-	if (!win || !win->xwin)
+	if (win == NULL || win->xwin == None)
 		return;
 
 	win->fullscreen = !win->fullscreen;
@@ -255,13 +255,13 @@ void win_clear(win_t *win) {
 	win_env_t *e;
 	XGCValues gcval;
 
-	if (!win || !win->xwin)
+	if (win == NULL || win->xwin == None)
 		return;
 
 	e = &win->env;
 	gcval.foreground = win->fullscreen ? win->black : win->bgcol;
 
-	if (win->pm)
+	if (win->pm != None)
 		XFreePixmap(e->dpy, win->pm);
 	win->pm = XCreatePixmap(e->dpy, win->xwin, e->scrw, e->scrh, e->depth);
 
@@ -270,7 +270,7 @@ void win_clear(win_t *win) {
 }
 
 void win_draw(win_t *win) {
-	if (!win || !win->xwin)
+	if (win == NULL || win->xwin == None)
 		return;
 
 	XSetWindowBackgroundPixmap(win->env.dpy, win->xwin, win->pm);
@@ -281,7 +281,7 @@ void win_draw_rect(win_t *win, Pixmap pm, int x, int y, int w, int h,
 		bool fill, int lw, unsigned long col) {
 	XGCValues gcval;
 
-	if (!win || !pm)
+	if (win == NULL || pm == None)
 		return;
 
 	gcval.line_width = lw;
@@ -295,10 +295,10 @@ void win_draw_rect(win_t *win, Pixmap pm, int x, int y, int w, int h,
 }
 
 void win_set_title(win_t *win, const char *title) {
-	if (!win || !win->xwin)
+	if (win == NULL || win->xwin == None)
 		return;
 
-	if (!title)
+	if (title == NULL)
 		title = "sxiv";
 
 	XStoreName(win->env.dpy, win->xwin, title);
@@ -315,7 +315,7 @@ void win_set_title(win_t *win, const char *title) {
 }
 
 void win_set_cursor(win_t *win, cursor_t cursor) {
-	if (!win || !win->xwin)
+	if (win == NULL || win->xwin == None)
 		return;
 
 	switch (cursor) {

@@ -14,10 +14,11 @@ inline int puts_if(const char *s, int c) {
 }
 
 int main(int argc, char **argv) {
-	int i, n = 0;
+	int i;
+	unsigned int n = 0;
 
 	for (i = 1; i < argc; i++) {
-		switch (argv[i][0] != '-' || argv[i][2] ? -1 : argv[i][1]) {
+		switch ((argv[i][0] != '-' || argv[i][2] != '\0') ? -1 : argv[i][1]) {
 			case 'D':
 				n += PUT_MACRO(EXIF_SUPPORT);
 				n += PUT_MACRO(GIF_SUPPORT);
@@ -31,7 +32,7 @@ int main(int argc, char **argv) {
 				return 1;
 		}
 	}
-	if (n)
+	if (n > 0)
 		printf("\n");
 	return 0;
 }

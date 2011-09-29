@@ -53,7 +53,7 @@ bool it_quit(arg_t a) {
 
 bool it_switch_mode(arg_t a) {
 	if (mode == MODE_IMAGE) {
-		if (!tns.thumbs)
+		if (tns.thumbs == NULL)
 			tns_init(&tns, filecnt, &win);
 		img_close(&img, false);
 		reset_timeout(reset_cursor);
@@ -273,21 +273,19 @@ bool i_zoom(arg_t a) {
 }
 
 bool i_fit_to_win(arg_t a) {
-	bool ret;
+	bool ret = false;
 
 	if (mode == MODE_IMAGE) {
 		if ((ret = img_fit_win(&img)))
 			img_center(&img);
-		return ret;
-	} else {
-		return false;
 	}
+	return ret;
 }
 
 bool i_fit_to_img(arg_t a) {
 	int x, y;
 	unsigned int w, h;
-	bool ret;
+	bool ret = false;
 
 	if (mode == MODE_IMAGE) {
 		x = MAX(0, win.x + img.x);
@@ -298,10 +296,8 @@ bool i_fit_to_img(arg_t a) {
 			img.x = x - win.x;
 			img.y = y - win.y;
 		}
-		return ret;
-	} else {
-		return false;
 	}
+	return ret;
 }
 
 bool i_rotate(arg_t a) {
@@ -381,7 +377,7 @@ bool it_open_with(arg_t a) {
 	const char *prog = (const char*) a;
 	pid_t pid;
 
-	if (!prog || !*prog)
+	if (prog == NULL || *prog == '\0')
 		return false;
 
 	if ((pid = fork()) == 0) {
@@ -392,7 +388,6 @@ bool it_open_with(arg_t a) {
 	} else if (pid < 0) {
 		warn("could not fork. program was: %s", prog);
 	}
-	
 	return false;
 }
 
@@ -401,8 +396,8 @@ bool it_shell_cmd(arg_t a) {
 	const char *cmdline = (const char*) a;
 	pid_t pid;
 
-	if (!cmdline || !*cmdline)
-		return 0;
+	if (cmdline == NULL || *cmdline == '\0')
+		return false;
 
 	n = mode == MODE_IMAGE ? fileidx : tns.sel;
 
@@ -424,7 +419,7 @@ bool it_shell_cmd(arg_t a) {
 	win_set_cursor(&win, CURSOR_WATCH);
 
 	waitpid(pid, &status, 0);
-	if (!WIFEXITED(status) || WEXITSTATUS(status) != 0)
+	if (WIFEXITED(status) == 0 || WEXITSTATUS(status) != 0)
 		warn("child exited with non-zero return value: %d. command line was: %s",
 		     WEXITSTATUS(status), cmdline);
 	
@@ -440,6 +435,5 @@ bool it_shell_cmd(arg_t a) {
 		if (tns.sel >= tns.cnt)
 			tns.sel = tns.cnt - 1;
 	}
-
 	return true;
 }

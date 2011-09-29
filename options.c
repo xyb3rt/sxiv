@@ -95,7 +95,7 @@ void parse_options(int argc, char **argv) {
 				print_usage();
 				exit(EXIT_SUCCESS);
 			case 'n':
-				if (!sscanf(optarg, "%d", &t) || t < 1) {
+				if (sscanf(optarg, "%d", &t) <= 0 || t < 1) {
 					fprintf(stderr, "sxiv: invalid argument for option -n: %s\n",
 					        optarg);
 					exit(EXIT_FAILURE);
@@ -127,7 +127,7 @@ void parse_options(int argc, char **argv) {
 				break;
 			case 'z':
 				_options.scalemode = SCALE_ZOOM;
-				if (!sscanf(optarg, "%d", &t) || t <= 0) {
+				if (sscanf(optarg, "%d", &t) <= 0 || t <= 0) {
 					fprintf(stderr, "sxiv: invalid argument for option -z: %s\n",
 					        optarg);
 					exit(EXIT_FAILURE);

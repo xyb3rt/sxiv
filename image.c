@@ -49,7 +49,7 @@ void img_init(img_t *img, win_t *win) {
 	zoom_min = zoom_levels[0] / 100.0;
 	zoom_max = zoom_levels[ARRLEN(zoom_levels) - 1] / 100.0;
 
-	if (!img || !win)
+	if (img == NULL || win == NULL)
 		return;
 
 	imlib_context_set_display(win->env.dpy);
@@ -77,15 +77,15 @@ void exif_auto_orientate(const fileinfo_t *file) {
 	ExifEntry *entry;
 	int byte_order, orientation;
 
-	if (!(ed = exif_data_new_from_file(file->path)))
+	if ((ed = exif_data_new_from_file(file->path)) == NULL)
 		return;
 	entry = exif_content_get_entry(ed->ifd[EXIF_IFD_0], EXIF_TAG_ORIENTATION);
-	if (entry) {
+	if (entry != NULL) {
 		byte_order = exif_data_get_byte_order(ed);
 		orientation = exif_get_short(entry->data, byte_order);
 	}
 	exif_data_unref(ed);
-	if (!entry)
+	if (entry == NULL)
 		return;
 
 	switch (orientation) {
@@ -145,7 +145,7 @@ bool img_load_gif(img_t *img, const fileinfo_t *file) {
 	img->multi.sel = 0;
 
 	gif = DGifOpenFileName(file->path);
-	if (!gif) {
+	if (gif == NULL) {
 		warn("could not open gif file: %s", file->name);
 		return false;
 	}
@@ -215,7 +215,7 @@ bool img_load_gif(img_t *img, const fileinfo_t *file) {
 					if (i < y || i >= y + h || j < x || j >= x + w ||
 					    rows[i-y][j-x] == transp)
 					{
-						if (prev_frame)
+						if (prev_frame != NULL)
 							*ptr = prev_frame[i * sw + j];
 						else
 							*ptr = bgpixel;
@@ -236,7 +236,7 @@ bool img_load_gif(img_t *img, const fileinfo_t *file) {
 			free(rows);
 			free(data);
 
-			if (!im) {
+			if (im == NULL) {
 				err = true;
 				break;
 			}
@@ -286,10 +286,12 @@ bool img_load_gif(img_t *img, const fileinfo_t *file) {
 bool img_load(img_t *img, const fileinfo_t *file) {
 	const char *fmt;
 
-	if (!img || !file || !file->name || !file->path)
+	if (img == NULL || file == NULL || file->name == NULL || file->path == NULL)
 		return false;
 
-	if (access(file->path, R_OK) || !(img->im = imlib_load_image(file->path))) {
+	if (access(file->path, R_OK) < 0 ||
+	    (img->im = imlib_load_image(file->path)) == NULL)
+	{
 		warn("could not open image: %s", file->name);
 		return false;
 	}
@@ -324,17 +326,17 @@ bool img_load(img_t *img, const fileinfo_t *file) {
 void img_close(img_t *img, bool decache) {
 	int i;
 
-	if (!img)
+	if (img == NULL)
 		return;
 
-	if (img->multi.cnt) {
+	if (img->multi.cnt > 0) {
 		for (i = 0; i < img->multi.cnt; i++) {
 			imlib_context_set_image(img->multi.frames[i].im);
 			imlib_free_image();
 		}
 		img->multi.cnt = 0;
 		img->im = NULL;
-	} else if (img->im) {
+	} else if (img->im != NULL) {
 		imlib_context_set_image(img->im);
 		if (decache)
 			imlib_free_image_and_decache();
@@ -348,7 +350,7 @@ void img_check_pan(img_t *img, bool moved) {
 	win_t *win;
 	int ox, oy;
 
-	if (!img || !img->im || !img->win)
+	if (img == NULL || img->im == NULL || img->win == NULL)
 		return;
 
 	win = img->win;
@@ -379,7 +381,7 @@ void img_check_pan(img_t *img, bool moved) {
 bool img_fit(img_t *img) {
 	float z, zmax, zw, zh;
 
-	if (!img || !img->im || !img->win)
+	if (img == NULL || img->im == NULL || img->win == NULL)
 		return false;
 	if (img->scalemode == SCALE_ZOOM)
 		return false;
@@ -406,7 +408,7 @@ void img_render(img_t *img) {
 	int sx, sy, sw, sh;
 	int dx, dy, dw, dh;
 
-	if (!img || !img->im || !img->win)
+	if (img == NULL || img->im == NULL || img->win == NULL)
 		return;
 
 	win = img->win;
@@ -461,7 +463,7 @@ void img_render(img_t *img) {
 
 	imlib_context_set_image(img->im);
 
-	if (imlib_image_has_alpha() && !img->alpha)
+	if (!img->alpha && imlib_image_has_alpha())
 		win_draw_rect(win, win->pm, dx, dy, dw, dh, True, 0, win->white);
 	
 	imlib_context_set_drawable(win->pm);
@@ -473,7 +475,7 @@ void img_render(img_t *img) {
 }
 
 bool img_fit_win(img_t *img) {
-	if (!img || !img->im)
+	if (img == NULL || img->im == NULL)
 		return false;
 
 	img->scalemode = SCALE_FIT;
@@ -483,7 +485,7 @@ bool img_fit_win(img_t *img) {
 bool img_center(img_t *img) {
 	int ox, oy;
 
-	if (!img || !img->im || !img->win)
+	if (img == NULL || img->im == NULL || img->win == NULL)
 		return false;
 	
 	ox = img->x;
@@ -501,7 +503,7 @@ bool img_center(img_t *img) {
 }
 
 bool img_zoom(img_t *img, float z) {
-	if (!img || !img->im || !img->win)
+	if (img == NULL || img->im == NULL || img->win == NULL)
 		return false;
 
 	z = MAX(z, zoom_min);
@@ -524,7 +526,7 @@ bool img_zoom(img_t *img, float z) {
 bool img_zoom_in(img_t *img) {
 	int i;
 
-	if (!img || !img->im)
+	if (img == NULL || img->im == NULL)
 		return false;
 
 	for (i = 1; i < ARRLEN(zoom_levels); i++) {
@@ -537,7 +539,7 @@ bool img_zoom_in(img_t *img) {
 bool img_zoom_out(img_t *img) {
 	int i;
 
-	if (!img || !img->im)
+	if (img == NULL || img->im == NULL)
 		return false;
 
 	for (i = ARRLEN(zoom_levels) - 2; i >= 0; i--) {
@@ -550,7 +552,7 @@ bool img_zoom_out(img_t *img) {
 bool img_move(img_t *img, int dx, int dy) {
 	int ox, oy;
 
-	if (!img || !img->im)
+	if (img == NULL || img->im == NULL)
 		return false;
 
 	ox = img->x;
@@ -570,7 +572,7 @@ bool img_move(img_t *img, int dx, int dy) {
 }
 
 bool img_pan(img_t *img, direction_t dir, bool screen) {
-	if (!img || !img->im || !img->win)
+	if (img == NULL || img->im == NULL || img->win == NULL)
 		return false;
 
 	switch (dir) {
@@ -589,7 +591,7 @@ bool img_pan(img_t *img, direction_t dir, bool screen) {
 bool img_pan_edge(img_t *img, direction_t dir) {
 	int ox, oy;
 
-	if (!img || !img->im || !img->win)
+	if (img == NULL || img->im == NULL || img->win == NULL)
 		return false;
 
 	ox = img->x;
@@ -624,7 +626,7 @@ void img_rotate(img_t *img, int d) {
 	win_t *win;
 	int ox, oy, tmp;
 
-	if (!img || !img->im || !img->win)
+	if (img == NULL || img->im == NULL || img->win == NULL)
 		return;
 
 	win = img->win;
@@ -654,7 +656,7 @@ void img_rotate_right(img_t *img) {
 }
 
 void img_toggle_antialias(img_t *img) {
-	if (!img || !img->im)
+	if (img == NULL || img->im == NULL)
 		return;
 
 	img->aa = !img->aa;
@@ -664,7 +666,7 @@ void img_toggle_antialias(img_t *img) {
 }
 
 bool img_frame_goto(img_t *img, int n) {
-	if (!img || !img->im)
+	if (img == NULL || img->im == NULL)
 		return false;
 	if (n < 0 || n >= img->multi.cnt || n == img->multi.sel)
 		return false;
@@ -682,7 +684,7 @@ bool img_frame_goto(img_t *img, int n) {
 }
 
 bool img_frame_navigate(img_t *img, int d) {
-	if (!img || !img->im || !img->multi.cnt || !d)
+	if (img == NULL|| img->im == NULL || img->multi.cnt == 0 || d == 0)
 		return false;
 
 	d += img->multi.sel;
@@ -695,7 +697,7 @@ bool img_frame_navigate(img_t *img, int d) {
 }
 
 bool img_frame_animate(img_t *img, bool restart) {
-	if (!img || !img->im || !img->multi.cnt)
+	if (img == NULL || img->im == NULL || img->multi.cnt == 0)
 		return false;
 
 	if (img->multi.sel + 1 >= img->multi.cnt) {

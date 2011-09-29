@@ -41,23 +41,23 @@ char *cache_dir = NULL;
 bool tns_cache_enabled() {
 	struct stat stats;
 
-	return cache_dir && !stat(cache_dir, &stats) && S_ISDIR(stats.st_mode) &&
-	       !access(cache_dir, W_OK);
+	return cache_dir != NULL && stat(cache_dir, &stats) == 0 &&
+	       S_ISDIR(stats.st_mode) && access(cache_dir, W_OK) == 0;
 }
 
 char* tns_cache_filepath(const char *filepath) {
 	size_t len;
 	char *cfile = NULL;
 
-	if (!cache_dir || !filepath || *filepath != '/')
+	if (cache_dir == NULL || filepath == NULL || *filepath != '/')
 		return NULL;
 	
-	if (strncmp(filepath, cache_dir, strlen(cache_dir))) {
+	if (strncmp(filepath, cache_dir, strlen(cache_dir)) != 0) {
+		/* don't cache images inside the cache directory! */
 		len = strlen(cache_dir) + strlen(filepath) + 6;
 		cfile = (char*) s_malloc(len);
 		snprintf(cfile, len, "%s/%s.png", cache_dir, filepath + 1);
 	}
-	
 	return cfile;
 }
 
@@ -66,18 +66,16 @@ Imlib_Image* tns_cache_load(const char *filepath) {
 	struct stat cstats, fstats;
 	Imlib_Image *im = NULL;
 
-	if (!filepath)
+	if (filepath == NULL)
+		return NULL;
+	if (stat(filepath, &fstats) < 0)
 		return NULL;
 
-	if (stat(filepath, &fstats))
-		return NULL;
-
-	if ((cfile = tns_cache_filepath(filepath))) {
-		if (!stat(cfile, &cstats) && cstats.st_mtime == fstats.st_mtime)
+	if ((cfile = tns_cache_filepath(filepath)) != NULL) {
+		if (stat(cfile, &cstats) == 0 && cstats.st_mtime == fstats.st_mtime)
 			im = imlib_load_image(cfile);
 		free(cfile);
 	}
-
 	return im;
 }
 
@@ -87,32 +85,35 @@ void tns_cache_write(thumb_t *t, bool force) {
 	struct utimbuf times;
 	Imlib_Load_Error err = 0;
 
-	if (!t || !t->im || !t->file || !t->file->name || !t->file->path)
+	if (t == NULL || t->im == NULL)
+		return;
+	if (t->file == NULL || t->file->name == NULL || t->file->path == NULL)
+		return;
+	if (stat(t->file->path, &fstats) < 0)
 		return;
 
-	if (stat(t->file->path, &fstats))
-		return;
-
-	if ((cfile = tns_cache_filepath(t->file->path))) {
-		if (force || stat(cfile, &cstats) || cstats.st_mtime != fstats.st_mtime) {
-			if ((dirend = strrchr(cfile, '/'))) {
+	if ((cfile = tns_cache_filepath(t->file->path)) != NULL) {
+		if (force || stat(cfile, &cstats) < 0 ||
+		    cstats.st_mtime != fstats.st_mtime)
+		{
+			if ((dirend = strrchr(cfile, '/')) != NULL) {
 				*dirend = '\0';
 				err = r_mkdir(cfile);
 				*dirend = '/';
 			}
 
-			if (!err) {
+			if (err == 0) {
 				imlib_context_set_image(t->im);
 				imlib_image_set_format("png");
 				imlib_save_image_with_error_return(cfile, &err);
 			}
 
-			if (err) {
-				warn("could not cache thumbnail: %s", t->file->name);
-			} else {
+			if (err == 0) {
 				times.actime = fstats.st_atime;
 				times.modtime = fstats.st_mtime;
 				utime(cfile, &times);
+			} else {
+				warn("could not cache thumbnail: %s", t->file->name);
 			}
 		}
 		free(cfile);
@@ -125,33 +126,32 @@ void tns_clean_cache(tns_t *tns) {
 	char *cfile, *filename, *tpos;
 	r_dir_t dir;
 
-	if (!cache_dir)
+	if (cache_dir == NULL)
 		return;
 	
-	if (r_opendir(&dir, cache_dir)) {
+	if (r_opendir(&dir, cache_dir) < 0) {
 		warn("could not open thumbnail cache directory: %s", cache_dir);
 		return;
 	}
 
 	dirlen = strlen(cache_dir);
 
-	while ((cfile = r_readdir(&dir))) {
+	while ((cfile = r_readdir(&dir)) != NULL) {
 		filename = cfile + dirlen;
 		delete = false;
 
-		if ((tpos = strrchr(filename, '.'))) {
+		if ((tpos = strrchr(filename, '.')) != NULL) {
 			*tpos = '\0';
-			if (access(filename, F_OK))
+			if (access(filename, F_OK) < 0)
 				delete = true;
 			*tpos = '.';
 		}
-
-		if (delete && unlink(cfile))
-			warn("could not delete cache file: %s", cfile);
-
+		if (delete) {
+			if (unlink(cfile) < 0)
+				warn("could not delete cache file: %s", cfile);
+		}
 		free(cfile);
 	}
-
 	r_closedir(&dir);
 }
 
@@ -160,10 +160,10 @@ void tns_init(tns_t *tns, int cnt, win_t *win) {
 	int len;
 	char *homedir;
 
-	if (!tns)
+	if (tns == NULL)
 		return;
 
-	if (cnt) {
+	if (cnt > 0) {
 		tns->thumbs = (thumb_t*) s_malloc(cnt * sizeof(thumb_t));
 		memset(tns->thumbs, 0, cnt * sizeof(thumb_t));
 	} else {
@@ -176,8 +176,8 @@ void tns_init(tns_t *tns, int cnt, win_t *win) {
 	tns->alpha = true;
 	tns->dirty = false;
 
-	if ((homedir = getenv("HOME"))) {
-		if (cache_dir)
+	if ((homedir = getenv("HOME")) != NULL) {
+		if (cache_dir != NULL)
 			free(cache_dir);
 		len = strlen(homedir) + 10;
 		cache_dir = (char*) s_malloc(len * sizeof(char));
@@ -190,12 +190,12 @@ void tns_init(tns_t *tns, int cnt, win_t *win) {
 void tns_free(tns_t *tns) {
 	int i;
 
-	if (!tns)
+	if (tns != NULL)
 		return;
 
-	if (tns->thumbs) {
+	if (tns->thumbs != NULL) {
 		for (i = 0; i < tns->cnt; i++) {
-			if (tns->thumbs[i].im) {
+			if (tns->thumbs[i].im != NULL) {
 				imlib_context_set_image(tns->thumbs[i].im);
 				imlib_free_image();
 			}
@@ -204,7 +204,7 @@ void tns_free(tns_t *tns) {
 		tns->thumbs = NULL;
 	}
 
-	if (cache_dir) {
+	if (cache_dir != NULL) {
 		free(cache_dir);
 		cache_dir = NULL;
 	}
@@ -220,31 +220,34 @@ bool tns_load(tns_t *tns, int n, const fileinfo_t *file,
 	Imlib_Image *im;
 	const char *fmt;
 
-	if (!tns || !tns->thumbs || !file || !file->name || !file->path)
+	if (tns == NULL || tns->thumbs == NULL)
 		return false;
-
+	if (file == NULL || file->name == NULL || file->path == NULL)
+		return false;
 	if (n < 0 || n >= tns->cap)
 		return false;
 
 	t = &tns->thumbs[n];
 	t->file = file;
 
-	if (t->im) {
+	if (t->im != NULL) {
 		imlib_context_set_image(t->im);
 		imlib_free_image();
 	}
 
 	if ((use_cache = tns_cache_enabled())) {
-		if (!force && (im = tns_cache_load(file->path)))
+		if (!force && (im = tns_cache_load(file->path)) != NULL)
 			cache_hit = true;
 	}
 
-	if (!cache_hit &&
-	    (access(file->path, R_OK) || !(im = imlib_load_image(file->path))))
-	{
-		if (!silent)
-			warn("could not open image: %s", file->name);
-		return false;
+	if (!cache_hit) {
+		if (access(file->path, R_OK) < 0 ||
+		    (im = imlib_load_image(file->path)) == NULL)
+		{
+			if (!silent)
+				warn("could not open image: %s", file->name);
+			return false;
+		}
 	}
 
 	imlib_context_set_image(im);
@@ -267,7 +270,8 @@ bool tns_load(tns_t *tns, int n, const fileinfo_t *file,
 	t->w = z * w;
 	t->h = z * h;
 
-	if (!(t->im = imlib_create_cropped_scaled_image(0, 0, w, h, t->w, t->h)))
+	t->im = imlib_create_cropped_scaled_image(0, 0, w, h, t->w, t->h);
+	if (t->im == NULL)
 		die("could not allocate memory");
 
 	imlib_free_image_and_decache();
@@ -282,7 +286,7 @@ bool tns_load(tns_t *tns, int n, const fileinfo_t *file,
 void tns_check_view(tns_t *tns, bool scrolled) {
 	int r;
 
-	if (!tns)
+	if (tns == NULL)
 		return;
 
 	tns->first -= tns->first % tns->cols;
@@ -311,7 +315,7 @@ void tns_render(tns_t *tns) {
 	win_t *win;
 	int i, cnt, r, x, y;
 
-	if (!tns || !tns->thumbs || !tns->win)
+	if (tns == NULL || tns->thumbs == NULL || tns->win == NULL)
 		return;
 	if (!tns->dirty)
 		return;
@@ -345,7 +349,7 @@ void tns_render(tns_t *tns) {
 		t->y = y + (THUMB_SIZE - t->h) / 2;
 		imlib_context_set_image(t->im);
 
-		if (imlib_image_has_alpha() && !tns->alpha)
+		if (!tns->alpha && imlib_image_has_alpha())
 			win_draw_rect(win, win->pm, t->x, t->y, t->w, t->h, true, 0, win->white);
 
 		imlib_render_image_part_on_drawable_at_size(0, 0, t->w, t->h,
@@ -357,7 +361,6 @@ void tns_render(tns_t *tns) {
 			x += thumb_dim;
 		}
 	}
-
 	tns->dirty = false;
 	tns_highlight(tns, tns->sel, true);
 }
@@ -368,7 +371,7 @@ void tns_highlight(tns_t *tns, int n, bool hl) {
 	int x, y;
 	unsigned long col;
 
-	if (!tns || !tns->thumbs || !tns->win)
+	if (tns == NULL || tns->thumbs == NULL || tns->win == NULL)
 		return;
 
 	win = tns->win;
@@ -388,14 +391,13 @@ void tns_highlight(tns_t *tns, int n, bool hl) {
 		win_draw_rect(win, win->pm, x - 3, y - 3, THUMB_SIZE + 6, THUMB_SIZE + 6,
 		              false, 2, col);
 	}
-
 	win_draw(win);
 }
 
 bool tns_move_selection(tns_t *tns, direction_t dir) {
 	int old;
 
-	if (!tns || !tns->thumbs)
+	if (tns == NULL || tns->thumbs == NULL)
 		return false;
 
 	old = tns->sel;
@@ -425,14 +427,13 @@ bool tns_move_selection(tns_t *tns, direction_t dir) {
 		if (!tns->dirty)
 			tns_highlight(tns, tns->sel, true);
 	}
-
 	return tns->sel != old;
 }
 
 bool tns_scroll(tns_t *tns, direction_t dir) {
 	int old;
 
-	if (!tns)
+	if (tns == NULL)
 		return false;
 
 	old = tns->first;
@@ -446,16 +447,14 @@ bool tns_scroll(tns_t *tns, direction_t dir) {
 		tns_check_view(tns, true);
 		tns->dirty = true;
 	}
-
 	return tns->first != old;
 }
 
 int tns_translate(tns_t *tns, int x, int y) {
 	int n;
 
-	if (!tns || !tns->thumbs)
+	if (tns == NULL || tns->thumbs == NULL)
 		return -1;
-
 	if (x < tns->x || y < tns->y)
 		return -1;
 
