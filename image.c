@@ -38,12 +38,16 @@
 #include <gif_lib.h>
 #endif
 
-#define ZOOMDIFF(z1,z2) ((z1) - (z2) > 0.001 || (z1) - (z2) < -0.001)
-
 enum { MIN_GIF_DELAY = 50 };
 
 float zoom_min;
 float zoom_max;
+
+static inline
+bool zoomdiff(float z1, float z2) {
+	const float mindelta = 0.001;
+	return (z1 - z2 > mindelta) || (z1 - z2 < mindelta);
+}
 
 void img_init(img_t *img, win_t *win) {
 	zoom_min = zoom_levels[0] / 100.0;
@@ -394,7 +398,7 @@ bool img_fit(img_t *img) {
 	z = MAX(z, zoom_min);
 	z = MIN(z, zmax);
 
-	if (ZOOMDIFF(z, img->zoom)) {
+	if (zoomdiff(z, img->zoom)) {
 		img->zoom = z;
 		img->dirty = true;
 		return true;
@@ -511,7 +515,7 @@ bool img_zoom(img_t *img, float z) {
 
 	img->scalemode = SCALE_ZOOM;
 
-	if (ZOOMDIFF(z, img->zoom)) {
+	if (zoomdiff(z, img->zoom)) {
 		img->x = img->win->w / 2 - (img->win->w / 2 - img->x) * z / img->zoom;
 		img->y = img->win->h / 2 - (img->win->h / 2 - img->y) * z / img->zoom;
 		img->zoom = z;
