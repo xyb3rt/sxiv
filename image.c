@@ -137,6 +137,7 @@ bool img_load_gif(img_t *img, const fileinfo_t *file) {
 	int intoffset[] = { 0, 4, 2, 1 };
 	int intjump[] = { 8, 8, 4, 2 };
 	int transp = -1;
+	unsigned int disposal = 0, prev_disposal = 0;
 	unsigned int delay = 0;
 	bool err = false;
 
@@ -178,8 +179,7 @@ bool img_load_gif(img_t *img, const fileinfo_t *file) {
 					if (delay)
 						delay = MAX(delay, MIN_GIF_DELAY);
 
-					/* TODO: handle disposal method, section 23.c.iv of
-					         http://www.w3.org/Graphics/GIF/spec-gif89a.txt */
+					disposal = (unsigned int) ext[1] >> 2 & 0x7;
 				}
 				ext = NULL;
 				DGifGetExtensionNext(gif, &ext);
@@ -219,7 +219,7 @@ bool img_load_gif(img_t *img, const fileinfo_t *file) {
 					if (i < y || i >= y + h || j < x || j >= x + w ||
 					    rows[i-y][j-x] == transp)
 					{
-						if (prev_frame != NULL)
+						if (prev_disposal != 2 && prev_frame != NULL)
 							*ptr = prev_frame[i * sw + j];
 						else
 							*ptr = bgpixel;
@@ -246,11 +246,13 @@ bool img_load_gif(img_t *img, const fileinfo_t *file) {
 			}
 
 			imlib_context_set_image(im);
-			prev_frame = imlib_image_get_data_for_reading_only();
-
 			imlib_image_set_format("gif");
 			if (transp >= 0)
 				imlib_image_set_has_alpha(1);
+
+			if (disposal != 3)
+				prev_frame = imlib_image_get_data_for_reading_only();
+			prev_disposal = disposal;
 
 			if (img->multi.cnt == img->multi.cap) {
 				img->multi.cap *= 2;
