@@ -28,13 +28,13 @@
 #include "thumbs.h"
 #include "util.h"
 
-void cleanup();
+void cleanup(void);
 void remove_file(int, bool);
 void load_image(int);
-void redraw();
-void reset_cursor();
-void animate();
-void slideshow();
+void redraw(void);
+void reset_cursor(void);
+void animate(void);
+void slideshow(void);
 void set_timeout(timeout_f, int, bool);
 void reset_timeout(timeout_f);
 

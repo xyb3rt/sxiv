@@ -34,7 +34,7 @@ enum {
 	FNAME_LEN = 1024
 };
 
-void cleanup();
+void cleanup(void);
 
 void* s_malloc(size_t size) {
 	void *ptr;

@@ -49,10 +49,10 @@ typedef struct {
 } timeout_t;
 
 /* timeout handler functions: */
-void redraw();
-void reset_cursor();
-void animate();
-void slideshow();
+void redraw(void);
+void reset_cursor(void);
+void animate(void);
+void slideshow(void);
 
 appmode_t mode;
 img_t img;
@@ -72,7 +72,7 @@ timeout_t timeouts[] = {
 	{ { 0, 0 }, false, slideshow },
 };
 
-void cleanup() {
+void cleanup(void) {
 	static bool in = false;
 
 	if (!in) {
@@ -216,7 +216,7 @@ void load_image(int new) {
 		reset_timeout(animate);
 }
 
-void update_title() {
+void update_title(void) {
 	int n;
 	char sshow_info[16];
 	char frame_info[16];
@@ -260,7 +260,7 @@ void update_title() {
 	win_set_title(&win, win_title);
 }
 
-void redraw() {
+void redraw(void) {
 	if (mode == MODE_IMAGE) {
 		img_render(&img);
 		if (img.slideshow && !img.multi.animate) {
@@ -277,7 +277,7 @@ void redraw() {
 	reset_cursor();
 }
 
-void reset_cursor() {
+void reset_cursor(void) {
 	int i;
 	cursor_t cursor = CURSOR_NONE;
 
@@ -298,14 +298,14 @@ void reset_cursor() {
 	win_set_cursor(&win, cursor);
 }
 
-void animate() {
+void animate(void) {
 	if (img_frame_animate(&img, false)) {
 		redraw();
 		set_timeout(animate, img.multi.frames[img.multi.sel].delay, true);
 	}
 }
 
-void slideshow() {
+void slideshow(void) {
 	if (mode == MODE_IMAGE && !img.multi.animate) {
 		if (fileidx + 1 < filecnt) {
 			load_image(fileidx + 1);
@@ -390,7 +390,7 @@ void on_buttonpress(XButtonEvent *bev) {
 	}
 }
 
-void run() {
+void run(void) {
 	int xfd;
 	fd_set fds;
 	struct timeval timeout;

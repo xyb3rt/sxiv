@@ -48,8 +48,8 @@ typedef struct {
 
 extern const options_t *options;
 
-void print_usage();
-void print_version();
+void print_usage(void);
+void print_version(void);
 
 void parse_options(int, char**);
 

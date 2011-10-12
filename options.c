@@ -32,12 +32,12 @@
 options_t _options;
 const options_t *options = (const options_t*) &_options;
 
-void print_usage() {
+void print_usage(void) {
 	printf("usage: sxiv [-cdFfhpqrstvZ] [-g GEOMETRY] [-n NUM] "
 	       "[-z ZOOM] FILES...\n");
 }
 
-void print_version() {
+void print_version(void) {
 	printf("sxiv %s - Simple X Image Viewer\n", VERSION);
 	printf("Additional features included (+) or not (-): %s, %s\n",
 #if EXIF_SUPPORT

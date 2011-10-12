@@ -38,7 +38,7 @@ void exif_auto_orientate(const fileinfo_t*);
 const int thumb_dim = THUMB_SIZE + 10;
 char *cache_dir = NULL;
 
-bool tns_cache_enabled() {
+bool tns_cache_enabled(void) {
 	struct stat stats;
 
 	return cache_dir != NULL && stat(cache_dir, &stats) == 0 &&
