@@ -47,8 +47,8 @@
 }
 
 #define TV_ADD_MSEC(tv,t) {             \
-  (tv)->tv_sec  = (t) / 1000;           \
-  (tv)->tv_usec = (t) % 1000 * 1000;    \
+  (tv)->tv_sec  += (t) / 1000;          \
+  (tv)->tv_usec += (t) % 1000 * 1000;   \
 }
 
 typedef struct {
