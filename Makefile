@@ -1,7 +1,7 @@
-VERSION = git-20111012
+VERSION = git-20111013
 
 CC      = gcc
-CFLAGS  = -Wall -pedantic -O2
+CFLAGS  = -ansi -Wall -pedantic -O2
 LDFLAGS =
 LIBS    = -lX11 -lImlib2
 

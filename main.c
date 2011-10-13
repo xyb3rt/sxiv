@@ -145,7 +145,7 @@ void set_timeout(timeout_f handler, int time, bool overwrite) {
 		if (timeouts[i].handler == handler) {
 			if (!timeouts[i].active || overwrite) {
 				gettimeofday(&timeouts[i].when, 0);
-				tv_add_msec(&timeouts[i].when, time);
+				TV_ADD_MSEC(&timeouts[i].when, time);
 				timeouts[i].active = true;
 			}
 			return;
@@ -171,7 +171,7 @@ bool check_timeouts(struct timeval *t) {
 	gettimeofday(&now, 0);
 	while (i < ARRLEN(timeouts)) {
 		if (timeouts[i].active) {
-			tdiff = tv_diff(&timeouts[i].when, &now);
+			tdiff = TV_DIFF(&timeouts[i].when, &now);
 			if (tdiff <= 0) {
 				timeouts[i].active = false;
 				if (timeouts[i].handler != NULL)
@@ -184,7 +184,7 @@ bool check_timeouts(struct timeval *t) {
 		i++;
 	}
 	if (tmin > 0 && t != NULL)
-		tv_set_msec(t, tmin);
+		TV_SET_MSEC(t, tmin);
 	return tmin > 0;
 }
 

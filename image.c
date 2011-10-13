@@ -43,7 +43,6 @@ enum { MIN_GIF_DELAY = 50 };
 float zoom_min;
 float zoom_max;
 
-static inline
 bool zoomdiff(float z1, float z2) {
 	const float mindelta = 0.001;
 	return (z1 - z2 > mindelta) || (z1 - z2 < mindelta);
@@ -311,11 +310,11 @@ bool img_load(img_t *img, const fileinfo_t *file) {
 	(void) fmt;
 
 #if EXIF_SUPPORT
-	if (streq(fmt, "jpeg"))
+	if (STREQ(fmt, "jpeg"))
 		exif_auto_orientate(file);
 #endif
 #if GIF_SUPPORT
-	if (streq(fmt, "gif"))
+	if (STREQ(fmt, "gif"))
 		img_load_gif(img, file);
 #endif
 

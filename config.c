@@ -9,7 +9,7 @@
 #define PUT_MACRO(m) \
 	printf(" -D%s=%s", #m, QUOTE(m))
 
-inline int puts_if(const char *s, int c) {
+int puts_if(const char *s, int c) {
 	return c ? printf(" %s", s) : 0;
 }
 
