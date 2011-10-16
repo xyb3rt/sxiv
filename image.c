@@ -554,8 +554,8 @@ bool img_zoom_out(img_t *img) {
 	return false;
 }
 
-bool img_move(img_t *img, int dx, int dy) {
-	int ox, oy;
+bool img_move(img_t *img, float dx, float dy) {
+	float ox, oy;
 
 	if (img == NULL || img->im == NULL)
 		return false;
@@ -581,13 +581,13 @@ bool img_pan(img_t *img, direction_t dir, int d) {
 	 * d = 0: 1/5 of screen
 	 * d > 0: num of pixels
 	 */
-	int x, y;
+	float x, y;
 
 	if (img == NULL || img->im == NULL || img->win == NULL)
 		return false;
 
 	if (d > 0) {
-		x = y = MAX(1, d * img->zoom);
+		x = y = MAX(1, (float) d * img->zoom);
 	} else {
 		x = img->win->w / (d < 0 ? 1 : 5);
 		y = img->win->h / (d < 0 ? 1 : 5);
@@ -595,13 +595,13 @@ bool img_pan(img_t *img, direction_t dir, int d) {
 
 	switch (dir) {
 		case DIR_LEFT:
-			return img_move(img, x, 0);
+			return img_move(img, x, 0.0);
 		case DIR_RIGHT:
-			return img_move(img, -x, 0);
+			return img_move(img, -x, 0.0);
 		case DIR_UP:
-			return img_move(img, 0, y);
+			return img_move(img, 0.0, y);
 		case DIR_DOWN:
-			return img_move(img, 0, -y);
+			return img_move(img, 0.0, -y);
 	}
 	return false;
 }

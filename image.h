@@ -43,8 +43,8 @@ typedef struct {
 	int h;
 
 	win_t *win;
-	int x;
-	int y;
+	float x;
+	float y;
 
 	scalemode_t scalemode;
 	float zoom;
@@ -75,7 +75,7 @@ bool img_zoom(img_t*, float);
 bool img_zoom_in(img_t*);
 bool img_zoom_out(img_t*);
 
-bool img_move(img_t*, int, int);
+bool img_move(img_t*, float, float);
 bool img_pan(img_t*, direction_t, int);
 bool img_pan_edge(img_t*, direction_t);
 
