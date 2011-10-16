@@ -48,7 +48,7 @@ bool it_reload_image(arg_t);
 bool it_remove_image(arg_t);
 bool i_navigate(arg_t);
 bool it_first(arg_t);
-bool it_last(arg_t);
+bool it_n_or_last(arg_t);
 bool i_navigate_frame(arg_t);
 bool i_toggle_animation(arg_t);
 bool it_move(arg_t);

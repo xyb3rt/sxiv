@@ -79,7 +79,7 @@ static const keymap_t keys[] = {
 	{ false,  XK_bracketright,  i_navigate,           (arg_t) +10 },
 	{ false,  XK_bracketleft,   i_navigate,           (arg_t) -10 },
 	{ false,  XK_g,             it_first,             (arg_t) None },
-	{ false,  XK_G,             it_last,              (arg_t) None },
+	{ false,  XK_G,             it_n_or_last,         (arg_t) None },
 
 	{ true,   XK_n,             i_navigate_frame,     (arg_t) +1 },
 	{ true,   XK_p,             i_navigate_frame,     (arg_t) -1 },
@@ -109,12 +109,10 @@ static const keymap_t keys[] = {
 	{ false,  XK_L,             i_pan_edge,           (arg_t) DIR_RIGHT },
 
 	{ false,  XK_plus,          i_zoom,               (arg_t) +1 },
-	{ false,  XK_equal,         i_zoom,               (arg_t) +1 },
 	{ false,  XK_KP_Add,        i_zoom,               (arg_t) +1 },
 	{ false,  XK_minus,         i_zoom,               (arg_t) -1 },
 	{ false,  XK_KP_Subtract,   i_zoom,               (arg_t) -1 },
-	{ false,  XK_0,             i_zoom,               (arg_t) None },
-	{ false,  XK_KP_0,          i_zoom,               (arg_t) None },
+	{ false,  XK_equal,         i_zoom,               (arg_t) None },
 	{ false,  XK_w,             i_fit_to_win,         (arg_t) None },
 	{ false,  XK_W,             i_fit_to_img,         (arg_t) None },
 

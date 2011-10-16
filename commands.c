@@ -46,6 +46,8 @@ extern win_t win;
 extern fileinfo_t *files;
 extern int filecnt, fileidx;
 
+extern int prefix;
+
 bool it_quit(arg_t a) {
 	cleanup();
 	exit(EXIT_SUCCESS);
@@ -143,12 +145,14 @@ bool it_first(arg_t a) {
 	}
 }
 
-bool it_last(arg_t a) {
-	if (mode == MODE_IMAGE && fileidx != filecnt - 1) {
-		load_image(filecnt - 1);
+bool it_n_or_last(arg_t a) {
+	int n = prefix != 0 && prefix - 1 < filecnt ? prefix - 1 : filecnt - 1;
+
+	if (mode == MODE_IMAGE && fileidx != n) {
+		load_image(n);
 		return true;
-	} else if (mode == MODE_THUMB && tns.sel != tns.cnt - 1) {
-		tns.sel = tns.cnt - 1;
+	} else if (mode == MODE_THUMB && tns.sel != n) {
+		tns.sel = n;
 		tns.dirty = true;
 		return true;
 	} else {

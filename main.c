@@ -63,6 +63,8 @@ fileinfo_t *files;
 int filecnt, fileidx;
 size_t filesize;
 
+int prefix;
+
 char win_title[TITLE_LEN];
 
 timeout_t timeouts[] = {
@@ -335,10 +337,17 @@ void on_keypress(XKeyEvent *kev) {
 
 	XLookupString(kev, &key, 1, &ksym, NULL);
 
+	if (key >= '0' && key <= '9' && (kev->state & ControlMask) == 0) {
+		/* number prefix for commands */
+		prefix = prefix * 10 + (int) (key - '0');
+		return;
+	}
+
 	for (i = 0; i < ARRLEN(keys); i++) {
 		if (keys[i].ksym == ksym && keymask(&keys[i], kev->state)) {
 			if (keys[i].cmd != NULL && keys[i].cmd(keys[i].arg))
 				redraw();
+			prefix = 0;
 			return;
 		}
 	}
