@@ -17,6 +17,7 @@
  */
 
 #define _POSIX_C_SOURCE 200112L
+#define _IMAGE_CONFIG
 
 #include <stdlib.h>
 #include <string.h>
@@ -27,6 +28,7 @@
 #include "image.h"
 #include "thumbs.h"
 #include "util.h"
+#include "config.h"
 
 void cleanup(void);
 void remove_file(int, bool);
@@ -47,6 +49,10 @@ extern fileinfo_t *files;
 extern int filecnt, fileidx;
 
 extern int prefix;
+
+const int ss_delays[] = {
+	1, 2, 3, 5, 10, 15, 20, 30, 60, 120, 180, 300, 600
+};
 
 bool it_quit(arg_t a) {
 	cleanup();
@@ -118,7 +124,7 @@ bool i_navigate(arg_t a) {
 	long n = (long) a;
 
 	if (mode == MODE_IMAGE) {
-		if (prefix)
+		if (prefix > 0)
 			n *= prefix;
 		n += fileidx;
 		if (n < 0)
@@ -345,27 +351,40 @@ bool i_toggle_slideshow(arg_t a) {
 
 bool i_adjust_slideshow(arg_t a) {
 	long d = (long) a;
-	int i, delays[] = { 1, 2, 3, 5, 10, 15, 20, 30, 60, 120, 180, 300, 600 };
+	int i;
 
 	if (mode != MODE_IMAGE || !img.slideshow)
 		return false;
 
 	if (d < 0) {
-		for (i = ARRLEN(delays) - 2; i >= 0; i--) {
-			if (img.ss_delay > delays[i] * 1000) {
-				img.ss_delay = delays[i] * 1000;
+		for (i = ARRLEN(ss_delays) - 2; i >= 0; i--) {
+			if (img.ss_delay > ss_delays[i] * 1000) {
+				img.ss_delay = ss_delays[i] * 1000;
 				return true;
 			}
 		}
 	} else {
-		for (i = 1; i < ARRLEN(delays); i++) {
-			if (img.ss_delay < delays[i] * 1000) {
-				img.ss_delay = delays[i] * 1000;
+		for (i = 1; i < ARRLEN(ss_delays); i++) {
+			if (img.ss_delay < ss_delays[i] * 1000) {
+				img.ss_delay = ss_delays[i] * 1000;
 				return true;
 			}
 		}
 	}
 	return false;
+}
+
+bool i_reset_slideshow(arg_t a) {
+	if (mode != MODE_IMAGE || !img.slideshow)
+		return false;
+	
+	if (prefix > 0) {
+		img.ss_delay = MIN(prefix, ss_delays[ARRLEN(ss_delays) - 1]);
+		img.ss_delay = MAX(img.ss_delay, ss_delays[0]) * 1000;
+	} else {
+		img.ss_delay = SLIDESHOW_DELAY * 1000;
+	}
+	return true;
 }
 
 bool i_toggle_antialias(arg_t a) {

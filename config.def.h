@@ -121,8 +121,8 @@ static const keymap_t keys[] = {
 
 	{ false,  XK_s,             i_toggle_slideshow,   (arg_t) None },
 	{ true,   XK_plus,          i_adjust_slideshow,   (arg_t) +1 },
-	{ true,   XK_equal,         i_adjust_slideshow,   (arg_t) +1 },
 	{ true,   XK_minus,         i_adjust_slideshow,   (arg_t) -1 },
+	{ true,   XK_equal,         i_reset_slideshow,    (arg_t) None },
 
 	{ false,  XK_a,             i_toggle_antialias,   (arg_t) None },
 	{ false,  XK_A,             it_toggle_alpha,      (arg_t) None },

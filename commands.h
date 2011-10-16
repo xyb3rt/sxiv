@@ -62,6 +62,7 @@ bool i_fit_to_img(arg_t);
 bool i_rotate(arg_t);
 bool i_toggle_slideshow(arg_t);
 bool i_adjust_slideshow(arg_t);
+bool i_reset_slideshow(arg_t);
 bool i_toggle_antialias(arg_t);
 bool it_toggle_alpha(arg_t);
 bool it_open_with(arg_t);
