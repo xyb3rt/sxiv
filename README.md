@@ -81,48 +81,63 @@ sxiv supports the following command-line options:
     -Z           Same as `-z 100'
     -z ZOOM      Scale all images to current zoom level, use ZOOM at startup
 
-The following key mappings are available; differences between image view and
-thumbnail mode are denoted via brackets:
+The following general key commands are available:
 
     q            Quit sxiv
-    Return       Switch to thumbnail mode [open selected image]
+    Return       Switch to thumbnail mode / open selected image
 
-    n,Space      Go to the next image
-    p,Backspace  Go to the previous image
-    g,G          Go to [select] first/last image
-    [,]          Go 10 images backward/forward
+    0-9          Prefix the next command with a number (denoted via [count])
+
+    g            Go to first image
+    G            Go to the last image, or image number [count]
+
+    f            Toggle fullscreen mode (requires an EWMH/NetWM compliant
+                 window manager)
+    A            Toggle visibility of alpha-channel, i.e. transparency
+
+    r            Reload image
+    D            Remove image from file list and go to next image
+
+
+The following additional key commands are available in *thumbnail mode*:
+
+    h,j,k,l      Move selection left/down/up/right
+
+The following additional key commands are available in *image mode*:
+
+    n,Space      Go [count] images forward
+    p,Backspace  Go [count] images backward
+    [,]          Go [count] * 10 images backward/forward
 
     Ctrl-n,p     Go to the next/previous frame of a multi-frame image
     Ctrl-Space   Play/pause animation of a multi-frame image
 
-    +,=          Zoom in
+    +            Zoom in
     -            Zoom out
-    0            Set zoom level to 100%
+    =            Set zoom level to 100%, or [count]%
     w            Fit image into window
 
-    h,j,k,l      Pan image [move selection] left/down/up/right
-                 (also with arrow keys)
+    h,j,k,l      Pan image 1/5 of window width/height or [count] pixels
+                 left/down/up/right (also with arrow keys)
     H,J,K,L      Pan to left/bottom/top/right image edge
     Ctrl-h,j,k,l Pan image one window width/height left/down/up/right
                  (also with Ctrl-arrow keys)
 
     <,>          Rotate image (counter-)clockwise by 90 degrees
 
-    W            Resize window to fit image
-    f            Toggle fullscreen mode (requires an EWMH/NetWM compliant
-                 window manager)
+    s            Toggle slideshow
+    Ctrl-'-'     Decrease slideshow delay
+    Ctrl-'+'     Increase slideshow delay
+    Ctrl-'='     Reset slideshow delay, or set it to [count] seconds
 
     a            Toggle anti-aliasing
-    A            Toggle visibility of alpha-channel, i.e. transparency
-    D            Remove image from file list and go to [select] next image
-    r            Reload image
+    W            Resize window to fit image
 
-Additionally, the following mouse mappings are available:
+Additionally, the following mouse commands are available in *image mode*:
 
     Button1      Go to the next image
-                 [select image/open image if it is already selected]
     Button2      Drag image with mouse while keeping it pressed
     Button3      Go to the previous image
-    Scroll       Pan image up/down [scroll up/down one thumbnail row]
+    Scroll       Pan image up/down
     Shift+Scroll Pan image left/right
     Ctrl+Scroll  Zoom in/out
