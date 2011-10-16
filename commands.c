@@ -118,6 +118,8 @@ bool i_navigate(arg_t a) {
 	long n = (long) a;
 
 	if (mode == MODE_IMAGE) {
+		if (prefix)
+			n *= prefix;
 		n += fileidx;
 		if (n < 0)
 			n = 0;
