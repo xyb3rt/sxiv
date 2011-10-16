@@ -337,9 +337,11 @@ void on_keypress(XKeyEvent *kev) {
 
 	XLookupString(kev, &key, 1, &ksym, NULL);
 
-	if (key >= '0' && key <= '9' && (kev->state & ControlMask) == 0) {
+	if ((ksym == XK_Escape || (key >= '0' && key <= '9')) &&
+	    (kev->state & ControlMask) == 0)
+	{
 		/* number prefix for commands */
-		prefix = prefix * 10 + (int) (key - '0');
+		prefix = ksym == XK_Escape ? 0 : prefix * 10 + (int) (key - '0');
 		return;
 	}
 

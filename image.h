@@ -76,7 +76,7 @@ bool img_zoom_in(img_t*);
 bool img_zoom_out(img_t*);
 
 bool img_move(img_t*, int, int);
-bool img_pan(img_t*, direction_t, bool);
+bool img_pan(img_t*, direction_t, int);
 bool img_pan_edge(img_t*, direction_t);
 
 void img_rotate_left(img_t*);

@@ -576,19 +576,32 @@ bool img_move(img_t *img, int dx, int dy) {
 	}
 }
 
-bool img_pan(img_t *img, direction_t dir, bool screen) {
+bool img_pan(img_t *img, direction_t dir, int d) {
+	/* d < 0: screen-wise
+	 * d = 0: 1/5 of screen
+	 * d > 0: num of pixels
+	 */
+	int x, y;
+
 	if (img == NULL || img->im == NULL || img->win == NULL)
 		return false;
 
+	if (d > 0) {
+		x = y = MAX(1, d * img->zoom);
+	} else {
+		x = img->win->w / (d < 0 ? 1 : 5);
+		y = img->win->h / (d < 0 ? 1 : 5);
+	}
+
 	switch (dir) {
 		case DIR_LEFT:
-			return img_move(img, img->win->w / (screen ? 1 : 5), 0);
+			return img_move(img, x, 0);
 		case DIR_RIGHT:
-			return img_move(img, img->win->w / (screen ? 1 : 5) * -1, 0);
+			return img_move(img, -x, 0);
 		case DIR_UP:
-			return img_move(img, 0, img->win->h / (screen ? 1 : 5));
+			return img_move(img, 0, y);
 		case DIR_DOWN:
-			return img_move(img, 0, img->win->h / (screen ? 1 : 5) * -1);
+			return img_move(img, 0, -y);
 	}
 	return false;
 }

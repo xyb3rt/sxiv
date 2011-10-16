@@ -184,7 +184,7 @@ bool it_move(arg_t a) {
 	direction_t dir = (direction_t) a;
 
 	if (mode == MODE_IMAGE)
-		return img_pan(&img, dir, false);
+		return img_pan(&img, dir, prefix);
 	else
 		return tns_move_selection(&tns, dir);
 }
@@ -193,7 +193,7 @@ bool i_pan_screen(arg_t a) {
 	direction_t dir = (direction_t) a;
 
 	if (mode == MODE_IMAGE)
-		return img_pan(&img, dir, true);
+		return img_pan(&img, dir, -1);
 	else
 		return false;
 }
