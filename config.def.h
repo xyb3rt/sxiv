@@ -35,7 +35,9 @@ static const char * const SEL_COLOR = "#DDDDDD";
  */
 static const scalemode_t SCALE_MODE = SCALE_DOWN;
 
-/* levels (percent) to use when zooming via '-' and '+': */
+/* levels (in percent) to use when zooming via '-' and '+':
+ * (first/last value is used as min/max zoom level)
+ */
 static const float zoom_levels[] = {
 	 12.5,  25.0,  50.0,  75.0,
 	100.0, 150.0, 200.0, 400.0, 800.0
