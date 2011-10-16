@@ -56,6 +56,7 @@ bool i_pan_screen(arg_t);
 bool i_pan_edge(arg_t);
 bool i_drag(arg_t);
 bool i_zoom(arg_t);
+bool i_set_zoom(arg_t);
 bool i_fit_to_win(arg_t);
 bool i_fit_to_img(arg_t);
 bool i_rotate(arg_t);

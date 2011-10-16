@@ -273,7 +273,14 @@ bool i_zoom(arg_t a) {
 	else if (scale < 0)
 		return img_zoom_out(&img);
 	else
-		return img_zoom(&img, 1.0);
+		return false;
+}
+
+bool i_set_zoom(arg_t a) {
+	if (mode == MODE_IMAGE)
+		return img_zoom(&img, (prefix ? prefix : (long) a) / 100.0);
+	else
+		return false;
 }
 
 bool i_fit_to_win(arg_t a) {
