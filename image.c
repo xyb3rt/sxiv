@@ -133,6 +133,7 @@ bool img_load_gif(img_t *img, const fileinfo_t *file) {
 	Imlib_Image *im;
 	int i, j, bg, r, g, b;
 	int x, y, w, h, sw, sh;
+	int px, py, pw, ph;
 	int intoffset[] = { 0, 4, 2, 1 };
 	int intjump[] = { 8, 8, 4, 2 };
 	int transp = -1;
@@ -156,6 +157,7 @@ bool img_load_gif(img_t *img, const fileinfo_t *file) {
 	bg = gif->SBackGroundColor;
 	sw = gif->SWidth;
 	sh = gif->SHeight;
+	px = py = pw = ph = 0;
 
 	do {
 		if (DGifGetRecordType(gif, &rec) == GIF_ERROR) {
@@ -218,10 +220,13 @@ bool img_load_gif(img_t *img, const fileinfo_t *file) {
 					if (i < y || i >= y + h || j < x || j >= x + w ||
 					    rows[i-y][j-x] == transp)
 					{
-						if (prev_disposal != 2 && prev_frame != NULL)
+						if (prev_frame != NULL && (prev_disposal != 2 ||
+						    i < py || i >= py + ph || j < px || j >= px + pw))
+						{
 							*ptr = prev_frame[i * sw + j];
-						else
+						} else {
 							*ptr = bgpixel;
+						}
 					} else {
 						r = cmap->Colors[rows[i-y][j-x]].Red;
 						g = cmap->Colors[rows[i-y][j-x]].Green;
@@ -252,6 +257,7 @@ bool img_load_gif(img_t *img, const fileinfo_t *file) {
 			if (disposal != 3)
 				prev_frame = imlib_image_get_data_for_reading_only();
 			prev_disposal = disposal;
+			px = x, py = y, pw = w, ph = h;
 
 			if (img->multi.cnt == img->multi.cap) {
 				img->multi.cap *= 2;
