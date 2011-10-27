@@ -188,7 +188,7 @@ bool i_toggle_animation(arg_t a) {
 	return true;
 }
 
-bool it_move(arg_t a) {
+bool it_scroll_move(arg_t a) {
 	direction_t dir = (direction_t) a;
 
 	if (mode == MODE_IMAGE)
@@ -197,16 +197,16 @@ bool it_move(arg_t a) {
 		return tns_move_selection(&tns, dir);
 }
 
-bool i_pan_screen(arg_t a) {
+bool it_scroll_screen(arg_t a) {
 	direction_t dir = (direction_t) a;
 
 	if (mode == MODE_IMAGE)
 		return img_pan(&img, dir, -1);
 	else
-		return false;
+		return tns_scroll(&tns, dir, true);
 }
 
-bool i_pan_edge(arg_t a) {
+bool i_scroll_to_edge(arg_t a) {
 	direction_t dir = (direction_t) a;
 
 	if (mode == MODE_IMAGE)

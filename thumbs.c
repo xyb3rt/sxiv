@@ -430,20 +430,25 @@ bool tns_move_selection(tns_t *tns, direction_t dir) {
 	return tns->sel != old;
 }
 
-bool tns_scroll(tns_t *tns, direction_t dir) {
-	int old;
+bool tns_scroll(tns_t *tns, direction_t dir, bool screen) {
+	int d, max, old;
 
 	if (tns == NULL)
 		return false;
 
 	old = tns->first;
+	d = tns->cols * (screen ? tns->rows : 1);
 
-	if (dir == DIR_DOWN && tns->first + tns->cols * tns->rows < tns->cnt) {
-		tns->first += tns->cols;
-		tns_check_view(tns, true);
-		tns->dirty = true;
-	} else if (dir == DIR_UP && tns->first >= tns->cols) {
-		tns->first -= tns->cols;
+	if (dir == DIR_DOWN) {
+		max = tns->cnt - tns->cols * tns->rows;
+		if (tns->cnt % tns->cols != 0)
+			max += tns->cols - tns->cnt % tns->cols;
+		tns->first = MIN(tns->first + d, max);
+	} else if (dir == DIR_UP) {
+		tns->first = MAX(tns->first - d, 0);
+	}
+
+	if (tns->first != old) {
 		tns_check_view(tns, true);
 		tns->dirty = true;
 	}
