@@ -69,10 +69,7 @@ bool it_switch_mode(arg_t a) {
 			img.slideshow = false;
 			reset_timeout(slideshow);
 		}
-		if (fileidx < tns.cnt)
-			tns.sel = fileidx;
-		else
-			tns.sel = tns.cnt > 0 ? tns.cnt - 1 : 0;
+		tns.sel = fileidx;
 		tns.dirty = true;
 		mode = MODE_THUMB;
 	} else {
