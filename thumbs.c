@@ -35,6 +35,9 @@
 void exif_auto_orientate(const fileinfo_t*);
 #endif
 
+extern fileinfo_t *files;
+extern int fileidx;
+
 const int thumb_dim = THUMB_SIZE + 10;
 char *cache_dir = NULL;
 
@@ -362,6 +365,12 @@ void tns_render(tns_t *tns) {
 		}
 	}
 	tns->dirty = false;
+	for (i = 0; i < tns->cnt; i++) {
+		if (strcmp(tns->thumbs[i].file->path, files[fileidx].path) == 0) {
+			tns->sel = i;
+			break;
+		}
+	}
 	tns_highlight(tns, tns->sel, true);
 }
 

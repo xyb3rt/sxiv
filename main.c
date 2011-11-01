@@ -138,6 +138,8 @@ void remove_file(int n, bool manual) {
 	filecnt--;
 	if (n < tns.cnt)
 		tns.cnt--;
+	if (n < fileidx)
+		fileidx--;
 }
 
 void set_timeout(timeout_f handler, int time, bool overwrite) {
