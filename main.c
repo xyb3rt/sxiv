@@ -416,10 +416,13 @@ void run(void) {
 		{
 			/* load thumbnails */
 			set_timeout(redraw, TO_REDRAW_THUMBS, false);
-			if (tns_load(&tns, tns.cnt, &files[tns.cnt], false, false))
+			if (tns_load(&tns, tns.cnt, &files[tns.cnt], false, false)) {
 				tns.cnt++;
-			else
+			} else {
 				remove_file(tns.cnt, false);
+				if (tns.sel >= tns.cnt)
+					tns.sel--;
+			}
 			if (tns.cnt == filecnt)
 				redraw();
 			else
