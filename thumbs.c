@@ -267,6 +267,7 @@ bool tns_load(tns_t *tns, int n, const fileinfo_t *file,
 	zw = (float) THUMB_SIZE / (float) w;
 	zh = (float) THUMB_SIZE / (float) h;
 	z = MIN(zw, zh);
+	z = MIN(z, 1.0);
 	t->w = z * w;
 	t->h = z * h;
 
