@@ -314,6 +314,7 @@ bool i_fit_to_img(arg_t a) {
 		if ((ret = win_moveresize(&win, x, y, w, h))) {
 			img.x = x - win.x;
 			img.y = y - win.y;
+			img.dirty = true;
 		}
 	}
 	return ret;
