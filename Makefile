@@ -41,15 +41,6 @@ clean:
 	@echo "cleaning"
 	@rm -f $(OBJ) config sxiv sxiv-$(VERSION).tar.gz
 
-dist: clean
-	@echo "creating dist tarball"
-	@mkdir -p sxiv-$(VERSION)
-	@cp LICENSE Makefile README.md config.def.h sxiv.1 $(SRC) config.c \
-	    sxiv-$(VERSION)
-	@tar -cf sxiv-$(VERSION).tar sxiv-$(VERSION)
-	@gzip sxiv-$(VERSION).tar
-	@rm -rf sxiv-$(VERSION)
-
 install: all
 	@echo "installing executable file to $(DESTDIR)$(PREFIX)/bin"
 	@install -D -m 755 sxiv $(DESTDIR)$(PREFIX)/bin/sxiv
