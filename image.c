@@ -311,16 +311,18 @@ bool img_load(img_t *img, const fileinfo_t *file) {
 	imlib_image_set_changes_on_disk();
 	imlib_context_set_anti_alias(img->aa);
 
-	if ((fmt = imlib_image_format()) != NULL) {
+	if ((fmt = imlib_image_format()) == NULL) {
+		warn("could not open image: %s", file->name);
+		return false;
+	}
 #if EXIF_SUPPORT
-		if (STREQ(fmt, "jpeg"))
-			exif_auto_orientate(file);
+	if (STREQ(fmt, "jpeg"))
+		exif_auto_orientate(file);
 #endif
 #if GIF_SUPPORT
-		if (STREQ(fmt, "gif"))
-			img_load_gif(img, file);
+	if (STREQ(fmt, "gif"))
+		img_load_gif(img, file);
 #endif
-	}
 
 	img->w = imlib_image_get_width();
 	img->h = imlib_image_get_height();

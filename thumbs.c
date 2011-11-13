@@ -253,10 +253,12 @@ bool tns_load(tns_t *tns, int n, const fileinfo_t *file,
 	imlib_context_set_image(im);
 	imlib_context_set_anti_alias(1);
 
-	fmt = imlib_image_format();
-	/* avoid unused-but-set-variable warning */
-	(void) fmt;
-
+	if ((fmt = imlib_image_format()) == NULL) {
+		if (!silent)
+			warn("could not open image: %s", file->name);
+		imlib_free_image_and_decache();
+		return false;
+	}
 #if EXIF_SUPPORT
 	if (!cache_hit && STREQ(fmt, "jpeg"))
 		exif_auto_orientate(file);
