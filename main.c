@@ -404,10 +404,10 @@ void on_buttonpress(XButtonEvent *bev) {
 }
 
 void handle_signal(int signo) {
-  if (signo == SIGUSR1) {
-	it_reload_image((arg_t) None);
-  }
-  return;
+	if (signo == SIGUSR1) {
+		it_reload_image((arg_t) None);
+	}
+	return;
 }
 
 void setup_signal_handlers() {
@@ -416,8 +416,8 @@ void setup_signal_handlers() {
 	if ((sigemptyset(&sigset) == -1) ||
 		(sigaddset(&sigset, SIGUSR1) == -1) ||
 		(sigaddset(&sigset, SIGUSR2) == -1)) {
-	  fprintf(stderr, "Failed to set up signal mask, SIGUSR1 won't work\n");
-	  return;
+		fprintf(stderr, "Failed to set up signal mask, SIGUSR1 won't work\n");
+		return;
 	}
 
 	sigact.sa_handler = handle_signal;
@@ -426,8 +426,8 @@ void setup_signal_handlers() {
 
 	if ((sigaction(SIGUSR1, &sigact, NULL) == -1) ||
 		(sigaction(SIGUSR2, &sigact, NULL) == -1)) {
-	  fprintf(stderr, "Failed to set up signal handler, SIGUSR1 won't work\n");
-	  return;
+		fprintf(stderr, "Failed to set up signal handler, SIGUSR1 won't work\n");
+		return;
 	}
 	
 	return;
