@@ -3,11 +3,12 @@
 sxiv \- Simple (or small or suckless) X Image Viewer
 .SH SYNOPSIS
 .B sxiv
-.RB [ \-cdFfhpqrsStvZ ]
+.RB [ \-cdFfhpqrstvZ ]
 .RB [ \-g
 .IR GEOMETRY ]
 .RB [ \-n
 .IR NUM ]
+.RB [ \-S\fP[\fIDELAY\fP] ]
 .RB [ \-z
 .IR ZOOM ]
 .IR FILE ...
@@ -69,8 +70,11 @@ Search the given directories recursively for images to view.
 .B \-s
 Scale all images to fit into window.
 .TP
-.B \-S
+.B \-S\fP[DELAY]
 Start in slideshow mode.
+.br
+.I DELAY
+is the standard delay in seconds (default 5).
 .TP
 .B \-t
 Start in thumbnail mode.

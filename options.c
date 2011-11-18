@@ -33,7 +33,8 @@ options_t _options;
 const options_t *options = (const options_t*) &_options;
 
 void print_usage(void) {
-	printf("usage: sxiv [-cdFfhpqrsStvZ] [-g GEOMETRY] [-n NUM] "
+	printf("usage: sxiv [-cdFfhpqrstvZ] [-g GEOMETRY] [-n NUM] "
+			"[-S[DELAY]] "
 	       "[-z ZOOM] FILES...\n");
 }
 
@@ -72,11 +73,13 @@ void parse_options(int argc, char **argv) {
 	_options.fullscreen = false;
 	_options.geometry = NULL;
 
+	_options.slideshow_delay = SLIDESHOW_DELAY;
+
 	_options.quiet = false;
 	_options.thumb_mode = false;
 	_options.clean_cache = false;
 
-	while ((opt = getopt(argc, argv, "cdFfg:hn:pqrsStvZz:")) != -1) {
+	while ((opt = getopt(argc, argv, "cdFfg:hn:pqrsS::tvZz:")) != -1) {
 		switch (opt) {
 			case '?':
 				print_usage();
@@ -122,6 +125,8 @@ void parse_options(int argc, char **argv) {
 				break;
 			case 'S':
 				_options.slideshow = true;
+				if (optarg)
+					_options.slideshow_delay = strtoul(optarg, 0, 0);
 				break;
 			case 't':
 				_options.thumb_mode = true;

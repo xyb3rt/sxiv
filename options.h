@@ -40,6 +40,9 @@ typedef struct {
 	bool fullscreen;
 	char *geometry;
 
+	/* slideshow: */
+	int slideshow_delay;
+
 	/* misc flags: */
 	bool quiet;
 	bool thumb_mode;
