@@ -39,7 +39,7 @@ void print_usage(void) {
 
 void print_version(void) {
 	printf("sxiv %s - Simple X Image Viewer\n", VERSION);
-	printf("Additional features included (+) or not (-): %s, %s\n",
+	printf("Additional features included (+) or not (-): %s, %s, %s\n",
 #if EXIF_SUPPORT
 	       "+exif",
 #else
@@ -49,6 +49,11 @@ void print_version(void) {
 	       "+gif"
 #else
 	       "-gif"
+#endif
+#if DPMS_SUPPORT
+	       "+dpms",
+#else
+	       "-dpms",
 #endif
 	      );
 }

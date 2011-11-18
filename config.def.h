@@ -9,6 +9,11 @@
  */
 #define GIF_SUPPORT  0
 
+/* save & restore DPMS settings during slideshow
+ * (requires libXext)
+ */
+#define DPMS_SUPPORT 1
+
 #endif
 #ifdef _WINDOW_CONFIG
 

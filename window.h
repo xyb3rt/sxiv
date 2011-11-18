@@ -18,10 +18,12 @@
 
 #ifndef WINDOW_H
 #define WINDOW_H
+#define _FEATURE_CONFIG
 
 #include <X11/Xlib.h>
 
 #include "types.h"
+#include "config.h"
 
 typedef struct {
 	Display *dpy;
@@ -33,6 +35,12 @@ typedef struct {
 
 	int ssaver_saved;
 	int ssaver_timeout;
+#ifdef DPMS_SUPPORT
+	struct {
+		unsigned char enabled;
+		unsigned short standby, suspend, off;
+	} dpms;
+#endif
 } win_env_t;
 
 typedef struct {

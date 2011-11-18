@@ -22,10 +22,12 @@ int main(int argc, char **argv) {
 			case 'D':
 				n += PUT_MACRO(EXIF_SUPPORT);
 				n += PUT_MACRO(GIF_SUPPORT);
+				n += PUT_MACRO(DPMS_SUPPORT);
 				break;
 			case 'l':
 				n += puts_if("-lexif", EXIF_SUPPORT);
 				n += puts_if("-lgif",  GIF_SUPPORT);
+				n += puts_if("-lXext",  DPMS_SUPPORT);
 				break;
 			default:
 				fprintf(stderr, "%s: invalid argument: %s\n", argv[0], argv[i]);

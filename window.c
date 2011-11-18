@@ -28,6 +28,10 @@
 #include "window.h"
 #include "config.h"
 
+#ifdef DPMS_SUPPORT
+#include <X11/extensions/dpms.h>
+#endif
+
 static Cursor carrow;
 static Cursor cnone;
 static Cursor chand;
@@ -343,6 +347,9 @@ void win_set_cursor(win_t *win, cursor_t cursor) {
 void win_screensaver_save(win_t *win) {
 	win_env_t *env = &win->env;
 	int interval, prefer_blank, allow_exp;
+#ifdef DPMS_SUPPORT
+	CARD16 powerlevel;
+#endif
 
 	if (env->ssaver_saved)
 		return;
@@ -352,6 +359,15 @@ void win_screensaver_save(win_t *win) {
 	XSetScreenSaver(env->dpy, 0, interval, prefer_blank, allow_exp);
 	XResetScreenSaver(env->dpy);
 
+#ifdef DPMS_SUPPORT
+	if (!DPMSInfo(env->dpy, &powerlevel, &env->dpms.enabled))
+		env->dpms.enabled = 0;
+	if (env->dpms.enabled) {
+		DPMSGetTimeouts(env->dpy, &env->dpms.standby,
+				&env->dpms.suspend, &env->dpms.off);
+		DPMSSetTimeouts(env->dpy, 0, 0, 0);
+	}
+#endif
 	env->ssaver_saved = 1;
 	warn("screensaver off");
 }
