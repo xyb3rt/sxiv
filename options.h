@@ -44,6 +44,7 @@ typedef struct {
 	bool quiet;
 	bool thumb_mode;
 	bool clean_cache;
+	bool slideshow;
 } options_t;
 
 extern const options_t *options;

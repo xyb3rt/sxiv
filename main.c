@@ -563,6 +563,14 @@ int main(int argc, char **argv) {
 		while (!tns_load(&tns, 0, &files[0], false, false))
 			remove_file(0, false);
 		tns.cnt = 1;
+	} else if (options->slideshow) {
+		mode = MODE_IMAGE;
+		tns.thumbs = NULL;
+		load_image(fileidx);
+
+		img.slideshow = true;
+		win_screensaver_save(&win);
+		set_timeout(slideshow, img.ss_delay, true);
 	} else {
 		mode = MODE_IMAGE;
 		tns.thumbs = NULL;

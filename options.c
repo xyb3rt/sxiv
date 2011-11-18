@@ -33,7 +33,7 @@ options_t _options;
 const options_t *options = (const options_t*) &_options;
 
 void print_usage(void) {
-	printf("usage: sxiv [-cdFfhpqrstvZ] [-g GEOMETRY] [-n NUM] "
+	printf("usage: sxiv [-cdFfhpqrsStvZ] [-g GEOMETRY] [-n NUM] "
 	       "[-z ZOOM] FILES...\n");
 }
 
@@ -45,15 +45,15 @@ void print_version(void) {
 #else
 	       "-exif",
 #endif
-#if GIF_SUPPORT
-	       "+gif"
-#else
-	       "-gif"
-#endif
 #if DPMS_SUPPORT
 	       "+dpms",
 #else
 	       "-dpms",
+#endif
+#if GIF_SUPPORT
+	       "+gif"
+#else
+	       "-gif"
 #endif
 	      );
 }
@@ -76,7 +76,7 @@ void parse_options(int argc, char **argv) {
 	_options.thumb_mode = false;
 	_options.clean_cache = false;
 
-	while ((opt = getopt(argc, argv, "cdFfg:hn:pqrstvZz:")) != -1) {
+	while ((opt = getopt(argc, argv, "cdFfg:hn:pqrsStvZz:")) != -1) {
 		switch (opt) {
 			case '?':
 				print_usage();
@@ -119,6 +119,9 @@ void parse_options(int argc, char **argv) {
 				break;
 			case 's':
 				_options.scalemode = SCALE_FIT;
+				break;
+			case 'S':
+				_options.slideshow = true;
 				break;
 			case 't':
 				_options.thumb_mode = true;
