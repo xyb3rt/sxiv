@@ -268,8 +268,10 @@ void redraw(void) {
 		if (img.slideshow && !img.multi.animate) {
 			if (fileidx + 1 < filecnt)
 				set_timeout(slideshow, img.ss_delay, true);
-			else
+			else {
 				img.slideshow = false;
+				win_screensaver_restore(&win);
+			}
 		}
 	} else {
 		tns_render(&tns);
@@ -314,6 +316,7 @@ void slideshow(void) {
 			redraw();
 		} else {
 			img.slideshow = false;
+			win_screensaver_restore(&win);
 		}
 	}
 }

@@ -182,6 +182,9 @@ void win_close(win_t *win) {
 	XFreeGC(win->env.dpy, gc);
 
 	XDestroyWindow(win->env.dpy, win->xwin);
+
+	if (win->env.ssaver_saved)
+		win_screensaver_restore(win);
 	XCloseDisplay(win->env.dpy);
 }
 
@@ -336,3 +339,36 @@ void win_set_cursor(win_t *win, cursor_t cursor) {
 
 	XFlush(win->env.dpy);
 }
+
+void win_screensaver_save(win_t *win) {
+	win_env_t *env = &win->env;
+	int interval, prefer_blank, allow_exp;
+
+	if (env->ssaver_saved)
+		return;
+
+	XGetScreenSaver(env->dpy, &env->ssaver_timeout,
+			&interval, &prefer_blank, &allow_exp);
+	XSetScreenSaver(env->dpy, 0, interval, prefer_blank, allow_exp);
+	XResetScreenSaver(env->dpy);
+
+	env->ssaver_saved = 1;
+	warn("screensaver off");
+}
+
+void win_screensaver_restore(win_t *win) {
+	win_env_t *env = &win->env;
+	int timeout, interval, prefer_blank, allow_exp;
+
+	if (!env->ssaver_saved)
+		return;
+	XGetScreenSaver(env->dpy, &timeout,
+			&interval, &prefer_blank, &allow_exp);
+	XSetScreenSaver(env->dpy, env->ssaver_timeout,
+			interval, prefer_blank, allow_exp);
+	XResetScreenSaver(env->dpy);
+
+	env->ssaver_saved = 0;
+	warn("screensaver restored");
+}
+

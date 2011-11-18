@@ -30,6 +30,9 @@ typedef struct {
 	Visual *vis;
 	Colormap cmap;
 	int depth;
+
+	int ssaver_saved;
+	int ssaver_timeout;
 } win_env_t;
 
 typedef struct {
@@ -69,5 +72,8 @@ void win_draw_rect(win_t*, Pixmap, int, int, int, int, bool, int,
 
 void win_set_title(win_t*, const char*);
 void win_set_cursor(win_t*, cursor_t);
+
+void win_screensaver_save(win_t *);
+void win_screensaver_restore(win_t *);
 
 #endif /* WINDOW_H */
