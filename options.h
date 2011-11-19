@@ -42,6 +42,7 @@ typedef struct {
 
 	/* slideshow: */
 	int slideshow_delay;
+	bool loop;
 
 	/* misc flags: */
 	bool quiet;

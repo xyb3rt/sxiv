@@ -344,7 +344,7 @@ bool i_toggle_slideshow(arg_t a) {
 			win_screensaver_restore(&win);
 			reset_timeout(slideshow);
 			return true;
-		} else if (fileidx + 1 < filecnt) {
+		} else if ((fileidx + 1 < filecnt) || options->loop) {
 			img.slideshow = true;
 			win_screensaver_save(&win);
 			set_timeout(slideshow, img.ss_delay, true);

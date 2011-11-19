@@ -124,7 +124,10 @@ void parse_options(int argc, char **argv) {
 				_options.scalemode = SCALE_FIT;
 				break;
 			case 'S':
-				_options.slideshow = true;
+				if (_options.slideshow)
+					_options.loop = true;
+				else
+					_options.slideshow = true;
 				if (optarg)
 					_options.slideshow_delay = strtoul(optarg, 0, 0);
 				break;

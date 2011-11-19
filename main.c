@@ -266,7 +266,7 @@ void redraw(void) {
 	if (mode == MODE_IMAGE) {
 		img_render(&img);
 		if (img.slideshow && !img.multi.animate) {
-			if (fileidx + 1 < filecnt)
+			if ((fileidx + 1 < filecnt) || options->loop)
 				set_timeout(slideshow, img.ss_delay, true);
 			else {
 				img.slideshow = false;
@@ -313,6 +313,9 @@ void slideshow(void) {
 	if (mode == MODE_IMAGE && !img.multi.animate) {
 		if (fileidx + 1 < filecnt) {
 			load_image(fileidx + 1);
+			redraw();
+		} else if (options->loop) {
+			load_image(0);
 			redraw();
 		} else {
 			img.slideshow = false;
