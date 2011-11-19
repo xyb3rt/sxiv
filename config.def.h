@@ -1,3 +1,6 @@
+#ifndef _config_h_
+#define _config_h_
+
 #ifdef _FEATURE_CONFIG
 
 /* auto-orientate jpeg files according to their exif tags?
@@ -161,3 +164,5 @@ static const button_t buttons[] = {
 };
 
 #endif
+
+#endif /* _config_h_ */
