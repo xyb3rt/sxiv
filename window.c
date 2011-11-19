@@ -383,6 +383,11 @@ void win_screensaver_restore(win_t *win) {
 	XSetScreenSaver(env->dpy, env->ssaver_timeout,
 			interval, prefer_blank, allow_exp);
 	XResetScreenSaver(env->dpy);
+#ifdef DPMS_SUPPORT
+	if (env->dpms.enabled)
+		DPMSSetTimeouts(env->dpy, env->dpms.standby,
+				env->dpms.suspend, env->dpms.off);
+#endif
 
 	env->ssaver_saved = 0;
 	warn("screensaver restored");
