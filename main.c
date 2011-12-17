@@ -266,10 +266,12 @@ void redraw(void) {
 	if (mode == MODE_IMAGE) {
 		img_render(&img);
 		if (img.slideshow && !img.multi.animate) {
-			if (fileidx + 1 < filecnt)
+			if ((fileidx + 1 < filecnt) || options->loop)
 				set_timeout(slideshow, img.ss_delay, true);
-			else
+			else {
 				img.slideshow = false;
+				win_screensaver_restore(&win);
+			}
 		}
 	} else {
 		tns_render(&tns);
@@ -312,8 +314,12 @@ void slideshow(void) {
 		if (fileidx + 1 < filecnt) {
 			load_image(fileidx + 1);
 			redraw();
+		} else if (options->loop) {
+			load_image(0);
+			redraw();
 		} else {
 			img.slideshow = false;
+			win_screensaver_restore(&win);
 		}
 	}
 }
@@ -560,6 +566,14 @@ int main(int argc, char **argv) {
 		while (!tns_load(&tns, 0, &files[0], false, false))
 			remove_file(0, false);
 		tns.cnt = 1;
+	} else if (options->slideshow) {
+		mode = MODE_IMAGE;
+		tns.thumbs = NULL;
+		load_image(fileidx);
+
+		img.slideshow = true;
+		win_screensaver_save(&win);
+		set_timeout(slideshow, img.ss_delay, true);
 	} else {
 		mode = MODE_IMAGE;
 		tns.thumbs = NULL;

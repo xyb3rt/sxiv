@@ -34,16 +34,22 @@ const options_t *options = (const options_t*) &_options;
 
 void print_usage(void) {
 	printf("usage: sxiv [-cdFfhpqrstvZ] [-g GEOMETRY] [-n NUM] "
+			"[-S[DELAY]] "
 	       "[-z ZOOM] FILES...\n");
 }
 
 void print_version(void) {
 	printf("sxiv %s - Simple X Image Viewer\n", VERSION);
-	printf("Additional features included (+) or not (-): %s, %s\n",
+	printf("Additional features included (+) or not (-): %s, %s, %s\n",
 #if EXIF_SUPPORT
 	       "+exif",
 #else
 	       "-exif",
+#endif
+#if DPMS_SUPPORT
+	       "+dpms",
+#else
+	       "-dpms",
 #endif
 #if GIF_SUPPORT
 	       "+gif"
@@ -67,11 +73,13 @@ void parse_options(int argc, char **argv) {
 	_options.fullscreen = false;
 	_options.geometry = NULL;
 
+	_options.slideshow_delay = SLIDESHOW_DELAY;
+
 	_options.quiet = false;
 	_options.thumb_mode = false;
 	_options.clean_cache = false;
 
-	while ((opt = getopt(argc, argv, "cdFfg:hn:pqrstvZz:")) != -1) {
+	while ((opt = getopt(argc, argv, "cdFfg:hn:pqrsS::tvZz:")) != -1) {
 		switch (opt) {
 			case '?':
 				print_usage();
@@ -114,6 +122,14 @@ void parse_options(int argc, char **argv) {
 				break;
 			case 's':
 				_options.scalemode = SCALE_FIT;
+				break;
+			case 'S':
+				if (_options.slideshow)
+					_options.loop = true;
+				else
+					_options.slideshow = true;
+				if (optarg)
+					_options.slideshow_delay = strtoul(optarg, 0, 0);
 				break;
 			case 't':
 				_options.thumb_mode = true;

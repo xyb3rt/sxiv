@@ -69,7 +69,7 @@ void img_init(img_t *img, win_t *win) {
 	img->aa = options->aa;
 	img->alpha = true;
 	img->slideshow = false;
-	img->ss_delay = SLIDESHOW_DELAY * 1000;
+	img->ss_delay = options->slideshow_delay * 1000;
 	img->multi.cap = img->multi.cnt = 0;
 	img->multi.animate = false;
 }

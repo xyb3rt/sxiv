@@ -29,6 +29,7 @@
 #include "thumbs.h"
 #include "util.h"
 #include "config.h"
+#include "options.h"
 
 void cleanup(void);
 void remove_file(int, bool);
@@ -67,6 +68,7 @@ bool it_switch_mode(arg_t a) {
 		reset_timeout(reset_cursor);
 		if (img.slideshow) {
 			img.slideshow = false;
+			win_screensaver_restore(&win);
 			reset_timeout(slideshow);
 		}
 		tns.sel = fileidx;
@@ -339,10 +341,12 @@ bool i_toggle_slideshow(arg_t a) {
 	if (mode == MODE_IMAGE) {
 		if (img.slideshow) {
 			img.slideshow = false;
+			win_screensaver_restore(&win);
 			reset_timeout(slideshow);
 			return true;
-		} else if (fileidx + 1 < filecnt) {
+		} else if ((fileidx + 1 < filecnt) || options->loop) {
 			img.slideshow = true;
+			win_screensaver_save(&win);
 			set_timeout(slideshow, img.ss_delay, true);
 			return true;
 		}
@@ -383,7 +387,7 @@ bool i_reset_slideshow(arg_t a) {
 		img.ss_delay = MIN(prefix, ss_delays[ARRLEN(ss_delays) - 1]);
 		img.ss_delay = MAX(img.ss_delay, ss_delays[0]) * 1000;
 	} else {
-		img.ss_delay = SLIDESHOW_DELAY * 1000;
+		img.ss_delay = options->slideshow_delay * 1000;
 	}
 	return true;
 }

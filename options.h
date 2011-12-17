@@ -40,10 +40,15 @@ typedef struct {
 	bool fullscreen;
 	char *geometry;
 
+	/* slideshow: */
+	int slideshow_delay;
+	bool loop;
+
 	/* misc flags: */
 	bool quiet;
 	bool thumb_mode;
 	bool clean_cache;
+	bool slideshow;
 } options_t;
 
 extern const options_t *options;

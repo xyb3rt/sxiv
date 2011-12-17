@@ -18,10 +18,12 @@
 
 #ifndef WINDOW_H
 #define WINDOW_H
+#define _FEATURE_CONFIG
 
 #include <X11/Xlib.h>
 
 #include "types.h"
+#include "config.h"
 
 typedef struct {
 	Display *dpy;
@@ -30,6 +32,15 @@ typedef struct {
 	Visual *vis;
 	Colormap cmap;
 	int depth;
+
+	int ssaver_saved;
+	int ssaver_timeout;
+#ifdef DPMS_SUPPORT
+	struct {
+		unsigned char enabled;
+		unsigned short standby, suspend, off;
+	} dpms;
+#endif
 } win_env_t;
 
 typedef struct {
@@ -69,5 +80,8 @@ void win_draw_rect(win_t*, Pixmap, int, int, int, int, bool, int,
 
 void win_set_title(win_t*, const char*);
 void win_set_cursor(win_t*, cursor_t);
+
+void win_screensaver_save(win_t *);
+void win_screensaver_restore(win_t *);
 
 #endif /* WINDOW_H */

@@ -28,6 +28,10 @@
 #include "window.h"
 #include "config.h"
 
+#ifdef DPMS_SUPPORT
+#include <X11/extensions/dpms.h>
+#endif
+
 static Cursor carrow;
 static Cursor cnone;
 static Cursor chand;
@@ -182,6 +186,9 @@ void win_close(win_t *win) {
 	XFreeGC(win->env.dpy, gc);
 
 	XDestroyWindow(win->env.dpy, win->xwin);
+
+	if (win->env.ssaver_saved)
+		win_screensaver_restore(win);
 	XCloseDisplay(win->env.dpy);
 }
 
@@ -336,3 +343,53 @@ void win_set_cursor(win_t *win, cursor_t cursor) {
 
 	XFlush(win->env.dpy);
 }
+
+void win_screensaver_save(win_t *win) {
+	win_env_t *env = &win->env;
+	int interval, prefer_blank, allow_exp;
+#ifdef DPMS_SUPPORT
+	CARD16 powerlevel;
+#endif
+
+	if (env->ssaver_saved)
+		return;
+
+	XGetScreenSaver(env->dpy, &env->ssaver_timeout,
+			&interval, &prefer_blank, &allow_exp);
+	XSetScreenSaver(env->dpy, 0, interval, prefer_blank, allow_exp);
+	XResetScreenSaver(env->dpy);
+
+#ifdef DPMS_SUPPORT
+	if (!DPMSInfo(env->dpy, &powerlevel, &env->dpms.enabled))
+		env->dpms.enabled = 0;
+	if (env->dpms.enabled) {
+		DPMSGetTimeouts(env->dpy, &env->dpms.standby,
+				&env->dpms.suspend, &env->dpms.off);
+		DPMSSetTimeouts(env->dpy, 0, 0, 0);
+	}
+#endif
+	env->ssaver_saved = 1;
+	warn("screensaver off");
+}
+
+void win_screensaver_restore(win_t *win) {
+	win_env_t *env = &win->env;
+	int timeout, interval, prefer_blank, allow_exp;
+
+	if (!env->ssaver_saved)
+		return;
+	XGetScreenSaver(env->dpy, &timeout,
+			&interval, &prefer_blank, &allow_exp);
+	XSetScreenSaver(env->dpy, env->ssaver_timeout,
+			interval, prefer_blank, allow_exp);
+	XResetScreenSaver(env->dpy);
+#ifdef DPMS_SUPPORT
+	if (env->dpms.enabled)
+		DPMSSetTimeouts(env->dpy, env->dpms.standby,
+				env->dpms.suspend, env->dpms.off);
+#endif
+
+	env->ssaver_saved = 0;
+	warn("screensaver restored");
+}
+

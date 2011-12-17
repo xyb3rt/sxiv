@@ -1,3 +1,6 @@
+#ifndef _config_h_
+#define _config_h_
+
 #ifdef _FEATURE_CONFIG
 
 /* auto-orientate jpeg files according to their exif tags?
@@ -8,6 +11,11 @@
  * (requires giflib [-lgif] to be installed)
  */
 #define GIF_SUPPORT  0
+
+/* save & restore DPMS settings during slideshow
+ * (requires libXext)
+ */
+#define DPMS_SUPPORT 1
 
 #endif
 #ifdef _WINDOW_CONFIG
@@ -156,3 +164,5 @@ static const button_t buttons[] = {
 };
 
 #endif
+
+#endif /* _config_h_ */

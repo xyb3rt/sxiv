@@ -8,6 +8,7 @@ sxiv \- Simple (or small or suckless) X Image Viewer
 .IR GEOMETRY ]
 .RB [ \-n
 .IR NUM ]
+.RB [ \-S\fP[\fIDELAY\fP] ]
 .RB [ \-z
 .IR ZOOM ]
 .IR FILE ...
@@ -68,6 +69,16 @@ Search the given directories recursively for images to view.
 .TP
 .B \-s
 Scale all images to fit into window.
+.TP
+.B \-S\fP[DELAY]
+Start in slideshow mode.
+.br
+.I DELAY
+is the standard delay in seconds (default 5).
+.br
+When more
+.B -S
+are given, slideshow loops forever (i.e. does not stop at the end).
 .TP
 .B \-t
 Start in thumbnail mode.
