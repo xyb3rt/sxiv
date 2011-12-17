@@ -309,7 +309,6 @@ bool img_load(img_t *img, const fileinfo_t *file) {
 
 	imlib_context_set_image(img->im);
 	imlib_image_set_changes_on_disk();
-	imlib_context_set_anti_alias(img->aa);
 
 	if ((fmt = imlib_image_format()) == NULL) {
 		warn("could not open image: %s", file->name);
@@ -473,6 +472,7 @@ void img_render(img_t *img) {
 	win_clear(win);
 
 	imlib_context_set_image(img->im);
+	imlib_context_set_anti_alias(img->aa);
 
 	if (!img->alpha && imlib_image_has_alpha())
 		win_draw_rect(win, win->pm, dx, dy, dw, dh, True, 0, win->white);
