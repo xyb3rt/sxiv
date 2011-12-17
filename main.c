@@ -27,6 +27,7 @@
 #include <sys/time.h>
 #include <X11/Xutil.h>
 #include <X11/keysym.h>
+#include <signal.h>
 
 #include "commands.h"
 #include "image.h"
@@ -402,6 +403,36 @@ void on_buttonpress(XButtonEvent *bev) {
 	}
 }
 
+void handle_signal(int signo) {
+	if (signo == SIGUSR1) {
+		it_reload_image((arg_t) None);
+	}
+	return;
+}
+
+void setup_signal_handlers() {
+	struct sigaction sigact;
+	sigset_t sigset;
+	if ((sigemptyset(&sigset) == -1) ||
+		(sigaddset(&sigset, SIGUSR1) == -1) ||
+		(sigaddset(&sigset, SIGUSR2) == -1)) {
+		fprintf(stderr, "Failed to set up signal mask, SIGUSR1 won't work\n");
+		return;
+	}
+
+	sigact.sa_handler = handle_signal;
+	sigact.sa_mask    = sigset;
+	sigact.sa_flags   = 0;
+
+	if ((sigaction(SIGUSR1, &sigact, NULL) == -1) ||
+		(sigaction(SIGUSR2, &sigact, NULL) == -1)) {
+		fprintf(stderr, "Failed to set up signal handler, SIGUSR1 won't work\n");
+		return;
+	}
+	
+	return;
+}
+
 void run(void) {
 	int xfd;
 	fd_set fds;
@@ -567,6 +598,8 @@ int main(int argc, char **argv) {
 	}
 
 	win_open(&win);
+
+	setup_signal_handlers();
 
 	run();
 	cleanup();
