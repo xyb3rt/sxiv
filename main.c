@@ -223,7 +223,7 @@ void update_title(void) {
 	const char *size_unit;
 
 	if (mode == MODE_THUMB) {
-		n = snprintf(win_title, TITLE_LEN, "sxiv: [%d/%d] %s",
+		n = snprintf(win_title, TITLE_LEN, "sxiv: %d/%d %s",
 		             tns.cnt ? tns.sel + 1 : 0, tns.cnt,
 		             tns.cnt ? files[tns.sel].name : "");
 	} else {
@@ -231,16 +231,16 @@ void update_title(void) {
 		size_readable(&size, &size_unit);
 
 		if (img.multi.cnt > 0)
-			snprintf(frame_info, sizeof(frame_info), "{%d/%d} ",
+			snprintf(frame_info, sizeof(frame_info), " (%d/%d)",
 			         img.multi.sel + 1, img.multi.cnt);
 		else
 			frame_info[0] = '\0';
 
 		n = snprintf(win_title, TITLE_LEN,
-		             "sxiv: [%d/%d] <%dx%d:%d%%> (%.2f%s) %s%s",
-		             fileidx + 1, filecnt, img.w, img.h,
+		             "sxiv: %d/%d%s %dx%d %d%% %.2f%s %s",
+		             fileidx + 1, filecnt, frame_info, img.w, img.h,
 		             (int) (img.zoom * 100.0), size, size_unit,
-		             frame_info, files[fileidx].name);
+		             files[fileidx].name);
 	}
 
 	if (n >= TITLE_LEN) {
