@@ -134,15 +134,6 @@ void size_readable(float *size, const char **unit) {
 	*unit = units[MIN(i, ARRLEN(units) - 1)];
 }
 
-void time_readable(float *time, const char **unit) {
-	const char *units[] = { "s", "m", "h" };
-	int i;
-
-	for (i = 0; i < ARRLEN(units) && *time >= 60.0; i++)
-		*time /= 60.0;
-	*unit = units[MIN(i, ARRLEN(units) - 1)];
-}
-
 char* absolute_path(const char *filename) {
 	size_t len;
 	const char *basename;

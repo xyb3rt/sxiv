@@ -52,7 +52,6 @@ typedef struct {
 void redraw(void);
 void reset_cursor(void);
 void animate(void);
-void slideshow(void);
 
 appmode_t mode;
 img_t img;
@@ -71,7 +70,6 @@ timeout_t timeouts[] = {
 	{ { 0, 0 }, false, redraw },
 	{ { 0, 0 }, false, reset_cursor },
 	{ { 0, 0 }, false, animate },
-	{ { 0, 0 }, false, slideshow },
 };
 
 void cleanup(void) {
@@ -220,10 +218,9 @@ void load_image(int new) {
 
 void update_title(void) {
 	int n;
-	char sshow_info[16];
 	char frame_info[16];
-	float size, time;
-	const char *size_unit, *time_unit;
+	float size;
+	const char *size_unit;
 
 	if (mode == MODE_THUMB) {
 		n = snprintf(win_title, TITLE_LEN, "sxiv: [%d/%d] %s",
@@ -233,14 +230,6 @@ void update_title(void) {
 		size = filesize;
 		size_readable(&size, &size_unit);
 
-		if (img.slideshow) {
-			time = img.ss_delay / 1000.0;
-			time_readable(&time, &time_unit);
-			snprintf(sshow_info, sizeof(sshow_info), "*%d%s* ",
-			         (int) time, time_unit);
-		} else {
-			sshow_info[0] = '\0';
-		}
 		if (img.multi.cnt > 0)
 			snprintf(frame_info, sizeof(frame_info), "{%d/%d} ",
 			         img.multi.sel + 1, img.multi.cnt);
@@ -248,10 +237,10 @@ void update_title(void) {
 			frame_info[0] = '\0';
 
 		n = snprintf(win_title, TITLE_LEN,
-		             "sxiv: [%d/%d] <%dx%d:%d%%> (%.2f%s) %s%s%s",
+		             "sxiv: [%d/%d] <%dx%d:%d%%> (%.2f%s) %s%s",
 		             fileidx + 1, filecnt, img.w, img.h,
 		             (int) (img.zoom * 100.0), size, size_unit,
-		             sshow_info, frame_info, files[fileidx].name);
+		             frame_info, files[fileidx].name);
 	}
 
 	if (n >= TITLE_LEN) {
@@ -263,17 +252,10 @@ void update_title(void) {
 }
 
 void redraw(void) {
-	if (mode == MODE_IMAGE) {
+	if (mode == MODE_IMAGE)
 		img_render(&img);
-		if (img.slideshow && !img.multi.animate) {
-			if (fileidx + 1 < filecnt)
-				set_timeout(slideshow, img.ss_delay, true);
-			else
-				img.slideshow = false;
-		}
-	} else {
+	else
 		tns_render(&tns);
-	}
 	update_title();
 	reset_timeout(redraw);
 	reset_cursor();
@@ -304,17 +286,6 @@ void animate(void) {
 	if (img_frame_animate(&img, false)) {
 		redraw();
 		set_timeout(animate, img.multi.frames[img.multi.sel].delay, true);
-	}
-}
-
-void slideshow(void) {
-	if (mode == MODE_IMAGE && !img.multi.animate) {
-		if (fileidx + 1 < filecnt) {
-			load_image(fileidx + 1);
-			redraw();
-		} else {
-			img.slideshow = false;
-		}
 	}
 }
 

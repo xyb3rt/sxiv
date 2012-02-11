@@ -68,8 +68,6 @@ void img_init(img_t *img, win_t *win) {
 	img->dirty = false;
 	img->aa = options->aa;
 	img->alpha = true;
-	img->slideshow = false;
-	img->ss_delay = SLIDESHOW_DELAY * 1000;
 	img->multi.cap = img->multi.cnt = 0;
 	img->multi.animate = false;
 }
@@ -725,7 +723,7 @@ bool img_frame_animate(img_t *img, bool restart) {
 		return false;
 
 	if (img->multi.sel + 1 >= img->multi.cnt) {
-		if (restart || (GIF_LOOP && !img->slideshow)) {
+		if (restart || GIF_LOOP) {
 			img_frame_goto(img, 0);
 		} else {
 			img->multi.animate = false;

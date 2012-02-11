@@ -36,7 +36,6 @@ void load_image(int);
 void redraw(void);
 void reset_cursor(void);
 void animate(void);
-void slideshow(void);
 void set_timeout(timeout_f, int, bool);
 void reset_timeout(timeout_f);
 
@@ -65,10 +64,6 @@ bool it_switch_mode(arg_t a) {
 			tns_init(&tns, filecnt, &win);
 		img_close(&img, false);
 		reset_timeout(reset_cursor);
-		if (img.slideshow) {
-			img.slideshow = false;
-			reset_timeout(slideshow);
-		}
 		tns.sel = fileidx;
 		tns.dirty = true;
 		mode = MODE_THUMB;
@@ -333,59 +328,6 @@ bool i_rotate(arg_t a) {
 		}
 	}
 	return false;
-}
-
-bool i_toggle_slideshow(arg_t a) {
-	if (mode == MODE_IMAGE) {
-		if (img.slideshow) {
-			img.slideshow = false;
-			reset_timeout(slideshow);
-			return true;
-		} else if (fileidx + 1 < filecnt) {
-			img.slideshow = true;
-			set_timeout(slideshow, img.ss_delay, true);
-			return true;
-		}
-	}
-	return false;
-}
-
-bool i_adjust_slideshow(arg_t a) {
-	long d = (long) a;
-	int i;
-
-	if (mode != MODE_IMAGE || !img.slideshow)
-		return false;
-
-	if (d < 0) {
-		for (i = ARRLEN(ss_delays) - 2; i >= 0; i--) {
-			if (img.ss_delay > ss_delays[i] * 1000) {
-				img.ss_delay = ss_delays[i] * 1000;
-				return true;
-			}
-		}
-	} else {
-		for (i = 1; i < ARRLEN(ss_delays); i++) {
-			if (img.ss_delay < ss_delays[i] * 1000) {
-				img.ss_delay = ss_delays[i] * 1000;
-				return true;
-			}
-		}
-	}
-	return false;
-}
-
-bool i_reset_slideshow(arg_t a) {
-	if (mode != MODE_IMAGE || !img.slideshow)
-		return false;
-	
-	if (prefix > 0) {
-		img.ss_delay = MIN(prefix, ss_delays[ARRLEN(ss_delays) - 1]);
-		img.ss_delay = MAX(img.ss_delay, ss_delays[0]) * 1000;
-	} else {
-		img.ss_delay = SLIDESHOW_DELAY * 1000;
-	}
-	return true;
 }
 
 bool i_toggle_antialias(arg_t a) {
