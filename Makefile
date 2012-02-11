@@ -3,7 +3,7 @@ VERSION = git-20120211
 CC      = gcc
 CFLAGS  = -ansi -Wall -pedantic -O2
 LDFLAGS =
-LIBS    = -lX11 -lImlib2
+LIBS    = -lX11 -lImlib2 -lgif
 
 PREFIX    = /usr/local
 MANPREFIX = $(PREFIX)/share/man
@@ -24,22 +24,19 @@ options:
 	@echo "CC $<"
 	@$(CC) $(CFLAGS) -DVERSION=\"$(VERSION)\" -c -o $@ $<
 
-$(OBJ) config: Makefile config.h
-
-config: config.c
-	@$(CC) $(CFLAGS) -o $@ $@.c
+$(OBJ): Makefile config.h
 
 config.h:
 	@echo "creating $@ from config.def.h"
 	@cp config.def.h $@
 
-sxiv:	$(OBJ) config
+sxiv:	$(OBJ)
 	@echo "CC -o $@"
-	@$(CC) $(LDFLAGS) -o $@ $(OBJ) $(LIBS) $$(./config -l)
+	@$(CC) $(LDFLAGS) -o $@ $(OBJ) $(LIBS)
 
 clean:
 	@echo "cleaning"
-	@rm -f $(OBJ) config sxiv sxiv-$(VERSION).tar.gz
+	@rm -f $(OBJ) sxiv sxiv-$(VERSION).tar.gz
 
 install: all
 	@echo "installing executable file to $(DESTDIR)$(PREFIX)/bin"

@@ -1,15 +1,3 @@
-#ifdef _FEATURE_CONFIG
-
-/* auto-orientate jpeg files according to their exif tags?
- * (requires libexif [-lexif] to be installed)
- */
-#define EXIF_SUPPORT 0
-/* load all frames from gif files and support gif animations?
- * (requires giflib [-lgif] to be installed)
- */
-#define GIF_SUPPORT  0
-
-#endif
 #ifdef _WINDOW_CONFIG
 
 /* default window dimensions (overwritten via -g option): */

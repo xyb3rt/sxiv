@@ -17,26 +17,18 @@
  */
 
 #define _POSIX_C_SOURCE 200112L
-#define _FEATURE_CONFIG
 #define _IMAGE_CONFIG
 
+#include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
 #include <unistd.h>
+#include <gif_lib.h>
 
 #include "image.h"
 #include "options.h"
 #include "util.h"
 #include "config.h"
-
-#if EXIF_SUPPORT
-#include <libexif/exif-data.h>
-#endif
-
-#if GIF_SUPPORT
-#include <stdlib.h>
-#include <sys/types.h>
-#include <gif_lib.h>
-#endif
 
 enum { MIN_GIF_DELAY = 50 };
 
@@ -72,55 +64,6 @@ void img_init(img_t *img, win_t *win) {
 	img->multi.animate = false;
 }
 
-#if EXIF_SUPPORT
-void exif_auto_orientate(const fileinfo_t *file) {
-	ExifData *ed;
-	ExifEntry *entry;
-	int byte_order, orientation;
-
-	if ((ed = exif_data_new_from_file(file->path)) == NULL)
-		return;
-	entry = exif_content_get_entry(ed->ifd[EXIF_IFD_0], EXIF_TAG_ORIENTATION);
-	if (entry != NULL) {
-		byte_order = exif_data_get_byte_order(ed);
-		orientation = exif_get_short(entry->data, byte_order);
-	}
-	exif_data_unref(ed);
-	if (entry == NULL)
-		return;
-
-	switch (orientation) {
-		case 5:
-			imlib_image_orientate(1);
-		case 2:
-			imlib_image_flip_vertical();
-			break;
-
-		case 3:
-			imlib_image_orientate(2);
-			break;
-
-		case 7:
-			imlib_image_orientate(1);
-		case 4:
-			imlib_image_flip_horizontal();
-			break;
-
-		case 6:
-			imlib_image_orientate(1);
-			break;
-
-		case 8:
-			imlib_image_orientate(3);
-			break;
-	}
-}
-#endif /* EXIF_SUPPORT */
-
-#if GIF_SUPPORT
-/* Originally based on, but in its current form merely inspired by Imlib2's
- * src/modules/loaders/loader_gif.c:load(), written by Carsten Haitzler.
- */
 bool img_load_gif(img_t *img, const fileinfo_t *file) {
 	GifFileType *gif;
 	GifRowType *rows = NULL;
@@ -290,7 +233,6 @@ bool img_load_gif(img_t *img, const fileinfo_t *file) {
 
 	return !err;
 }
-#endif /* GIF_SUPPORT */
 
 bool img_load(img_t *img, const fileinfo_t *file) {
 	const char *fmt;
@@ -312,14 +254,8 @@ bool img_load(img_t *img, const fileinfo_t *file) {
 		warn("could not open image: %s", file->name);
 		return false;
 	}
-#if EXIF_SUPPORT
-	if (STREQ(fmt, "jpeg"))
-		exif_auto_orientate(file);
-#endif
-#if GIF_SUPPORT
 	if (STREQ(fmt, "gif"))
 		img_load_gif(img, file);
-#endif
 
 	img->w = imlib_image_get_width();
 	img->h = imlib_image_get_height();

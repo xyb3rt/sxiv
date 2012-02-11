@@ -17,7 +17,6 @@
  */
 
 #define _POSIX_C_SOURCE 200112L
-#define _FEATURE_CONFIG
 #define _IMAGE_CONFIG
 
 #include <stdlib.h>
@@ -39,18 +38,6 @@ void print_usage(void) {
 
 void print_version(void) {
 	printf("sxiv %s - Simple X Image Viewer\n", VERSION);
-	printf("Additional features included (+) or not (-): %s, %s\n",
-#if EXIF_SUPPORT
-	       "+exif",
-#else
-	       "-exif",
-#endif
-#if GIF_SUPPORT
-	       "+gif"
-#else
-	       "-gif"
-#endif
-	      );
 }
 
 void parse_options(int argc, char **argv) {

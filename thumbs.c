@@ -17,7 +17,6 @@
  */
 
 #define _POSIX_C_SOURCE 200112L
-#define _FEATURE_CONFIG
 #define _THUMBS_CONFIG
 
 #include <stdlib.h>
@@ -30,10 +29,6 @@
 #include "thumbs.h"
 #include "util.h"
 #include "config.h"
-
-#if EXIF_SUPPORT
-void exif_auto_orientate(const fileinfo_t*);
-#endif
 
 const int thumb_dim = THUMB_SIZE + 10;
 char *cache_dir = NULL;
@@ -211,7 +206,7 @@ void tns_free(tns_t *tns) {
 }
 
 bool tns_load(tns_t *tns, int n, const fileinfo_t *file,
-             bool force, bool silent)
+              bool force, bool silent)
 {
 	int w, h;
 	bool use_cache, cache_hit = false;
@@ -259,10 +254,6 @@ bool tns_load(tns_t *tns, int n, const fileinfo_t *file,
 		imlib_free_image_and_decache();
 		return false;
 	}
-#if EXIF_SUPPORT
-	if (!cache_hit && STREQ(fmt, "jpeg"))
-		exif_auto_orientate(file);
-#endif
 
 	w = imlib_image_get_width();
 	h = imlib_image_get_height();
