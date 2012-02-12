@@ -6,11 +6,18 @@ enum {
 	WIN_HEIGHT = 600
 };
 
-/* default color for window background: */
-static const char * const BG_COLOR  = "#777777";
-/* default color for thumbnail selection: */
-static const char * const SEL_COLOR = "#DDDDDD";
-/* (see X(7) section "COLOR NAMES" for valid values) */
+/* bar font:
+ * (see X(7) section "FONT NAMES" for valid values)
+ */
+static const char * const BAR_FONT = "6x13";
+
+/* colors:
+ * (see X(7) section "COLOR NAMES" for valid values)
+ */
+static const char * const WIN_BG_COLOR = "#777777";
+static const char * const SEL_COLOR    = "#DDDDDD";
+static const char * const BAR_BG_COLOR = "#222222";
+static const char * const BAR_FG_COLOR = "#EEEEEE";
 
 #endif
 #ifdef _IMAGE_CONFIG

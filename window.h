@@ -40,15 +40,21 @@ typedef struct {
 	unsigned long white;
 	unsigned long bgcol;
 	unsigned long selcol;
+	unsigned long barbgcol;
+	unsigned long barfgcol;
 	Pixmap pm;
 
 	int x;
 	int y;
 	unsigned int w;
 	unsigned int h;
+	unsigned int barh;
 	unsigned int bw;
 
 	bool fullscreen;
+
+	const char *lbar;
+	const char *rbar;
 } win_t;
 
 extern Atom wm_delete_win;
@@ -68,6 +74,7 @@ void win_draw_rect(win_t*, Pixmap, int, int, int, int, bool, int,
                    unsigned long);
 
 void win_set_title(win_t*, const char*);
+void win_set_bar_info(win_t*, const char*, const char*);
 void win_set_cursor(win_t*, cursor_t);
 
 #endif /* WINDOW_H */

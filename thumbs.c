@@ -385,7 +385,6 @@ void tns_highlight(tns_t *tns, int n, bool hl) {
 		win_draw_rect(win, win->pm, x - 3, y - 3, THUMB_SIZE + 6, THUMB_SIZE + 6,
 		              false, 2, col);
 	}
-	win_draw(win);
 }
 
 bool tns_move_selection(tns_t *tns, direction_t dir) {

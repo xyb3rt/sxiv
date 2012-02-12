@@ -414,8 +414,6 @@ void img_render(img_t *img) {
 	imlib_context_set_drawable(win->pm);
 	imlib_render_image_part_on_drawable_at_size(sx, sy, sw, sh, dx, dy, dw, dh);
 
-	win_draw(win);
-
 	img->dirty = false;
 }
 

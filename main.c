@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <libgen.h>
 #include <unistd.h>
 #include <sys/stat.h>
 #include <sys/time.h>
@@ -38,8 +39,8 @@
 #include "config.h"
 
 enum {
-	TITLE_LEN = 256,
-	FNAME_CNT = 1024
+	INFO_STR_LEN = 256,
+	FILENAME_CNT = 1024
 };
 
 typedef struct {
@@ -64,7 +65,9 @@ size_t filesize;
 
 int prefix;
 
-char win_title[TITLE_LEN];
+char win_bar_l[INFO_STR_LEN];
+char win_bar_r[INFO_STR_LEN];
+char win_title[INFO_STR_LEN];
 
 timeout_t timeouts[] = {
 	{ { 0, 0 }, false, redraw },
@@ -105,6 +108,7 @@ void check_add_file(char *filename) {
 	}
 	files[fileidx].loaded = false;
 	files[fileidx].name = s_strdup(filename);
+	files[fileidx].base = s_strdup(basename(filename));
 	if (*filename == '/')
 		files[fileidx].path = files[fileidx].name;
 	fileidx++;
@@ -216,39 +220,43 @@ void load_image(int new) {
 		reset_timeout(animate);
 }
 
-void update_title(void) {
-	int n;
+void update_info(void) {
+	unsigned int i, fw, pw;
 	char frame_info[16];
-	float size;
 	const char *size_unit;
+	float size = filesize;
+
+	pw = 0;
+	for (i = filecnt; i > 0; i /= 10)
+		pw++;
 
 	if (mode == MODE_THUMB) {
-		n = snprintf(win_title, TITLE_LEN, "sxiv: %d/%d %s",
-		             tns.cnt ? tns.sel + 1 : 0, tns.cnt,
-		             tns.cnt ? files[tns.sel].name : "");
+		snprintf(win_bar_l, sizeof win_bar_l, "%0*d/%d  %s",
+		         pw, tns.cnt > 0 ? tns.sel + 1 : 0, filecnt,
+		         tns.cnt > 0 ? files[tns.sel].base : "");
+		win_bar_r[0] = '\0';
+		snprintf(win_title, sizeof win_title, "sxiv");
 	} else {
-		size = filesize;
 		size_readable(&size, &size_unit);
-
-		if (img.multi.cnt > 0)
-			snprintf(frame_info, sizeof(frame_info), " (%d/%d)",
-			         img.multi.sel + 1, img.multi.cnt);
-		else
+		if (img.multi.cnt > 0) {
+			fw = 0;
+			for (i = img.multi.cnt; i > 0; i /= 10)
+				fw++;
+			snprintf(frame_info, sizeof frame_info, "  %0*d/%d",
+			         fw, img.multi.sel + 1, img.multi.cnt);
+		} else {
 			frame_info[0] = '\0';
-
-		n = snprintf(win_title, TITLE_LEN,
-		             "sxiv: %d/%d%s %dx%d %d%% %.2f%s %s",
-		             fileidx + 1, filecnt, frame_info, img.w, img.h,
-		             (int) (img.zoom * 100.0), size, size_unit,
-		             files[fileidx].name);
+		}
+		snprintf(win_bar_l, sizeof win_bar_l, "%0*d/%d  %s",
+		         pw, fileidx + 1, filecnt, files[fileidx].base);
+		snprintf(win_bar_r, sizeof win_bar_r, "%.2f%s  %dx%d  %3d%%%s",
+		         size, size_unit, img.w, img.h, (int) (img.zoom * 100.0),
+						 frame_info);
+		snprintf(win_title, sizeof win_title, "sxiv - %s",
+		         files[fileidx].name);
 	}
-
-	if (n >= TITLE_LEN) {
-		for (n = 0; n < 3; n++)
-			win_title[TITLE_LEN - n - 2] = '.';
-	}
-
 	win_set_title(&win, win_title);
+	win_set_bar_info(&win, win_bar_l, win_bar_r);
 }
 
 void redraw(void) {
@@ -256,7 +264,8 @@ void redraw(void) {
 		img_render(&img);
 	else
 		tns_render(&tns);
-	update_title();
+	update_info();
+	win_draw(&win);
 	reset_timeout(redraw);
 	reset_cursor();
 }
@@ -466,7 +475,7 @@ int main(int argc, char **argv) {
 	}
 
 	if (options->recursive || options->from_stdin)
-		filecnt = FNAME_CNT;
+		filecnt = FILENAME_CNT;
 	else
 		filecnt = options->filecnt;
 

@@ -34,6 +34,7 @@ typedef enum {
 typedef struct {
 	const char *name; /* as given by user */
 	const char *path; /* always absolute */
+	const char *base;
 	bool loaded;
 } fileinfo_t;
 
