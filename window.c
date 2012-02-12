@@ -54,11 +54,8 @@ void win_init_font(Display *dpy, const char *fontstr) {
 	char *def, **missing;
 
 	font.set = XCreateFontSet(dpy, fontstr, &missing, &n, &def);
-	if (missing) {
-		while (n--)
-			warn("missing fontset: %s", missing[n]);
+	if (missing)
 		XFreeStringList(missing);
-	}
 	if (font.set) {
 		XFontStruct **xfonts;
 		char **font_names;
