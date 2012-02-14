@@ -271,7 +271,7 @@ bool tns_load(tns_t *tns, int n, const fileinfo_t *file,
 	imlib_free_image_and_decache();
 
 	if (use_cache && !cache_hit)
-		tns_cache_write(t, false);
+		tns_cache_write(t, true);
 
 	tns->dirty = true;
 	return true;

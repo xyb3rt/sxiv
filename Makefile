@@ -1,4 +1,4 @@
-VERSION = git-20120212
+VERSION = git-20120214
 
 CC      = gcc
 CFLAGS  = -ansi -Wall -pedantic -O2
@@ -8,7 +8,7 @@ LIBS    = -lX11 -lImlib2 -lgif
 PREFIX    = /usr/local
 MANPREFIX = $(PREFIX)/share/man
 
-SRC = commands.c image.c main.c options.c thumbs.c util.c window.c
+SRC = commands.c exif.c image.c main.c options.c thumbs.c util.c window.c
 OBJ = $(SRC:.c=.o)
 
 all: options sxiv
