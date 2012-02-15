@@ -231,11 +231,15 @@ void update_info(void) {
 		pw++;
 
 	if (mode == MODE_THUMB) {
-		snprintf(win_bar_l, sizeof win_bar_l, "%0*d/%d%s%s",
-		         pw, tns.cnt > 0 ? tns.sel + 1 : 0, filecnt, BAR_SEPARATOR,
-		         tns.cnt > 0 ? files[tns.sel].base : "");
-		win_bar_r[0] = '\0';
-		snprintf(win_title, sizeof win_title, "sxiv");
+		if (tns.cnt != filecnt) {
+			snprintf(win_bar_l, sizeof win_bar_l, "Loading... %0*d/%d",
+			         pw, tns.cnt, filecnt);
+		} else {
+			snprintf(win_bar_l, sizeof win_bar_l, "%0*d/%d%s%s",
+			         pw, tns.sel + 1, filecnt, BAR_SEPARATOR, files[tns.sel].base);
+		}
+		win_set_title(&win, "sxiv");
+		win_set_bar_info(&win, win_bar_l, NULL);
 	} else {
 		size_readable(&size, &size_unit);
 		if (img.multi.cnt > 0) {
@@ -252,11 +256,10 @@ void update_info(void) {
 		snprintf(win_bar_r, sizeof win_bar_r, "%.2f%s%s%dx%d%s%3d%%%s",
 		         size, size_unit, BAR_SEPARATOR, img.w, img.h, BAR_SEPARATOR,
 		         (int) (img.zoom * 100.0), frame_info);
-		snprintf(win_title, sizeof win_title, "sxiv - %s",
-		         files[fileidx].name);
+		snprintf(win_title, sizeof win_title, "sxiv - %s", files[fileidx].name);
+		win_set_title(&win, win_title);
+		win_set_bar_info(&win, win_bar_l, win_bar_r);
 	}
-	win_set_title(&win, win_title);
-	win_set_bar_info(&win, win_bar_l, win_bar_r);
 }
 
 void redraw(void) {
