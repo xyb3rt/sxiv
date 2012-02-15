@@ -1,5 +1,5 @@
 /* sxiv: window.c
- * Copyright (c) 2011 Bert Muennich <be.muennich at googlemail.com>
+ * Copyright (c) 2012 Bert Muennich <be.muennich at googlemail.com>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
