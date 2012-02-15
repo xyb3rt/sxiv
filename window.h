@@ -23,6 +23,8 @@
 
 #include "types.h"
 
+#define BAR_SEPARATOR " | "
+
 typedef struct {
 	Display *dpy;
 	int scr;

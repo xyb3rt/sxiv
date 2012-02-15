@@ -334,7 +334,7 @@ int win_textwidth(const char *text, unsigned int len) {
 }
 void win_draw_bar(win_t *win) {
 	win_env_t *e;
-	int len, x, y, w, tw = 0;
+	int len, x, y, w, tw = 0, seplen;
 	const char *rt;
 
 	if (win == NULL || win->xwin == None)
@@ -363,11 +363,12 @@ void win_draw_bar(win_t *win) {
 	}
 	if (win->rbar != NULL) {
 		len = strlen(win->rbar);
+		seplen = strlen(BAR_SEPARATOR);
 		rt = win->rbar;
 		while (len > 0 && (tw = win_textwidth(rt, len)) > w) {
-			rt = strstr(rt, "  ");
+			rt = strstr(rt, BAR_SEPARATOR);
 			if (rt != NULL) {
-				rt += 2;
+				rt += seplen;
 				len = strlen(rt);
 			} else {
 				len = 0;

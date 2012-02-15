@@ -231,8 +231,8 @@ void update_info(void) {
 		pw++;
 
 	if (mode == MODE_THUMB) {
-		snprintf(win_bar_l, sizeof win_bar_l, "%0*d/%d  %s",
-		         pw, tns.cnt > 0 ? tns.sel + 1 : 0, filecnt,
+		snprintf(win_bar_l, sizeof win_bar_l, "%0*d/%d%s%s",
+		         pw, tns.cnt > 0 ? tns.sel + 1 : 0, filecnt, BAR_SEPARATOR,
 		         tns.cnt > 0 ? files[tns.sel].base : "");
 		win_bar_r[0] = '\0';
 		snprintf(win_title, sizeof win_title, "sxiv");
@@ -242,16 +242,16 @@ void update_info(void) {
 			fw = 0;
 			for (i = img.multi.cnt; i > 0; i /= 10)
 				fw++;
-			snprintf(frame_info, sizeof frame_info, "  %0*d/%d",
-			         fw, img.multi.sel + 1, img.multi.cnt);
+			snprintf(frame_info, sizeof frame_info, "%s%0*d/%d",
+			         BAR_SEPARATOR, fw, img.multi.sel + 1, img.multi.cnt);
 		} else {
 			frame_info[0] = '\0';
 		}
-		snprintf(win_bar_l, sizeof win_bar_l, "%0*d/%d  %s",
-		         pw, fileidx + 1, filecnt, files[fileidx].base);
-		snprintf(win_bar_r, sizeof win_bar_r, "%.2f%s  %dx%d  %3d%%%s",
-		         size, size_unit, img.w, img.h, (int) (img.zoom * 100.0),
-						 frame_info);
+		snprintf(win_bar_l, sizeof win_bar_l, "%0*d/%d%s%s",
+		         pw, fileidx + 1, filecnt, BAR_SEPARATOR, files[fileidx].base);
+		snprintf(win_bar_r, sizeof win_bar_r, "%.2f%s%s%dx%d%s%3d%%%s",
+		         size, size_unit, BAR_SEPARATOR, img.w, img.h, BAR_SEPARATOR,
+		         (int) (img.zoom * 100.0), frame_info);
 		snprintf(win_title, sizeof win_title, "sxiv - %s",
 		         files[fileidx].name);
 	}
