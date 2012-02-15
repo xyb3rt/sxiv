@@ -49,7 +49,7 @@ typedef struct {
 	int x;
 	int y;
 	unsigned int w;
-	unsigned int h;
+	unsigned int h; /* = win height - bar height */
 	unsigned int barh;
 	unsigned int bw;
 

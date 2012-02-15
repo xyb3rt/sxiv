@@ -55,9 +55,6 @@ typedef struct {
 	bool aa;
 	bool alpha;
 
-	bool slideshow;
-	int ss_delay; /* in ms */
-
 	multi_img_t multi;
 } img_t;
 
