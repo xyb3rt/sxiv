@@ -117,7 +117,6 @@ int exif_orientation(const fileinfo_t *file) {
 	for (idx += 2; cnt > 0 && idx < len - 12; cnt--, idx += 12) {
 		if (btous(data + idx, order) == EXIF_TAG_ORIENTATION) {
 			val = btous(data + idx + 8, order);
-			printf("exif orientation: %s: %u\n", file->name, val);
 			break;
 		}
 	}
