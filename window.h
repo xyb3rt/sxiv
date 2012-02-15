@@ -69,6 +69,7 @@ bool win_configure(win_t*, XConfigureEvent*);
 bool win_moveresize(win_t*, int, int, unsigned int, unsigned int);
 
 void win_toggle_fullscreen(win_t*);
+void win_toggle_bar(win_t*);
 
 void win_clear(win_t*);
 void win_draw(win_t*);

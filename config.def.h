@@ -60,6 +60,7 @@ static const keymap_t keys[] = {
 	{ false,  XK_q,             it_quit,              (arg_t) None },
 	{ false,  XK_Return,        it_switch_mode,       (arg_t) None },
 	{ false,  XK_f,             it_toggle_fullscreen, (arg_t) None },
+	{ false,  XK_b,             it_toggle_bar,        (arg_t) None },
 
 	{ false,  XK_r,             it_reload_image,      (arg_t) None },
 	{ false,  XK_D,             it_remove_image,      (arg_t) None },

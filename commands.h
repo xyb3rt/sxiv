@@ -44,6 +44,7 @@ typedef struct {
 bool it_quit(arg_t);
 bool it_switch_mode(arg_t);
 bool it_toggle_fullscreen(arg_t);
+bool it_toggle_bar(arg_t);
 bool it_reload_image(arg_t);
 bool it_remove_image(arg_t);
 bool i_navigate(arg_t);

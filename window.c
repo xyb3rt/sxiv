@@ -306,6 +306,19 @@ void win_toggle_fullscreen(win_t *win) {
 	           SubstructureNotifyMask | SubstructureRedirectMask, &ev);
 }
 
+void win_toggle_bar(win_t *win) {
+	if (win == NULL || win->xwin == None)
+		return;
+
+	if (win->barh != 0) {
+		win->h += win->barh;
+		win->barh = 0;
+	} else {
+		win->barh = font.ascent + font.descent + 2 * V_TEXT_PAD;
+		win->h -= win->barh;
+	}
+}
+
 void win_clear(win_t *win) {
 	win_env_t *e;
 

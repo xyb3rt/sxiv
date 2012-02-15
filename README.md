@@ -88,6 +88,7 @@ The following general key commands are available:
 
     f            Toggle fullscreen mode (requires an EWMH/NetWM compliant
                  window manager)
+    b            Toggle visibility of info bar on bottom of window
     A            Toggle visibility of alpha-channel, i.e. transparency
 
     r            Reload image

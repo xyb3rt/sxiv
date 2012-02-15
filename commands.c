@@ -76,12 +76,22 @@ bool it_switch_mode(arg_t a) {
 
 bool it_toggle_fullscreen(arg_t a) {
 	win_toggle_fullscreen(&win);
+	/* redraw after next ConfigureNotify event */
 	set_timeout(redraw, TO_REDRAW_RESIZE, false);
 	if (mode == MODE_IMAGE)
 		img.checkpan = true;
 	else
 		tns.dirty = true;
 	return false;
+}
+
+bool it_toggle_bar(arg_t a) {
+	win_toggle_bar(&win);
+	if (mode == MODE_IMAGE)
+		img.checkpan = img.dirty = true;
+	else
+		tns.dirty = true;
+	return true;
 }
 
 bool it_reload_image(arg_t a) {
