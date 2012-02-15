@@ -7,6 +7,11 @@ typedef enum {
 } bool;
 
 typedef enum {
+	BO_BIG_ENDIAN,
+	BO_LITTLE_ENDIAN
+} byteorder_t;
+
+typedef enum {
 	MODE_IMAGE,
 	MODE_THUMB
 } appmode_t;

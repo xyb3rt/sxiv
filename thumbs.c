@@ -26,6 +26,7 @@
 #include <unistd.h>
 #include <utime.h>
 
+#include "exif.h"
 #include "thumbs.h"
 #include "util.h"
 #include "config.h"
@@ -254,6 +255,8 @@ bool tns_load(tns_t *tns, int n, const fileinfo_t *file,
 		imlib_free_image_and_decache();
 		return false;
 	}
+	if (STREQ(fmt, "jpeg"))
+		exif_auto_orientate(file);
 
 	w = imlib_image_get_width();
 	h = imlib_image_get_height();

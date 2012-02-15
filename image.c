@@ -25,6 +25,7 @@
 #include <unistd.h>
 #include <gif_lib.h>
 
+#include "exif.h"
 #include "image.h"
 #include "options.h"
 #include "util.h"
@@ -62,6 +63,34 @@ void img_init(img_t *img, win_t *win) {
 	img->alpha = true;
 	img->multi.cap = img->multi.cnt = 0;
 	img->multi.animate = false;
+}
+
+void exif_auto_orientate(const fileinfo_t *file) {
+	switch (exif_orientation(file)) {
+		case 5:
+			imlib_image_orientate(1);
+		case 2:
+			imlib_image_flip_vertical();
+			break;
+
+		case 3:
+			imlib_image_orientate(2);
+			break;
+
+		case 7:
+			imlib_image_orientate(1);
+		case 4:
+			imlib_image_flip_horizontal();
+			break;
+
+		case 6:
+			imlib_image_orientate(1);
+			break;
+
+		case 8:
+			imlib_image_orientate(3);
+			break;
+	}
 }
 
 bool img_load_gif(img_t *img, const fileinfo_t *file) {
@@ -254,6 +283,8 @@ bool img_load(img_t *img, const fileinfo_t *file) {
 		warn("could not open image: %s", file->name);
 		return false;
 	}
+	if (STREQ(fmt, "jpeg"))
+		exif_auto_orientate(file);
 	if (STREQ(fmt, "gif"))
 		img_load_gif(img, file);
 
