@@ -38,6 +38,7 @@ typedef struct {
 	/* window: */
 	bool fixed_win;
 	bool fullscreen;
+	bool hide_bar;
 	char *geometry;
 
 	/* misc flags: */

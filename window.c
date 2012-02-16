@@ -121,6 +121,7 @@ void win_init(win_t *win) {
 	win->xwin = 0;
 	win->pm = 0;
 	win->fullscreen = false;
+	win->barh = 0;
 	win->lbar = NULL;
 	win->rbar = NULL;
 
@@ -209,8 +210,10 @@ void win_open(win_t *win) {
 	classhint.res_class = "sxiv";
 	XSetClassHint(e->dpy, win->xwin, &classhint);
 
-	win->barh = font.ascent + font.descent + 2 * V_TEXT_PAD;
-	win->h -= win->barh;
+	if (!options->hide_bar) {
+		win->barh = font.ascent + font.descent + 2 * V_TEXT_PAD;
+		win->h -= win->barh;
+	}
 
 	if (options->fixed_win)
 		win_set_sizehints(win);
