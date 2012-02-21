@@ -22,7 +22,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <libgen.h>
 #include <unistd.h>
 #include <sys/stat.h>
 #include <sys/time.h>
@@ -87,6 +86,8 @@ void cleanup(void) {
 }
 
 void check_add_file(char *filename) {
+	const char *bn;
+
 	if (filename == NULL || *filename == '\0')
 		return;
 
@@ -108,9 +109,12 @@ void check_add_file(char *filename) {
 	}
 	files[fileidx].loaded = false;
 	files[fileidx].name = s_strdup(filename);
-	files[fileidx].base = s_strdup(basename(filename));
 	if (*filename == '/')
 		files[fileidx].path = files[fileidx].name;
+	if ((bn = strrchr(files[fileidx].name , '/')) != NULL && bn[1] != '\0')
+		files[fileidx].base = ++bn;
+	else
+		files[fileidx].base = files[fileidx].name;
 	fileidx++;
 }
 
@@ -221,7 +225,7 @@ void load_image(int new) {
 }
 
 void update_info(void) {
-	unsigned int i, fw, pw;
+	int i, fw, pw, fi, ln, rn;
 	char frame_info[16];
 	const char *size_unit;
 	float size = filesize;
@@ -235,8 +239,13 @@ void update_info(void) {
 			snprintf(win_bar_l, sizeof win_bar_l, "Loading... %0*d/%d",
 			         pw, tns.cnt, filecnt);
 		} else {
-			snprintf(win_bar_l, sizeof win_bar_l, "%0*d/%d%s%s",
-			         pw, tns.sel + 1, filecnt, BAR_SEPARATOR, files[tns.sel].base);
+			fi = snprintf(win_bar_l, sizeof win_bar_l, "%0*d/%d%s",
+			              pw, tns.sel + 1, filecnt, BAR_SEPARATOR);
+			ln = snprintf(win_bar_l + fi, sizeof win_bar_l - fi, "%s",
+			              files[tns.sel].name) + fi;
+			if (win_textwidth(win_bar_l, ln, true) > win.w)
+				snprintf(win_bar_l + fi, sizeof win_bar_l - fi, "%s",
+				         files[tns.sel].base);
 		}
 		win_set_title(&win, "sxiv");
 		win_set_bar_info(&win, win_bar_l, NULL);
@@ -247,18 +256,28 @@ void update_info(void) {
 			for (i = img.multi.cnt; i > 0; i /= 10)
 				fw++;
 			snprintf(frame_info, sizeof frame_info, "%s%0*d/%d",
-			         BAR_SEPARATOR, fw, img.multi.sel + 1, img.multi.cnt);
+			         BAR_SEPARATOR, fw, img.multi.sel+1, img.multi.cnt);
 		} else {
 			frame_info[0] = '\0';
 		}
-		snprintf(win_bar_l, sizeof win_bar_l, "%0*d/%d%s%s",
-		         pw, fileidx + 1, filecnt, BAR_SEPARATOR, files[fileidx].base);
-		snprintf(win_bar_r, sizeof win_bar_r, "%.2f%s%s%dx%d%s%3d%%%s",
-		         size, size_unit, BAR_SEPARATOR, img.w, img.h, BAR_SEPARATOR,
-		         (int) (img.zoom * 100.0), frame_info);
+		fi = snprintf(win_bar_l, sizeof win_bar_l, "%0*d/%d%s",
+		              pw, fileidx + 1, filecnt, BAR_SEPARATOR);
+		ln = snprintf(win_bar_l + fi, sizeof win_bar_l - fi, "%s",
+		              files[fileidx].name) + fi;
+		rn = snprintf(win_bar_r, sizeof win_bar_r, "%.2f%s%s%dx%d%s%3d%%%s",
+		              size, size_unit, BAR_SEPARATOR, img.w, img.h, BAR_SEPARATOR,
+		              (int) (img.zoom * 100.0), frame_info);
+
+		if (win_textwidth(win_bar_l, ln, true) +
+		    win_textwidth(win_bar_r, rn, true) > win.w)
+		{
+			snprintf(win_bar_l + fi, sizeof win_bar_l - fi, "%s",
+			         files[fileidx].base);
+		}
+		win_set_bar_info(&win, win_bar_l, win_bar_r);
+
 		snprintf(win_title, sizeof win_title, "sxiv - %s", files[fileidx].name);
 		win_set_title(&win, win_title);
-		win_set_bar_info(&win, win_bar_l, win_bar_r);
 	}
 }
 

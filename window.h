@@ -76,6 +76,8 @@ void win_draw(win_t*);
 void win_draw_rect(win_t*, Pixmap, int, int, int, int, bool, int,
                    unsigned long);
 
+int win_textwidth(const char*, unsigned int, bool);
+
 void win_set_title(win_t*, const char*);
 void win_set_bar_info(win_t*, const char*, const char*);
 void win_set_cursor(win_t*, cursor_t);

@@ -338,16 +338,6 @@ void win_clear(win_t *win) {
 	XFillRectangle(e->dpy, win->pm, gc, 0, 0, e->scrw, e->scrh);
 }
 
-int win_textwidth(const char *text, unsigned int len) {
-	XRectangle r;
-
-	if (font.set) {
-		XmbTextExtents(font.set, text, len, NULL, &r);
-		return r.width;
-	} else {
-		return XTextWidth(font.xfont, text, len);
-	}
-}
 void win_draw_bar(win_t *win) {
 	win_env_t *e;
 	int len, x, y, w, tw = 0, seplen;
@@ -369,7 +359,7 @@ void win_draw_bar(win_t *win) {
 
 	if (win->lbar != NULL) {
 		len = strlen(win->lbar);
-		while (len > 0 && (tw = win_textwidth(win->lbar, len)) > w)
+		while (len > 0 && (tw = win_textwidth(win->lbar, len, false)) > w)
 			len--;
 		w -= tw + 2 * H_TEXT_PAD;
 		if (font.set)
@@ -381,7 +371,7 @@ void win_draw_bar(win_t *win) {
 		len = strlen(win->rbar);
 		seplen = strlen(BAR_SEPARATOR);
 		rt = win->rbar;
-		while (len > 0 && (tw = win_textwidth(rt, len)) > w) {
+		while (len > 0 && (tw = win_textwidth(rt, len, false)) > w) {
 			rt = strstr(rt, BAR_SEPARATOR);
 			if (rt != NULL) {
 				rt += seplen;
@@ -425,6 +415,18 @@ void win_draw_rect(win_t *win, Pixmap pm, int x, int y, int w, int h,
 		XFillRectangle(win->env.dpy, pm, gc, x, y, w, h);
 	else
 		XDrawRectangle(win->env.dpy, pm, gc, x, y, w, h);
+}
+
+int win_textwidth(const char *text, unsigned int len, bool with_padding) {
+	XRectangle r;
+	int padding = with_padding ? 2 * H_TEXT_PAD : 0;
+
+	if (font.set) {
+		XmbTextExtents(font.set, text, len, NULL, &r);
+		return r.width + padding;
+	} else {
+		return XTextWidth(font.xfont, text, len) + padding;
+	}
 }
 
 void win_set_title(win_t *win, const char *title) {
