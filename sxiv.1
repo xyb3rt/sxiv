@@ -309,6 +309,15 @@ to remove empty subdirectories:
 .RS
 find \-type d \-empty \-delete
 .RE
+.P
+If the version of
+.I find
+installed on your local system does not support the \-delete option, then you
+can also try the following command:
+.P
+.RS
+find . \-depth \-type d \-empty ! \-name '.' \-exec rmdir {} \\;
+.RE
 .SH AUTHORS
 .EX
 Bert Muennich <ber.t at gmx.com>
