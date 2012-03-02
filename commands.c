@@ -262,8 +262,10 @@ bool i_drag(arg_t a) {
 		if (dragging)
 			next = XCheckIfEvent(win.env.dpy, &e, is_motionnotify, None);
 		if ((!dragging || !next) && (dx != 0 || dy != 0)) {
-			if (img_move(&img, dx, dy))
+			if (img_move(&img, dx, dy)) {
 				img_render(&img);
+				win_draw(&win);
+			}
 			dx = dy = 0;
 		}
 	}
