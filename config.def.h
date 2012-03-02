@@ -15,6 +15,7 @@ static const char * const BAR_FONT = "fixed";
  * (see X(7) section "COLOR NAMES" for valid values)
  */
 static const char * const WIN_BG_COLOR = "#777777";
+static const char * const WIN_FS_COLOR = "#000000";
 static const char * const SEL_COLOR    = "#DDDDDD";
 static const char * const BAR_BG_COLOR = "#222222";
 static const char * const BAR_FG_COLOR = "#EEEEEE";

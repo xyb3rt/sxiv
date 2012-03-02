@@ -110,10 +110,9 @@ void win_init(win_t *win) {
 	e->cmap = DefaultColormap(e->dpy, e->scr);
 	e->depth = DefaultDepth(e->dpy, e->scr);
 
-	win->black = BlackPixel(e->dpy, e->scr);
-	win->white = WhitePixel(e->dpy, e->scr);
-
+	win->white    = WhitePixel(e->dpy, e->scr);
 	win->bgcol    = win_alloc_color(win, WIN_BG_COLOR);
+	win->fscol    = win_alloc_color(win, WIN_FS_COLOR);
 	win->selcol   = win_alloc_color(win, SEL_COLOR);
 	win->barbgcol = win_alloc_color(win, BAR_BG_COLOR);
 	win->barfgcol = win_alloc_color(win, BAR_FG_COLOR);
@@ -195,7 +194,7 @@ void win_open(win_t *win) {
 	cwatch = XCreateFontCursor(e->dpy, XC_watch);
 
 	if (XAllocNamedColor(e->dpy, DefaultColormap(e->dpy, e->scr), "black",
-		                    &col, &col) == 0)
+	                     &col, &col) == 0)
 	{
 		die("could not allocate color: black");
 	}
@@ -334,7 +333,7 @@ void win_clear(win_t *win) {
 		XFreePixmap(e->dpy, win->pm);
 	win->pm = XCreatePixmap(e->dpy, win->xwin, e->scrw, e->scrh, e->depth);
 
-	XSetForeground(e->dpy, gc, win->fullscreen ? win->black : win->bgcol);
+	XSetForeground(e->dpy, gc, win->fullscreen ? win->fscol : win->bgcol);
 	XFillRectangle(e->dpy, win->pm, gc, 0, 0, e->scrw, e->scrh);
 }
 

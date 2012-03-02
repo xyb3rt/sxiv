@@ -379,7 +379,7 @@ void tns_highlight(tns_t *tns, int n, bool hl) {
 		if (hl)
 			col = win->selcol;
 		else if (win->fullscreen)
-			col = win->black;
+			col = win->fscol;
 		else
 			col = win->bgcol;
 
