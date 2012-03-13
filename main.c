@@ -53,6 +53,7 @@ typedef struct {
 void redraw(void);
 void reset_cursor(void);
 void animate(void);
+void clear_resize(void);
 
 appmode_t mode;
 img_t img;
@@ -65,6 +66,8 @@ size_t filesize;
 
 int prefix;
 
+bool resized = false;
+
 char win_bar_l[INFO_STR_LEN];
 char win_bar_r[INFO_STR_LEN];
 char win_title[INFO_STR_LEN];
@@ -73,6 +76,7 @@ timeout_t timeouts[] = {
 	{ { 0, 0 }, false, redraw },
 	{ { 0, 0 }, false, reset_cursor },
 	{ { 0, 0 }, false, animate },
+	{ { 0, 0 }, false, clear_resize },
 };
 
 void cleanup(void) {
@@ -321,6 +325,10 @@ void animate(void) {
 	}
 }
 
+void clear_resize(void) {
+	resized = false;
+}
+
 bool keymask(const keymap_t *k, unsigned int state) {
 	return (k->ctrl ? ControlMask : 0) == (state & ControlMask);
 }
@@ -452,11 +460,17 @@ void run(void) {
 				break;
 			case ConfigureNotify:
 				if (win_configure(&win, &ev.xconfigure)) {
-					set_timeout(redraw, TO_REDRAW_RESIZE, false);
 					if (mode == MODE_IMAGE)
 						img.checkpan = true;
 					else
 						tns.dirty = true;
+					if (!resized || win.fullscreen) {
+						redraw();
+						set_timeout(clear_resize, TO_REDRAW_RESIZE, false);
+						resized = true;
+					} else {
+						set_timeout(redraw, TO_REDRAW_RESIZE, false);
+					}
 				}
 				break;
 			case KeyPress:
