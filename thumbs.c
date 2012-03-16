@@ -399,14 +399,6 @@ bool tns_move_selection(tns_t *tns, direction_t dir) {
 	old = tns->sel;
 
 	switch (dir) {
-		case DIR_LEFT:
-			if (tns->sel > 0)
-				tns->sel--;
-			break;
-		case DIR_RIGHT:
-			if (tns->sel < tns->cnt - 1)
-				tns->sel++;
-			break;
 		case DIR_UP:
 			if (tns->sel >= tns->cols)
 				tns->sel -= tns->cols;
@@ -414,6 +406,16 @@ bool tns_move_selection(tns_t *tns, direction_t dir) {
 		case DIR_DOWN:
 			if (tns->sel + tns->cols < tns->cnt)
 				tns->sel += tns->cols;
+			else if (tns->sel < tns->cnt - tns->cnt % tns->cols)
+				tns->sel = tns->cnt - 1;
+			break;
+		case DIR_LEFT:
+			if (tns->sel > 0)
+				tns->sel--;
+			break;
+		case DIR_RIGHT:
+			if (tns->sel < tns->cnt - 1)
+				tns->sel++;
 			break;
 	}
 
