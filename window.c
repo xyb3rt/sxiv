@@ -393,7 +393,8 @@ void win_draw(win_t *win) {
 	if (win == NULL || win->xwin == None)
 		return;
 
-	win_draw_bar(win);
+	if (win->barh > 0)
+		win_draw_bar(win);
 
 	XSetWindowBackgroundPixmap(win->env.dpy, win->xwin, win->pm);
 	XClearWindow(win->env.dpy, win->xwin);
