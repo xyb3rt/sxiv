@@ -206,7 +206,7 @@ void win_open(win_t *win) {
 	win_set_title(win, "sxiv");
 
 	classhint.res_name = "sxiv";
-	classhint.res_class = "sxiv";
+	classhint.res_class = "Sxiv";
 	XSetClassHint(e->dpy, win->xwin, &classhint);
 
 	if (!options->hide_bar) {
