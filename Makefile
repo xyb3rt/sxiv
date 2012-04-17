@@ -1,4 +1,4 @@
-VERSION = git-20120328
+VERSION = git-20120417
 
 CC      = gcc
 CFLAGS  = -ansi -Wall -pedantic -O2
@@ -51,7 +51,7 @@ install: all
 uninstall:
 	@echo "removing executable file from $(DESTDIR)$(PREFIX)/bin"
 	@rm -f $(DESTDIR)$(PREFIX)/bin/sxiv
-	@echo "removind desktop file from $(DESTDIR)$(PREFIX)/share/applications"
+	@echo "removing desktop file from $(DESTDIR)$(PREFIX)/share/applications"
 	@rm -f $(DESTDIR)$(PREFIX)/share/applications/sxiv.desktop
 	@echo "removing manual page from $(DESTDIR)$(MANPREFIX)/man1"
 	@rm -f $(DESTDIR)$(MANPREFIX)/man1/sxiv.1
