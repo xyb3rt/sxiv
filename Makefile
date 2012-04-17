@@ -41,6 +41,8 @@ clean:
 install: all
 	@echo "installing executable file to $(DESTDIR)$(PREFIX)/bin"
 	@install -D -m 755 sxiv $(DESTDIR)$(PREFIX)/bin/sxiv
+	@echo "installing desktop file to $(DESTDIR)$(PREFIX)/share/applications"
+	@install -D -m 0644 sxiv.desktop $(DESTDIR)$(PREFIX)/share/applications/sxiv.desktop
 	@echo "installing manual page to $(DESTDIR)$(MANPREFIX)/man1"
 	@mkdir -p $(DESTDIR)$(MANPREFIX)/man1
 	@sed "s/VERSION/$(VERSION)/g" sxiv.1 > $(DESTDIR)$(MANPREFIX)/man1/sxiv.1
@@ -49,5 +51,7 @@ install: all
 uninstall:
 	@echo "removing executable file from $(DESTDIR)$(PREFIX)/bin"
 	@rm -f $(DESTDIR)$(PREFIX)/bin/sxiv
+	@echo "removind desktop file from $(DESTDIR)$(PREFIX)/share/applications"
+	@rm -f $(DESTDIR)$(PREFIX)/share/applications/sxiv.desktop
 	@echo "removing manual page from $(DESTDIR)$(MANPREFIX)/man1"
 	@rm -f $(DESTDIR)$(MANPREFIX)/man1/sxiv.1
