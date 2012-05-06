@@ -26,7 +26,7 @@ typedef enum {
 typedef enum {
 	FLIP_HORIZONTAL,
 	FLIP_VERTICAL
-} flip_t;
+} flipdir_t;
 
 typedef enum {
 	SCALE_DOWN,

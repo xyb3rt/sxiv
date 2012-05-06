@@ -80,9 +80,7 @@ void img_rotate(img_t*, int);
 void img_rotate_left(img_t*);
 void img_rotate_right(img_t*);
 
-void img_flip(img_t*, int);
-void img_flip_horizontal(img_t*);
-void img_flip_vertical(img_t*);
+void img_flip(img_t*, flipdir_t);
 
 void img_toggle_antialias(img_t*);
 
