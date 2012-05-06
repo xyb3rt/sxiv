@@ -122,6 +122,7 @@ The following additional key commands are available in *image mode*:
                  (also with Ctrl-arrow keys)
 
     <,>          Rotate image (counter-)clockwise by 90 degrees
+    \,|          Flip image horizontally/vertically
 
     s            Toggle slideshow
     Ctrl-'-'     Decrease slideshow delay

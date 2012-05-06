@@ -642,6 +642,26 @@ void img_rotate_right(img_t *img) {
 	img_rotate(img, 1);
 }
 
+void img_flip(img_t *img, int f) {
+	if (img == NULL || img->im == NULL || img->win == NULL)
+		return;
+
+	imlib_context_set_image(img->im);
+    if (f == 0)
+        imlib_image_flip_horizontal();
+    else
+        imlib_image_flip_vertical();
+	img->dirty = true;
+}
+
+void img_flip_horizontal(img_t *img) {
+    img_flip(img, 0);
+}
+
+void img_flip_vertical(img_t *img) {
+    img_flip(img, 1);
+}
+
 void img_toggle_antialias(img_t *img) {
 	if (img == NULL || img->im == NULL)
 		return;
