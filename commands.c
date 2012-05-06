@@ -342,6 +342,21 @@ bool i_rotate(arg_t a) {
 	return false;
 }
 
+bool i_flip(arg_t a) {
+	flip_t flp = (flip_t) a;
+
+	if (mode == MODE_IMAGE) {
+		if (flp == FLIP_HORIZONTAL) {
+			img_flip_horizontal(&img);
+			return true;
+		} else if (flp == FLIP_VERTICAL) {
+			img_flip_vertical(&img);
+			return true;
+		}
+	}
+	return false;
+}
+
 bool i_toggle_antialias(arg_t a) {
 	if (mode == MODE_IMAGE) {
 		img_toggle_antialias(&img);

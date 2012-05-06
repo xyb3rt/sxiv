@@ -113,6 +113,9 @@ static const keymap_t keys[] = {
 	{ false,  XK_less,          i_rotate,             (arg_t) DIR_LEFT },
 	{ false,  XK_greater,       i_rotate,             (arg_t) DIR_RIGHT },
 
+	{ false,  XK_backslash,     i_flip,               (arg_t) FLIP_HORIZONTAL },
+	{ false,  XK_bar,           i_flip,               (arg_t) FLIP_VERTICAL },
+
 	{ false,  XK_a,             i_toggle_antialias,   (arg_t) None },
 	{ false,  XK_A,             it_toggle_alpha,      (arg_t) None },
 

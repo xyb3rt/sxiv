@@ -24,6 +24,11 @@ typedef enum {
 } direction_t;
 
 typedef enum {
+	FLIP_HORIZONTAL,
+	FLIP_VERTICAL
+} flip_t;
+
+typedef enum {
 	SCALE_DOWN,
 	SCALE_FIT,
 	SCALE_ZOOM

@@ -76,8 +76,13 @@ bool img_move(img_t*, float, float);
 bool img_pan(img_t*, direction_t, int);
 bool img_pan_edge(img_t*, direction_t);
 
+void img_rotate(img_t*, int);
 void img_rotate_left(img_t*);
 void img_rotate_right(img_t*);
+
+void img_flip(img_t*, int);
+void img_flip_horizontal(img_t*);
+void img_flip_vertical(img_t*);
 
 void img_toggle_antialias(img_t*);
 
