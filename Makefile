@@ -1,9 +1,10 @@
 VERSION = git-20120506
 
-CC      = gcc
-CFLAGS  = -ansi -Wall -pedantic -O2
-LDFLAGS =
-LIBS    = -lX11 -lImlib2 -lgif
+CC      	= gcc
+CFLAGS  	= -ansi -Wall -pedantic -O2
+LDFLAGS 	= -L/usr/local/lib
+INCLUDEDIRS 	= -I/usr/local/include
+LIBS		= -lX11 -lImlib2 -lgif
 
 PREFIX    = /usr/local
 MANPREFIX = $(PREFIX)/share/man
@@ -22,7 +23,7 @@ options:
 
 .c.o:
 	@echo "CC $<"
-	@$(CC) $(CFLAGS) -DVERSION=\"$(VERSION)\" -c -o $@ $<
+	@$(CC) $(INCLUDEDIRS) $(CFLAGS) -DVERSION=\"$(VERSION)\" -c -o $@ $<
 
 $(OBJ): Makefile config.h
 
@@ -32,7 +33,7 @@ config.h:
 
 sxiv:	$(OBJ)
 	@echo "CC -o $@"
-	@$(CC) $(LDFLAGS) -o $@ $(OBJ) $(LIBS)
+	@$(CC) $(INCLUDEDIRS) $(LDFLAGS) -o $@ $(OBJ) $(LIBS)
 
 clean:
 	@echo "cleaning"
@@ -40,7 +41,8 @@ clean:
 
 install: all
 	@echo "installing executable file to $(DESTDIR)$(PREFIX)/bin"
-	@install -D -m 755 sxiv $(DESTDIR)$(PREFIX)/bin/sxiv
+	@mkdir -p $(DESTDIR)$(PREFIX)/bin
+	@install -m 755 sxiv $(DESTDIR)$(PREFIX)/bin/sxiv
 	@echo "installing manual page to $(DESTDIR)$(MANPREFIX)/man1"
 	@mkdir -p $(DESTDIR)$(MANPREFIX)/man1
 	@sed "s/VERSION/$(VERSION)/g" sxiv.1 > $(DESTDIR)$(MANPREFIX)/man1/sxiv.1
