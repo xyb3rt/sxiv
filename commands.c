@@ -94,6 +94,24 @@ bool it_toggle_bar(arg_t a) {
 	return true;
 }
 
+bool it_refresh_thumbs(arg_t a) {
+    int i = 0;
+    if (mode == MODE_THUMB) {
+        win_set_cursor(&win, CURSOR_WATCH);
+        while (i < filecnt) {
+            if (!tns_load(&tns, i, &files[i], true, false)) {
+                remove_file(i, false);
+                tns.dirty = true;
+                if (tns.sel >= tns.cnt)
+                    tns.sel = tns.cnt - 1;
+            } else {
+                i++;
+            }
+        }
+    }
+    return true;
+}
+
 bool it_reload_image(arg_t a) {
 	if (mode == MODE_IMAGE) {
 		load_image(fileidx);
