@@ -1,12 +1,12 @@
-VERSION = git-20120506
-
-CC      = gcc
-CFLAGS  = -ansi -Wall -pedantic -O2
-LDFLAGS =
-LIBS    = -lX11 -lImlib2 -lgif
+VERSION = git-20120513
 
 PREFIX    = /usr/local
 MANPREFIX = $(PREFIX)/share/man
+
+CC      = gcc
+CFLAGS  = -ansi -Wall -pedantic -O2 -I$(PREFIX)
+LDFLAGS = -L$(PREFIX)
+LIBS    = -lX11 -lImlib2 -lgif
 
 SRC = commands.c exif.c image.c main.c options.c thumbs.c util.c window.c
 OBJ = $(SRC:.c=.o)
@@ -40,7 +40,9 @@ clean:
 
 install: all
 	@echo "installing executable file to $(DESTDIR)$(PREFIX)/bin"
-	@install -D -m 755 sxiv $(DESTDIR)$(PREFIX)/bin/sxiv
+	@mkdir -p $(DESTDIR)$(PREFIX)/bin
+	@cp -f sxiv $(DESTDIR)$(PREFIX)/bin/
+	@chmod 755 $(DESTDIR)$(PREFIX)/bin/sxiv
 	@echo "installing manual page to $(DESTDIR)$(MANPREFIX)/man1"
 	@mkdir -p $(DESTDIR)$(MANPREFIX)/man1
 	@sed "s/VERSION/$(VERSION)/g" sxiv.1 > $(DESTDIR)$(MANPREFIX)/man1/sxiv.1
