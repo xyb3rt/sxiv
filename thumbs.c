@@ -186,7 +186,7 @@ void tns_init(tns_t *tns, int cnt, win_t *win) {
 void tns_free(tns_t *tns) {
 	int i;
 
-	if (tns != NULL)
+	if (tns == NULL)
 		return;
 
 	if (tns->thumbs != NULL) {
