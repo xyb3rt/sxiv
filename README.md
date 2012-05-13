@@ -93,7 +93,7 @@ The following general key commands are available:
     A            Toggle visibility of alpha-channel, i.e. transparency
 
     r            Reload image
-    R            Refresh thumbnails
+    R            Reload all thumbnails
     D            Remove image from file list and go to next image
 
 

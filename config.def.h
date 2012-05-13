@@ -64,7 +64,7 @@ static const keymap_t keys[] = {
 	{ false,  XK_b,             it_toggle_bar,        (arg_t) None },
 
 	{ false,  XK_r,             it_reload_image,      (arg_t) None },
-	{ false,  XK_R,             it_refresh_thumbs,    (arg_t) None },
+	{ false,  XK_R,             t_reload_all,         (arg_t) None },
 	{ false,  XK_D,             it_remove_image,      (arg_t) None },
 
 	{ false,  XK_n,             i_navigate,           (arg_t) +1 },
