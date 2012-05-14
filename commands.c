@@ -79,7 +79,7 @@ bool it_toggle_fullscreen(arg_t a) {
 	/* redraw after next ConfigureNotify event */
 	set_timeout(redraw, TO_REDRAW_RESIZE, false);
 	if (mode == MODE_IMAGE)
-		img.checkpan = true;
+		img.checkpan = img.dirty = true;
 	else
 		tns.dirty = true;
 	return false;
