@@ -209,7 +209,7 @@ bool it_scroll_move(arg_t a) {
 	if (mode == MODE_IMAGE)
 		return img_pan(&img, dir, prefix);
 	else
-		return tns_move_selection(&tns, dir);
+		return tns_move_selection(&tns, dir, prefix);
 }
 
 bool it_scroll_screen(arg_t a) {

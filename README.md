@@ -99,7 +99,7 @@ The following general key commands are available:
 
 The following additional key commands are available in *thumbnail mode*:
 
-    h,j,k,l      Move selection left/down/up/right
+    h,j,k,l      Move selection left/down/up/right [count] times
     Ctrl-j,k     Scroll thumbnail grid one window height down/up
 
 The following additional key commands are available in *image mode*:
