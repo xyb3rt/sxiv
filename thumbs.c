@@ -390,8 +390,9 @@ void tns_highlight(tns_t *tns, int n, bool hl) {
 	}
 }
 
-bool tns_move_selection(tns_t *tns, direction_t dir) {
+bool tns_move_selection(tns_t *tns, direction_t dir, int count) {
 	int old;
+    int c = (count > 0 ? count : 1);
 
 	if (tns == NULL || tns->thumbs == NULL)
 		return false;
@@ -400,22 +401,16 @@ bool tns_move_selection(tns_t *tns, direction_t dir) {
 
 	switch (dir) {
 		case DIR_UP:
-			if (tns->sel >= tns->cols)
-				tns->sel -= tns->cols;
+            tns->sel = MAX(tns->sel - c * tns->cols, tns->sel % tns->cols);
 			break;
 		case DIR_DOWN:
-			if (tns->sel + tns->cols < tns->cnt)
-				tns->sel += tns->cols;
-			else if (tns->sel < tns->cnt - tns->cnt % tns->cols)
-				tns->sel = tns->cnt - 1;
+            tns->sel = MIN(tns->sel + c * tns->cols, tns->cols * ((tns->cnt - 1) / tns->cols) + MIN((tns->cnt - 1) % tns->cols, tns->sel % tns->cols));
 			break;
 		case DIR_LEFT:
-			if (tns->sel > 0)
-				tns->sel--;
+            tns->sel = MAX(tns->sel - c, 0);
 			break;
 		case DIR_RIGHT:
-			if (tns->sel < tns->cnt - 1)
-				tns->sel++;
+			tns->sel = MIN(tns->sel + c, tns->cnt - 1);
 			break;
 	}
 
