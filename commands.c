@@ -310,9 +310,10 @@ bool i_set_zoom(arg_t a) {
 
 bool i_fit_to_win(arg_t a) {
 	bool ret = false;
+	scalemode_t sm = (scalemode_t) a;
 
 	if (mode == MODE_IMAGE) {
-		if ((ret = img_fit_win(&img)))
+		if ((ret = img_fit_win(&img, sm)))
 			img_center(&img);
 	}
 	return ret;
