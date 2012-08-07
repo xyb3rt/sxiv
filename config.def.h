@@ -108,7 +108,9 @@ static const keymap_t keys[] = {
 	{ false,  XK_minus,         i_zoom,               (arg_t) -1 },
 	{ false,  XK_KP_Subtract,   i_zoom,               (arg_t) -1 },
 	{ false,  XK_equal,         i_set_zoom,           (arg_t) 100 },
-	{ false,  XK_w,             i_fit_to_win,         (arg_t) None },
+	{ false,  XK_w,             i_fit_to_win,         (arg_t) SCALE_FIT },
+	{ false,  XK_e,             i_fit_to_win,         (arg_t) SCALE_WIDTH },
+	{ false,  XK_E,             i_fit_to_win,         (arg_t) SCALE_HEIGHT },
 	{ false,  XK_W,             i_fit_to_img,         (arg_t) None },
 
 	{ false,  XK_less,          i_rotate,             (arg_t) DIR_LEFT },
