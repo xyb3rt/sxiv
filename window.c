@@ -128,6 +128,8 @@ void win_init(win_t *win) {
 		warn("no locale support");
 
 	win_init_font(e->dpy, BAR_FONT);
+
+	wm_delete_win = XInternAtom(e->dpy, "WM_DELETE_WINDOW", False);
 }
 
 void win_set_sizehints(win_t *win) {
@@ -209,6 +211,8 @@ void win_open(win_t *win) {
 	classhint.res_class = "Sxiv";
 	XSetClassHint(e->dpy, win->xwin, &classhint);
 
+	XSetWMProtocols(e->dpy, win->xwin, &wm_delete_win, 1);
+
 	if (!options->hide_bar) {
 		win->barh = font.ascent + font.descent + 2 * V_TEXT_PAD;
 		win->h -= win->barh;
@@ -220,9 +224,6 @@ void win_open(win_t *win) {
 	XMapWindow(e->dpy, win->xwin);
 	XFlush(e->dpy);
 
-	wm_delete_win = XInternAtom(e->dpy, "WM_DELETE_WINDOW", False);
-	XSetWMProtocols(e->dpy, win->xwin, &wm_delete_win, 1);
-	
 	if (options->fullscreen)
 		win_toggle_fullscreen(win);
 }
