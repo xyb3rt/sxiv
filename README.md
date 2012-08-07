@@ -125,11 +125,6 @@ The following additional key commands are available in *image mode*:
     <,>          Rotate image (counter-)clockwise by 90 degrees
     \,|          Flip image horizontally/vertically
 
-    s            Toggle slideshow
-    Ctrl-'-'     Decrease slideshow delay
-    Ctrl-'+'     Increase slideshow delay
-    Ctrl-'='     Reset slideshow delay, or set it to [count] seconds
-
     a            Toggle anti-aliasing
     W            Resize window to fit image
 
