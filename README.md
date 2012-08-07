@@ -115,6 +115,8 @@ The following additional key commands are available in *image mode*:
     -            Zoom out
     =            Set zoom level to 100%, or [count]%
     w            Fit image into window
+    e            Fit image to window's width
+    E            Fit image to window's height
 
     h,j,k,l      Pan image 1/5 of window width/height or [count] pixels
                  left/down/up/right (also with arrow keys)

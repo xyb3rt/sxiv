@@ -365,7 +365,18 @@ bool img_fit(img_t *img) {
 	zw = (float) img->win->w / (float) img->w;
 	zh = (float) img->win->h / (float) img->h;
 
-	z = MIN(zw, zh);
+	switch (img->scalemode) {
+		case SCALE_WIDTH:
+			z = zw;
+			break;
+		case SCALE_HEIGHT:
+			z = zh;
+			break;
+		default:
+			z = MIN(zw, zh);
+			break;
+	}
+
 	z = MAX(z, zoom_min);
 	z = MIN(z, zmax);
 
@@ -448,11 +459,11 @@ void img_render(img_t *img) {
 	img->dirty = false;
 }
 
-bool img_fit_win(img_t *img) {
+bool img_fit_win(img_t *img, scalemode_t sm) {
 	if (img == NULL || img->im == NULL)
 		return false;
 
-	img->scalemode = SCALE_FIT;
+	img->scalemode = sm;
 	return img_fit(img);
 }
 
