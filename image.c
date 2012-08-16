@@ -37,13 +37,7 @@ float zoom_min;
 float zoom_max;
 
 int zoomdiff(float z1, float z2) {
-	float d = z1 - z2;
-	const float mindelta = 0.001;
-
-	if (ABS(d) < mindelta)
-		return 0;
-	else
-		return d < 0 ? -1 : 1;
+	return (int) (z1 * 1000.0 - z2 * 1000.0);
 }
 
 void img_init(img_t *img, win_t *win) {
