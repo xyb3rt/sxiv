@@ -62,6 +62,7 @@ win_t win;
 
 fileinfo_t *files;
 int filecnt, fileidx;
+int alternate;
 size_t filesize;
 
 int prefix;
@@ -217,6 +218,7 @@ void load_image(int new) {
 	}
 
 	files[new].loaded = true;
+	alternate = fileidx;
 	fileidx = new;
 	if (stat(files[new].path, &fstats) == 0)
 		filesize = fstats.st_size;
