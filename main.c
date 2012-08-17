@@ -419,7 +419,8 @@ void run(void) {
 	int xfd;
 	fd_set fds;
 	struct timeval timeout;
-	XEvent ev;
+	XEvent ev, nextev;
+	unsigned int qlen;
 
 	redraw();
 
@@ -450,7 +451,13 @@ void run(void) {
 			select(xfd + 1, &fds, 0, 0, &timeout);
 		}
 
-		XNextEvent(win.env.dpy, &ev);
+		do {
+			XNextEvent(win.env.dpy, &ev);
+			qlen = XEventsQueued(win.env.dpy, QueuedAlready);
+			if (qlen > 0)
+				XPeekEvent(win.env.dpy, &nextev);
+		} while (qlen > 0 && ev.type == nextev.type);
+
 		switch (ev.type) {
 			/* handle events */
 			case ButtonPress:
@@ -476,7 +483,8 @@ void run(void) {
 				}
 				break;
 			case KeyPress:
-				on_keypress(&ev.xkey);
+				if (qlen == 0 || ev.xkey.keycode != nextev.xkey.keycode)
+					on_keypress(&ev.xkey);
 				break;
 			case MotionNotify:
 				if (mode == MODE_IMAGE) {
