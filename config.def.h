@@ -9,7 +9,7 @@ enum {
 /* bar font:
  * (see X(7) section "FONT NAMES" for valid values)
  */
-static const char * const BAR_FONT = "fixed";
+static const char * const BAR_FONT = "-*-fixed-medium-r-*-*-13-*-*-*-*-60-*-*";
 
 /* colors:
  * (see X(7) section "COLOR NAMES" for valid values)
