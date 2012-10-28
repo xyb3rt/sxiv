@@ -207,8 +207,8 @@ void win_open(win_t *win) {
 
 	win_set_title(win, "sxiv");
 
-	classhint.res_name = "sxiv";
 	classhint.res_class = "Sxiv";
+	classhint.res_name = options->res_name != NULL ? options->res_name : "sxiv";
 	XSetClassHint(e->dpy, win->xwin, &classhint);
 
 	XSetWMProtocols(e->dpy, win->xwin, &wm_delete_win, 1);

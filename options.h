@@ -40,6 +40,7 @@ typedef struct {
 	bool fullscreen;
 	bool hide_bar;
 	char *geometry;
+	char *res_name;
 
 	/* misc flags: */
 	bool quiet;
