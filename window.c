@@ -267,12 +267,11 @@ bool win_configure(win_t *win, XConfigureEvent *c) {
 }
 
 void win_expose(win_t *win, XExposeEvent *e) {
-	if (win == NULL || win->xwin == None || e == NULL)
+	if (win == NULL || win->xwin == None || win->pm == None || e == NULL)
 		return;
 
-	if (win->pm != None)
-		XCopyArea(win->env.dpy, win->pm, win->xwin, gc,
-		          e->x, e->y, e->width, e->height, e->x, e->y);
+	XCopyArea(win->env.dpy, win->pm, win->xwin, gc,
+	          e->x, e->y, e->width, e->height, e->x, e->y);
 }
 
 bool win_moveresize(win_t *win, int x, int y, unsigned int w, unsigned int h) {
@@ -359,7 +358,7 @@ void win_draw_bar(win_t *win) {
 	int len, x, y, w, tw = 0, seplen;
 	const char *rt;
 
-	if (win == NULL || win->xwin == None)
+	if (win == NULL || win->xwin == None || win->pm == None)
 		return;
 
 	e = &win->env;
@@ -407,7 +406,7 @@ void win_draw_bar(win_t *win) {
 }
 
 void win_draw(win_t *win) {
-	if (win == NULL || win->xwin == None)
+	if (win == NULL || win->xwin == None || win->pm == None)
 		return;
 
 	if (win->barh > 0)
