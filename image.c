@@ -31,7 +31,7 @@
 #include "util.h"
 #include "config.h"
 
-enum { MIN_GIF_DELAY = 50 };
+enum { MIN_GIF_DELAY = 25 };
 
 float zoom_min;
 float zoom_max;
