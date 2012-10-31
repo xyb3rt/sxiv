@@ -182,9 +182,9 @@ bool check_timeouts(struct timeval *t) {
 	int i = 0, tdiff, tmin = -1;
 	struct timeval now;
 
-	gettimeofday(&now, 0);
 	while (i < ARRLEN(timeouts)) {
 		if (timeouts[i].active) {
+			gettimeofday(&now, 0);
 			tdiff = TV_DIFF(&timeouts[i].when, &now);
 			if (tdiff <= 0) {
 				timeouts[i].active = false;
