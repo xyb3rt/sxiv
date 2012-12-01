@@ -420,7 +420,7 @@ void run(void) {
 	fd_set fds;
 	struct timeval timeout;
 	XEvent ev, nextev;
-	unsigned int qlen;
+	bool discard;
 
 	redraw();
 
@@ -453,10 +453,20 @@ void run(void) {
 
 		do {
 			XNextEvent(win.env.dpy, &ev);
-			qlen = XEventsQueued(win.env.dpy, QueuedAlready);
-			if (qlen > 0)
+			discard = false;
+			if (XEventsQueued(win.env.dpy, QueuedAlready) > 0) {
 				XPeekEvent(win.env.dpy, &nextev);
-		} while (qlen > 0 && ev.type == nextev.type);
+				switch (ev.type) {
+					case ConfigureNotify:
+						discard = ev.type == nextev.type;
+						break;
+					case KeyPress:
+						discard = (nextev.type == KeyPress || nextev.type == KeyRelease)
+						          && ev.xkey.keycode == nextev.xkey.keycode;
+						break;
+				}
+			}
+		} while (discard);
 
 		switch (ev.type) {
 			/* handle events */
@@ -482,9 +492,11 @@ void run(void) {
 					}
 				}
 				break;
+			case Expose:
+				win_expose(&win, &ev.xexpose);
+				break;
 			case KeyPress:
-				if (qlen == 0 || ev.xkey.keycode != nextev.xkey.keycode)
-					on_keypress(&ev.xkey);
+				on_keypress(&ev.xkey);
 				break;
 			case MotionNotify:
 				if (mode == MODE_IMAGE) {
