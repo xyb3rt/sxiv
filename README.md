@@ -68,6 +68,7 @@ sxiv supports the following command-line options:
     -g GEOMETRY  Set window position and size
                  (see section GEOMETRY SPECIFICATIONS of X(7))
     -n NUM       Start at picture NUM
+    -N NAME      Set X window resource name to NAME
     -p           Pixelize, i.e. turn off image anti-aliasing
     -q           Be quiet, disable warnings
     -r           Search given directories recursively for images
