@@ -479,10 +479,12 @@ void run(void) {
 				break;
 			case ConfigureNotify:
 				if (win_configure(&win, &ev.xconfigure)) {
-					if (mode == MODE_IMAGE)
+					if (mode == MODE_IMAGE) {
+						img.dirty = true;
 						img.checkpan = true;
-					else
+					} else {
 						tns.dirty = true;
+					}
 					if (!resized || win.fullscreen) {
 						redraw();
 						set_timeout(clear_resize, TO_REDRAW_RESIZE, false);
