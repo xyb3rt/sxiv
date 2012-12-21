@@ -1,4 +1,7 @@
-sxiv: Simple (or small or suckless) X Image Viewer
+sxiv
+====
+
+**Simple (or small or suckless) X Image Viewer**
 
 sxiv is an alternative to feh and qiv. Its only dependencies besides xlib are
 imlib2 and giflib. The primary goal for writing sxiv is to create an image
@@ -6,6 +9,7 @@ viewer, which only has the most basic features required for fast image viewing
 (the ones I want). It has vi key bindings and works nicely with tiling window
 managers.  Its code base should be kept small and clean to make it easy for you
 to dig into it and customize it for your needs.
+
 
 Features
 --------
@@ -18,19 +22,22 @@ Features
 * Load all frames from GIF files and play GIF animations
 * Display image information in window title
 
+
 Screenshots
 -----------
 
-Image mode:
+**Image mode:**
 
-  <img src="http://github.com/muennich/sxiv/raw/master/sample/image.png">
+![Image](http://muennich.github.com/sxiv/img/image.png "Image mode")
 
-Thumbnail mode:
+**Thumbnail mode:**
 
-  <img src="http://github.com/muennich/sxiv/raw/master/sample/thumb.png">
+![Thumb](http://muennich.github.com/sxiv/img/thumb.png "Thumb mode")
+
 
 Installation
 ------------
+
 sxiv is built using the commands:
 
     $ make
@@ -52,13 +59,14 @@ the following command:
 
     $ make config.h
 
+
 Usage
 -----
 sxiv has two modes of operation: image and thumbnail mode. The default is
 image mode, in which only the current image is shown. In thumbnail mode a grid
 of small previews is displayed, making it easy to choose an image to open.
 
-sxiv supports the following command-line options:
+**Command line options:**
 
     -b           Do not show info bar on bottom of window
     -c           Remove all orphaned cache files from thumbnail cache and exit
@@ -78,7 +86,7 @@ sxiv supports the following command-line options:
     -Z           Same as `-z 100'
     -z ZOOM      Scale all images to current zoom level, use ZOOM at startup
 
-The following general key commands are available:
+**Key mappings:**
 
     q            Quit sxiv
     Return       Switch to thumbnail mode / open selected image
@@ -97,13 +105,12 @@ The following general key commands are available:
     R            Reload all thumbnails
     D            Remove image from file list and go to next image
 
-
-The following additional key commands are available in *thumbnail mode*:
+*Thumbnail mode:*
 
     h,j,k,l      Move selection left/down/up/right [count] times
     Ctrl-j,k     Scroll thumbnail grid one window height down/up
 
-The following additional key commands are available in *image mode*:
+*Image mode:*
 
     n,Space      Go [count] images forward
     p,Backspace  Go [count] images backward
@@ -131,7 +138,9 @@ The following additional key commands are available in *image mode*:
     a            Toggle anti-aliasing
     W            Resize window to fit image
 
-Additionally, the following mouse commands are available in *image mode*:
+**Mouse button mappings:**
+
+*Image mode:*
 
     Button1      Go to the next image
     Button2      Drag image with mouse while keeping it pressed
@@ -139,3 +148,99 @@ Additionally, the following mouse commands are available in *image mode*:
     Scroll       Pan image up/down
     Shift+Scroll Pan image left/right
     Ctrl+Scroll  Zoom in/out
+
+
+Download & Changelog
+--------------------
+
+You can [browse](https://github.com/muennich/sxiv) the source code repository
+on GitHub or get a copy using git with the following command:
+
+    git clone https://github.com/muennich/sxiv.git
+
+**Stable releases**
+
+**[v1.0](http://muennich.github.com/sxiv/release/sxiv-1.0.tar.gz)**
+*(October 31, 2011)*
+
+  * Support for multi-frame images & GIF animations
+  * POSIX compliant (IEEE Std 1003.1-2001)
+
+**[v0.9](http://muennich.github.com/sxiv/release/sxiv-0.9.tar.gz)**
+*(August 17, 2011)*
+
+  * Made key and mouse mappings fully configurable in config.h
+  * Complete code refactoring
+
+**[v0.8.2](http://muennich.github.com/sxiv/release/sxiv-0.8.2.tar.gz)**
+*(June 29, 2011)*
+
+  * POSIX-compliant Makefile; compiles under NetBSD
+
+**[v0.8.1](http://muennich.github.com/sxiv/release/sxiv-0.8.1.tar.gz)**
+*(May 8, 2011)*
+
+  * Fixed fullscreen under window managers, which are not fully EWMH-compliant
+
+**[v0.8](http://muennich.github.com/sxiv/release/sxiv-0.8.tar.gz)**
+*(April 18, 2011)*
+
+  * Support for thumbnail caching, only enabled if directory `~/.sxiv/` exists
+  * Ability to run external commands (e.g. jpegtran, convert) on current image
+
+**[v0.7](http://muennich.github.com/sxiv/release/sxiv-0.7.tar.gz)**
+*(February 26, 2011)*
+
+  * Sort directory entries when using `-r` command line option
+  * Hide cursor in image mode
+  * Full functional thumbnail mode, use Return key to switch between image and
+    thumbnail mode
+
+**[v0.6](http://muennich.github.com/sxiv/release/sxiv-0.6.tar.gz)**
+*(February 16, 2011)*
+
+  * Bug fix: Correctly display filenames with umlauts in window title
+  * Basic support of thumbnails
+
+**[v0.5](http://muennich.github.com/sxiv/release/sxiv-0.5.tar.gz)**
+*(February 6, 2011)*
+
+  * New command line option: `-r`: open all images in given directories
+  * New key shortcuts: `w`: resize image to fit into window; `W`: resize window
+    to fit to image
+
+**[v0.4](http://muennich.github.com/sxiv/release/sxiv-0.4.tar.gz)**
+*(February 1, 2011)*
+
+  * New command line option: `-F`, `-g`: use fixed window dimensions and apply
+    a given window geometry
+  * New key shortcut: `r`: reload current image
+
+**[v0.3.1](http://muennich.github.com/sxiv/release/sxiv-0.3.1.tar.gz)**
+*(January 30, 2011)*
+
+  * Bug fix: Do not set setuid bit on executable when using `make install`
+  * Pan image with mouse while pressing middle mouse button
+
+**[v0.3](http://muennich.github.com/sxiv/release/sxiv-0.3.tar.gz)**
+*(January 29, 2011)*
+
+  * New command line options: `-d`, `-f`, `-p`, `-s`, `-v`, `-w`, `-Z`, `-z`
+  * More mouse mappings: Go to next/previous image with left/right click,
+    scroll image with mouse wheel (horizontally if Shift key is pressed),
+    zoom image with mouse wheel if Ctrl key is pressed
+
+**[v0.2](http://muennich.github.com/sxiv/release/sxiv-0.2.tar.gz)**
+*(January 23, 2011)*
+
+  * Bug fix: Handle window resizes correctly
+  * New keyboard shortcuts: `g`/`G`: go to first/last image; `[`/`]`: go 10
+    images back/forward
+  * Support for mouse wheel zooming (by Dave Reisner)
+  * Added fullscreen mode
+
+**[v0.1](http://muennich.github.com/sxiv/release/sxiv-0.1.tar.gz)**
+*(January 21, 2011)*
+
+  * Initial release
+
