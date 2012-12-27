@@ -29,11 +29,11 @@
 #include <X11/Xutil.h>
 #include <X11/keysym.h>
 
+#include "types.h"
 #include "commands.h"
 #include "image.h"
 #include "options.h"
 #include "thumbs.h"
-#include "types.h"
 #include "util.h"
 #include "window.h"
 #include "config.h"

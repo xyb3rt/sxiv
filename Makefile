@@ -4,7 +4,7 @@ PREFIX    = /usr/local
 MANPREFIX = $(PREFIX)/share/man
 
 CC      = gcc
-CFLAGS  = -ansi -Wall -pedantic -O2 -I$(PREFIX)
+CFLAGS  = -Wall -pedantic -O2 -I$(PREFIX)
 LDFLAGS = -L$(PREFIX)
 LIBS    = -lX11 -lImlib2 -lgif
 

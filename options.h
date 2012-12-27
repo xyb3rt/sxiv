@@ -19,8 +19,8 @@
 #ifndef OPTIONS_H
 #define OPTIONS_H
 
-#include "image.h"
 #include "types.h"
+#include "image.h"
 
 typedef struct {
 	/* file list: */

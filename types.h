@@ -1,6 +1,10 @@
 #ifndef TYPES_H
 #define TYPES_H
 
+#undef bool
+#undef false
+#undef true
+
 typedef enum {
 	false,
 	true
