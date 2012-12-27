@@ -1,10 +1,10 @@
-VERSION = git-20121220
+VERSION = git-20121227
 
 PREFIX    = /usr/local
 MANPREFIX = $(PREFIX)/share/man
 
 CC      = gcc
-CFLAGS  = -Wall -pedantic -O2 -I$(PREFIX)
+CFLAGS  = -Wall -pedantic -O2 -I$(PREFIX) -DHAVE_GIFLIB
 LDFLAGS = -L$(PREFIX)
 LIBS    = -lX11 -lImlib2 -lgif
 

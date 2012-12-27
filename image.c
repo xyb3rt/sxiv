@@ -23,7 +23,6 @@
 #include <string.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <gif_lib.h>
 
 #include "exif.h"
 #include "image.h"
@@ -31,7 +30,10 @@
 #include "util.h"
 #include "config.h"
 
+#if HAVE_GIFLIB
+#include <gif_lib.h>
 enum { MIN_GIF_DELAY = 25 };
+#endif
 
 float zoom_min;
 float zoom_max;
@@ -92,6 +94,7 @@ void exif_auto_orientate(const fileinfo_t *file) {
 	}
 }
 
+#if HAVE_GIFLIB
 bool img_load_gif(img_t *img, const fileinfo_t *file) {
 	GifFileType *gif;
 	GifRowType *rows = NULL;
@@ -261,6 +264,7 @@ bool img_load_gif(img_t *img, const fileinfo_t *file) {
 
 	return !err;
 }
+#endif /* HAVE_GIFLIB */
 
 bool img_load(img_t *img, const fileinfo_t *file) {
 	const char *fmt;
@@ -284,8 +288,10 @@ bool img_load(img_t *img, const fileinfo_t *file) {
 	}
 	if (STREQ(fmt, "jpeg"))
 		exif_auto_orientate(file);
+#if HAVE_GIFLIB
 	if (STREQ(fmt, "gif"))
 		img_load_gif(img, file);
+#endif
 
 	img->w = imlib_image_get_width();
 	img->h = imlib_image_get_height();
