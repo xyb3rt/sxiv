@@ -24,16 +24,16 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#if HAVE_GIFLIB
+#include <gif_lib.h>
+enum { MIN_GIF_DELAY = 25 };
+#endif
+
 #include "exif.h"
 #include "image.h"
 #include "options.h"
 #include "util.h"
 #include "config.h"
-
-#if HAVE_GIFLIB
-#include <gif_lib.h>
-enum { MIN_GIF_DELAY = 25 };
-#endif
 
 float zoom_min;
 float zoom_max;
