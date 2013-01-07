@@ -23,8 +23,6 @@
 
 #include "types.h"
 
-#define BAR_SEPARATOR " | "
-
 typedef struct {
 	Display *dpy;
 	int scr;
@@ -42,21 +40,23 @@ typedef struct {
 	unsigned long bgcol;
 	unsigned long fscol;
 	unsigned long selcol;
-	unsigned long barbgcol;
-	unsigned long barfgcol;
 	Pixmap pm;
 
 	int x;
 	int y;
 	unsigned int w;
 	unsigned int h; /* = win height - bar height */
-	unsigned int barh;
 	unsigned int bw;
 
 	bool fullscreen;
 
-	const char *lbar;
-	const char *rbar;
+	struct {
+		unsigned int h;
+		char *l;
+		char *r;
+		unsigned long bgcol;
+		unsigned long fgcol;
+	} bar;
 } win_t;
 
 extern Atom wm_delete_win;
@@ -80,7 +80,7 @@ void win_draw_rect(win_t*, Pixmap, int, int, int, int, bool, int,
 int win_textwidth(const char*, unsigned int, bool);
 
 void win_set_title(win_t*, const char*);
-void win_set_bar_info(win_t*, const char*, const char*);
+void win_set_bar_info(win_t*, char*, char*);
 void win_set_cursor(win_t*, cursor_t);
 
 #endif /* WINDOW_H */

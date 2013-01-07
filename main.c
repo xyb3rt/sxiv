@@ -39,8 +39,10 @@
 #include "config.h"
 
 enum {
-	INFO_STR_LEN = 256,
-	FILENAME_CNT = 1024
+	BAR_L_LEN    = 512,
+	BAR_R_LEN    = 64,
+	FILENAME_CNT = 1024,
+	TITLE_LEN    = 256
 };
 
 typedef struct {
@@ -63,15 +65,18 @@ win_t win;
 fileinfo_t *files;
 int filecnt, fileidx;
 int alternate;
-size_t filesize;
 
 int prefix;
 
 bool resized = false;
 
-char win_bar_l[INFO_STR_LEN];
-char win_bar_r[INFO_STR_LEN];
-char win_title[INFO_STR_LEN];
+const char * const INFO_SCRIPT = ".sxiv/exec/image-info";
+char *info_script;
+
+struct {
+	char l[BAR_L_LEN];
+	char r[BAR_R_LEN];
+} bar;
 
 timeout_t timeouts[] = {
 	{ { 0, 0 }, false, redraw },
@@ -202,9 +207,37 @@ bool check_timeouts(struct timeval *t) {
 	return tmin > 0;
 }
 
-void load_image(int new) {
-	struct stat fstats;
+void read_info(void) {
+	char cmd[4096];
+	FILE *outp;
+	int c, i = 0, n = sizeof(bar.l) - 1;
+	bool lastsep = false;
+	
+	if (info_script != NULL) {
+		snprintf(cmd, sizeof(cmd), "%s \"%s\"", info_script, files[fileidx].name);
+		outp = popen(cmd, "r");
+		if (outp == NULL)
+			goto end;
+		while (i < n && (c = fgetc(outp)) != EOF) {
+			if (c == '\n') {
+				if (!lastsep) {
+					bar.l[i++] = ' ';
+					lastsep = true;
+				}
+			} else {
+				bar.l[i++] = c;
+				lastsep = false;
+			}
+		}
+		pclose(outp);
+	}
+end:
+	if (lastsep)
+		i--;
+	bar.l[i] = '\0';
+}
 
+void load_image(int new) {
 	if (new < 0 || new >= filecnt)
 		return;
 
@@ -220,10 +253,8 @@ void load_image(int new) {
 	files[new].loaded = true;
 	alternate = fileidx;
 	fileidx = new;
-	if (stat(files[new].path, &fstats) == 0)
-		filesize = fstats.st_size;
-	else
-		filesize = 0;
+
+	read_info();
 
 	if (img.multi.cnt > 0 && img.multi.animate)
 		set_timeout(animate, img.multi.frames[img.multi.sel].delay, true);
@@ -232,60 +263,51 @@ void load_image(int new) {
 }
 
 void update_info(void) {
-	int i, fw, pw, fi, ln, rn;
-	char frame_info[16];
-	const char *size_unit;
-	float size = filesize;
+	unsigned int i, fn, fw, n, len = sizeof(bar.r);
+	int sel;
+	char *t = bar.r, title[TITLE_LEN];
+	bool ow_info;
 
-	pw = 0;
-	for (i = filecnt; i > 0; i /= 10)
-		pw++;
+	for (fw = 0, i = filecnt; i > 0; fw++, i /= 10);
+	sel = mode == MODE_IMAGE ? fileidx : tns.sel;
 
 	if (mode == MODE_THUMB) {
-		if (tns.cnt != filecnt) {
-			snprintf(win_bar_l, sizeof win_bar_l, "Loading... %0*d/%d",
-			         pw, tns.cnt, filecnt);
-		} else {
-			fi = snprintf(win_bar_l, sizeof win_bar_l, "%0*d/%d%s",
-			              pw, tns.sel + 1, filecnt, BAR_SEPARATOR);
-			ln = snprintf(win_bar_l + fi, sizeof win_bar_l - fi, "%s",
-			              files[tns.sel].name) + fi;
-			if (win_textwidth(win_bar_l, ln, true) > win.w)
-				snprintf(win_bar_l + fi, sizeof win_bar_l - fi, "%s",
-				         files[tns.sel].base);
-		}
 		win_set_title(&win, "sxiv");
-		win_set_bar_info(&win, win_bar_l, NULL);
-	} else {
-		size_readable(&size, &size_unit);
-		if (img.multi.cnt > 0) {
-			fw = 0;
-			for (i = img.multi.cnt; i > 0; i /= 10)
-				fw++;
-			snprintf(frame_info, sizeof frame_info, "%s%0*d/%d",
-			         BAR_SEPARATOR, fw, img.multi.sel+1, img.multi.cnt);
+
+		if (tns.cnt == filecnt) {
+			n = snprintf(t, len, "%0*d/%d", fw, sel + 1, filecnt);
+			ow_info = true;
 		} else {
-			frame_info[0] = '\0';
+			snprintf(bar.l, sizeof(bar.l), "Loading... %0*d/%d",
+			         fw, tns.cnt, filecnt);
+			bar.r[0] = '\0';
+			ow_info = false;
 		}
-		fi = snprintf(win_bar_l, sizeof win_bar_l, "%0*d/%d%s",
-		              pw, fileidx + 1, filecnt, BAR_SEPARATOR);
-		ln = snprintf(win_bar_l + fi, sizeof win_bar_l - fi, "%s",
-		              files[fileidx].name) + fi;
-		rn = snprintf(win_bar_r, sizeof win_bar_r, "%.2f%s%s%dx%d%s%3d%%%s",
-		              size, size_unit, BAR_SEPARATOR, img.w, img.h, BAR_SEPARATOR,
-		              (int) (img.zoom * 100.0), frame_info);
+	} else {
+		snprintf(title, sizeof(title), "sxiv - %s", files[sel].name);
+		win_set_title(&win, title);
 
-		if (win_textwidth(win_bar_l, ln, true) +
-		    win_textwidth(win_bar_r, rn, true) > win.w)
-		{
-			snprintf(win_bar_l + fi, sizeof win_bar_l - fi, "%s",
-			         files[fileidx].base);
+		n = snprintf(t, len, "%3d%% ", (int) (img.zoom * 100.0));
+		if (img.multi.cnt > 0) {
+			for (fn = 0, i = img.multi.cnt; i > 0; fn++, i /= 10);
+			n += snprintf(t + n, len - n, "(%0*d/%d) ",
+			              fn, img.multi.sel + 1, img.multi.cnt);
 		}
-		win_set_bar_info(&win, win_bar_l, win_bar_r);
-
-		snprintf(win_title, sizeof win_title, "sxiv - %s", files[fileidx].name);
-		win_set_title(&win, win_title);
+		n += snprintf(t + n, len - n, "%0*d/%d", fw, sel + 1, filecnt);
+		ow_info = bar.l[0] == '\0';
 	}
+	if (ow_info) {
+		fn = strlen(files[sel].name);
+		if (fn < sizeof(bar.l) &&
+		    win_textwidth(files[sel].name, fn, true) +
+		    win_textwidth(bar.r, n, true) < win.w)
+		{
+			strncpy(bar.l, files[sel].name, sizeof(bar.l));
+		} else {
+			strncpy(bar.l, files[sel].base, sizeof(bar.l));
+		}
+	}
+	win_set_bar_info(&win, bar.l, bar.r);
 }
 
 void redraw(void) {
@@ -519,6 +541,7 @@ int main(int argc, char **argv) {
 	size_t n;
 	ssize_t len;
 	char *filename;
+	const char *homedir;
 	struct stat fstats;
 	r_dir_t dir;
 
@@ -594,6 +617,18 @@ int main(int argc, char **argv) {
 
 	win_init(&win);
 	img_init(&img, &win);
+
+	if ((homedir = getenv("HOME")) == NULL) {
+		warn("could not locate home directory");
+	} else {
+		len = strlen(homedir) + strlen(INFO_SCRIPT) + 2;
+		info_script = (char*) s_malloc(len);
+		snprintf(info_script, len, "%s/%s", homedir, INFO_SCRIPT);
+		if (access(info_script, X_OK) != 0) {
+			free(info_script);
+			info_script = NULL;
+		}
+	}
 
 	if (options->thumb_mode) {
 		mode = MODE_THUMB;
