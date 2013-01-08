@@ -31,8 +31,10 @@
 #include "util.h"
 #include "config.h"
 
-const int thumb_dim = THUMB_SIZE + 10;
-char *cache_dir = NULL;
+static const int thumb_dim = THUMB_SIZE + 10;
+
+static const char * const CACHE_DIR = ".sxiv/cache";
+static char *cache_dir = NULL;
 
 bool tns_cache_enabled(void) {
 	struct stat stats;
@@ -175,9 +177,9 @@ void tns_init(tns_t *tns, int cnt, win_t *win) {
 	if ((homedir = getenv("HOME")) != NULL) {
 		if (cache_dir != NULL)
 			free(cache_dir);
-		len = strlen(homedir) + 10;
-		cache_dir = (char*) s_malloc(len * sizeof(char));
-		snprintf(cache_dir, len, "%s/.sxiv", homedir);
+		len = strlen(homedir) + strlen(CACHE_DIR) + 2;
+		cache_dir = (char*) s_malloc(len);
+		snprintf(cache_dir, len, "%s/%s", homedir, CACHE_DIR);
 	} else {
 		warn("could not locate thumbnail cache directory");
 	}

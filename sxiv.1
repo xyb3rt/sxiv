@@ -308,7 +308,7 @@ Pan image left.
 Pan image right.
 .SH THUMBNAIL CACHING
 To enable thumbnail caching, please make sure to create the directory
-.I ~/.sxiv/
+.I ~/.sxiv/cache/
 with write permissions. sxiv will then store all thumbnails inside this
 directory, but it will not create this directory by itself. It rather uses the
 existance of this directory as an affirmation, that the user wants thumbnails
@@ -319,15 +319,6 @@ Use the command line option
 to keep the cache directory clean by removing all orphaned cache files.
 Additionally, run the following command afterwards inside the cache directory
 to remove empty subdirectories:
-.P
-.RS
-find \-type d \-empty \-delete
-.RE
-.P
-If the version of
-.I find
-installed on your local system does not support the \-delete option, then you
-can also try the following command:
 .P
 .RS
 find . \-depth \-type d \-empty ! \-name '.' \-exec rmdir {} \\;
