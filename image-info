@@ -1,10 +1,17 @@
 #!/bin/sh
 
-#filename=$1
-#filesize=$(du -h "$1")
+# Example for ~/.sxiv/exec/image-info
+# Called by sxiv(1) whenever an image gets loaded,
+# with the name of the image file as its first argument.
+# The output is displayed in sxiv's status bar.
 
-#geometry=$(identify -format '%wx%h' "$1")
+filename=$(basename "$1")
+filesize=$(du -h "$1" | cut -f 1)
 
-#tags=$(exiv2 -q pr -pi "$1" | awk '$1~"Keywords" {print $4","}')
-#tags=${tags%,}
+geometry=$(identify -format '%wx%h' "$1")
+
+tags=$(exiv2 -q pr -pi "$1" | awk '$1~"Keywords" { printf("%s,", $4); }')
+tags=${tags:+|}${tags%,}
+
+echo "[$filesize|$geometry$tags] $filename"
 

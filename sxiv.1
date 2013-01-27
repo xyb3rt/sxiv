@@ -1,6 +1,6 @@
 .TH SXIV 1 sxiv\-VERSION
 .SH NAME
-sxiv \- Simple (or small or suckless) X Image Viewer
+sxiv \- Simple X Image Viewer
 .SH SYNOPSIS
 .B sxiv
 .RB [ \-bcdFfhpqrstvZ ]
@@ -306,6 +306,15 @@ Pan image left.
 .TP
 .B Shift+ScrollDown
 Pan image right.
+.SH STATUS BAR
+The information displayed on the left side of the status bar can be replaced
+with the output of a user-provided script, which is called by sxiv whenever an
+image gets loaded. The path of this script is
+.I ~/.sxiv/exec/image-info
+and the first argument to this script is the path of the loaded image.
+.P
+There is also an example script installed together with sxiv as
+.IR PREFIX/share/sxiv/exec/image-info .
 .SH THUMBNAIL CACHING
 To enable thumbnail caching, please make sure to create the directory
 .I ~/.sxiv/cache/
@@ -325,17 +334,19 @@ find . \-depth \-type d \-empty ! \-name '.' \-exec rmdir {} \\;
 .RE
 .SH AUTHOR
 .EX
-Bert Muennich   <ber.t at gmx.com>
+Bert Muennich   <be.muennich @ gmail.com>
 .EE
 .SH CONTRIBUTORS
 .EX
 Bastien Dejean  <nihilhill at gmail.com>
 Dave Reisner    <d at falconindy.com>
 Fung SzeTat     <sthorde at gmail.com>
-.EX
+.EE
 .SH HOMEPAGE
-.TP
+.EX
+http://muennich.github.com/sxiv
 https://github.com/muennich/sxiv
+.EE
 .SH SEE ALSO
 .BR feh (1),
 .BR qiv (1)
