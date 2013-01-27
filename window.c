@@ -42,12 +42,15 @@ static GC gc;
 
 Atom wm_delete_win;
 
-struct {
+static struct {
 	int ascent;
 	int descent;
 	XFontStruct *xfont;
 	XFontSet set;
 } font;
+
+static int fontheight;
+static int barheight;
 
 void win_init_font(Display *dpy, const char *fontstr) {
 	int n;
@@ -77,6 +80,8 @@ void win_init_font(Display *dpy, const char *fontstr) {
 		font.ascent  = font.xfont->ascent;
 		font.descent = font.xfont->descent;
 	}
+	fontheight = font.ascent + font.descent;
+	barheight = fontheight + 2 * V_TEXT_PAD;
 }
 
 unsigned long win_alloc_color(win_t *win, const char *name) {
@@ -85,8 +90,8 @@ unsigned long win_alloc_color(win_t *win, const char *name) {
 	if (win == NULL)
 		return 0UL;
 	if (XAllocNamedColor(win->env.dpy,
-		                   DefaultColormap(win->env.dpy, win->env.scr),
-											 name, &col, &col) == 0)
+	                     DefaultColormap(win->env.dpy, win->env.scr),
+	                     name, &col, &col) == 0)
 	{
 		die("could not allocate color: %s", name);
 	}
@@ -99,6 +104,8 @@ void win_init(win_t *win) {
 	if (win == NULL)
 		return;
 
+	memset(win, 0, sizeof(win_t));
+
 	e = &win->env;
 	if ((e->dpy = XOpenDisplay(NULL)) == NULL)
 		die("could not open display");
@@ -110,19 +117,12 @@ void win_init(win_t *win) {
 	e->cmap = DefaultColormap(e->dpy, e->scr);
 	e->depth = DefaultDepth(e->dpy, e->scr);
 
-	win->white    = WhitePixel(e->dpy, e->scr);
-	win->bgcol    = win_alloc_color(win, WIN_BG_COLOR);
-	win->fscol    = win_alloc_color(win, WIN_FS_COLOR);
-	win->selcol   = win_alloc_color(win, SEL_COLOR);
-	win->barbgcol = win_alloc_color(win, BAR_BG_COLOR);
-	win->barfgcol = win_alloc_color(win, BAR_FG_COLOR);
-
-	win->xwin = 0;
-	win->pm = 0;
-	win->fullscreen = false;
-	win->barh = 0;
-	win->lbar = NULL;
-	win->rbar = NULL;
+	win->white     = WhitePixel(e->dpy, e->scr);
+	win->bgcol     = win_alloc_color(win, WIN_BG_COLOR);
+	win->fscol     = win_alloc_color(win, WIN_FS_COLOR);
+	win->selcol    = win_alloc_color(win, SEL_COLOR);
+	win->bar.bgcol = win_alloc_color(win, BAR_BG_COLOR);
+	win->bar.fgcol = win_alloc_color(win, BAR_FG_COLOR);
 
 	if (setlocale(LC_CTYPE, "") == NULL || XSupportsLocale() == 0)
 		warn("no locale support");
@@ -141,8 +141,8 @@ void win_set_sizehints(win_t *win) {
 	sizehints.flags = PMinSize | PMaxSize;
 	sizehints.min_width = win->w;
 	sizehints.max_width = win->w;
-	sizehints.min_height = win->h + win->barh;
-	sizehints.max_height = win->h + win->barh;
+	sizehints.min_height = win->h + win->bar.h;
+	sizehints.max_height = win->h + win->bar.h;
 	XSetWMNormalHints(win->env.dpy, win->xwin, &sizehints);
 }
 
@@ -215,8 +215,8 @@ void win_open(win_t *win) {
 	XSetWMProtocols(e->dpy, win->xwin, &wm_delete_win, 1);
 
 	if (!options->hide_bar) {
-		win->barh = font.ascent + font.descent + 2 * V_TEXT_PAD;
-		win->h -= win->barh;
+		win->bar.h = barheight;
+		win->h -= win->bar.h;
 	}
 
 	if (options->fixed_win)
@@ -249,8 +249,8 @@ bool win_configure(win_t *win, XConfigureEvent *c) {
 
 	if (win == NULL || c == NULL)
 		return false;
-	
-	if ((changed = win->w != c->width || win->h + win->barh != c->height)) {
+
+	if ((changed = win->w != c->width || win->h + win->bar.h != c->height)) {
 		if (win->pm != None) {
 			XFreePixmap(win->env.dpy, win->pm);
 			win->pm = None;
@@ -260,7 +260,7 @@ bool win_configure(win_t *win, XConfigureEvent *c) {
 	win->x = c->x;
 	win->y = c->y;
 	win->w = c->width;
-	win->h = c->height - win->barh;
+	win->h = c->height - win->bar.h;
 	win->bw = c->border_width;
 
 	return changed;
@@ -283,13 +283,13 @@ bool win_moveresize(win_t *win, int x, int y, unsigned int w, unsigned int h) {
 	w = MIN(w, win->env.scrw - 2 * win->bw);
 	h = MIN(h, win->env.scrh - 2 * win->bw);
 
-	if (win->x == x && win->y == y && win->w == w && win->h + win->barh == h)
+	if (win->x == x && win->y == y && win->w == w && win->h + win->bar.h == h)
 		return false;
 
 	win->x = x;
 	win->y = y;
 	win->w = w;
-	win->h = h - win->barh;
+	win->h = h - win->bar.h;
 
 	if (options->fixed_win)
 		win_set_sizehints(win);
@@ -327,12 +327,12 @@ void win_toggle_bar(win_t *win) {
 	if (win == NULL || win->xwin == None)
 		return;
 
-	if (win->barh != 0) {
-		win->h += win->barh;
-		win->barh = 0;
+	if (win->bar.h != 0) {
+		win->h += win->bar.h;
+		win->bar.h = 0;
 	} else {
-		win->barh = font.ascent + font.descent + 2 * V_TEXT_PAD;
-		win->h -= win->barh;
+		win->bar.h = barheight;
+		win->h -= win->bar.h;
 	}
 }
 
@@ -343,7 +343,7 @@ void win_clear(win_t *win) {
 	if (win == NULL || win->xwin == None)
 		return;
 
-	h = win->h + win->barh;
+	h = win->h + win->bar.h;
 	e = &win->env;
 
 	if (win->pm == None)
@@ -354,53 +354,56 @@ void win_clear(win_t *win) {
 }
 
 void win_draw_bar(win_t *win) {
+	int len, olen, x, y, w, tw;
+	char rest[3];
+	const char *dots = "...";
 	win_env_t *e;
-	int len, x, y, w, tw = 0, seplen;
-	const char *rt;
 
 	if (win == NULL || win->xwin == None || win->pm == None)
 		return;
 
 	e = &win->env;
-	x = H_TEXT_PAD;
 	y = win->h + font.ascent + V_TEXT_PAD;
-	w = win->w - 2 * H_TEXT_PAD;
+	w = win->w;
 
-	XSetForeground(e->dpy, gc, win->barbgcol);
-	XFillRectangle(e->dpy, win->pm, gc, 0, win->h, win->w, win->barh);
+	XSetForeground(e->dpy, gc, win->bar.bgcol);
+	XFillRectangle(e->dpy, win->pm, gc, 0, win->h, win->w, win->bar.h);
 
-	XSetForeground(e->dpy, gc, win->barfgcol);
-	XSetBackground(e->dpy, gc, win->barbgcol);
+	XSetForeground(e->dpy, gc, win->bar.fgcol);
+	XSetBackground(e->dpy, gc, win->bar.bgcol);
 
-	if (win->lbar != NULL) {
-		len = strlen(win->lbar);
-		while (len > 0 && (tw = win_textwidth(win->lbar, len, false)) > w)
-			len--;
-		w -= tw + 2 * H_TEXT_PAD;
-		if (font.set)
-			XmbDrawString(e->dpy, win->pm, font.set, gc, x, y, win->lbar, len);
-		else
-			XDrawString(e->dpy, win->pm, gc, x, y, win->lbar, len);
-	}
-	if (win->rbar != NULL) {
-		len = strlen(win->rbar);
-		seplen = strlen(BAR_SEPARATOR);
-		rt = win->rbar;
-		while (len > 0 && (tw = win_textwidth(rt, len, false)) > w) {
-			rt = strstr(rt, BAR_SEPARATOR);
-			if (rt != NULL) {
-				rt += seplen;
-				len = strlen(rt);
-			} else {
-				len = 0;
-			}
-		}
+	if (win->bar.r != NULL) {
+		len = strlen(win->bar.r);
 		if (len > 0) {
-			x = win->w - tw - H_TEXT_PAD;
+			if ((tw = win_textwidth(win->bar.r, len, true)) > w)
+				return;
+			x = win->w - tw + H_TEXT_PAD;
+			w -= tw;
 			if (font.set)
-				XmbDrawString(e->dpy, win->pm, font.set, gc, x, y, rt, len);
+				XmbDrawString(e->dpy, win->pm, font.set, gc, x, y, win->bar.r, len);
 			else
-				XDrawString(e->dpy, win->pm, gc, x, y, rt, len);
+				XDrawString(e->dpy, win->pm, gc, x, y, win->bar.r, len);
+		}
+	}
+	if (win->bar.l != NULL) {
+		olen = len = strlen(win->bar.l);
+		while (len > 0 && (tw = win_textwidth(win->bar.l, len, true)) > w)
+			len--;
+		if (len > 0) {
+      if (len != olen) {
+        w = strlen(dots);
+        if (len <= w)
+          return;
+        memcpy(rest, win->bar.l + len - w, w);
+        memcpy(win->bar.l + len - w, dots, w);
+      }
+			x = H_TEXT_PAD;
+			if (font.set)
+				XmbDrawString(e->dpy, win->pm, font.set, gc, x, y, win->bar.l, len);
+			else
+				XDrawString(e->dpy, win->pm, gc, x, y, win->bar.l, len);
+			if (len != olen)
+			  memcpy(win->bar.l + len - w, rest, w);
 		}
 	}
 }
@@ -409,11 +412,11 @@ void win_draw(win_t *win) {
 	if (win == NULL || win->xwin == None || win->pm == None)
 		return;
 
-	if (win->barh > 0)
+	if (win->bar.h > 0)
 		win_draw_bar(win);
 
 	XCopyArea(win->env.dpy, win->pm, win->xwin, gc,
-	          0, 0, win->w, win->h + win->barh, 0, 0);
+	          0, 0, win->w, win->h + win->bar.h, 0, 0);
 }
 
 void win_draw_rect(win_t *win, Pixmap pm, int x, int y, int w, int h,
@@ -466,10 +469,10 @@ void win_set_title(win_t *win, const char *title) {
 	                PropModeReplace, (unsigned char *) title, strlen(title));
 }
 
-void win_set_bar_info(win_t *win, const char *li, const char *ri) {
+void win_set_bar_info(win_t *win, char *linfo, char *rinfo) {
 	if (win != NULL) {
-		win->lbar = li;
-		win->rbar = ri;
+		win->bar.l = linfo;
+		win->bar.r = rinfo;
 	}
 }
 

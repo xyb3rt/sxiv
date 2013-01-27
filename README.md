@@ -1,7 +1,7 @@
 sxiv
 ====
 
-**Simple (or small or suckless) X Image Viewer**
+**Simple X Image Viewer**
 
 sxiv is an alternative to feh and qiv. Its only dependencies besides xlib are
 imlib2 and giflib. The primary goal for writing sxiv is to create an image
@@ -20,7 +20,7 @@ Features
 * Ability to cache thumbnails for fast re-loading
 * Basic support for multi-frame images
 * Load all frames from GIF files and play GIF animations
-* Display image information in window title
+* Display image information in status bar
 
 
 Screenshots

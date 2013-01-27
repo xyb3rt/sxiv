@@ -1,4 +1,4 @@
-VERSION = git-20130112
+VERSION = git-20130127
 
 PREFIX    = /usr/local
 MANPREFIX = $(PREFIX)/share/man
@@ -32,9 +32,13 @@ install: all
 	cp sxiv $(DESTDIR)$(PREFIX)/bin/
 	chmod 755 $(DESTDIR)$(PREFIX)/bin/sxiv
 	mkdir -p $(DESTDIR)$(MANPREFIX)/man1
-	sed "s/VERSION/$(VERSION)/g" sxiv.1 > $(DESTDIR)$(MANPREFIX)/man1/sxiv.1
+	sed "s!PREFIX!$(PREFIX)!g; s!VERSION!$(VERSION)!g" sxiv.1 > $(DESTDIR)$(MANPREFIX)/man1/sxiv.1
 	chmod 644 $(DESTDIR)$(MANPREFIX)/man1/sxiv.1
+	mkdir -p $(DESTDIR)$(PREFIX)/share/sxiv/exec
+	cp image-info $(DESTDIR)$(PREFIX)/share/sxiv/exec/image-info
+	chmod 755 $(DESTDIR)$(PREFIX)/share/sxiv/exec/image-info
 
 uninstall:
 	rm -f $(DESTDIR)$(PREFIX)/bin/sxiv
 	rm -f $(DESTDIR)$(MANPREFIX)/man1/sxiv.1
+	rm -rf $(DESTDIR)$(PREFIX)/share/sxiv
