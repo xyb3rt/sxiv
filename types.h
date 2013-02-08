@@ -19,14 +19,7 @@
 #ifndef TYPES_H
 #define TYPES_H
 
-#undef bool
-#undef false
-#undef true
-
-typedef enum {
-	false,
-	true
-} bool;
+#include <stdbool.h>
 
 typedef enum {
 	BO_BIG_ENDIAN,
