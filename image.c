@@ -38,11 +38,13 @@ enum { MIN_GIF_DELAY = 25 };
 float zoom_min;
 float zoom_max;
 
-int zoomdiff(float z1, float z2) {
+int zoomdiff(float z1, float z2)
+{
 	return (int) (z1 * 1000.0 - z2 * 1000.0);
 }
 
-void img_init(img_t *img, win_t *win) {
+void img_init(img_t *img, win_t *win)
+{
 	zoom_min = zoom_levels[0] / 100.0;
 	zoom_max = zoom_levels[ARRLEN(zoom_levels) - 1] / 100.0;
 
@@ -66,7 +68,8 @@ void img_init(img_t *img, win_t *win) {
 	img->multi.animate = false;
 }
 
-void exif_auto_orientate(const fileinfo_t *file) {
+void exif_auto_orientate(const fileinfo_t *file)
+{
 	switch (exif_orientation(file)) {
 		case 5:
 			imlib_image_orientate(1);
@@ -95,7 +98,8 @@ void exif_auto_orientate(const fileinfo_t *file) {
 }
 
 #if HAVE_GIFLIB
-bool img_load_gif(img_t *img, const fileinfo_t *file) {
+bool img_load_gif(img_t *img, const fileinfo_t *file)
+{
 	GifFileType *gif;
 	GifRowType *rows = NULL;
 	GifRecordType rec;
@@ -266,7 +270,8 @@ bool img_load_gif(img_t *img, const fileinfo_t *file) {
 }
 #endif /* HAVE_GIFLIB */
 
-bool img_load(img_t *img, const fileinfo_t *file) {
+bool img_load(img_t *img, const fileinfo_t *file)
+{
 	const char *fmt;
 
 	if (img == NULL || file == NULL || file->name == NULL || file->path == NULL)
@@ -303,7 +308,8 @@ bool img_load(img_t *img, const fileinfo_t *file) {
 	return true;
 }
 
-void img_close(img_t *img, bool decache) {
+void img_close(img_t *img, bool decache)
+{
 	int i;
 
 	if (img == NULL)
@@ -326,7 +332,8 @@ void img_close(img_t *img, bool decache) {
 	}
 }
 
-void img_check_pan(img_t *img, bool moved) {
+void img_check_pan(img_t *img, bool moved)
+{
 	win_t *win;
 	int ox, oy;
 
@@ -358,7 +365,8 @@ void img_check_pan(img_t *img, bool moved) {
 		img->dirty = true;
 }
 
-bool img_fit(img_t *img) {
+bool img_fit(img_t *img)
+{
 	float z, zmax, zw, zh;
 
 	if (img == NULL || img->im == NULL || img->win == NULL)
@@ -394,7 +402,8 @@ bool img_fit(img_t *img) {
 	}
 }
 
-void img_render(img_t *img) {
+void img_render(img_t *img)
+{
 	win_t *win;
 	int sx, sy, sw, sh;
 	int dx, dy, dw, dh;
@@ -464,7 +473,8 @@ void img_render(img_t *img) {
 	img->dirty = false;
 }
 
-bool img_fit_win(img_t *img, scalemode_t sm) {
+bool img_fit_win(img_t *img, scalemode_t sm)
+{
 	if (img == NULL || img->im == NULL)
 		return false;
 
@@ -472,7 +482,8 @@ bool img_fit_win(img_t *img, scalemode_t sm) {
 	return img_fit(img);
 }
 
-bool img_center(img_t *img) {
+bool img_center(img_t *img)
+{
 	int ox, oy;
 
 	if (img == NULL || img->im == NULL || img->win == NULL)
@@ -492,7 +503,8 @@ bool img_center(img_t *img) {
 	}
 }
 
-bool img_zoom(img_t *img, float z) {
+bool img_zoom(img_t *img, float z)
+{
 	if (img == NULL || img->im == NULL || img->win == NULL)
 		return false;
 
@@ -513,7 +525,8 @@ bool img_zoom(img_t *img, float z) {
 	}
 }
 
-bool img_zoom_in(img_t *img) {
+bool img_zoom_in(img_t *img)
+{
 	int i;
 	float z;
 
@@ -528,7 +541,8 @@ bool img_zoom_in(img_t *img) {
 	return false;
 }
 
-bool img_zoom_out(img_t *img) {
+bool img_zoom_out(img_t *img)
+{
 	int i;
 	float z;
 
@@ -543,7 +557,8 @@ bool img_zoom_out(img_t *img) {
 	return false;
 }
 
-bool img_move(img_t *img, float dx, float dy) {
+bool img_move(img_t *img, float dx, float dy)
+{
 	float ox, oy;
 
 	if (img == NULL || img->im == NULL)
@@ -565,7 +580,8 @@ bool img_move(img_t *img, float dx, float dy) {
 	}
 }
 
-bool img_pan(img_t *img, direction_t dir, int d) {
+bool img_pan(img_t *img, direction_t dir, int d)
+{
 	/* d < 0: screen-wise
 	 * d = 0: 1/5 of screen
 	 * d > 0: num of pixels
@@ -595,7 +611,8 @@ bool img_pan(img_t *img, direction_t dir, int d) {
 	return false;
 }
 
-bool img_pan_edge(img_t *img, direction_t dir) {
+bool img_pan_edge(img_t *img, direction_t dir)
+{
 	int ox, oy;
 
 	if (img == NULL || img->im == NULL || img->win == NULL)
@@ -629,7 +646,8 @@ bool img_pan_edge(img_t *img, direction_t dir) {
 	}
 }
 
-void img_rotate(img_t *img, int d) {
+void img_rotate(img_t *img, int d)
+{
 	win_t *win;
 	int ox, oy, tmp;
 
@@ -654,15 +672,18 @@ void img_rotate(img_t *img, int d) {
 	img->dirty = true;
 }
 
-void img_rotate_left(img_t *img) {
+void img_rotate_left(img_t *img)
+{
 	img_rotate(img, 3);
 }
 
-void img_rotate_right(img_t *img) {
+void img_rotate_right(img_t *img)
+{
 	img_rotate(img, 1);
 }
 
-void img_flip(img_t *img, flipdir_t d) {
+void img_flip(img_t *img, flipdir_t d)
+{
 	if (img == NULL || img->im == NULL)
 		return;
 
@@ -679,7 +700,8 @@ void img_flip(img_t *img, flipdir_t d) {
 	img->dirty = true;
 }
 
-void img_toggle_antialias(img_t *img) {
+void img_toggle_antialias(img_t *img)
+{
 	if (img == NULL || img->im == NULL)
 		return;
 
@@ -689,7 +711,8 @@ void img_toggle_antialias(img_t *img) {
 	img->dirty = true;
 }
 
-bool img_frame_goto(img_t *img, int n) {
+bool img_frame_goto(img_t *img, int n)
+{
 	if (img == NULL || img->im == NULL)
 		return false;
 	if (n < 0 || n >= img->multi.cnt || n == img->multi.sel)
@@ -707,7 +730,8 @@ bool img_frame_goto(img_t *img, int n) {
 	return true;
 }
 
-bool img_frame_navigate(img_t *img, int d) {
+bool img_frame_navigate(img_t *img, int d)
+{
 	if (img == NULL|| img->im == NULL || img->multi.cnt == 0 || d == 0)
 		return false;
 
@@ -720,7 +744,8 @@ bool img_frame_navigate(img_t *img, int d) {
 	return img_frame_goto(img, d);
 }
 
-bool img_frame_animate(img_t *img, bool restart) {
+bool img_frame_animate(img_t *img, bool restart)
+{
 	if (img == NULL || img->im == NULL || img->multi.cnt == 0)
 		return false;
 

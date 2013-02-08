@@ -36,14 +36,16 @@ static const int thumb_dim = THUMB_SIZE + 10;
 static const char * const CACHE_DIR = ".sxiv/cache";
 static char *cache_dir = NULL;
 
-bool tns_cache_enabled(void) {
+bool tns_cache_enabled(void)
+{
 	struct stat stats;
 
 	return cache_dir != NULL && stat(cache_dir, &stats) == 0 &&
 	       S_ISDIR(stats.st_mode) && access(cache_dir, W_OK) == 0;
 }
 
-char* tns_cache_filepath(const char *filepath) {
+char* tns_cache_filepath(const char *filepath)
+{
 	size_t len;
 	char *cfile = NULL;
 
@@ -59,7 +61,8 @@ char* tns_cache_filepath(const char *filepath) {
 	return cfile;
 }
 
-Imlib_Image* tns_cache_load(const char *filepath) {
+Imlib_Image* tns_cache_load(const char *filepath)
+{
 	char *cfile;
 	struct stat cstats, fstats;
 	Imlib_Image *im = NULL;
@@ -77,7 +80,8 @@ Imlib_Image* tns_cache_load(const char *filepath) {
 	return im;
 }
 
-void tns_cache_write(thumb_t *t, bool force) {
+void tns_cache_write(thumb_t *t, bool force)
+{
 	char *cfile, *dirend;
 	struct stat cstats, fstats;
 	struct utimbuf times;
@@ -118,7 +122,8 @@ void tns_cache_write(thumb_t *t, bool force) {
 	}
 }
 
-void tns_clean_cache(tns_t *tns) {
+void tns_clean_cache(tns_t *tns)
+{
 	int dirlen;
 	bool delete;
 	char *cfile, *filename, *tpos;
@@ -154,7 +159,8 @@ void tns_clean_cache(tns_t *tns) {
 }
 
 
-void tns_init(tns_t *tns, int cnt, win_t *win) {
+void tns_init(tns_t *tns, int cnt, win_t *win)
+{
 	int len;
 	char *homedir;
 
@@ -185,7 +191,8 @@ void tns_init(tns_t *tns, int cnt, win_t *win) {
 	}
 }
 
-void tns_free(tns_t *tns) {
+void tns_free(tns_t *tns)
+{
 	int i;
 
 	if (tns == NULL)
@@ -282,7 +289,8 @@ bool tns_load(tns_t *tns, int n, const fileinfo_t *file,
 	return true;
 }
 
-void tns_check_view(tns_t *tns, bool scrolled) {
+void tns_check_view(tns_t *tns, bool scrolled)
+{
 	int r;
 
 	if (tns == NULL)
@@ -309,7 +317,8 @@ void tns_check_view(tns_t *tns, bool scrolled) {
 	}
 }
 
-void tns_render(tns_t *tns) {
+void tns_render(tns_t *tns)
+{
 	thumb_t *t;
 	win_t *win;
 	int i, cnt, r, x, y;
@@ -364,7 +373,8 @@ void tns_render(tns_t *tns) {
 	tns_highlight(tns, tns->sel, true);
 }
 
-void tns_highlight(tns_t *tns, int n, bool hl) {
+void tns_highlight(tns_t *tns, int n, bool hl)
+{
 	thumb_t *t;
 	win_t *win;
 	int x, y;
@@ -392,7 +402,8 @@ void tns_highlight(tns_t *tns, int n, bool hl) {
 	}
 }
 
-bool tns_move_selection(tns_t *tns, direction_t dir, int cnt) {
+bool tns_move_selection(tns_t *tns, direction_t dir, int cnt)
+{
 	int old, max;
 
 	if (tns == NULL || tns->thumbs == NULL)
@@ -427,7 +438,8 @@ bool tns_move_selection(tns_t *tns, direction_t dir, int cnt) {
 	return tns->sel != old;
 }
 
-bool tns_scroll(tns_t *tns, direction_t dir, bool screen) {
+bool tns_scroll(tns_t *tns, direction_t dir, bool screen)
+{
 	int d, max, old;
 
 	if (tns == NULL)
@@ -452,7 +464,8 @@ bool tns_scroll(tns_t *tns, direction_t dir, bool screen) {
 	return tns->first != old;
 }
 
-int tns_translate(tns_t *tns, int x, int y) {
+int tns_translate(tns_t *tns, int x, int y)
+{
 	int n;
 
 	if (tns == NULL || tns->thumbs == NULL)

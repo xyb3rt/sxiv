@@ -31,16 +31,19 @@
 options_t _options;
 const options_t *options = (const options_t*) &_options;
 
-void print_usage(void) {
+void print_usage(void)
+{
 	printf("usage: sxiv [-bcdFfhpqrstvZ] [-g GEOMETRY] [-n NUM] "
 	       "[-N name] [-z ZOOM] FILES...\n");
 }
 
-void print_version(void) {
+void print_version(void)
+{
 	printf("sxiv %s - Simple X Image Viewer\n", VERSION);
 }
 
-void parse_options(int argc, char **argv) {
+void parse_options(int argc, char **argv)
+{
 	int opt, t;
 
 	_options.recursive = false;

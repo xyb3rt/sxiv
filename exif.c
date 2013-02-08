@@ -26,7 +26,8 @@
 #include "exif.h"
 #include "util.h"
 
-ssize_t s_read(int fd, const char *fn, void *buf, size_t n) {
+ssize_t s_read(int fd, const char *fn, void *buf, size_t n)
+{
 	ssize_t ret;
 
 	ret = read(fd, buf, n);
@@ -38,7 +39,8 @@ ssize_t s_read(int fd, const char *fn, void *buf, size_t n) {
 	}
 }
 
-unsigned short btous(unsigned char *buf, byteorder_t order) {
+unsigned short btous(unsigned char *buf, byteorder_t order)
+{
 	if (buf == NULL)
 		return 0;
 	if (order == BO_BIG_ENDIAN)
@@ -47,7 +49,8 @@ unsigned short btous(unsigned char *buf, byteorder_t order) {
 		return buf[1] << 8 | buf[0];
 }
 
-unsigned int btoui(unsigned char *buf, byteorder_t order) {
+unsigned int btoui(unsigned char *buf, byteorder_t order)
+{
 	if (buf == NULL)
 		return 0;
 	if (order == BO_BIG_ENDIAN)
@@ -56,7 +59,8 @@ unsigned int btoui(unsigned char *buf, byteorder_t order) {
 		return buf[3] << 24 | buf[2] << 16 | buf[1] << 8 | buf[0];
 }
 
-int exif_orientation(const fileinfo_t *file) {
+int exif_orientation(const fileinfo_t *file)
+{
 	int fd;
 	unsigned char data[EXIF_MAX_LEN];
 	byteorder_t order = BO_BIG_ENDIAN;

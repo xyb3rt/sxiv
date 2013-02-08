@@ -52,7 +52,8 @@ static struct {
 static int fontheight;
 static int barheight;
 
-void win_init_font(Display *dpy, const char *fontstr) {
+void win_init_font(Display *dpy, const char *fontstr)
+{
 	int n;
 	char *def, **missing;
 
@@ -84,7 +85,8 @@ void win_init_font(Display *dpy, const char *fontstr) {
 	barheight = fontheight + 2 * V_TEXT_PAD;
 }
 
-unsigned long win_alloc_color(win_t *win, const char *name) {
+unsigned long win_alloc_color(win_t *win, const char *name)
+{
 	XColor col;
 
 	if (win == NULL)
@@ -98,7 +100,8 @@ unsigned long win_alloc_color(win_t *win, const char *name) {
 	return col.pixel;
 }
 
-void win_init(win_t *win) {
+void win_init(win_t *win)
+{
 	win_env_t *e;
 
 	if (win == NULL)
@@ -132,7 +135,8 @@ void win_init(win_t *win) {
 	wm_delete_win = XInternAtom(e->dpy, "WM_DELETE_WINDOW", False);
 }
 
-void win_set_sizehints(win_t *win) {
+void win_set_sizehints(win_t *win)
+{
 	XSizeHints sizehints;
 
 	if (win == NULL || win->xwin == None)
@@ -146,7 +150,8 @@ void win_set_sizehints(win_t *win) {
 	XSetWMNormalHints(win->env.dpy, win->xwin, &sizehints);
 }
 
-void win_open(win_t *win) {
+void win_open(win_t *win)
+{
 	win_env_t *e;
 	XClassHint classhint;
 	XColor col;
@@ -229,7 +234,8 @@ void win_open(win_t *win) {
 		win_toggle_fullscreen(win);
 }
 
-void win_close(win_t *win) {
+void win_close(win_t *win)
+{
 	if (win == NULL || win->xwin == None)
 		return;
 
@@ -244,7 +250,8 @@ void win_close(win_t *win) {
 	XCloseDisplay(win->env.dpy);
 }
 
-bool win_configure(win_t *win, XConfigureEvent *c) {
+bool win_configure(win_t *win, XConfigureEvent *c)
+{
 	bool changed;
 
 	if (win == NULL || c == NULL)
@@ -266,7 +273,8 @@ bool win_configure(win_t *win, XConfigureEvent *c) {
 	return changed;
 }
 
-void win_expose(win_t *win, XExposeEvent *e) {
+void win_expose(win_t *win, XExposeEvent *e)
+{
 	if (win == NULL || win->xwin == None || win->pm == None || e == NULL)
 		return;
 
@@ -274,7 +282,8 @@ void win_expose(win_t *win, XExposeEvent *e) {
 	          e->x, e->y, e->width, e->height, e->x, e->y);
 }
 
-bool win_moveresize(win_t *win, int x, int y, unsigned int w, unsigned int h) {
+bool win_moveresize(win_t *win, int x, int y, unsigned int w, unsigned int h)
+{
 	if (win == NULL || win->xwin == None)
 		return false;
 
@@ -299,7 +308,8 @@ bool win_moveresize(win_t *win, int x, int y, unsigned int w, unsigned int h) {
 	return true;
 }
 
-void win_toggle_fullscreen(win_t *win) {
+void win_toggle_fullscreen(win_t *win)
+{
 	XEvent ev;
 	XClientMessageEvent *cm;
 
@@ -323,7 +333,8 @@ void win_toggle_fullscreen(win_t *win) {
 	           SubstructureNotifyMask | SubstructureRedirectMask, &ev);
 }
 
-void win_toggle_bar(win_t *win) {
+void win_toggle_bar(win_t *win)
+{
 	if (win == NULL || win->xwin == None)
 		return;
 
@@ -336,7 +347,8 @@ void win_toggle_bar(win_t *win) {
 	}
 }
 
-void win_clear(win_t *win) {
+void win_clear(win_t *win)
+{
 	int h;
 	win_env_t *e;
 
@@ -353,7 +365,8 @@ void win_clear(win_t *win) {
 	XFillRectangle(e->dpy, win->pm, gc, 0, 0, win->w, h);
 }
 
-void win_draw_bar(win_t *win) {
+void win_draw_bar(win_t *win)
+{
 	int len, olen, x, y, w, tw;
 	char rest[3];
 	const char *dots = "...";
@@ -408,7 +421,8 @@ void win_draw_bar(win_t *win) {
 	}
 }
 
-void win_draw(win_t *win) {
+void win_draw(win_t *win)
+{
 	if (win == NULL || win->xwin == None || win->pm == None)
 		return;
 
@@ -437,7 +451,8 @@ void win_draw_rect(win_t *win, Pixmap pm, int x, int y, int w, int h,
 		XDrawRectangle(win->env.dpy, pm, gc, x, y, w, h);
 }
 
-int win_textwidth(const char *text, unsigned int len, bool with_padding) {
+int win_textwidth(const char *text, unsigned int len, bool with_padding)
+{
 	XRectangle r;
 	int padding = with_padding ? 2 * H_TEXT_PAD : 0;
 
@@ -449,7 +464,8 @@ int win_textwidth(const char *text, unsigned int len, bool with_padding) {
 	}
 }
 
-void win_set_title(win_t *win, const char *title) {
+void win_set_title(win_t *win, const char *title)
+{
 	if (win == NULL || win->xwin == None)
 		return;
 
@@ -469,14 +485,16 @@ void win_set_title(win_t *win, const char *title) {
 	                PropModeReplace, (unsigned char *) title, strlen(title));
 }
 
-void win_set_bar_info(win_t *win, char *linfo, char *rinfo) {
+void win_set_bar_info(win_t *win, char *linfo, char *rinfo)
+{
 	if (win != NULL) {
 		win->bar.l = linfo;
 		win->bar.r = rinfo;
 	}
 }
 
-void win_set_cursor(win_t *win, cursor_t cursor) {
+void win_set_cursor(win_t *win, cursor_t cursor)
+{
 	if (win == NULL || win->xwin == None)
 		return;
 

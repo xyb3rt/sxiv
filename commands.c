@@ -54,12 +54,14 @@ const int ss_delays[] = {
 	1, 2, 3, 5, 10, 15, 20, 30, 60, 120, 180, 300, 600
 };
 
-bool it_quit(arg_t a) {
+bool it_quit(arg_t a)
+{
 	cleanup();
 	exit(EXIT_SUCCESS);
 }
 
-bool it_switch_mode(arg_t a) {
+bool it_switch_mode(arg_t a)
+{
 	if (mode == MODE_IMAGE) {
 		if (tns.thumbs == NULL)
 			tns_init(&tns, filecnt, &win);
@@ -75,7 +77,8 @@ bool it_switch_mode(arg_t a) {
 	return true;
 }
 
-bool it_toggle_fullscreen(arg_t a) {
+bool it_toggle_fullscreen(arg_t a)
+{
 	win_toggle_fullscreen(&win);
 	/* redraw after next ConfigureNotify event */
 	set_timeout(redraw, TO_REDRAW_RESIZE, false);
@@ -86,7 +89,8 @@ bool it_toggle_fullscreen(arg_t a) {
 	return false;
 }
 
-bool it_toggle_bar(arg_t a) {
+bool it_toggle_bar(arg_t a)
+{
 	win_toggle_bar(&win);
 	if (mode == MODE_IMAGE)
 		img.checkpan = img.dirty = true;
@@ -95,7 +99,8 @@ bool it_toggle_bar(arg_t a) {
 	return true;
 }
 
-bool t_reload_all(arg_t a) {
+bool t_reload_all(arg_t a)
+{
 	if (mode == MODE_THUMB) {
 		tns_free(&tns);
 		tns_init(&tns, filecnt, &win);
@@ -105,7 +110,8 @@ bool t_reload_all(arg_t a) {
 	}
 }
 
-bool it_reload_image(arg_t a) {
+bool it_reload_image(arg_t a)
+{
 	if (mode == MODE_IMAGE) {
 		load_image(fileidx);
 	} else {
@@ -120,7 +126,8 @@ bool it_reload_image(arg_t a) {
 	return true;
 }
 
-bool it_remove_image(arg_t a) {
+bool it_remove_image(arg_t a)
+{
 	if (mode == MODE_IMAGE) {
 		remove_file(fileidx, true);
 		load_image(fileidx >= filecnt ? filecnt - 1 : fileidx);
@@ -136,7 +143,8 @@ bool it_remove_image(arg_t a) {
 	}
 }
 
-bool i_navigate(arg_t a) {
+bool i_navigate(arg_t a)
+{
 	long n = (long) a;
 
 	if (mode == MODE_IMAGE) {
@@ -156,7 +164,8 @@ bool i_navigate(arg_t a) {
 	return false;
 }
 
-bool i_alternate(arg_t a) {
+bool i_alternate(arg_t a)
+{
 	if (mode == MODE_IMAGE) {
 		load_image(alternate);
 		return true;
@@ -165,7 +174,8 @@ bool i_alternate(arg_t a) {
 	}
 }
 
-bool it_first(arg_t a) {
+bool it_first(arg_t a)
+{
 	if (mode == MODE_IMAGE && fileidx != 0) {
 		load_image(0);
 		return true;
@@ -178,7 +188,8 @@ bool it_first(arg_t a) {
 	}
 }
 
-bool it_n_or_last(arg_t a) {
+bool it_n_or_last(arg_t a)
+{
 	int n = prefix != 0 && prefix - 1 < filecnt ? prefix - 1 : filecnt - 1;
 
 	if (mode == MODE_IMAGE && fileidx != n) {
@@ -193,14 +204,16 @@ bool it_n_or_last(arg_t a) {
 	}
 }
 
-bool i_navigate_frame(arg_t a) {
+bool i_navigate_frame(arg_t a)
+{
 	if (mode == MODE_IMAGE && !img.multi.animate)
 		return img_frame_navigate(&img, (long) a);
 	else
 		return false;
 }
 
-bool i_toggle_animation(arg_t a) {
+bool i_toggle_animation(arg_t a)
+{
 	if (mode != MODE_IMAGE)
 		return false;
 
@@ -213,7 +226,8 @@ bool i_toggle_animation(arg_t a) {
 	return true;
 }
 
-bool it_scroll_move(arg_t a) {
+bool it_scroll_move(arg_t a)
+{
 	direction_t dir = (direction_t) a;
 
 	if (mode == MODE_IMAGE)
@@ -222,7 +236,8 @@ bool it_scroll_move(arg_t a) {
 		return tns_move_selection(&tns, dir, prefix);
 }
 
-bool it_scroll_screen(arg_t a) {
+bool it_scroll_screen(arg_t a)
+{
 	direction_t dir = (direction_t) a;
 
 	if (mode == MODE_IMAGE)
@@ -231,7 +246,8 @@ bool it_scroll_screen(arg_t a) {
 		return tns_scroll(&tns, dir, true);
 }
 
-bool i_scroll_to_edge(arg_t a) {
+bool i_scroll_to_edge(arg_t a)
+{
 	direction_t dir = (direction_t) a;
 
 	if (mode == MODE_IMAGE)
@@ -241,11 +257,13 @@ bool i_scroll_to_edge(arg_t a) {
 }
 
 /* Xlib helper function for i_drag() */
-Bool is_motionnotify(Display *d, XEvent *e, XPointer a) {
+Bool is_motionnotify(Display *d, XEvent *e, XPointer a)
+{
 	return e != NULL && e->type == MotionNotify;
 }
 
-bool i_drag(arg_t a) {
+bool i_drag(arg_t a)
+{
 	int dx = 0, dy = 0, i, ox, oy, x, y;
 	unsigned int ui;
 	bool dragging = true, next = false;
@@ -297,7 +315,8 @@ bool i_drag(arg_t a) {
 	return false;
 }
 
-bool i_zoom(arg_t a) {
+bool i_zoom(arg_t a)
+{
 	long scale = (long) a;
 
 	if (mode != MODE_IMAGE)
@@ -311,14 +330,16 @@ bool i_zoom(arg_t a) {
 		return false;
 }
 
-bool i_set_zoom(arg_t a) {
+bool i_set_zoom(arg_t a)
+{
 	if (mode == MODE_IMAGE)
 		return img_zoom(&img, (prefix ? prefix : (long) a) / 100.0);
 	else
 		return false;
 }
 
-bool i_fit_to_win(arg_t a) {
+bool i_fit_to_win(arg_t a)
+{
 	bool ret = false;
 	scalemode_t sm = (scalemode_t) a;
 
@@ -329,7 +350,8 @@ bool i_fit_to_win(arg_t a) {
 	return ret;
 }
 
-bool i_fit_to_img(arg_t a) {
+bool i_fit_to_img(arg_t a)
+{
 	int x, y;
 	unsigned int w, h;
 	bool ret = false;
@@ -348,7 +370,8 @@ bool i_fit_to_img(arg_t a) {
 	return ret;
 }
 
-bool i_rotate(arg_t a) {
+bool i_rotate(arg_t a)
+{
 	direction_t dir = (direction_t) a;
 
 	if (mode == MODE_IMAGE) {
@@ -363,7 +386,8 @@ bool i_rotate(arg_t a) {
 	return false;
 }
 
-bool i_flip(arg_t a) {
+bool i_flip(arg_t a)
+{
 	flipdir_t dir = (flipdir_t) a;
 
 	if (mode == MODE_IMAGE) {
@@ -374,7 +398,8 @@ bool i_flip(arg_t a) {
 	}
 }
 
-bool i_toggle_antialias(arg_t a) {
+bool i_toggle_antialias(arg_t a)
+{
 	if (mode == MODE_IMAGE) {
 		img_toggle_antialias(&img);
 		return true;
@@ -383,7 +408,8 @@ bool i_toggle_antialias(arg_t a) {
 	}
 }
 
-bool it_toggle_alpha(arg_t a) {
+bool it_toggle_alpha(arg_t a)
+{
 	img.alpha = tns.alpha = !img.alpha;
 	if (mode == MODE_IMAGE)
 		img.dirty = true;
@@ -392,7 +418,8 @@ bool it_toggle_alpha(arg_t a) {
 	return true;
 }
 
-bool it_open_with(arg_t a) {
+bool it_open_with(arg_t a)
+{
 	const char *prog = (const char*) a;
 	pid_t pid;
 
@@ -410,7 +437,8 @@ bool it_open_with(arg_t a) {
 	return false;
 }
 
-bool it_shell_cmd(arg_t a) {
+bool it_shell_cmd(arg_t a)
+{
 	int n, status;
 	const char *cmdline = (const char*) a;
 	pid_t pid;

@@ -85,7 +85,8 @@ timeout_t timeouts[] = {
 	{ { 0, 0 }, false, clear_resize },
 };
 
-void cleanup(void) {
+void cleanup(void)
+{
 	static bool in = false;
 
 	if (!in) {
@@ -96,7 +97,8 @@ void cleanup(void) {
 	}
 }
 
-void check_add_file(char *filename) {
+void check_add_file(char *filename)
+{
 	const char *bn;
 
 	if (filename == NULL || *filename == '\0')
@@ -129,7 +131,8 @@ void check_add_file(char *filename) {
 	fileidx++;
 }
 
-void remove_file(int n, bool manual) {
+void remove_file(int n, bool manual)
+{
 	if (n < 0 || n >= filecnt)
 		return;
 
@@ -157,7 +160,8 @@ void remove_file(int n, bool manual) {
 		tns.cnt--;
 }
 
-void set_timeout(timeout_f handler, int time, bool overwrite) {
+void set_timeout(timeout_f handler, int time, bool overwrite)
+{
 	int i;
 
 	for (i = 0; i < ARRLEN(timeouts); i++) {
@@ -172,7 +176,8 @@ void set_timeout(timeout_f handler, int time, bool overwrite) {
 	}
 }
 
-void reset_timeout(timeout_f handler) {
+void reset_timeout(timeout_f handler)
+{
 	int i;
 
 	for (i = 0; i < ARRLEN(timeouts); i++) {
@@ -183,7 +188,8 @@ void reset_timeout(timeout_f handler) {
 	}
 }
 
-bool check_timeouts(struct timeval *t) {
+bool check_timeouts(struct timeval *t)
+{
 	int i = 0, tdiff, tmin = -1;
 	struct timeval now;
 
@@ -207,7 +213,8 @@ bool check_timeouts(struct timeval *t) {
 	return tmin > 0;
 }
 
-void read_info(void) {
+void read_info(void)
+{
 	char cmd[4096];
 	FILE *outp;
 	int c, i = 0, n = sizeof(bar.l) - 1;
@@ -237,7 +244,8 @@ end:
 	bar.l[i] = '\0';
 }
 
-void load_image(int new) {
+void load_image(int new)
+{
 	if (new < 0 || new >= filecnt)
 		return;
 
@@ -262,7 +270,8 @@ void load_image(int new) {
 		reset_timeout(animate);
 }
 
-void update_info(void) {
+void update_info(void)
+{
 	unsigned int i, fn, fw, n, len = sizeof(bar.r);
 	int sel;
 	char *t = bar.r, title[TITLE_LEN];
@@ -310,7 +319,8 @@ void update_info(void) {
 	win_set_bar_info(&win, bar.l, bar.r);
 }
 
-void redraw(void) {
+void redraw(void)
+{
 	if (mode == MODE_IMAGE)
 		img_render(&img);
 	else
@@ -321,7 +331,8 @@ void redraw(void) {
 	reset_cursor();
 }
 
-void reset_cursor(void) {
+void reset_cursor(void)
+{
 	int i;
 	cursor_t cursor = CURSOR_NONE;
 
@@ -342,27 +353,32 @@ void reset_cursor(void) {
 	win_set_cursor(&win, cursor);
 }
 
-void animate(void) {
+void animate(void)
+{
 	if (img_frame_animate(&img, false)) {
 		redraw();
 		set_timeout(animate, img.multi.frames[img.multi.sel].delay, true);
 	}
 }
 
-void clear_resize(void) {
+void clear_resize(void)
+{
 	resized = false;
 }
 
-bool keymask(const keymap_t *k, unsigned int state) {
+bool keymask(const keymap_t *k, unsigned int state)
+{
 	return (k->ctrl ? ControlMask : 0) == (state & ControlMask);
 }
 
-bool buttonmask(const button_t *b, unsigned int state) {
+bool buttonmask(const button_t *b, unsigned int state)
+{
 	return ((b->ctrl ? ControlMask : 0) | (b->shift ? ShiftMask : 0)) ==
 	       (state & (ControlMask | ShiftMask));
 }
 
-void on_keypress(XKeyEvent *kev) {
+void on_keypress(XKeyEvent *kev)
+{
 	int i;
 	KeySym ksym;
 	char key;
@@ -390,7 +406,8 @@ void on_keypress(XKeyEvent *kev) {
 	}
 }
 
-void on_buttonpress(XButtonEvent *bev) {
+void on_buttonpress(XButtonEvent *bev)
+{
 	int i, sel;
 
 	if (bev == NULL)
@@ -437,7 +454,8 @@ void on_buttonpress(XButtonEvent *bev) {
 	}
 }
 
-void run(void) {
+void run(void)
+{
 	int xfd;
 	fd_set fds;
 	struct timeval timeout;
@@ -532,11 +550,13 @@ void run(void) {
 	}
 }
 
-int fncmp(const void *a, const void *b) {
+int fncmp(const void *a, const void *b)
+{
 	return strcoll(((fileinfo_t*) a)->name, ((fileinfo_t*) b)->name);
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
 	int i, start;
 	size_t n;
 	ssize_t len;

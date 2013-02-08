@@ -36,7 +36,8 @@ enum {
 
 void cleanup(void);
 
-void* s_malloc(size_t size) {
+void* s_malloc(size_t size)
+{
 	void *ptr;
 	
 	ptr = malloc(size);
@@ -45,14 +46,16 @@ void* s_malloc(size_t size) {
 	return ptr;
 }
 
-void* s_realloc(void *ptr, size_t size) {
+void* s_realloc(void *ptr, size_t size)
+{
 	ptr = realloc(ptr, size);
 	if (ptr == NULL)
 		die("could not allocate memory");
 	return ptr;
 }
 
-char* s_strdup(char *s) {
+char* s_strdup(char *s)
+{
 	char *d = NULL;
 
 	if (s != NULL) {
@@ -64,7 +67,8 @@ char* s_strdup(char *s) {
 	return d;
 }
 
-void warn(const char* fmt, ...) {
+void warn(const char* fmt, ...)
+{
 	va_list args;
 
 	if (fmt == NULL || options->quiet)
@@ -77,7 +81,8 @@ void warn(const char* fmt, ...) {
 	va_end(args);
 }
 
-void die(const char* fmt, ...) {
+void die(const char* fmt, ...)
+{
 	va_list args;
 
 	if (fmt == NULL)
@@ -93,7 +98,8 @@ void die(const char* fmt, ...) {
 	exit(EXIT_FAILURE);
 }
 
-ssize_t get_line(char **buf, size_t *n, FILE *stream) {
+ssize_t get_line(char **buf, size_t *n, FILE *stream)
+{
 	size_t len;
 	char *s;
 
@@ -125,7 +131,8 @@ ssize_t get_line(char **buf, size_t *n, FILE *stream) {
 	return s - *buf + len;
 }
 
-void size_readable(float *size, const char **unit) {
+void size_readable(float *size, const char **unit)
+{
 	const char *units[] = { "", "K", "M", "G" };
 	int i;
 
@@ -134,7 +141,8 @@ void size_readable(float *size, const char **unit) {
 	*unit = units[MIN(i, ARRLEN(units) - 1)];
 }
 
-char* absolute_path(const char *filename) {
+char* absolute_path(const char *filename)
+{
 	size_t len;
 	const char *basename;
 	char *dir, *dirname = NULL, *path = NULL, *s;
@@ -206,7 +214,8 @@ end:
 	return path;
 }
 
-int r_opendir(r_dir_t *rdir, const char *dirname) {
+int r_opendir(r_dir_t *rdir, const char *dirname)
+{
 	if (rdir == NULL || dirname == NULL || *dirname == '\0')
 		return -1;
 
@@ -226,7 +235,8 @@ int r_opendir(r_dir_t *rdir, const char *dirname) {
 	return 0;
 }
 
-int r_closedir(r_dir_t *rdir) {
+int r_closedir(r_dir_t *rdir)
+{
 	int ret = 0;
 
 	if (rdir == NULL)
@@ -252,7 +262,8 @@ int r_closedir(r_dir_t *rdir) {
 	return ret;
 }
 
-char* r_readdir(r_dir_t *rdir) {
+char* r_readdir(r_dir_t *rdir)
+{
 	size_t len;
 	char *filename;
 	struct dirent *dentry;
@@ -304,7 +315,8 @@ char* r_readdir(r_dir_t *rdir) {
 	return NULL;
 }
 
-int r_mkdir(const char *path) {
+int r_mkdir(const char *path)
+{
 	char *dir, *d;
 	struct stat stats;
 	int err = 0;
