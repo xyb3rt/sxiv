@@ -305,6 +305,11 @@ bool win_moveresize(win_t *win, int x, int y, unsigned int w, unsigned int h)
 
 	XMoveResizeWindow(win->env.dpy, win->xwin, x, y, w, h);
 
+	if (win->pm != None) {
+		XFreePixmap(win->env.dpy, win->pm);
+		win->pm = None;
+	}
+
 	return true;
 }
 
