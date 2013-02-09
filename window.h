@@ -20,6 +20,7 @@
 #define WINDOW_H
 
 #include <X11/Xlib.h>
+#include <X11/Xutil.h>
 
 #include "types.h"
 
@@ -47,6 +48,8 @@ typedef struct {
 	unsigned int w;
 	unsigned int h; /* = win height - bar height */
 	unsigned int bw;
+
+	XSizeHints sizehints;
 
 	bool fullscreen;
 

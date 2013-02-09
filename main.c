@@ -26,7 +26,6 @@
 #include <sys/select.h>
 #include <sys/stat.h>
 #include <sys/time.h>
-#include <X11/Xutil.h>
 #include <X11/keysym.h>
 
 #include "types.h"
