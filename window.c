@@ -29,8 +29,6 @@
 #include "config.h"
 
 enum {
-	WIN_MIN_W  = 50,
-	WIN_MIN_H  = 30,
 	H_TEXT_PAD = 5,
 	V_TEXT_PAD = 1
 };
@@ -128,16 +126,11 @@ void win_init(win_t *win)
 	win->bar.bgcol = win_alloc_color(win, BAR_BG_COLOR);
 	win->bar.fgcol = win_alloc_color(win, BAR_FG_COLOR);
 
-	win->sizehints.flags = PWinGravity | PMinSize;
+	win->sizehints.flags = PWinGravity;
 	win->sizehints.win_gravity = NorthWestGravity;
-	if (options->fixed_win) {
+	if (options->fixed_win)
 		/* actual min/max values set in win_update_sizehints() */
-		win->sizehints.flags |= PMaxSize;
-	} else {
-		/* min values only set here, never updated in win_update_sizehints() */
-		win->sizehints.min_width  = WIN_MIN_W;
-		win->sizehints.min_height = WIN_MIN_H;
-	}
+		win->sizehints.flags |= PMinSize | PMaxSize;
 
 	if (setlocale(LC_CTYPE, "") == NULL || XSupportsLocale() == 0)
 		warn("no locale support");
@@ -191,14 +184,10 @@ void win_open(win_t *win)
 		win->sizehints.flags |= USSize;
 	else
 		win->w = WIN_WIDTH;
-	win->w = MAX(win->w, WIN_MIN_W);
-	win->w = MIN(win->w, e->scrw);
 	if ((gmask & HeightValue) != 0)
 		win->sizehints.flags |= USSize;
 	else
 		win->h = WIN_HEIGHT;
-	win->h = MAX(win->h, WIN_MIN_H);
-	win->h = MIN(win->h, e->scrh);
 	if ((gmask & XValue) != 0) {
 		if ((gmask & XNegative) != 0) {
 			win->x += e->scrw - win->w;
