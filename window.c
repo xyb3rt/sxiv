@@ -287,6 +287,9 @@ bool win_moveresize(win_t *win, int x, int y, unsigned int w, unsigned int h)
 	if (win == NULL || win->xwin == None)
 		return false;
 
+	/* caller knows nothing about the bar */
+	h += win->bar.h;
+
 	x = MAX(0, x);
 	y = MAX(0, y);
 	w = MIN(w, win->env.scrw - 2 * win->bw);
