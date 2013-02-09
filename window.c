@@ -127,6 +127,9 @@ void win_init(win_t *win)
 	win->bar.bgcol = win_alloc_color(win, BAR_BG_COLOR);
 	win->bar.fgcol = win_alloc_color(win, BAR_FG_COLOR);
 
+	win->sizehints.flags = PWinGravity;
+	win->sizehints.win_gravity = NorthWestGravity;
+
 	if (setlocale(LC_CTYPE, "") == NULL || XSupportsLocale() == 0)
 		warn("no locale support");
 
@@ -137,17 +140,24 @@ void win_init(win_t *win)
 
 void win_set_sizehints(win_t *win)
 {
-	XSizeHints sizehints;
 
 	if (win == NULL || win->xwin == None)
 		return;
 
-	sizehints.flags = PMinSize | PMaxSize;
-	sizehints.min_width = win->w;
-	sizehints.max_width = win->w;
-	sizehints.min_height = win->h + win->bar.h;
-	sizehints.max_height = win->h + win->bar.h;
-	XSetWMNormalHints(win->env.dpy, win->xwin, &sizehints);
+	if ((win->sizehints.flags & PMinSize) == 1) {
+		win->sizehints.min_width = win->w;
+		win->sizehints.min_height = win->h + win->bar.h;
+	}
+	if ((win->sizehints.flags & PMaxSize) == 1) {
+		win->sizehints.max_width = win->w;
+		win->sizehints.max_height = win->h + win->bar.h;
+	}
+	if ((win->sizehints.flags & USPosition) == 1) {
+		win->sizehints.x = win->x;
+		win->sizehints.y = win->y;
+	}
+
+	XSetWMNormalHints(win->env.dpy, win->xwin, &win->sizehints);
 }
 
 void win_open(win_t *win)
@@ -170,22 +180,42 @@ void win_open(win_t *win)
 	else
 		gmask = XParseGeometry(options->geometry, &win->x, &win->y,
 		                       &win->w, &win->h);
-	if ((gmask & WidthValue) == 0)
+	if ((gmask & WidthValue) == 0) {
 		win->w = WIN_WIDTH;
+	} else {
+		win->sizehints.flags |= USSize;
+	}
 	if (win->w > e->scrw)
 		win->w = e->scrw;
-	if ((gmask & HeightValue) == 0)
+	if ((gmask & HeightValue) == 0) {
 		win->h = WIN_HEIGHT;
+	} else {
+		win->sizehints.flags |= USSize;
+	}
 	if (win->h > e->scrh)
 		win->h = e->scrh;
-	if ((gmask & XValue) == 0)
+	if ((gmask & XValue) == 0) {
 		win->x = (e->scrw - win->w) / 2;
-	else if ((gmask & XNegative) != 0)
-		win->x += e->scrw - win->w;
-	if ((gmask & YValue) == 0)
+	} else {
+		if ((gmask & XNegative) != 0) {
+			win->x += e->scrw - win->w;
+			win->sizehints.win_gravity = NorthEastGravity;
+		}
+		win->sizehints.flags |= USPosition;
+	}
+	if ((gmask & YValue) == 0) {
 		win->y = (e->scrh - win->h) / 2;
-	else if ((gmask & YNegative) != 0)
-		win->y += e->scrh - win->h;
+	} else {
+		if ((gmask & YNegative) != 0) {
+			win->y += e->scrh - win->h;
+			if (win->sizehints.win_gravity == NorthEastGravity) {
+				win->sizehints.win_gravity = SouthEastGravity;
+			} else {
+				win->sizehints.win_gravity = SouthWestGravity;
+			}
+		}
+		win->sizehints.flags |= USPosition;
+	}
 
 	win->xwin = XCreateWindow(e->dpy, RootWindow(e->dpy, e->scr),
 	                          win->x, win->y, win->w, win->h, 0,
@@ -225,7 +255,9 @@ void win_open(win_t *win)
 	}
 
 	if (options->fixed_win)
-		win_set_sizehints(win);
+		win->sizehints.flags |= PMinSize | PMaxSize;
+
+	win_set_sizehints(win);
 
 	XMapWindow(e->dpy, win->xwin);
 	XFlush(e->dpy);
@@ -300,8 +332,8 @@ bool win_moveresize(win_t *win, int x, int y, unsigned int w, unsigned int h)
 	win->w = w;
 	win->h = h - win->bar.h;
 
-	if (options->fixed_win)
-		win_set_sizehints(win);
+
+	win_set_sizehints(win);
 
 	XMoveResizeWindow(win->env.dpy, win->xwin, x, y, w, h);
 
