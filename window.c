@@ -21,7 +21,6 @@
 
 #include <string.h>
 #include <locale.h>
-#include <X11/Xutil.h>
 #include <X11/cursorfont.h>
 
 #include "options.h"
@@ -30,6 +29,8 @@
 #include "config.h"
 
 enum {
+	WIN_MIN_W  = 50,
+	WIN_MIN_H  = 30,
 	H_TEXT_PAD = 5,
 	V_TEXT_PAD = 1
 };
@@ -127,8 +128,16 @@ void win_init(win_t *win)
 	win->bar.bgcol = win_alloc_color(win, BAR_BG_COLOR);
 	win->bar.fgcol = win_alloc_color(win, BAR_FG_COLOR);
 
-	win->sizehints.flags = PWinGravity;
+	win->sizehints.flags = PWinGravity | PMinSize;
 	win->sizehints.win_gravity = NorthWestGravity;
+	if (options->fixed_win) {
+		/* actual min/max values set in win_update_sizehints() */
+		win->sizehints.flags |= PMaxSize;
+	} else {
+		/* min values only set here, never updated in win_update_sizehints() */
+		win->sizehints.min_width  = WIN_MIN_W;
+		win->sizehints.min_height = WIN_MIN_H;
+	}
 
 	if (setlocale(LC_CTYPE, "") == NULL || XSupportsLocale() == 0)
 		warn("no locale support");
@@ -138,25 +147,23 @@ void win_init(win_t *win)
 	wm_delete_win = XInternAtom(e->dpy, "WM_DELETE_WINDOW", False);
 }
 
-void win_set_sizehints(win_t *win)
+void win_update_sizehints(win_t *win)
 {
-
 	if (win == NULL || win->xwin == None)
 		return;
 
-	if ((win->sizehints.flags & PMinSize) == 1) {
-		win->sizehints.min_width = win->w;
-		win->sizehints.min_height = win->h + win->bar.h;
+	if ((win->sizehints.flags & USSize) != 0) {
+		win->sizehints.width  = win->w;
+		win->sizehints.height = win->h;
 	}
-	if ((win->sizehints.flags & PMaxSize) == 1) {
-		win->sizehints.max_width = win->w;
-		win->sizehints.max_height = win->h + win->bar.h;
-	}
-	if ((win->sizehints.flags & USPosition) == 1) {
+	if ((win->sizehints.flags & USPosition) != 0) {
 		win->sizehints.x = win->x;
 		win->sizehints.y = win->y;
 	}
-
+	if (options->fixed_win) {
+		win->sizehints.min_width  = win->sizehints.max_width  = win->w;
+		win->sizehints.min_height = win->sizehints.max_height = win->h + win->bar.h;
+	}
 	XSetWMNormalHints(win->env.dpy, win->xwin, &win->sizehints);
 }
 
@@ -180,41 +187,38 @@ void win_open(win_t *win)
 	else
 		gmask = XParseGeometry(options->geometry, &win->x, &win->y,
 		                       &win->w, &win->h);
-	if ((gmask & WidthValue) == 0) {
+	if ((gmask & WidthValue) != 0)
+		win->sizehints.flags |= USSize;
+	else
 		win->w = WIN_WIDTH;
-	} else {
+	win->w = MAX(win->w, WIN_MIN_W);
+	win->w = MIN(win->w, e->scrw);
+	if ((gmask & HeightValue) != 0)
 		win->sizehints.flags |= USSize;
-	}
-	if (win->w > e->scrw)
-		win->w = e->scrw;
-	if ((gmask & HeightValue) == 0) {
+	else
 		win->h = WIN_HEIGHT;
-	} else {
-		win->sizehints.flags |= USSize;
-	}
-	if (win->h > e->scrh)
-		win->h = e->scrh;
-	if ((gmask & XValue) == 0) {
-		win->x = (e->scrw - win->w) / 2;
-	} else {
+	win->h = MAX(win->h, WIN_MIN_H);
+	win->h = MIN(win->h, e->scrh);
+	if ((gmask & XValue) != 0) {
 		if ((gmask & XNegative) != 0) {
 			win->x += e->scrw - win->w;
 			win->sizehints.win_gravity = NorthEastGravity;
 		}
 		win->sizehints.flags |= USPosition;
-	}
-	if ((gmask & YValue) == 0) {
-		win->y = (e->scrh - win->h) / 2;
 	} else {
+		win->x = (e->scrw - win->w) / 2;
+	}
+	if ((gmask & YValue) != 0) {
 		if ((gmask & YNegative) != 0) {
 			win->y += e->scrh - win->h;
-			if (win->sizehints.win_gravity == NorthEastGravity) {
+			if (win->sizehints.win_gravity == NorthEastGravity)
 				win->sizehints.win_gravity = SouthEastGravity;
-			} else {
+			else
 				win->sizehints.win_gravity = SouthWestGravity;
-			}
 		}
 		win->sizehints.flags |= USPosition;
+	} else {
+		win->y = (e->scrh - win->h) / 2;
 	}
 
 	win->xwin = XCreateWindow(e->dpy, RootWindow(e->dpy, e->scr),
@@ -254,10 +258,7 @@ void win_open(win_t *win)
 		win->h -= win->bar.h;
 	}
 
-	if (options->fixed_win)
-		win->sizehints.flags |= PMinSize | PMaxSize;
-
-	win_set_sizehints(win);
+	win_update_sizehints(win);
 
 	XMapWindow(e->dpy, win->xwin);
 	XFlush(e->dpy);
@@ -332,8 +333,7 @@ bool win_moveresize(win_t *win, int x, int y, unsigned int w, unsigned int h)
 	win->w = w;
 	win->h = h - win->bar.h;
 
-
-	win_set_sizehints(win);
+	win_update_sizehints(win);
 
 	XMoveResizeWindow(win->env.dpy, win->xwin, x, y, w, h);
 
