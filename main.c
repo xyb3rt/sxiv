@@ -22,10 +22,14 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <fcntl.h>
 #include <unistd.h>
+#include <errno.h>
+#include <signal.h>
 #include <sys/select.h>
 #include <sys/stat.h>
 #include <sys/time.h>
+#include <sys/wait.h>
 #include <X11/keysym.h>
 
 #include "types.h"
@@ -38,8 +42,6 @@
 #include "config.h"
 
 enum {
-	BAR_L_LEN    = 512,
-	BAR_R_LEN    = 64,
 	FILENAME_CNT = 1024,
 	TITLE_LEN    = 256
 };
@@ -70,12 +72,11 @@ int prefix;
 bool resized = false;
 
 const char * const INFO_SCRIPT = ".sxiv/exec/image-info";
-char *info_script;
-
 struct {
-	char l[BAR_L_LEN];
-	char r[BAR_R_LEN];
-} bar;
+  char *script;
+  int fd;
+  unsigned int i, lastsep;
+} info;
 
 timeout_t timeouts[] = {
 	{ { 0, 0 }, false, redraw },
@@ -212,35 +213,66 @@ bool check_timeouts(struct timeval *t)
 	return tmin > 0;
 }
 
+void open_info(void)
+{
+	static pid_t pid;
+	int pfd[2];
+
+	win.bar.l[0] = '\0';
+
+	if (info.fd != -1) {
+		close(info.fd);
+		kill(pid, SIGTERM);
+		while (waitpid(-1, NULL, WNOHANG) > 0);
+		info.fd = -1;
+	}
+	if (info.script == NULL || pipe(pfd) < 0)
+		return;
+
+	pid = fork();
+	if (pid > 0) {
+		close(pfd[1]);
+		fcntl(pfd[0], F_SETFL, O_NONBLOCK);
+		info.fd = pfd[0];
+		info.i = info.lastsep = 0;
+	} else if (pid == 0) {
+		close(pfd[0]);
+		dup2(pfd[1], 1);
+		execl(info.script, info.script, files[fileidx].name, NULL);
+	}
+}
+
 void read_info(void)
 {
-	char cmd[4096];
-	FILE *outp;
-	int c, i = 0, n = sizeof(bar.l) - 1;
-	bool lastsep = false;
-	
-	if (info_script != NULL) {
-		snprintf(cmd, sizeof(cmd), "%s \"%s\"", info_script, files[fileidx].name);
-		outp = popen(cmd, "r");
-		if (outp == NULL)
+	ssize_t i, n;
+	char buf[BAR_L_LEN];
+
+	while (true) {
+		n = read(info.fd, buf, sizeof(buf));
+		if (n < 0 && errno == EAGAIN)
+			return;
+		else if (n == 0)
 			goto end;
-		while (i < n && (c = fgetc(outp)) != EOF) {
-			if (c == '\n') {
-				if (!lastsep) {
-					bar.l[i++] = ' ';
-					lastsep = true;
+		for (i = 0; i < n; i++) {
+			if (buf[i] == '\n') {
+				if (info.lastsep == 0) {
+					win.bar.l[info.i++] = ' ';
+					info.lastsep = 1;
 				}
 			} else {
-				bar.l[i++] = c;
-				lastsep = false;
+				win.bar.l[info.i++] = buf[i];
+				info.lastsep = 0;
 			}
+			if (info.i + 1 == sizeof(win.bar.l))
+				goto end;
 		}
-		pclose(outp);
 	}
 end:
-	if (lastsep)
-		i--;
-	bar.l[i] = '\0';
+	info.i -= info.lastsep;
+	win.bar.l[info.i] = '\0';
+	win_update_bar(&win);
+	info.fd = -1;
+	while (waitpid(-1, NULL, WNOHANG) > 0);
 }
 
 void load_image(int new)
@@ -261,7 +293,7 @@ void load_image(int new)
 	alternate = fileidx;
 	fileidx = new;
 
-	read_info();
+	open_info();
 
 	if (img.multi.cnt > 0 && img.multi.animate)
 		set_timeout(animate, img.multi.frames[img.multi.sel].delay, true);
@@ -271,9 +303,10 @@ void load_image(int new)
 
 void update_info(void)
 {
-	unsigned int i, fn, fw, n, len = sizeof(bar.r);
 	int sel;
-	char *t = bar.r, title[TITLE_LEN];
+	unsigned int i, fn, fw, n;
+	unsigned int llen = sizeof(win.bar.l), rlen = sizeof(win.bar.r);
+	char *lt = win.bar.l, *rt = win.bar.r, title[TITLE_LEN];
 	bool ow_info;
 
 	for (fw = 0, i = filecnt; i > 0; fw++, i /= 10);
@@ -283,39 +316,37 @@ void update_info(void)
 		win_set_title(&win, "sxiv");
 
 		if (tns.cnt == filecnt) {
-			n = snprintf(t, len, "%0*d/%d", fw, sel + 1, filecnt);
+			n = snprintf(rt, rlen, "%0*d/%d", fw, sel + 1, filecnt);
 			ow_info = true;
 		} else {
-			snprintf(bar.l, sizeof(bar.l), "Loading... %0*d/%d",
-			         fw, tns.cnt, filecnt);
-			bar.r[0] = '\0';
+			snprintf(lt, llen, "Loading... %0*d/%d", fw, tns.cnt, filecnt);
+			rt[0] = '\0';
 			ow_info = false;
 		}
 	} else {
 		snprintf(title, sizeof(title), "sxiv - %s", files[sel].name);
 		win_set_title(&win, title);
 
-		n = snprintf(t, len, "%3d%% ", (int) (img.zoom * 100.0));
+		n = snprintf(rt, rlen, "%3d%% ", (int) (img.zoom * 100.0));
 		if (img.multi.cnt > 0) {
 			for (fn = 0, i = img.multi.cnt; i > 0; fn++, i /= 10);
-			n += snprintf(t + n, len - n, "(%0*d/%d) ",
+			n += snprintf(rt + n, rlen - n, "(%0*d/%d) ",
 			              fn, img.multi.sel + 1, img.multi.cnt);
 		}
-		n += snprintf(t + n, len - n, "%0*d/%d", fw, sel + 1, filecnt);
-		ow_info = bar.l[0] == '\0';
+		n += snprintf(rt + n, rlen - n, "%0*d/%d", fw, sel + 1, filecnt);
+		ow_info = info.script == NULL;
 	}
 	if (ow_info) {
 		fn = strlen(files[sel].name);
-		if (fn < sizeof(bar.l) &&
+		if (fn < llen &&
 		    win_textwidth(files[sel].name, fn, true) +
-		    win_textwidth(bar.r, n, true) < win.w)
+		    win_textwidth(rt, n, true) < win.w)
 		{
-			strncpy(bar.l, files[sel].name, sizeof(bar.l));
+			strncpy(lt, files[sel].name, llen);
 		} else {
-			strncpy(bar.l, files[sel].base, sizeof(bar.l));
+			strncpy(lt, files[sel].base, llen);
 		}
 	}
-	win_set_bar_info(&win, bar.l, bar.r);
 }
 
 void redraw(void)
@@ -458,8 +489,8 @@ void run(void)
 	int xfd;
 	fd_set fds;
 	struct timeval timeout;
+	bool discard, to_set;
 	XEvent ev, nextev;
-	bool discard;
 
 	redraw();
 
@@ -482,12 +513,20 @@ void run(void)
 				check_timeouts(NULL);
 		}
 
-		while (XPending(win.env.dpy) == 0 && check_timeouts(&timeout)) {
-			/* wait for timeouts */
+		while (XPending(win.env.dpy) == 0
+		       && ((to_set = check_timeouts(&timeout)) || info.fd != -1))
+		{
+			/* check for timeouts & input */
 			xfd = ConnectionNumber(win.env.dpy);
 			FD_ZERO(&fds);
 			FD_SET(xfd, &fds);
-			select(xfd + 1, &fds, 0, 0, &timeout);
+			if (info.fd != -1) {
+				FD_SET(info.fd, &fds);
+				xfd = MAX(xfd, info.fd);
+			}
+			select(xfd + 1, &fds, 0, 0, to_set ? &timeout : NULL);
+			if (FD_ISSET(info.fd, &fds))
+				read_info();
 		}
 
 		do {
@@ -641,13 +680,14 @@ int main(int argc, char **argv)
 		warn("could not locate home directory");
 	} else {
 		len = strlen(homedir) + strlen(INFO_SCRIPT) + 2;
-		info_script = (char*) s_malloc(len);
-		snprintf(info_script, len, "%s/%s", homedir, INFO_SCRIPT);
-		if (access(info_script, X_OK) != 0) {
-			free(info_script);
-			info_script = NULL;
+		info.script = (char*) s_malloc(len);
+		snprintf(info.script, len, "%s/%s", homedir, INFO_SCRIPT);
+		if (access(info.script, X_OK) != 0) {
+			free(info.script);
+			info.script = NULL;
 		}
 	}
+	info.fd = -1;
 
 	if (options->thumb_mode) {
 		mode = MODE_THUMB;

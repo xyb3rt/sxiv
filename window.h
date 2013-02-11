@@ -24,6 +24,11 @@
 
 #include "types.h"
 
+enum {
+	BAR_L_LEN = 512,
+	BAR_R_LEN = 64
+};
+
 typedef struct {
 	Display *dpy;
 	int scr;
@@ -55,8 +60,8 @@ typedef struct {
 
 	struct {
 		unsigned int h;
-		char *l;
-		char *r;
+		char l[BAR_L_LEN];
+		char r[BAR_R_LEN];
 		unsigned long bgcol;
 		unsigned long fgcol;
 	} bar;
@@ -80,10 +85,11 @@ void win_draw(win_t*);
 void win_draw_rect(win_t*, Pixmap, int, int, int, int, bool, int,
                    unsigned long);
 
+void win_update_bar(win_t*);
+
 int win_textwidth(const char*, unsigned int, bool);
 
 void win_set_title(win_t*, const char*);
-void win_set_bar_info(win_t*, char*, char*);
 void win_set_cursor(win_t*, cursor_t);
 
 #endif /* WINDOW_H */
