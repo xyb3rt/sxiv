@@ -33,6 +33,7 @@
 void cleanup(void);
 void remove_file(int, bool);
 void load_image(int);
+void open_info(void);
 void redraw(void);
 void reset_cursor(void);
 void animate(void);
@@ -92,10 +93,13 @@ bool it_toggle_fullscreen(arg_t a)
 bool it_toggle_bar(arg_t a)
 {
 	win_toggle_bar(&win);
-	if (mode == MODE_IMAGE)
+	if (mode == MODE_IMAGE) {
 		img.checkpan = img.dirty = true;
-	else
+		if (win.bar.h > 0)
+			open_info();
+	} else {
 		tns.dirty = true;
+	}
 	return true;
 }
 

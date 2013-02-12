@@ -119,12 +119,15 @@ void win_init(win_t *win)
 	e->cmap = DefaultColormap(e->dpy, e->scr);
 	e->depth = DefaultDepth(e->dpy, e->scr);
 
+	win_init_font(e->dpy, BAR_FONT);
+
 	win->white     = WhitePixel(e->dpy, e->scr);
 	win->bgcol     = win_alloc_color(win, WIN_BG_COLOR);
 	win->fscol     = win_alloc_color(win, WIN_FS_COLOR);
 	win->selcol    = win_alloc_color(win, SEL_COLOR);
 	win->bar.bgcol = win_alloc_color(win, BAR_BG_COLOR);
 	win->bar.fgcol = win_alloc_color(win, BAR_FG_COLOR);
+	win->bar.h     = options->hide_bar ? 0 : barheight;
 
 	win->sizehints.flags = PWinGravity;
 	win->sizehints.win_gravity = NorthWestGravity;
@@ -134,8 +137,6 @@ void win_init(win_t *win)
 
 	if (setlocale(LC_CTYPE, "") == NULL || XSupportsLocale() == 0)
 		warn("no locale support");
-
-	win_init_font(e->dpy, BAR_FONT);
 
 	wm_delete_win = XInternAtom(e->dpy, "WM_DELETE_WINDOW", False);
 }

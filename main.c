@@ -76,6 +76,7 @@ struct {
   char *script;
   int fd;
   unsigned int i, lastsep;
+  bool open;
 } info;
 
 timeout_t timeouts[] = {
@@ -218,23 +219,25 @@ void open_info(void)
 	static pid_t pid;
 	int pfd[2];
 
-	win.bar.l[0] = '\0';
-
+	if (info.script == NULL || info.open || win.bar.h == 0)
+		return;
 	if (info.fd != -1) {
 		close(info.fd);
 		kill(pid, SIGTERM);
 		while (waitpid(-1, NULL, WNOHANG) > 0);
 		info.fd = -1;
 	}
-	if (info.script == NULL || pipe(pfd) < 0)
-		return;
+	win.bar.l[0] = '\0';
 
+	if (pipe(pfd) < 0)
+		return;
 	pid = fork();
 	if (pid > 0) {
 		close(pfd[1]);
 		fcntl(pfd[0], F_SETFL, O_NONBLOCK);
 		info.fd = pfd[0];
 		info.i = info.lastsep = 0;
+		info.open = true;
 	} else if (pid == 0) {
 		close(pfd[0]);
 		dup2(pfd[1], 1);
@@ -293,6 +296,7 @@ void load_image(int new)
 	alternate = fileidx;
 	fileidx = new;
 
+	info.open = false;
 	open_info();
 
 	if (img.multi.cnt > 0 && img.multi.animate)
@@ -312,9 +316,18 @@ void update_info(void)
 	for (fw = 0, i = filecnt; i > 0; fw++, i /= 10);
 	sel = mode == MODE_IMAGE ? fileidx : tns.sel;
 
+	/* update window title */
 	if (mode == MODE_THUMB) {
 		win_set_title(&win, "sxiv");
+	} else {
+		snprintf(title, sizeof(title), "sxiv - %s", files[sel].name);
+		win_set_title(&win, title);
+	}
 
+	/* update bar contents */
+	if (win.bar.h == 0)
+		return;
+	if (mode == MODE_THUMB) {
 		if (tns.cnt == filecnt) {
 			n = snprintf(rt, rlen, "%0*d/%d", fw, sel + 1, filecnt);
 			ow_info = true;
@@ -324,9 +337,6 @@ void update_info(void)
 			ow_info = false;
 		}
 	} else {
-		snprintf(title, sizeof(title), "sxiv - %s", files[sel].name);
-		win_set_title(&win, title);
-
 		n = snprintf(rt, rlen, "%3d%% ", (int) (img.zoom * 100.0));
 		if (img.multi.cnt > 0) {
 			for (fn = 0, i = img.multi.cnt; i > 0; fn++, i /= 10);
