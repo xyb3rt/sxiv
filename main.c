@@ -224,7 +224,6 @@ void open_info(void)
 	if (info.fd != -1) {
 		close(info.fd);
 		kill(pid, SIGTERM);
-		while (waitpid(-1, NULL, WNOHANG) > 0);
 		info.fd = -1;
 	}
 	win.bar.l[0] = '\0';
@@ -242,6 +241,8 @@ void open_info(void)
 		close(pfd[0]);
 		dup2(pfd[1], 1);
 		execl(info.script, info.script, files[fileidx].name, NULL);
+		warn("could not exec: %s", info.script);
+		exit(EXIT_FAILURE);
 	}
 }
 
