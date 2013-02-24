@@ -338,10 +338,10 @@ void update_info(void)
 			ow_info = false;
 		}
 	} else {
-		n = snprintf(rt, rlen, "%3d%% ", (int) (img.zoom * 100.0));
+		n = snprintf(rt, rlen, "%3d%% | ", (int) (img.zoom * 100.0));
 		if (img.multi.cnt > 0) {
 			for (fn = 0, i = img.multi.cnt; i > 0; fn++, i /= 10);
-			n += snprintf(rt + n, rlen - n, "(%0*d/%d) ",
+			n += snprintf(rt + n, rlen - n, "%0*d/%d | ",
 			              fn, img.multi.sel + 1, img.multi.cnt);
 		}
 		n += snprintf(rt + n, rlen - n, "%0*d/%d", fw, sel + 1, filecnt);
