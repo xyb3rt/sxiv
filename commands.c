@@ -289,10 +289,29 @@ bool i_drag(arg_t a)
 			case MotionNotify:
 				x = e.xmotion.x;
 				y = e.xmotion.y;
-				if (x >= 0 && x <= win.w && y >= 0 && y <= win.h) {
-					dx += x - ox;
-					dy += y - oy;
+
+#define WARP(x, y)                \
+				XWarpPointer(win.env.dpy, \
+				    None, win.xwin,       \
+				    0, 0, 0, 0,           \
+				    x, y);                \
+				ox = x, oy = y;           \
+				break
+
+				/* wrap the mouse around */
+				if(x < 0){
+					WARP(win.w, y);
+				}else if(x > win.w){
+					WARP(0, y);
+				}else if(y < 0){
+					WARP(x, win.h);
+				}else if(y > win.h){
+					WARP(x, 0);
 				}
+
+				dx += x - ox;
+				dy += y - oy;
+
 				ox = x;
 				oy = y;
 				break;
