@@ -262,6 +262,11 @@ Bool is_motionnotify(Display *d, XEvent *e, XPointer a)
 	return e != NULL && e->type == MotionNotify;
 }
 
+#define WARP(x,y) \
+	XWarpPointer(win.env.dpy, None, win.xwin, 0, 0, 0, 0, x, y); \
+	ox = x, oy = y; \
+	break
+
 bool i_drag(arg_t a)
 {
 	int dx = 0, dy = 0, i, ox, oy, x, y;
@@ -290,28 +295,18 @@ bool i_drag(arg_t a)
 				x = e.xmotion.x;
 				y = e.xmotion.y;
 
-#define WARP(x, y)                \
-				XWarpPointer(win.env.dpy, \
-				    None, win.xwin,       \
-				    0, 0, 0, 0,           \
-				    x, y);                \
-				ox = x, oy = y;           \
-				break
-
 				/* wrap the mouse around */
-				if(x < 0){
+				if (x < 0) {
 					WARP(win.w, y);
-				}else if(x > win.w){
+				} else if (x > win.w) {
 					WARP(0, y);
-				}else if(y < 0){
+				} else if (y < 0) {
 					WARP(x, win.h);
-				}else if(y > win.h){
+				} else if (y > win.h) {
 					WARP(x, 0);
 				}
-
 				dx += x - ox;
 				dy += y - oy;
-
 				ox = x;
 				oy = y;
 				break;
