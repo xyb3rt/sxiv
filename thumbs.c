@@ -31,7 +31,7 @@
 #include "util.h"
 #include "config.h"
 
-static const int thumb_dim = THUMB_SIZE + 10;
+static const int thumb_dim = THUMB_SIZE + 2 * (THUMB_BOP + THUMB_BW + THUMB_BIP);
 
 static const char * const CACHE_DIR = ".sxiv/cache";
 static char *cache_dir = NULL;
@@ -348,8 +348,8 @@ void tns_render(tns_t *tns)
 	}
 
 	r = cnt % tns->cols ? 1 : 0;
-	tns->x = x = (win->w - MIN(cnt, tns->cols) * thumb_dim) / 2 + 5;
-	tns->y = y = (win->h - (cnt / tns->cols + r) * thumb_dim) / 2 + 5;
+	tns->x = x = (win->w - MIN(cnt, tns->cols) * thumb_dim) / 2 + THUMB_BOP + THUMB_BW + THUMB_BIP;
+	tns->y = y = (win->h - (cnt / tns->cols + r) * thumb_dim) / 2 + THUMB_BOP + THUMB_BW + THUMB_BIP;
 
 	for (i = 0; i < cnt; i++) {
 		t = &tns->thumbs[tns->first + i];
@@ -397,8 +397,9 @@ void tns_highlight(tns_t *tns, int n, bool hl)
 
 		x = t->x - (THUMB_SIZE - t->w) / 2;
 		y = t->y - (THUMB_SIZE - t->h) / 2;
-		win_draw_rect(win, win->pm, x - 3, y - 3, THUMB_SIZE + 6, THUMB_SIZE + 6,
-		              false, 2, col);
+		win_draw_rect(win, win->pm, x - THUMB_BW - THUMB_BIP, y - THUMB_BW - THUMB_BIP,
+		              THUMB_SIZE + 2 * (THUMB_BW + THUMB_BIP), THUMB_SIZE + 2 * (THUMB_BW + THUMB_BIP),
+		              false, THUMB_BW, col);
 	}
 }
 

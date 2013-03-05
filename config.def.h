@@ -49,8 +49,13 @@ enum {
 #endif
 #ifdef _THUMBS_CONFIG
 
-/* default dimension of thumbnails (width == height): */
-enum { THUMB_SIZE = 60 };
+/* default settings for thumbnails: */
+enum {
+	THUMB_SIZE = 60, /* dimension of thumbnails (width == height) */
+	THUMB_BW   = 2,  /* thumbnail selection border width */
+	THUMB_BOP  = 2,  /* thumbnail selection border outer padding */
+	THUMB_BIP  = 1   /* thumbnail selection border inner padding */
+};
 
 #endif
 #ifdef _MAPPINGS_CONFIG
