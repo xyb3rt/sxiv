@@ -33,7 +33,7 @@ const options_t *options = (const options_t*) &_options;
 
 void print_usage(void)
 {
-	printf("usage: sxiv [-bcdFfhpqrstvZ] [-g GEOMETRY] [-n NUM] "
+	printf("usage: sxiv [-bcdFfhiopqrstvZ] [-g GEOMETRY] [-n NUM] "
 	       "[-N name] [-z ZOOM] FILES...\n");
 }
 
@@ -46,6 +46,8 @@ void parse_options(int argc, char **argv)
 {
 	int opt, t;
 
+	_options.from_stdin = false;
+	_options.to_stdout = false;
 	_options.recursive = false;
 	_options.startnum = 0;
 
@@ -63,7 +65,7 @@ void parse_options(int argc, char **argv)
 	_options.thumb_mode = false;
 	_options.clean_cache = false;
 
-	while ((opt = getopt(argc, argv, "bcdFfg:hn:N:pqrstvZz:")) != -1) {
+	while ((opt = getopt(argc, argv, "bcdFfg:hin:N:opqrstvZz:")) != -1) {
 		switch (opt) {
 			case '?':
 				print_usage();
@@ -89,6 +91,9 @@ void parse_options(int argc, char **argv)
 			case 'h':
 				print_usage();
 				exit(EXIT_SUCCESS);
+			case 'i':
+				_options.from_stdin = true;
+				break;
 			case 'n':
 				if (sscanf(optarg, "%d", &t) <= 0 || t < 1) {
 					fprintf(stderr, "sxiv: invalid argument for option -n: %s\n",
@@ -100,6 +105,9 @@ void parse_options(int argc, char **argv)
 				break;
 			case 'N':
 				_options.res_name = optarg;
+				break;
+			case 'o':
+				_options.to_stdout = true;
 				break;
 			case 'p':
 				_options.aa = false;
@@ -137,6 +145,10 @@ void parse_options(int argc, char **argv)
 
 	_options.filenames = argv + optind;
 	_options.filecnt = argc - optind;
-	_options.from_stdin = _options.filecnt == 1 &&
-	                      STREQ(_options.filenames[0], "-");
+
+	if (_options.filecnt == 1 && STREQ(_options.filenames[0], "-")) {
+		_options.filenames++;
+		_options.filecnt--;
+		_options.from_stdin = true;
+	}
 }

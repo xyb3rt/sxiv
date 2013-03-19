@@ -26,6 +26,7 @@
 
 #include "commands.h"
 #include "image.h"
+#include "options.h"
 #include "thumbs.h"
 #include "util.h"
 #include "config.h"
@@ -57,6 +58,12 @@ const int ss_delays[] = {
 
 bool it_quit(arg_t a)
 {
+	unsigned int i;
+
+	if (options->to_stdout) {
+		for (i = 0; i < filecnt; i++)
+			printf("%s\n", files[i].name);
+	}
 	cleanup();
 	exit(EXIT_SUCCESS);
 }

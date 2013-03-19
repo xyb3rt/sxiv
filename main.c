@@ -622,7 +622,7 @@ int main(int argc, char **argv)
 		exit(EXIT_SUCCESS);
 	}
 
-	if (options->filecnt == 0) {
+	if (options->filecnt == 0 && !options->from_stdin) {
 		print_usage();
 		exit(EXIT_FAILURE);
 	}
@@ -635,7 +635,6 @@ int main(int argc, char **argv)
 	files = (fileinfo_t*) s_malloc(filecnt * sizeof(fileinfo_t));
 	fileidx = 0;
 
-	/* build file list: */
 	if (options->from_stdin) {
 		filename = NULL;
 		while ((len = get_line(&filename, &n, stdin)) > 0) {
@@ -645,34 +644,34 @@ int main(int argc, char **argv)
 		}
 		if (filename != NULL)
 			free(filename);
-	} else {
-		for (i = 0; i < options->filecnt; i++) {
-			filename = options->filenames[i];
+	}
 
-			if (stat(filename, &fstats) < 0) {
-				warn("could not stat file: %s", filename);
+	for (i = 0; i < options->filecnt; i++) {
+		filename = options->filenames[i];
+
+		if (stat(filename, &fstats) < 0) {
+			warn("could not stat file: %s", filename);
+			continue;
+		}
+		if (!S_ISDIR(fstats.st_mode)) {
+			check_add_file(filename);
+		} else {
+			if (!options->recursive) {
+				warn("ignoring directory: %s", filename);
 				continue;
 			}
-			if (!S_ISDIR(fstats.st_mode)) {
-				check_add_file(filename);
-			} else {
-				if (!options->recursive) {
-					warn("ignoring directory: %s", filename);
-					continue;
-				}
-				if (r_opendir(&dir, filename) < 0) {
-					warn("could not open directory: %s", filename);
-					continue;
-				}
-				start = fileidx;
-				while ((filename = r_readdir(&dir)) != NULL) {
-					check_add_file(filename);
-					free((void*) filename);
-				}
-				r_closedir(&dir);
-				if (fileidx - start > 1)
-					qsort(files + start, fileidx - start, sizeof(fileinfo_t), fncmp);
+			if (r_opendir(&dir, filename) < 0) {
+				warn("could not open directory: %s", filename);
+				continue;
 			}
+			start = fileidx;
+			while ((filename = r_readdir(&dir)) != NULL) {
+				check_add_file(filename);
+				free((void*) filename);
+			}
+			r_closedir(&dir);
+			if (fileidx - start > 1)
+				qsort(files + start, fileidx - start, sizeof(fileinfo_t), fncmp);
 		}
 	}
 

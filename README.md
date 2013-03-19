@@ -75,8 +75,10 @@ of small previews is displayed, making it easy to choose an image to open.
     -f           Start in fullscreen mode
     -g GEOMETRY  Set window position and size
                  (see section GEOMETRY SPECIFICATIONS of X(7))
+    -i           Read file list from stdin
     -n NUM       Start at picture NUM
     -N NAME      Set X window resource name to NAME
+    -o           Write file list to stdout when quitting
     -p           Pixelize, i.e. turn off image anti-aliasing
     -q           Be quiet, disable warnings
     -r           Search given directories recursively for images
