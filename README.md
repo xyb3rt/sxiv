@@ -162,6 +162,15 @@ on GitHub or get a copy using git with the following command:
 
 **Stable releases**
 
+**[v1.1](http://muennich.github.com/sxiv/release/sxiv-1.1.tar.gz)**
+*(March 30, 2013)*
+
+  * Added status bar on bottom of window with customizable content
+  * New keyboard shortcuts `\`/`|`: flip image vertically/horizontally
+  * New keyboard shortcut `Ctrl-6`: go to last/alternate image
+  * Added own EXIF orientation handling, removed dependency on libexif
+  * Fixed various bugs
+
 **[v1.0](http://muennich.github.com/sxiv/release/sxiv-1.0.tar.gz)**
 *(October 31, 2011)*
 
