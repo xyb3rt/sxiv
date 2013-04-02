@@ -536,7 +536,7 @@ void run(void)
 				xfd = MAX(xfd, info.fd);
 			}
 			select(xfd + 1, &fds, 0, 0, to_set ? &timeout : NULL);
-			if (FD_ISSET(info.fd, &fds))
+			if (info.fd != -1 && FD_ISSET(info.fd, &fds))
 				read_info();
 		}
 
