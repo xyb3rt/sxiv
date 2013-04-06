@@ -119,6 +119,9 @@ void win_init(win_t *win)
 	e->cmap = DefaultColormap(e->dpy, e->scr);
 	e->depth = DefaultDepth(e->dpy, e->scr);
 
+	if (setlocale(LC_CTYPE, "") == NULL || XSupportsLocale() == 0)
+		warn("no locale support");
+
 	win_init_font(e->dpy, BAR_FONT);
 
 	win->white     = WhitePixel(e->dpy, e->scr);
@@ -135,9 +138,6 @@ void win_init(win_t *win)
 		/* actual min/max values set in win_update_sizehints() */
 		win->sizehints.flags |= PMinSize | PMaxSize;
 
-	if (setlocale(LC_CTYPE, "") == NULL || XSupportsLocale() == 0)
-		warn("no locale support");
-
 	wm_delete_win = XInternAtom(e->dpy, "WM_DELETE_WINDOW", False);
 }
 
@@ -148,7 +148,7 @@ void win_update_sizehints(win_t *win)
 
 	if ((win->sizehints.flags & USSize) != 0) {
 		win->sizehints.width  = win->w;
-		win->sizehints.height = win->h;
+		win->sizehints.height = win->h + win->bar.h;
 	}
 	if ((win->sizehints.flags & USPosition) != 0) {
 		win->sizehints.x = win->x;
@@ -243,11 +243,7 @@ void win_open(win_t *win)
 
 	XSetWMProtocols(e->dpy, win->xwin, &wm_delete_win, 1);
 
-	if (!options->hide_bar) {
-		win->bar.h = barheight;
-		win->h -= win->bar.h;
-	}
-
+	win->h -= win->bar.h;
 	win_update_sizehints(win);
 
 	XMapWindow(e->dpy, win->xwin);
