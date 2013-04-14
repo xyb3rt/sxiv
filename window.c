@@ -165,6 +165,8 @@ void win_open(win_t *win)
 {
 	win_env_t *e;
 	XClassHint classhint;
+	XSetWindowAttributes attr;
+	unsigned long attr_mask;
 	XColor col;
 	char none_data[] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 	Pixmap none;
@@ -211,9 +213,12 @@ void win_open(win_t *win)
 		win->y = (e->scrh - win->h) / 2;
 	}
 
+	attr.background_pixel = win->bgcol;
+	attr_mask = CWBackPixel;
+
 	win->xwin = XCreateWindow(e->dpy, RootWindow(e->dpy, e->scr),
 	                          win->x, win->y, win->w, win->h, 0,
-	                          e->depth, InputOutput, e->vis, 0, None);
+	                          e->depth, InputOutput, e->vis, attr_mask, &attr);
 	if (win->xwin == None)
 		die("could not create window");
 	
