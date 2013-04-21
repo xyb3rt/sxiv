@@ -125,7 +125,11 @@ bool img_load_gif(img_t *img, const fileinfo_t *file)
 	img->multi.cnt = 0;
 	img->multi.sel = 0;
 
+#if defined(GIFLIB_MAJOR) && GIFLIB_MAJOR >= 5
+	gif = DGifOpenFileName(file->path, NULL);
+#else
 	gif = DGifOpenFileName(file->path);
+#endif
 	if (gif == NULL) {
 		warn("could not open gif file: %s", file->name);
 		return false;
