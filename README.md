@@ -163,6 +163,11 @@ on GitHub or get a copy using git with the following command:
 
 **Stable releases**
 
+**[v1.1.1](https://github.com/muennich/sxiv/archive/v1.1.1.tar.gz)**
+*(June 2, 2013)*
+
+	* Various bug fixes
+
 **[v1.1](https://github.com/muennich/sxiv/archive/v1.1.tar.gz)**
 *(March 30, 2013)*
 
