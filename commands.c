@@ -397,14 +397,17 @@ bool i_fit_to_img(arg_t a)
 
 bool i_rotate(arg_t a)
 {
-	direction_t dir = (direction_t) a;
+	rotate_t rot = (rotate_t) a;
 
 	if (mode == MODE_IMAGE) {
-		if (dir == DIR_LEFT) {
-			img_rotate_left(&img);
+		if (rot == ROTATE_90) {
+			img_rotate(&img, 1);
 			return true;
-		} else if (dir == DIR_RIGHT) {
-			img_rotate_right(&img);
+		} else if (rot == ROTATE_270) {
+			img_rotate(&img, 3);
+			return true;
+		} else if (rot == ROTATE_180) {
+			img_rotate(&img, 2);
 			return true;
 		}
 	}
