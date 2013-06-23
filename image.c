@@ -663,27 +663,20 @@ void img_rotate(img_t *img, int d)
 	oy = d == 3 ? img->y : win->h - img->y - img->h * img->zoom;
 
 	imlib_context_set_image(img->im);
+	/* rotates by `90 * d` degrees in the clockwise direction */
 	imlib_image_orientate(d);
 
-	img->x = oy + (win->w - win->h) / 2;
-	img->y = ox + (win->h - win->w) / 2;
+	if (d == 1 || d == 3) {
+		img->x = oy + (win->w - win->h) / 2;
+		img->y = ox + (win->h - win->w) / 2;
 
-	tmp = img->w;
-	img->w = img->h;
-	img->h = tmp;
+		tmp = img->w;
+		img->w = img->h;
+		img->h = tmp;
+		img->checkpan = true;
+	}
 
-	img->checkpan = true;
 	img->dirty = true;
-}
-
-void img_rotate_left(img_t *img)
-{
-	img_rotate(img, 3);
-}
-
-void img_rotate_right(img_t *img)
-{
-	img_rotate(img, 1);
 }
 
 void img_flip(img_t *img, flipdir_t d)
