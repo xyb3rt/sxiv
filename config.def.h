@@ -114,8 +114,9 @@ static const keymap_t keys[] = {
 	{ false,  XK_E,             i_fit_to_win,         (arg_t) SCALE_HEIGHT },
 	{ false,  XK_W,             i_fit_to_img,         (arg_t) None },
 
-	{ false,  XK_less,          i_rotate,             (arg_t) DIR_LEFT },
-	{ false,  XK_greater,       i_rotate,             (arg_t) DIR_RIGHT },
+	{ false,  XK_less,          i_rotate,             (arg_t) ROTATE_270 },
+	{ false,  XK_greater,       i_rotate,             (arg_t) ROTATE_90 },
+	{ false,  XK_question,      i_rotate,             (arg_t) ROTATE_180 },
 
 	{ false,  XK_backslash,     i_flip,               (arg_t) FLIP_HORIZONTAL },
 	{ false,  XK_bar,           i_flip,               (arg_t) FLIP_VERTICAL },
@@ -131,10 +132,14 @@ static const keymap_t keys[] = {
 			"mogrify -rotate -90 \"$SXIV_IMG\"" },
 	{ true,   XK_greater,       it_shell_cmd,         (arg_t) \
 			"mogrify -rotate +90 \"$SXIV_IMG\"" },
+	{ true,   XK_question,      it_shell_cmd,         (arg_t) \
+			"mogrify -rotate 180 \"$SXIV_IMG\"" },
 	{ true,   XK_comma,         it_shell_cmd,         (arg_t) \
 			"jpegtran -rotate 270 -copy all -outfile \"$SXIV_IMG\" \"$SXIV_IMG\"" },
 	{ true,   XK_period,        it_shell_cmd,         (arg_t) \
 			"jpegtran -rotate  90 -copy all -outfile \"$SXIV_IMG\" \"$SXIV_IMG\"" },
+	{ true,   XK_slash,         it_shell_cmd,         (arg_t) \
+			"jpegtran -rotate 180 -copy all -outfile \"$SXIV_IMG\" \"$SXIV_IMG\"" },
 };
 
 /* mouse button mappings for image mode: */

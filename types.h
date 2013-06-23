@@ -39,6 +39,12 @@ typedef enum {
 } direction_t;
 
 typedef enum {
+	ROTATE_90,
+	ROTATE_270,
+	ROTATE_180
+} rotate_t;
+
+typedef enum {
 	FLIP_HORIZONTAL,
 	FLIP_VERTICAL
 } flipdir_t;

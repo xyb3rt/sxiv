@@ -136,6 +136,7 @@ of small previews is displayed, making it easy to choose an image to open.
                  (also with Ctrl-arrow keys)
 
     <,>          Rotate image (counter-)clockwise by 90 degrees
+    ?            Rotate image by 180 degrees
     \,|          Flip image horizontally/vertically
 
     a            Toggle anti-aliasing
