@@ -62,7 +62,8 @@ Print brief usage information to standard output and exit.
 Read names of files to open from standard input.
 .TP
 .B \-o
-Write list of opened files to standard output when quitting. If combined with
+Write list of all marked files, or all opened files if no files are marked, to
+standard output when quitting. If combined with
 .IR \-i ,
 then sxiv acts as a visual filter/pipe.
 .TP
@@ -128,6 +129,19 @@ Reload all thumbnails.
 .TP
 .B D
 Remove current image from file list and go to next image.
+.TP
+.B m
+Mark/unmark the current image.
+.TP
+.B N
+Go
+.I count
+marked images forward.
+.TP
+.B P
+Go
+.I count
+marked images backward.
 .SH THUMBNAIL KEYBOARD COMMANDS
 The following keyboard commands are only available in thumbnail mode:
 .TP

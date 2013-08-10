@@ -65,6 +65,7 @@ win_t win;
 
 fileinfo_t *files;
 int filecnt, fileidx;
+int markcnt;
 int alternate;
 
 int prefix;
@@ -312,6 +313,7 @@ void update_info(void)
 	unsigned int i, fn, fw, n;
 	unsigned int llen = sizeof(win.bar.l), rlen = sizeof(win.bar.r);
 	char *lt = win.bar.l, *rt = win.bar.r, title[TITLE_LEN];
+	const char * mark;
 	bool ow_info;
 
 	for (fw = 0, i = filecnt; i > 0; fw++, i /= 10);
@@ -328,9 +330,10 @@ void update_info(void)
 	/* update bar contents */
 	if (win.bar.h == 0)
 		return;
+	mark = files[sel].marked ? "* " : "";
 	if (mode == MODE_THUMB) {
 		if (tns.cnt == filecnt) {
-			n = snprintf(rt, rlen, "%0*d/%d", fw, sel + 1, filecnt);
+			n = snprintf(rt, rlen, "%s%0*d/%d", mark, fw, sel + 1, filecnt);
 			ow_info = true;
 		} else {
 			snprintf(lt, llen, "Loading... %0*d/%d", fw, tns.cnt, filecnt);
@@ -338,7 +341,7 @@ void update_info(void)
 			ow_info = false;
 		}
 	} else {
-		n = snprintf(rt, rlen, "%3d%% | ", (int) (img.zoom * 100.0));
+		n = snprintf(rt, rlen, "%s%3d%% | ", mark, (int) (img.zoom * 100.0));
 		if (img.multi.cnt > 0) {
 			for (fn = 0, i = img.multi.cnt; i > 0; fn++, i /= 10);
 			n += snprintf(rt + n, rlen - n, "%0*d/%d | ",

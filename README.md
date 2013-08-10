@@ -79,7 +79,7 @@ of small previews is displayed, making it easy to choose an image to open.
     -i           Read file list from stdin
     -n NUM       Start at picture NUM
     -N NAME      Set X window resource name to NAME
-    -o           Write file list to stdout when quitting
+    -o           Write list of marked/all files to stdout when quitting
     -p           Pixelize, i.e. turn off image anti-aliasing
     -q           Be quiet, disable warnings
     -r           Search given directories recursively for images
@@ -107,6 +107,10 @@ of small previews is displayed, making it easy to choose an image to open.
     r            Reload image
     R            Reload all thumbnails
     D            Remove image from file list and go to next image
+
+    m            Mark/unmark current image
+    N            Go [count] marked images forward
+    P            Go [count] marked images backward
 
 *Thumbnail mode:*
 

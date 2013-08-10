@@ -48,6 +48,7 @@ extern win_t win;
 
 extern fileinfo_t *files;
 extern int filecnt, fileidx;
+extern int markcnt;
 extern int alternate;
 
 extern int prefix;
@@ -61,8 +62,10 @@ bool it_quit(arg_t a)
 	unsigned int i;
 
 	if (options->to_stdout) {
-		for (i = 0; i < filecnt; i++)
-			printf("%s\n", files[i].name);
+		for (i = 0; i < filecnt; i++) {
+			if (!markcnt || files[i].marked)
+				printf("%s\n", files[i].name);
+		}
 	}
 	cleanup();
 	exit(EXIT_SUCCESS);
@@ -235,6 +238,46 @@ bool i_toggle_animation(arg_t a)
 		set_timeout(animate, img.multi.frames[img.multi.sel].delay, true);
 	}
 	return true;
+}
+
+bool it_toggle_image_mark(arg_t a)
+{
+	int sel = mode == MODE_IMAGE ? fileidx : tns.sel;
+
+	files[sel].marked = !files[sel].marked;
+	markcnt += files[sel].marked ? 1 : -1;
+	return true;
+}
+
+bool it_navigate_marked(arg_t a)
+{
+	long n = (long) a;
+	int d, i, cnt, sel, new;
+	
+	if (mode == MODE_IMAGE)
+		cnt = filecnt, sel = new = fileidx;
+	else
+		cnt = tns.cnt, sel = new = tns.sel;
+	if (prefix > 0)
+		n *= prefix;
+	d = n > 0 ? 1 : -1;
+	for (i = sel + d; n != 0 && i >= 0 && i < cnt; i += d) {
+		if (files[i].marked) {
+			n -= d;
+			new = i;
+		}
+	}
+	if (new != sel) {
+		if (mode == MODE_IMAGE) {
+			load_image(new);
+		} else {
+			tns.sel = new;
+			tns.dirty = true;
+		}
+		return true;
+	} else {
+		return false;
+	}
 }
 
 bool it_scroll_move(arg_t a)

@@ -69,6 +69,7 @@ typedef struct {
 	const char *path; /* always absolute */
 	const char *base;
 	bool loaded;
+	bool marked;
 } fileinfo_t;
 
 /* timeouts in milliseconds: */

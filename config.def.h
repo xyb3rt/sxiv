@@ -81,6 +81,10 @@ static const keymap_t keys[] = {
 	{ true,   XK_p,             i_navigate_frame,     (arg_t) -1 },
 	{ true,   XK_space,         i_toggle_animation,   (arg_t) None },
 
+	{ false,  XK_m,             it_toggle_image_mark, (arg_t) None },
+	{ false,  XK_N,             it_navigate_marked,   (arg_t) +1 },
+	{ false,  XK_P,             it_navigate_marked,   (arg_t) -1 },
+
 	{ false,  XK_h,             it_scroll_move,       (arg_t) DIR_LEFT },
 	{ false,  XK_Left,          it_scroll_move,       (arg_t) DIR_LEFT },
 	{ false,  XK_j,             it_scroll_move,       (arg_t) DIR_DOWN },

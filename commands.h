@@ -54,6 +54,8 @@ bool it_first(arg_t);
 bool it_n_or_last(arg_t);
 bool i_navigate_frame(arg_t);
 bool i_toggle_animation(arg_t);
+bool it_toggle_image_mark(arg_t);
+bool it_navigate_marked(arg_t);
 bool it_scroll_move(arg_t);
 bool it_scroll_screen(arg_t);
 bool i_scroll_to_edge(arg_t);
