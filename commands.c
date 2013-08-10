@@ -397,21 +397,14 @@ bool i_fit_to_img(arg_t a)
 
 bool i_rotate(arg_t a)
 {
-	rotate_t rot = (rotate_t) a;
+	degree_t degree = (degree_t) a;
 
 	if (mode == MODE_IMAGE) {
-		if (rot == ROTATE_90) {
-			img_rotate(&img, 1);
-			return true;
-		} else if (rot == ROTATE_270) {
-			img_rotate(&img, 3);
-			return true;
-		} else if (rot == ROTATE_180) {
-			img_rotate(&img, 2);
-			return true;
-		}
+		img_rotate(&img, degree);
+		return true;
+	}	else {
+		return false;
 	}
-	return false;
 }
 
 bool i_flip(arg_t a)

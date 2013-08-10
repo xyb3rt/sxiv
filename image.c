@@ -650,25 +650,22 @@ bool img_pan_edge(img_t *img, direction_t dir)
 	}
 }
 
-void img_rotate(img_t *img, int d)
+void img_rotate(img_t *img, degree_t d)
 {
-	win_t *win;
 	int ox, oy, tmp;
 
 	if (img == NULL || img->im == NULL || img->win == NULL)
 		return;
 
-	win = img->win;
-	ox = d == 1 ? img->x : win->w - img->x - img->w * img->zoom;
-	oy = d == 3 ? img->y : win->h - img->y - img->h * img->zoom;
-
 	imlib_context_set_image(img->im);
-	/* rotates by `90 * d` degrees in the clockwise direction */
 	imlib_image_orientate(d);
 
-	if (d == 1 || d == 3) {
-		img->x = oy + (win->w - win->h) / 2;
-		img->y = ox + (win->h - win->w) / 2;
+	if (d == DEGREE_90 || d == DEGREE_270) {
+		ox = d == DEGREE_90  ? img->x : img->win->w - img->x - img->w * img->zoom;
+		oy = d == DEGREE_270 ? img->y : img->win->h - img->y - img->h * img->zoom;
+
+		img->x = oy + (img->win->w - img->win->h) / 2;
+		img->y = ox + (img->win->h - img->win->w) / 2;
 
 		tmp = img->w;
 		img->w = img->h;

@@ -114,9 +114,9 @@ static const keymap_t keys[] = {
 	{ false,  XK_E,             i_fit_to_win,         (arg_t) SCALE_HEIGHT },
 	{ false,  XK_W,             i_fit_to_img,         (arg_t) None },
 
-	{ false,  XK_less,          i_rotate,             (arg_t) ROTATE_270 },
-	{ false,  XK_greater,       i_rotate,             (arg_t) ROTATE_90 },
-	{ false,  XK_question,      i_rotate,             (arg_t) ROTATE_180 },
+	{ false,  XK_less,          i_rotate,             (arg_t) DEGREE_270 },
+	{ false,  XK_greater,       i_rotate,             (arg_t) DEGREE_90 },
+	{ false,  XK_question,      i_rotate,             (arg_t) DEGREE_180 },
 
 	{ false,  XK_backslash,     i_flip,               (arg_t) FLIP_HORIZONTAL },
 	{ false,  XK_bar,           i_flip,               (arg_t) FLIP_VERTICAL },
