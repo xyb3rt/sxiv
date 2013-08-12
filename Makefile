@@ -3,10 +3,11 @@ VERSION = git-20130810
 PREFIX    = /usr/local
 MANPREFIX = $(PREFIX)/share/man
 
-CC      = gcc
-CFLAGS  = -std=c99 -Wall -pedantic -O2 -I$(PREFIX)/include -DHAVE_GIFLIB
-LDFLAGS = -L$(PREFIX)/lib
-LIBS    = -lX11 -lImlib2 -lgif
+CC       ?= gcc
+CFLAGS   += -std=c99 -Wall -pedantic -O2
+CPPFLAGS += -DVERSION=\"$(VERSION)\" -DHAVE_GIFLIB -I$(PREFIX)/include
+LDFLAGS  += -L$(PREFIX)/lib
+LIBS      = -lX11 -lImlib2 -lgif
 
 SRC = commands.c exif.c image.c main.c options.c thumbs.c util.c window.c
 OBJ = $(SRC:.c=.o)
@@ -16,7 +17,7 @@ all: sxiv
 $(OBJ): Makefile config.h
 
 .c.o:
-	$(CC) $(CFLAGS) -DVERSION=\"$(VERSION)\" -c -o $@ $<
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
 
 config.h:
 	cp config.def.h $@
