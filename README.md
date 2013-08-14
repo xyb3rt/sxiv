@@ -69,6 +69,7 @@ of small previews is displayed, making it easy to choose an image to open.
 
 **Command line options:**
 
+    -A           Show transparency as white by default
     -b           Do not show info bar on bottom of window
     -c           Remove all orphaned cache files from thumbnail cache and exit
     -d           Scale all images to 100%, but fit large images into window

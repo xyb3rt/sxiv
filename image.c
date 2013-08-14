@@ -63,7 +63,7 @@ void img_init(img_t *img, win_t *win)
 	img->checkpan = false;
 	img->dirty = false;
 	img->aa = options->aa;
-	img->alpha = true;
+	img->alpha = options->alpha;
 	img->multi.cap = img->multi.cnt = 0;
 	img->multi.animate = false;
 }
