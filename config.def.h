@@ -127,6 +127,8 @@ static const keymap_t keys[] = {
 
 	{ false,  XK_a,             i_toggle_antialias,   (arg_t) None },
 	{ false,  XK_A,             it_toggle_alpha,      (arg_t) None },
+	
+	{ true,   XK_z,             it_shell_cmd,         (arg_t) "echo \"$SXIV_IMG\"" },
 
 	/* open current image with given program: */
 	{ true,   XK_g,             it_open_with,         (arg_t) "gimp" },
