@@ -501,6 +501,12 @@ bool it_open_with(arg_t a)
 	return false;
 }
 
+bool it_print_filename(arg_t a)
+{
+	puts(files[mode == MODE_IMAGE ? fileidx : tns.sel].path);
+	return true;
+}
+
 bool it_shell_cmd(arg_t a)
 {
 	int n, status;
