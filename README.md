@@ -79,7 +79,7 @@ of small previews is displayed, making it easy to choose an image to open.
     -i           Read file list from stdin
     -n NUM       Start at picture NUM
     -N NAME      Set X window resource name to NAME
-    -o           Write list of marked/all files to stdout when quitting
+    -o           Write list of marked files to stdout when quitting
     -p           Pixelize, i.e. turn off image anti-aliasing
     -q           Be quiet, disable warnings
     -r           Search given directories recursively for images

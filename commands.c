@@ -61,9 +61,9 @@ bool it_quit(arg_t a)
 {
 	unsigned int i;
 
-	if (options->to_stdout) {
+	if (options->to_stdout && markcnt > 0) {
 		for (i = 0; i < filecnt; i++) {
-			if (!markcnt || files[i].marked)
+			if (files[i].marked)
 				printf("%s\n", files[i].name);
 		}
 	}
