@@ -74,8 +74,10 @@ bool it_quit(arg_t a)
 bool it_switch_mode(arg_t a)
 {
 	if (mode == MODE_IMAGE) {
-		if (tns.thumbs == NULL)
+		if (tns.thumbs == NULL) {
 			tns_init(&tns, filecnt, &win);
+			tns.alpha = img.alpha;
+		}
 		img_close(&img, false);
 		reset_timeout(reset_cursor);
 		tns.sel = fileidx;

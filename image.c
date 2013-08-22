@@ -18,6 +18,7 @@
 
 #define _POSIX_C_SOURCE 200112L
 #define _IMAGE_CONFIG
+#define _RENDER_CONFIG
 
 #include <stdlib.h>
 #include <string.h>
@@ -62,8 +63,8 @@ void img_init(img_t *img, win_t *win)
 	img->zoom = MIN(img->zoom, zoom_max);
 	img->checkpan = false;
 	img->dirty = false;
-	img->aa = options->aa;
-	img->alpha = true;
+	img->aa = RENDER_ANTI_ALIAS;
+	img->alpha = !RENDER_WHITE_ALPHA;
 	img->multi.cap = img->multi.cnt = 0;
 	img->multi.animate = false;
 }

@@ -53,6 +53,19 @@ enum {
 enum { THUMB_SIZE = 60 };
 
 #endif
+#ifdef _RENDER_CONFIG
+
+/* if false, pixelate images at zoom level != 100%,
+ * toggled with 'a' key binding
+ */
+static const bool RENDER_ANTI_ALIAS = true;
+
+/* if true, use white background for alpha layer,
+ * toggled with 'A' key binding
+ */
+static const bool RENDER_WHITE_ALPHA = false;
+
+#endif
 #ifdef _MAPPINGS_CONFIG
 
 /* keyboard mappings for image and thumbnail mode: */

@@ -18,6 +18,7 @@
 
 #define _POSIX_C_SOURCE 200112L
 #define _THUMBS_CONFIG
+#define _RENDER_CONFIG
 
 #include <stdlib.h>
 #include <string.h>
@@ -177,7 +178,7 @@ void tns_init(tns_t *tns, int cnt, win_t *win)
 	tns->cap = cnt;
 	tns->cnt = tns->first = tns->sel = 0;
 	tns->win = win;
-	tns->alpha = true;
+	tns->alpha = !RENDER_WHITE_ALPHA;
 	tns->dirty = false;
 
 	if ((homedir = getenv("HOME")) != NULL) {
