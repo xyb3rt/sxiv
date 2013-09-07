@@ -352,14 +352,14 @@ bool i_drag(arg_t a)
 				y = e.xmotion.y;
 
 				/* wrap the mouse around */
-				if (x < 0) {
-					WARP(win.w, y);
-				} else if (x > win.w) {
-					WARP(0, y);
-				} else if (y < 0) {
-					WARP(x, win.h);
-				} else if (y > win.h) {
-					WARP(x, 0);
+				if (x <= 0) {
+					WARP(win.w - 2, y);
+				} else if (x >= win.w - 1) {
+					WARP(1, y);
+				} else if (y <= 0) {
+					WARP(x, win.h - 2);
+				} else if (y >= win.h - 1) {
+					WARP(x, 1);
 				}
 				dx += x - ox;
 				dy += y - oy;
