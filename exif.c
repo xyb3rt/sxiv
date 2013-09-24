@@ -73,16 +73,22 @@ int exif_orientation(const fileinfo_t *file)
 	if (fd < 0)
 		return -1;
 
-	if (s_read(fd, file->name, data, 4) < 0)
+	if (s_read(fd, file->name, data, 2) < 0)
 		goto abort;
 	if (btous(data, order) != JPEG_MARKER_SOI)
 		goto abort;
-	if (btous(data + 2, order) != JPEG_MARKER_APP1)
+	if (s_read(fd, file->name, data, 4) < 0)
 		goto abort;
-
-	if (s_read(fd, file->name, data, 2) < 0)
+	if (btous(data, order) == JPEG_MARKER_APP0){
+		len = btous(data + 2, order);
+		if (s_read(fd, file->name, data, len - 2) < 0)
+			goto abort;
+		if (s_read(fd, file->name, data, 4) < 0)
+			goto abort;
+	}
+	if (btous(data, order) != JPEG_MARKER_APP1)
 		goto abort;
-	len = btous(data, order);
+	len = btous(data + 2, order);
 	if (len < 8)
 		goto abort;
 
