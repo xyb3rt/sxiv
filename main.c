@@ -160,6 +160,8 @@ void remove_file(int n, bool manual)
 	filecnt--;
 	if (n < tns.cnt)
 		tns.cnt--;
+	if (n < alternate)
+		alternate--;
 }
 
 void set_timeout(timeout_f handler, int time, bool overwrite)
@@ -287,15 +289,18 @@ void load_image(int new)
 
 	win_set_cursor(&win, CURSOR_WATCH);
 
+	if (new != fileidx)
+		alternate = fileidx;
+
 	img_close(&img, false);
 	while (!img_load(&img, &files[new])) {
 		remove_file(new, false);
 		if (new >= filecnt)
 			new = filecnt - 1;
+		else if (new < fileidx)
+			new--;
 	}
-
 	files[new].loaded = true;
-	alternate = fileidx;
 	fileidx = new;
 
 	info.open = false;
