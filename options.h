@@ -28,6 +28,7 @@ typedef struct {
 	bool from_stdin;
 	bool to_stdout;
 	bool recursive;
+	bool recursive_fast;
 	int filecnt;
 	int startnum;
 
