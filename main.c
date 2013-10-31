@@ -63,8 +63,11 @@ img_t img;
 tns_t tns;
 win_t win;
 
+/* directory handle for recursive-fast mode */
+r_dir_t *dirr = NULL;
+
 fileinfo_t *files;
-int filecnt, fileidx;
+int memfilecnt, filecnt, fileidx;
 int markcnt;
 int alternate;
 
@@ -91,6 +94,9 @@ void cleanup(void)
 {
 	static bool in = false;
 
+	if (dirr)
+		r_closedir(dirr);
+
 	if (!in) {
 		in = true;
 		img_close(&img, false);
@@ -111,9 +117,9 @@ void check_add_file(char *filename)
 		return;
 	}
 
-	if (fileidx == filecnt) {
-		filecnt *= 2;
-		files = (fileinfo_t*) s_realloc(files, filecnt * sizeof(fileinfo_t));
+	if (fileidx == memfilecnt) {
+		memfilecnt *= 2;
+		files = (fileinfo_t*) s_realloc(files, memfilecnt * sizeof(fileinfo_t));
 	}
 	if (*filename != '/') {
 		files[fileidx].path = absolute_path(filename);
@@ -505,11 +511,12 @@ void on_buttonpress(XButtonEvent *bev)
 
 void run(void)
 {
-	int xfd;
+	int xfd, ofileidx;
 	fd_set fds;
 	struct timeval timeout;
 	bool discard, to_set;
 	XEvent ev, nextev;
+	char *filename;
 
 	redraw();
 
@@ -530,6 +537,29 @@ void run(void)
 				redraw();
 			else
 				check_timeouts(NULL);
+		}
+
+		if (dirr && XPending(win.env.dpy) == 0)
+		{
+			/* load images (recursive-fast) */
+			set_timeout(redraw, TO_LOAD_NEXT, false);
+			if ((filename = r_readdir(dirr)) != NULL) {
+				ofileidx = fileidx;
+				fileidx = filecnt;
+				if (img_test(filename))
+					check_add_file(filename);
+				free((void*) filename);
+				filecnt = fileidx;
+				fileidx = ofileidx;
+				if (mode == MODE_THUMB && filecnt > tns.cap) {
+					tns.thumbs = (thumb_t*) s_realloc(tns.thumbs, filecnt*2 * sizeof(thumb_t));
+					memset(&tns.thumbs[tns.cap], 0, (filecnt*2-tns.cap) * sizeof(thumb_t));
+					tns.cap = filecnt*2;
+				}
+			} else {
+				r_closedir(dirr);
+				dirr = NULL;
+			}
 		}
 
 		while (XPending(win.env.dpy) == 0
@@ -635,12 +665,13 @@ int main(int argc, char **argv)
 		exit(EXIT_FAILURE);
 	}
 
-	if (options->recursive || options->from_stdin)
+	if (options->recursive || options->recursive_fast || options->from_stdin)
 		filecnt = FILENAME_CNT;
 	else
 		filecnt = options->filecnt;
 
 	files = (fileinfo_t*) s_malloc(filecnt * sizeof(fileinfo_t));
+	memfilecnt = filecnt;
 	fileidx = 0;
 
 	if (options->from_stdin) {
@@ -664,7 +695,7 @@ int main(int argc, char **argv)
 		if (!S_ISDIR(fstats.st_mode)) {
 			check_add_file(filename);
 		} else {
-			if (!options->recursive) {
+			if (!options->recursive && !options->recursive_fast) {
 				warn("ignoring directory: %s", filename);
 				continue;
 			}
@@ -673,13 +704,30 @@ int main(int argc, char **argv)
 				continue;
 			}
 			start = fileidx;
-			while ((filename = r_readdir(&dir)) != NULL) {
-				check_add_file(filename);
-				free((void*) filename);
+
+			if (options->recursive_fast) {
+				dirr = &dir;
+				while ((filename = r_readdir(&dir)) != NULL) {
+					if (img_test(filename)) {
+						check_add_file(filename);
+						free((void*) filename);
+						break;
+					}
+					free((void*) filename);
+				}
+				if (!filename) {
+					r_closedir(&dir);
+					dirr = NULL;
+				}
+			} else {
+				while ((filename = r_readdir(&dir)) != NULL) {
+					check_add_file(filename);
+					free((void*) filename);
+				}
+				r_closedir(&dir);
+				if (fileidx - start > 1)
+					qsort(files + start, fileidx - start, sizeof(fileinfo_t), fncmp);
 			}
-			r_closedir(&dir);
-			if (fileidx - start > 1)
-				qsort(files + start, fileidx - start, sizeof(fileinfo_t), fncmp);
 		}
 	}
 

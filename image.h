@@ -60,6 +60,7 @@ typedef struct {
 
 void img_init(img_t*, win_t*);
 
+bool img_test(const char *filename);
 bool img_load(img_t*, const fileinfo_t*);
 void img_close(img_t*, bool);
 

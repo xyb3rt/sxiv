@@ -275,6 +275,20 @@ bool img_load_gif(img_t *img, const fileinfo_t *file)
 }
 #endif /* HAVE_GIFLIB */
 
+bool img_test(const char *filename)
+{
+	Imlib_Image *tmp, *old;
+
+	if (!(tmp = imlib_load_image(filename)))
+		return false;
+
+	old = imlib_context_get_image();
+	imlib_context_set_image(tmp);
+	imlib_free_image_and_decache();
+	if (old) imlib_context_set_image(old);
+	return true;
+}
+
 bool img_load(img_t *img, const fileinfo_t *file)
 {
 	const char *fmt;
