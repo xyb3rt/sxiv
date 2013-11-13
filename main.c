@@ -352,6 +352,8 @@ void update_info(void)
 			n += snprintf(rt + n, rlen - n, "%0*d/%d | ",
 			              fn, img.multi.sel + 1, img.multi.cnt);
 		}
+		if (img.gamma != 0)
+			n += snprintf(rt + n, rlen - n, "g%d | ", img.gamma);
 		n += snprintf(rt + n, rlen - n, "%0*d/%d", fw, sel + 1, filecnt);
 		ow_info = info.script == NULL;
 	}

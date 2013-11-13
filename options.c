@@ -33,7 +33,7 @@ const options_t *options = (const options_t*) &_options;
 
 void print_usage(void)
 {
-	printf("usage: sxiv [-bcdFfhioqrstvZ] [-g GEOMETRY] [-n NUM] "
+	printf("usage: sxiv [-bcdFfhioqrstvZ] [-g GEOMETRY] [-G GAMMA] [-n NUM] "
 	       "[-N name] [-z ZOOM] FILES...\n");
 }
 
@@ -44,7 +44,7 @@ void print_version(void)
 
 void parse_options(int argc, char **argv)
 {
-	int opt, t;
+	int opt, t, gamma;
 
 	_options.from_stdin = false;
 	_options.to_stdout = false;
@@ -53,6 +53,7 @@ void parse_options(int argc, char **argv)
 
 	_options.scalemode = SCALE_MODE;
 	_options.zoom = 1.0;
+	_options.gamma = 0;
 
 	_options.fixed_win = false;
 	_options.fullscreen = false;
@@ -64,7 +65,7 @@ void parse_options(int argc, char **argv)
 	_options.thumb_mode = false;
 	_options.clean_cache = false;
 
-	while ((opt = getopt(argc, argv, "bcdFfg:hin:N:oqrstvZz:")) != -1) {
+	while ((opt = getopt(argc, argv, "bcdFfg:G:hin:N:oqrstvZz:")) != -1) {
 		switch (opt) {
 			case '?':
 				print_usage();
@@ -86,6 +87,14 @@ void parse_options(int argc, char **argv)
 				break;
 			case 'g':
 				_options.geometry = optarg;
+				break;
+			case 'G':
+				if (sscanf(optarg, "%d", &gamma) <= 0) {
+					fprintf(stderr, "sxiv: invalid argument for option -G: %s\n",
+					        optarg);
+					exit(EXIT_FAILURE);
+				}
+				_options.gamma = gamma;
 				break;
 			case 'h':
 				print_usage();
