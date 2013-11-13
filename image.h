@@ -55,6 +55,9 @@ typedef struct {
 	bool aa;
 	bool alpha;
 
+	Imlib_Color_Modifier cmod;
+	int gamma;
+
 	multi_img_t multi;
 } img_t;
 
@@ -80,6 +83,8 @@ void img_rotate(img_t*, degree_t);
 void img_flip(img_t*, flipdir_t);
 
 void img_toggle_antialias(img_t*);
+
+void img_set_gamma(img_t*, int);
 
 bool img_frame_navigate(img_t*, int);
 bool img_frame_animate(img_t*, bool);

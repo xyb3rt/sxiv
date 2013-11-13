@@ -49,6 +49,9 @@ Set window position and size. See section GEOMETRY SPECIFICATIONS of X(7) for
 more information on
 .IR GEOMETRY .
 .TP
+.BI "\-G " GAMMA
+Set gamma to GAMMA (-32..32).
+.TP
 .BI "\-n " NUM
 Start at picture number NUM.
 .TP
@@ -282,6 +285,16 @@ Flip image horizontally.
 .TP
 .B _
 Flip image vertically.
+.SS Gamma Correction
+.TP
+.B {
+Decrease gamma.
+.TP
+.B }
+Increase gamma.
+.TP
+.B Ctrl-G
+Reset gamma.
 .SS Miscellaneous
 .TP
 .B a
