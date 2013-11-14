@@ -474,6 +474,22 @@ bool i_toggle_antialias(arg_t a)
 	}
 }
 
+/* a < 0:  decrease gamma
+ * a == 0: reset gamma
+ * a > 0:  increase gamma
+ */
+bool i_change_gamma(arg_t a)
+{
+	if (mode == MODE_IMAGE) {
+		long val = (long) a;
+		int delta = val > 0 ? 1 : (val < 0 ? -1 : -img.gamma);
+		img_set_gamma(&img, img.gamma + delta);
+		return true;
+	} else {
+		return false;
+	}
+}
+
 bool it_toggle_alpha(arg_t a)
 {
 	img.alpha = tns.alpha = !img.alpha;

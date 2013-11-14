@@ -67,6 +67,9 @@ void img_init(img_t *img, win_t *win)
 	img->alpha = !RENDER_WHITE_ALPHA;
 	img->multi.cap = img->multi.cnt = 0;
 	img->multi.animate = false;
+
+	img->cmod = imlib_create_color_modifier();
+	img_set_gamma(img, options->gamma);
 }
 
 void exif_auto_orientate(const fileinfo_t *file)
@@ -303,6 +306,8 @@ bool img_load(img_t *img, const fileinfo_t *file)
 		img_load_gif(img, file);
 #endif
 
+	img_set_gamma(img, img->gamma);
+
 	img->w = imlib_image_get_width();
 	img->h = imlib_image_get_height();
 	img->scalemode = options->scalemode;
@@ -335,6 +340,9 @@ void img_close(img_t *img, bool decache)
 			imlib_free_image();
 		img->im = NULL;
 	}
+
+	if (img->cmod)
+		imlib_context_set_color_modifier(NULL);
 }
 
 void img_check_pan(img_t *img, bool moved)
@@ -704,6 +712,28 @@ void img_toggle_antialias(img_t *img)
 	imlib_context_set_image(img->im);
 	imlib_context_set_anti_alias(img->aa);
 	img->dirty = true;
+}
+
+void img_set_gamma(img_t *img, int gamma)
+{
+	if (img == NULL)
+		return;
+
+	img->gamma = MIN(MAX(gamma, -GAMMA_RANGE), GAMMA_RANGE);
+
+	if (img->im && img->cmod) {
+		if (img->gamma == 0) {
+			imlib_context_set_color_modifier(NULL);
+		} else {
+			double range = img->gamma <= 0 ? 1.0 : GAMMA_MAX - 1.0;
+			imlib_context_set_color_modifier(img->cmod);
+			imlib_reset_color_modifier();
+			imlib_modify_color_modifier_gamma(
+				1.0 + (double) img->gamma
+				* (range / (double) GAMMA_RANGE));
+		}
+		img->dirty = true;
+	}
 }
 
 bool img_frame_goto(img_t *img, int n)
