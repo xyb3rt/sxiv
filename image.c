@@ -85,7 +85,7 @@ void img_init(img_t *img, win_t *win)
 	img->multi.animate = false;
 
 	img->cmod = imlib_create_color_modifier();
-	img->gamma = options->gamma;
+	img->gamma = MIN(MAX(options->gamma, -GAMMA_RANGE), GAMMA_RANGE);
 }
 
 void exif_auto_orientate(const fileinfo_t *file)
