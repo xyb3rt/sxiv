@@ -48,7 +48,6 @@ extern win_t win;
 
 extern fileinfo_t *files;
 extern int filecnt, fileidx;
-extern int markcnt;
 extern int alternate;
 
 extern int prefix;
@@ -61,7 +60,7 @@ bool it_quit(arg_t a)
 {
 	unsigned int i;
 
-	if (options->to_stdout && markcnt > 0) {
+	if (options->to_stdout) {
 		for (i = 0; i < filecnt; i++) {
 			if (files[i].marked)
 				printf("%s\n", files[i].name);
@@ -247,7 +246,8 @@ bool it_toggle_image_mark(arg_t a)
 	int sel = mode == MODE_IMAGE ? fileidx : tns.sel;
 
 	files[sel].marked = !files[sel].marked;
-	markcnt += files[sel].marked ? 1 : -1;
+	if (mode == MODE_THUMB)
+		tns_mark(&tns, sel, files[sel].marked);
 	return true;
 }
 

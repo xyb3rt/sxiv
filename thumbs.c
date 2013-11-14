@@ -363,6 +363,8 @@ void tns_render(tns_t *tns)
 
 		imlib_render_image_part_on_drawable_at_size(0, 0, t->w, t->h,
 		                                            t->x, t->y, t->w, t->h);
+		if (t->file->marked)
+			tns_mark(tns, tns->first + i, true);
 		if ((i + 1) % tns->cols == 0) {
 			x = tns->x;
 			y += thumb_dim;
@@ -374,20 +376,44 @@ void tns_render(tns_t *tns)
 	tns_highlight(tns, tns->sel, true);
 }
 
-void tns_highlight(tns_t *tns, int n, bool hl)
+void tns_mark(tns_t *tns, int n, bool mark)
 {
-	thumb_t *t;
-	win_t *win;
-	int x, y;
-	unsigned long col;
-
 	if (tns == NULL || tns->thumbs == NULL || tns->win == NULL)
 		return;
 
-	win = tns->win;
+	if (n >= 0 && n < tns->cnt) {
+		unsigned long col;
+		thumb_t *t = &tns->thumbs[n];
+		win_t *win = tns->win;
+		int x = t->x, y = t->y, w = t->w, h = t->h;
+
+		if (mark || n == tns->sel)
+			col = win->selcol;
+		else if (win->fullscreen)
+			col = win->fscol;
+		else
+			col = win->bgcol;
+
+		win_draw_rect(win, win->pm, x - 4,     y - 4,     8, 2, true, 0, col);
+		win_draw_rect(win, win->pm, x - 4,     y - 4,     2, 8, true, 0, col);
+		win_draw_rect(win, win->pm, x + w - 4, y - 4,     8, 2, true, 0, col);
+		win_draw_rect(win, win->pm, x + w + 2, y - 4,     2, 8, true, 0, col);
+		win_draw_rect(win, win->pm, x - 4,     y + h + 2, 8, 2, true, 0, col);
+		win_draw_rect(win, win->pm, x - 4,     y + h - 4, 2, 8, true, 0, col);
+		win_draw_rect(win, win->pm, x + w - 4, y + h + 2, 8, 2, true, 0, col);
+		win_draw_rect(win, win->pm, x + w + 2, y + h - 4, 2, 8, true, 0, col);
+	}
+}
+
+void tns_highlight(tns_t *tns, int n, bool hl)
+{
+	if (tns == NULL || tns->thumbs == NULL || tns->win == NULL)
+		return;
 
 	if (n >= 0 && n < tns->cnt) {
-		t = &tns->thumbs[n];
+		unsigned long col;
+		thumb_t *t = &tns->thumbs[n];
+		win_t *win = tns->win;
 
 		if (hl)
 			col = win->selcol;
@@ -396,10 +422,11 @@ void tns_highlight(tns_t *tns, int n, bool hl)
 		else
 			col = win->bgcol;
 
-		x = t->x - (THUMB_SIZE - t->w) / 2;
-		y = t->y - (THUMB_SIZE - t->h) / 2;
-		win_draw_rect(win, win->pm, x - 3, y - 3, THUMB_SIZE + 6, THUMB_SIZE + 6,
+		win_draw_rect(win, win->pm, t->x - 3, t->y - 3, t->w + 6, t->h + 6,
 		              false, 2, col);
+
+		if (!hl && t->file->marked)
+			tns_mark(tns, n, true);
 	}
 }
 

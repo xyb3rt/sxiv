@@ -65,7 +65,6 @@ win_t win;
 
 fileinfo_t *files;
 int filecnt, fileidx;
-int markcnt;
 int alternate;
 
 int prefix;
@@ -491,6 +490,13 @@ void on_buttonpress(XButtonEvent *bev)
 					}
 					redraw();
 					break;
+				}
+				break;
+			case Button3:
+				if ((sel = tns_translate(&tns, bev->x, bev->y)) >= 0) {
+					files[sel].marked = !files[sel].marked;
+					tns_mark(&tns, sel, files[sel].marked);
+					redraw();
 				}
 				break;
 			case Button4:
