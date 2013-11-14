@@ -251,6 +251,18 @@ bool it_toggle_image_mark(arg_t a)
 	return true;
 }
 
+bool it_reverse_marks(arg_t a)
+{
+	int i, cnt = mode == MODE_IMAGE ? filecnt : tns.cnt;
+
+        for (i = 0; i < cnt; i++) {
+		files[i].marked = !files[i].marked;
+		markcnt += files[i].marked ? 1 : -1;
+        }
+
+	return true;
+}
+
 bool it_navigate_marked(arg_t a)
 {
 	long n = (long) a;
