@@ -39,9 +39,25 @@ enum { MIN_GIF_DELAY = 25 };
 float zoom_min;
 float zoom_max;
 
-int zoomdiff(float z1, float z2)
+static int zoomdiff(float z1, float z2)
 {
 	return (int) (z1 * 1000.0 - z2 * 1000.0);
+}
+
+static void img_apply_gamma(img_t *img)
+{
+	if (img == NULL || img->im == NULL || img->cmod == NULL)
+		return;
+	
+	if (img->gamma == 0) {
+		imlib_context_set_color_modifier(NULL);
+	} else {
+		double range = img->gamma <= 0 ? 1.0 : GAMMA_MAX - 1.0;
+
+		imlib_context_set_color_modifier(img->cmod);
+		imlib_reset_color_modifier();
+		imlib_modify_color_modifier_gamma(1.0 + img->gamma * (range / GAMMA_RANGE));
+	}
 }
 
 void img_init(img_t *img, win_t *win)
@@ -69,7 +85,7 @@ void img_init(img_t *img, win_t *win)
 	img->multi.animate = false;
 
 	img->cmod = imlib_create_color_modifier();
-	img_set_gamma(img, options->gamma);
+	img->gamma = options->gamma;
 }
 
 void exif_auto_orientate(const fileinfo_t *file)
@@ -306,7 +322,7 @@ bool img_load(img_t *img, const fileinfo_t *file)
 		img_load_gif(img, file);
 #endif
 
-	img_set_gamma(img, img->gamma);
+	img_apply_gamma(img);
 
 	img->w = imlib_image_get_width();
 	img->h = imlib_image_get_height();
@@ -714,25 +730,31 @@ void img_toggle_antialias(img_t *img)
 	img->dirty = true;
 }
 
-void img_set_gamma(img_t *img, int gamma)
+bool img_change_gamma(img_t *img, int d)
 {
-	if (img == NULL)
-		return;
+	/* d < 0: decrease gamma
+	 * d = 0: reset gamma
+	 * d > 0: increase gamma
+	 */
+	int gamma;
 
-	img->gamma = MIN(MAX(gamma, -GAMMA_RANGE), GAMMA_RANGE);
+	if (img == NULL || img->im == NULL)
+		return false;
 
-	if (img->im && img->cmod) {
-		if (img->gamma == 0) {
-			imlib_context_set_color_modifier(NULL);
-		} else {
-			double range = img->gamma <= 0 ? 1.0 : GAMMA_MAX - 1.0;
-			imlib_context_set_color_modifier(img->cmod);
-			imlib_reset_color_modifier();
-			imlib_modify_color_modifier_gamma(
-				1.0 + (double) img->gamma
-				* (range / (double) GAMMA_RANGE));
-		}
+	if (d == 0)
+		gamma = 0;
+	else if (d < 0)
+		gamma = MAX(-GAMMA_RANGE, img->gamma - 1);
+	else
+		gamma = MIN(+GAMMA_RANGE, img->gamma + 1);
+
+	if (img->gamma != gamma) {
+		img->gamma = gamma;
+		img_apply_gamma(img);
 		img->dirty = true;
+		return true;
+	} else {
+		return false;
 	}
 }
 

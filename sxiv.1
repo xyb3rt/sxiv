@@ -4,12 +4,14 @@ sxiv \- Simple X Image Viewer
 .SH SYNOPSIS
 .B sxiv
 .RB [ \-bcdFfhiopqrstvZ ]
+.RB [ \-G
+.IR GAMMA ]
 .RB [ \-g
 .IR GEOMETRY ]
-.RB [ \-n
-.IR NUM ]
 .RB [ \-N
 .IR NAME ]
+.RB [ \-n
+.IR NUM ]
 .RB [ \-z
 .IR ZOOM ]
 .IR FILE ...
@@ -44,19 +46,19 @@ size-hints to the window width/height.
 .B \-f
 Start in fullscreen mode.
 .TP
+.BI "\-G " GAMMA
+Set image gamma to GAMMA (-32..32).
+.TP
 .BI "\-g " GEOMETRY
 Set window position and size. See section GEOMETRY SPECIFICATIONS of X(7) for
 more information on
 .IR GEOMETRY .
 .TP
-.BI "\-G " GAMMA
-Set gamma to GAMMA (-32..32).
+.BI "\-N " NAME
+Set the resource name of sxiv's X window to NAME.
 .TP
 .BI "\-n " NUM
 Start at picture number NUM.
-.TP
-.BI "\-N " NAME
-Set the resource name of sxiv's X window to NAME.
 .TP
 .B \-h
 Print brief usage information to standard output and exit.
