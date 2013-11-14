@@ -108,6 +108,7 @@ of small previews is displayed, making it easy to choose an image to open.
     D            Remove image from file list and go to next image
 
     m            Mark/unmark current image
+    M            Reverse marked images
     N            Go [count] marked images forward
     P            Go [count] marked images backward
 

@@ -101,6 +101,7 @@ static const keymap_t keys[] = {
 	{ true,   XK_space,         i_toggle_animation,   (arg_t) None },
 
 	{ false,  XK_m,             it_toggle_image_mark, (arg_t) None },
+	{ false,  XK_M,             it_reverse_marks,     (arg_t) None },
 	{ false,  XK_N,             it_navigate_marked,   (arg_t) +1 },
 	{ false,  XK_P,             it_navigate_marked,   (arg_t) -1 },
 
