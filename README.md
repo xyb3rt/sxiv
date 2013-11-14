@@ -74,11 +74,12 @@ of small previews is displayed, making it easy to choose an image to open.
     -d           Scale all images to 100%, but fit large images into window
     -F           Use size-hints to make the window fixed/floating
     -f           Start in fullscreen mode
+    -G GAMMA     Set image gamma to GAMMA (-32..32)
     -g GEOMETRY  Set window position and size
                  (see section GEOMETRY SPECIFICATIONS of X(7))
     -i           Read file list from stdin
-    -n NUM       Start at picture NUM
     -N NAME      Set X window resource name to NAME
+    -n NUM       Start at picture NUM
     -o           Write list of marked files to stdout when quitting
     -q           Be quiet, disable warnings
     -r           Search given directories recursively for images
@@ -108,6 +109,7 @@ of small previews is displayed, making it easy to choose an image to open.
     D            Remove image from file list and go to next image
 
     m            Mark/unmark current image
+    M            Reverse all image marks
     N            Go [count] marked images forward
     P            Go [count] marked images backward
 
