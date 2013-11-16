@@ -296,7 +296,7 @@ void load_image(int new)
 		remove_file(new, false);
 		if (new >= filecnt)
 			new = filecnt - 1;
-		else if (new < fileidx)
+		else if (new > 0 && new < fileidx)
 			new--;
 	}
 	files[new].loaded = true;
@@ -532,7 +532,7 @@ void run(void)
 				tns.cnt++;
 			} else {
 				remove_file(tns.cnt, false);
-				if (tns.sel >= tns.cnt)
+				if (tns.sel > 0 && tns.sel >= tns.cnt)
 					tns.sel--;
 			}
 			if (tns.cnt == filecnt)
