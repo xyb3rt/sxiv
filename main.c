@@ -628,6 +628,7 @@ int main(int argc, char **argv)
 	ssize_t len;
 	char *filename;
 	const char *homedir;
+	FILE *marks_file;
 	struct stat fstats;
 	r_dir_t dir;
 
@@ -699,6 +700,25 @@ int main(int argc, char **argv)
 
 	filecnt = fileidx;
 	fileidx = options->startnum < filecnt ? options->startnum : 0;
+
+	if (options->marks_fn != NULL) {
+		marks_file = fopen(options->marks_fn, "r");
+		if (marks_file == NULL) {
+			fprintf(stderr, "sxiv: can't read marks from '%s'\n", options->marks_fn);
+		} else {
+			filename = NULL;
+			while ((len = get_line(&filename, &n, marks_file)) > 0) {
+				if (filename[len-1] == '\n')
+					filename[len-1] = '\0';
+				for (i = 0; i < filecnt; i++)
+					if (STREQ(files[i].name, filename))
+						files[i].marked = true;
+			}
+			if (filename != NULL)
+				free(filename);
+			fclose(marks_file);
+		}
+	}
 
 	win_init(&win);
 	img_init(&img, &win);

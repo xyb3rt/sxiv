@@ -34,7 +34,7 @@ const options_t *options = (const options_t*) &_options;
 void print_usage(void)
 {
 	printf("usage: sxiv [-bcdFfhioqrstvZ] [-G GAMMA] [-g GEOMETRY] [-n NUM] "
-	       "[-N name] [-z ZOOM] FILES...\n");
+	       "[-m FILE] [-N name] [-z ZOOM] FILES...\n");
 }
 
 void print_version(void)
@@ -50,6 +50,7 @@ void parse_options(int argc, char **argv)
 	_options.from_stdin = false;
 	_options.to_stdout = false;
 	_options.recursive = false;
+	_options.marks_fn = NULL;
 	_options.startnum = 0;
 
 	_options.scalemode = SCALE_MODE;
@@ -66,7 +67,7 @@ void parse_options(int argc, char **argv)
 	_options.thumb_mode = false;
 	_options.clean_cache = false;
 
-	while ((opt = getopt(argc, argv, "bcdFfG:g:hin:N:oqrstvZz:")) != -1) {
+	while ((opt = getopt(argc, argv, "bcdFfG:g:him:n:N:oqrstvZz:")) != -1) {
 		switch (opt) {
 			case '?':
 				print_usage();
@@ -103,6 +104,9 @@ void parse_options(int argc, char **argv)
 				exit(EXIT_SUCCESS);
 			case 'i':
 				_options.from_stdin = true;
+				break;
+			case 'm':
+				_options.marks_fn = optarg;
 				break;
 			case 'n':
 				if (sscanf(optarg, "%d", &t) <= 0 || t < 1) {

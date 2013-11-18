@@ -25,6 +25,7 @@
 typedef struct {
 	/* file list: */
 	char **filenames;
+	char *marks_fn;
 	bool from_stdin;
 	bool to_stdout;
 	bool recursive;
