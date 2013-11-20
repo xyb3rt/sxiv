@@ -4,11 +4,11 @@ PREFIX    = /usr/local
 MANPREFIX = $(PREFIX)/share/man
 
 CC      = gcc
-CFLAGS  = -std=c99 -Wall -pedantic -O2 -I$(PREFIX)/include -DHAVE_GIFLIB
+CFLAGS  = -std=c99 -Wall -pedantic -O2 -I$(PREFIX)/include -DHAVE_GIFLIB `pkg-config --cflags guile-2.0`
 LDFLAGS = -L$(PREFIX)/lib
-LIBS    = -lX11 -lImlib2 -lgif
+LIBS    = -lX11 -lImlib2 -lgif `pkg-config --libs guile-2.0`
 
-SRC = commands.c exif.c image.c main.c options.c thumbs.c util.c window.c
+SRC = commands.c exif.c image.c main.c options.c thumbs.c util.c window.c scripting.c
 OBJ = $(SRC:.c=.o)
 
 all: sxiv

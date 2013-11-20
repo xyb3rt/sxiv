@@ -40,6 +40,7 @@
 #include "util.h"
 #include "window.h"
 #include "config.h"
+#include "scripting.h"
 
 enum {
 	FILENAME_CNT = 1024,
@@ -432,28 +433,14 @@ void on_keypress(XKeyEvent *kev)
 
 	XLookupString(kev, &key, 1, &ksym, NULL);
 
-	if ((ksym == XK_Escape || (key >= '0' && key <= '9')) &&
-	    (kev->state & ControlMask) == 0)
-	{
-		/* number prefix for commands */
-		prefix = ksym == XK_Escape ? 0 : prefix * 10 + (int) (key - '0');
-		return;
-	}
-
-	for (i = 0; i < ARRLEN(keys); i++) {
-		if (keys[i].ksym == ksym && keymask(&keys[i], kev->state)) {
-			if (keys[i].cmd != NULL && keys[i].cmd(keys[i].arg))
-				redraw();
-			prefix = 0;
-			return;
-		}
-	}
+        call_guile_keypress(key, kev->state & ControlMask, kev->state & Mod1Mask);
+        redraw();
 }
 
 void on_buttonpress(XButtonEvent *bev)
 {
 	int i, sel;
-
+        /*
 	if (bev == NULL)
 		return;
 
@@ -471,7 +458,6 @@ void on_buttonpress(XButtonEvent *bev)
 			}
 		}
 	} else {
-		/* thumbnail mode (hard-coded) */
 		switch (bev->button) {
 			case Button1:
 				if ((sel = tns_translate(&tns, bev->x, bev->y)) >= 0) {
@@ -495,7 +481,8 @@ void on_buttonpress(XButtonEvent *bev)
 					redraw();
 				break;
 		}
-	}
+        }
+        */ 
 }
 
 void run(void)
@@ -617,6 +604,9 @@ int main(int argc, char **argv)
 	struct stat fstats;
 	r_dir_t dir;
 
+
+        
+        
 	parse_options(argc, argv);
 
 	if (options->clean_cache) {
@@ -715,6 +705,8 @@ int main(int argc, char **argv)
 	}
 
 	win_open(&win);
+
+        init_guile();
 
 	run();
 	cleanup();
