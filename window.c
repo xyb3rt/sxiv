@@ -251,7 +251,7 @@ void win_open(win_t *win)
 	win->h -= win->bar.h;
 	win_update_sizehints(win);
 
-	XMapWindow(e->dpy, win->xwin);
+	XMapRaised(e->dpy, win->xwin);
 	XFlush(e->dpy);
 
 	if (options->fullscreen)

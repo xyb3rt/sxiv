@@ -465,17 +465,16 @@ void img_render(img_t *img)
 	}
 
 	win_clear(win);
-
 	imlib_context_set_image(img->im);
 	imlib_context_set_anti_alias(img->aa);
-
 	if (!img->alpha && imlib_image_has_alpha())
 		win_draw_rect(win, win->pm, dx, dy, dw, dh, True, 0, win->white);
-	
+
 	imlib_context_set_drawable(win->pm);
 	imlib_render_image_part_on_drawable_at_size(sx, sy, sw, sh, dx, dy, dw, dh);
 
 	img->dirty = false;
+        
 }
 
 bool img_fit_win(img_t *img, scalemode_t sm)

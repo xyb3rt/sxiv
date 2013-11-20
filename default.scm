@@ -24,16 +24,41 @@
 (it-switch-mode)
 
 (define *input* "")
+(define *slideshow*)
+
+(define (start-slideshow rand time)
+  (define (slideshow-thread n cnt time)
+    (display `(sleeping ,time))
+    (sleep time)
+    (yield)
+    (let ((next (if n
+                    (if (< (+ n 1) cnt)
+                        (+ n 1)
+                        0)
+                    (random cnt))))
+      (display (list 'next next))
+      (it-n-or-last (+ next 1))
+      (display 'redraw)
+      (it-redraw)
+      (display 'iter)
+      (slideshow-thread (if n next n) cnt time)))
+  (set! *slideshow*
+        (call-with-new-thread (lambda () (slideshow-thread (if rand #f (p-get-file-index)) (p-get-file-count) time))))
+  (set! *waiter* (lambda (key ctrl mod1)
+                   (cancel-thread *slideshow*)
+                   (set! *waiter* default-waiter)
+                   #t))
+  #t)
 
 (define (apply-input-to func)
   (display "waiting for an input ")
   (newline)
   (set! *input* "")
-  (set! waiter
+  (set! *waiter*
         (lambda (key ctrl mod1)
           (let ((char (integer->char key)))
             (cond ((eqv? char #\return) (begin
-                                          (set! waiter default-waiter)
+                                          (set! *waiter* default-waiter)
                                           (func *input*)
                                           #t))
                   ((eqv? char #\backspace) (begin (set! *input* (xsubstring *input*
@@ -71,6 +96,7 @@
             (#\l (it-scroll-screen (const right)))
             (#\e (apply-input-to (lambda (str) (p-set-bar-left (object->string (eval-string str))))))
             (#\a (apply-input-to it-add-image))
+            (#\s (start-slideshow #f 2))
             (else #f))
           (match (integer->char key)
             (#\q (it-quit))
@@ -111,10 +137,10 @@
             (else #f)))
       #f))
 
-(define waiter default-waiter)
+(define *waiter* default-waiter)
 
 (define (on-key-press key ctrl mod1)
-  (waiter key ctrl mod1))
+  (*waiter* key ctrl mod1))
 
 (define (on-button-press button ctrl x y)
   (display (list button ctrl x y))

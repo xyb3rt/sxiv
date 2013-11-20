@@ -381,3 +381,8 @@ int p_get_file_count(){
 int p_get_file_index(){
   return fileidx;
 }
+
+bool it_redraw(){
+  redraw(); // hangs on imlib_render_image_part_on_drawable_at_size
+  return true;
+}

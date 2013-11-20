@@ -4,7 +4,7 @@ PREFIX    = /usr/local
 MANPREFIX = $(PREFIX)/share/man
 
 CC      = gcc
-CFLAGS  = -std=c99 -Wall -pedantic -O2 -I$(PREFIX)/include -DHAVE_GIFLIB `pkg-config --cflags guile-2.0`
+CFLAGS  = -std=c99 -Wall -pedantic -O2 -I$(PREFIX)/include -DHAVE_GIFLIB `pkg-config --cflags guile-2.0` -pthread
 LDFLAGS = -L$(PREFIX)/lib
 LIBS    = -lX11 -lImlib2 -lgif `pkg-config --libs guile-2.0`
 

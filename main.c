@@ -555,7 +555,7 @@ int main(int argc, char **argv)
 	struct stat fstats;
 	r_dir_t dir;
 
-
+        XInitThreads();
 	parse_options(argc, argv);
 
 	if (options->clean_cache) {
