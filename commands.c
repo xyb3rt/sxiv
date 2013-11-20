@@ -347,24 +347,6 @@ bool it_toggle_alpha()
 	return true;
 }
 
-bool it_open_with(arg_t a)
-{
-	const char *prog = (const char*) a;
-	pid_t pid;
-
-	if (prog == NULL || *prog == '\0')
-		return false;
-
-	if ((pid = fork()) == 0) {
-		execlp(prog, prog,
-		       files[mode == MODE_IMAGE ? fileidx : tns.sel].path, NULL);
-		warn("could not exec: %s", prog);
-		exit(EXIT_FAILURE);
-	} else if (pid < 0) {
-		warn("could not fork. program was: %s", prog);
-	}
-	return false;
-}
 
 bool p_set_bar_left(char *str) {
   strncpy(win.bar.l, str, BAR_L_LEN);
