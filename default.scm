@@ -32,25 +32,21 @@
   (set! waiter
         (lambda (key ctrl mod1)
           (let ((char (integer->char key)))
-            (if (eqv? char #\return)
-                (begin
-                  (set! waiter default-waiter)
-                  (func *input*))
-                (begin
-                  (cond ((eqv? char #\return) (begin
-                                                (set! waiter default-waiter)
-                                                (func *input*)))
-                        ((eqv? char #\backspace) (begin (set! *input* (xsubstring 
-                                                                                     *input*
-                                                                                     0
-                                                                                     (- (string-length *input*) 1)
-                                                                                     ))
-                                                        (p-set-bar-left *input*)))
-                        ((<= key 31) #f)
-                        (else (begin (set! *input* (string-append *input* (string char)))
-                                     (p-set-bar-left *input*))))
-                  
-                  #f))))))
+            (cond ((eqv? char #\return) (begin
+                                          (set! waiter default-waiter)
+                                          (func *input*)
+                                          #t))
+                  ((eqv? char #\backspace) (begin (set! *input* (xsubstring *input*
+                                                                            0
+                                                                            (- (string-length *input*) 1)))
+                                                  (p-set-bar-left *input*)
+                                                  #t))
+                  ((<= key 31) #f)
+                  (else (begin (set! *input* (string-append *input* (string char)))
+                               (p-set-bar-left *input*)
+                               #t))))))
+  (p-set-bar-left "")
+  #t)
 
 (define (apply-numeric-input-to func)
   (apply-input-to (lambda (numstr)
@@ -111,15 +107,13 @@
             (#\_ (i-flip (const flip-vertical)))
             (#\a (i-toggle-antialias))
             (#\A (it-toggle-alpha))
-            (else #f)
-            ))
+            (else #f)))
       #f))
 
 (define waiter default-waiter)
 
 (define (on-key-press key ctrl mod1)
-  (waiter key ctrl mod1)
-  #t)
+  (waiter key ctrl mod1))
 
 (define (on-button-press button ctrl x y)
   (display (list button ctrl x y))
