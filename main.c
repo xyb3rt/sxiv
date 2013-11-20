@@ -74,6 +74,8 @@ int prefix;
 bool resized = false;
 
 const char * const INFO_SCRIPT = ".sxiv/exec/image-info";
+const char * const GUILE_SCRIPT = "default.scm";
+
 struct {
   char *script;
   int fd;
@@ -424,65 +426,22 @@ bool buttonmask(const button_t *b, unsigned int state)
 
 void on_keypress(XKeyEvent *kev)
 {
-	int i;
-	KeySym ksym;
-	char key;
+  KeySym ksym;
+  char key;
 
-	if (kev == NULL)
-		return;
+  if (kev == NULL)
+    return;
 
-	XLookupString(kev, &key, 1, &ksym, NULL);
+  XLookupString(kev, &key, 1, &ksym, NULL);
 
-        call_guile_keypress(key, kev->state & ControlMask, kev->state & Mod1Mask);
-        redraw();
+  if (call_guile_keypress(key, kev->state & ControlMask, kev->state & Mod1Mask))
+    redraw();
 }
 
 void on_buttonpress(XButtonEvent *bev)
 {
-	int i, sel;
-        /*
-	if (bev == NULL)
-		return;
-
-	if (mode == MODE_IMAGE) {
-		win_set_cursor(&win, CURSOR_ARROW);
-		set_timeout(reset_cursor, TO_CURSOR_HIDE, true);
-
-		for (i = 0; i < ARRLEN(buttons); i++) {
-			if (buttons[i].button == bev->button &&
-			    buttonmask(&buttons[i], bev->state))
-			{
-				if (buttons[i].cmd != NULL && buttons[i].cmd(buttons[i].arg))
-					redraw();
-				return;
-			}
-		}
-	} else {
-		switch (bev->button) {
-			case Button1:
-				if ((sel = tns_translate(&tns, bev->x, bev->y)) >= 0) {
-					if (sel == tns.sel) {
-						mode = MODE_IMAGE;
-						set_timeout(reset_cursor, TO_CURSOR_HIDE, true);
-						load_image(tns.sel);
-					} else {
-						tns_highlight(&tns, tns.sel, false);
-						tns_highlight(&tns, sel, true);
-						tns.sel = sel;
-					}
-					redraw();
-					break;
-				}
-				break;
-			case Button4:
-			case Button5:
-				if (tns_scroll(&tns, bev->button == Button4 ? DIR_UP : DIR_DOWN,
-				               (bev->state & ControlMask) != 0))
-					redraw();
-				break;
-		}
-        }
-        */ 
+  if (call_guile_buttonpress(bev->button, bev->state & ControlMask, bev->x, bev->y))
+    redraw();
 }
 
 void run(void)
@@ -706,7 +665,7 @@ int main(int argc, char **argv)
 
 	win_open(&win);
 
-        init_guile();
+        init_guile(GUILE_SCRIPT);
 
 	run();
 	cleanup();

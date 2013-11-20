@@ -14,7 +14,12 @@
     (degree-180 2)
     (degree-270 3)
     (flip-horizontal 0)
-    (flip-vertical 1)))
+    (flip-vertical 1)
+    (mouse-left 1)
+    (mouse-middle 2)
+    (mouse-right 3)
+    (mouse-up 4)
+    (mouse-down 5)))
 
 (define-syntax const
   (syntax-rules ()
@@ -59,7 +64,7 @@
             (#\j (it-scroll-screen (const down)))
             (#\k (it-scroll-screen (const up)))
             (#\l (it-scroll-screen (const right)))
-            (else (display (list 'unknown-command key ctrl mod1))))
+            (else #f))
           (match (integer->char key)
             (#\q (it-quit))
             (#\return (it-switch-mode))
@@ -96,13 +101,26 @@
             (#\_ (i-flip (const flip-vertical)))
             (#\a (i-toggle-antialias))
             (#\A (it-toggle-alpha))
-            (else (display (list 'unknown-command key ctrl mod1)))
+            (else #f)
             ))
-      #f)
-  #t)
+      #f))
 
 (define waiter default-waiter)
 
 (define (on-key-press key ctrl mod1)
   (waiter key ctrl mod1)
   #t)
+
+(define (on-button-press button ctrl x y)
+  (display (list button ctrl x y))
+  (match button
+    (4 (if ctrl
+           (it-scroll-move (const left) 42)
+           (it-scroll-move (const up) 42)))
+    (5 (if ctrl
+           (it-scroll-move (const right) 42)
+           (it-scroll-move (const down) 42)))
+    (2 (it-toggle-fullscreen))
+    (1 (i-navigate 1))
+    (3 (i-navigate -1))
+    (else #f)))
