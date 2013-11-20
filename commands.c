@@ -167,7 +167,11 @@ bool i_navigate(long n)
 			load_image(n);
 			return true;
 		}
-	}
+	} else {
+          tns.sel += n;
+          tns.dirty = true;
+          return true;
+        }
 	return false;
 }
 
