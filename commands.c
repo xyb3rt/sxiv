@@ -51,12 +51,6 @@ extern int filecnt, fileidx;
 extern int markcnt;
 extern int alternate;
 
-extern int prefix;
-
-const int ss_delays[] = {
-	1, 2, 3, 5, 10, 15, 20, 30, 60, 120, 180, 300, 600
-};
-
 bool it_quit()
 {
 	unsigned int i;
@@ -163,8 +157,6 @@ bool i_navigate(long n)
 {
 
 	if (mode == MODE_IMAGE) {
-		if (prefix > 0)
-			n *= prefix;
 		n += fileidx;
 		if (n < 0)
 			n = 0;
@@ -263,79 +255,6 @@ bool i_scroll_to_edge(direction_t dir)
 		return img_pan_edge(&img, dir);
 	else
 		return false;
-}
-
-/* Xlib helper function for i_drag() */
-Bool is_motionnotify(Display *d, XEvent *e, XPointer a)
-{
-	return e != NULL && e->type == MotionNotify;
-}
-
-#define WARP(x,y) \
-	XWarpPointer(win.env.dpy, None, win.xwin, 0, 0, 0, 0, x, y); \
-	ox = x, oy = y; \
-	break
-
-bool i_drag(arg_t a)
-{
-	int dx = 0, dy = 0, i, ox, oy, x, y;
-	unsigned int ui;
-	bool dragging = true, next = false;
-	XEvent e;
-	Window w;
-
-	if (mode != MODE_IMAGE)
-		return false;
-	if (!XQueryPointer(win.env.dpy, win.xwin, &w, &w, &i, &i, &ox, &oy, &ui))
-		return false;
-	
-	win_set_cursor(&win, CURSOR_HAND);
-
-	while (dragging) {
-		if (!next)
-			XMaskEvent(win.env.dpy,
-			           ButtonPressMask | ButtonReleaseMask | PointerMotionMask, &e);
-		switch (e.type) {
-			case ButtonPress:
-			case ButtonRelease:
-				dragging = false;
-				break;
-			case MotionNotify:
-				x = e.xmotion.x;
-				y = e.xmotion.y;
-
-				/* wrap the mouse around */
-				if (x <= 0) {
-					WARP(win.w - 2, y);
-				} else if (x >= win.w - 1) {
-					WARP(1, y);
-				} else if (y <= 0) {
-					WARP(x, win.h - 2);
-				} else if (y >= win.h - 1) {
-					WARP(x, 1);
-				}
-				dx += x - ox;
-				dy += y - oy;
-				ox = x;
-				oy = y;
-				break;
-		}
-		if (dragging)
-			next = XCheckIfEvent(win.env.dpy, &e, is_motionnotify, None);
-		if ((!dragging || !next) && (dx != 0 || dy != 0)) {
-			if (img_move(&img, dx, dy)) {
-				img_render(&img);
-				win_draw(&win);
-			}
-			dx = dy = 0;
-		}
-	}
-	
-	win_set_cursor(&win, CURSOR_ARROW);
-	set_timeout(reset_cursor, TO_CURSOR_HIDE, true);
-	reset_timeout(redraw);
-
-	return false;
 }
 
 bool i_zoom(long scale)
@@ -447,54 +366,6 @@ bool it_open_with(arg_t a)
 		warn("could not fork. program was: %s", prog);
 	}
 	return false;
-}
-
-bool it_shell_cmd(arg_t a)
-{
-	int n, status;
-	const char *cmdline = (const char*) a;
-	pid_t pid;
-
-	if (cmdline == NULL || *cmdline == '\0')
-		return false;
-
-	n = mode == MODE_IMAGE ? fileidx : tns.sel;
-
-	if (setenv("SXIV_IMG", files[n].path, 1) < 0) {
-		warn("could not set env.-variable: SXIV_IMG. command line was: %s",
-		     cmdline);
-		return false;
-	}
-
-	if ((pid = fork()) == 0) {
-		execl("/bin/sh", "/bin/sh", "-c", cmdline, NULL);
-		warn("could not exec: /bin/sh. command line was: %s", cmdline);
-		exit(EXIT_FAILURE);
-	} else if (pid < 0) {
-		warn("could not fork. command line was: %s", cmdline);
-		return false;
-	}
-
-	win_set_cursor(&win, CURSOR_WATCH);
-
-	waitpid(pid, &status, 0);
-	if (WIFEXITED(status) == 0 || WEXITSTATUS(status) != 0)
-		warn("child exited with non-zero return value: %d. command line was: %s",
-		     WEXITSTATUS(status), cmdline);
-	
-	if (mode == MODE_IMAGE) {
-		img_close(&img, true);
-		load_image(fileidx);
-	}
-	if (!tns_load(&tns, n, &files[n], true, mode == MODE_IMAGE) &&
-	    mode == MODE_THUMB)
-	{
-		remove_file(tns.sel, false);
-		tns.dirty = true;
-		if (tns.sel >= tns.cnt)
-			tns.sel = tns.cnt - 1;
-	}
-	return true;
 }
 
 bool p_set_bar_left(char *str) {
