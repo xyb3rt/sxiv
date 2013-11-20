@@ -155,24 +155,18 @@ bool it_remove_image()
 
 bool i_navigate(long n)
 {
-
-	if (mode == MODE_IMAGE) {
-		n += fileidx;
-		if (n < 0)
-			n = 0;
-		if (n >= filecnt)
-			n = filecnt - 1;
-
-		if (n != fileidx) {
-			load_image(n);
-			return true;
-		}
-	} else {
-          tns.sel += n;
-          tns.dirty = true;
-          return true;
-        }
-	return false;
+  n += fileidx;
+  if (n < 0) n = 0;
+  if (n >= filecnt) n = filecnt - 1;
+  if (mode == MODE_THUMB) {
+    tns.sel = n;
+    tns.dirty = true;
+  }
+  if (n != fileidx) {
+    load_image(n);
+    return true;
+  }
+  return false;
 }
 
 bool i_alternate()
