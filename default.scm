@@ -14,12 +14,7 @@
     (degree-180 2)
     (degree-270 3)
     (flip-horizontal 0)
-    (flip-vertical 1)
-    (mouse-left 1)
-    (mouse-middle 2)
-    (mouse-right 3)
-    (mouse-up 4)
-    (mouse-down 5)))
+    (flip-vertical 1)))
 
 (define-syntax const
   (syntax-rules ()
@@ -31,8 +26,8 @@
 (define *input* "")
 
 (define (apply-input-to func)
-  (display "waiting for a number ")
-  (display func) (newline)
+  (display "waiting for an input ")
+  (newline)
   (set! *input* "")
   (set! waiter
         (lambda (key ctrl mod1)
@@ -41,7 +36,21 @@
                 (begin
                   (set! waiter default-waiter)
                   (func *input*))
-                (set! *input* (string-append *input* (string char))))))))
+                (begin
+                  (cond ((eqv? char #\return) (begin
+                                                (set! waiter default-waiter)
+                                                (func *input*)))
+                        ((eqv? char #\backspace) (begin (set! *input* (xsubstring 
+                                                                                     *input*
+                                                                                     0
+                                                                                     (- (string-length *input*) 1)
+                                                                                     ))
+                                                        (p-set-bar-left *input*)))
+                        ((<= key 31) #f)
+                        (else (begin (set! *input* (string-append *input* (string char)))
+                                     (p-set-bar-left *input*))))
+                  
+                  #f))))))
 
 (define (apply-numeric-input-to func)
   (apply-input-to (lambda (numstr)
@@ -55,7 +64,7 @@
   (newline)
   (if (> key 0)
       (if ctrl
-          (match (integer->char key)
+          (match (integer->char (+ key 96))
             (#\6 (i-alternate))
             (#\n (i-navigate-frame 1))
             (#\p (i-navigate-frame -1))
@@ -64,6 +73,7 @@
             (#\j (it-scroll-screen (const down)))
             (#\k (it-scroll-screen (const up)))
             (#\l (it-scroll-screen (const right)))
+            (#\e (apply-input-to (lambda (str) (p-set-bar-left (object->string (eval-string str))))))
             (else #f))
           (match (integer->char key)
             (#\q (it-quit))

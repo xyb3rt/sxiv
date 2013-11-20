@@ -64,6 +64,7 @@ typedef struct {
 		char r[BAR_R_LEN];
 		unsigned long bgcol;
 		unsigned long fgcol;
+          bool skip_update;
 	} bar;
 } win_t;
 

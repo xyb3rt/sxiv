@@ -330,6 +330,11 @@ void update_info(void)
 		win_set_title(&win, title);
 	}
 
+        if (win.bar.skip_update) {
+          win.bar.skip_update = 0;
+          return;
+        }
+
 	/* update bar contents */
 	if (win.bar.h == 0)
 		return;
@@ -413,27 +418,13 @@ void clear_resize(void)
 	resized = false;
 }
 
-bool keymask(const keymap_t *k, unsigned int state)
-{
-	return (k->ctrl ? ControlMask : 0) == (state & ControlMask);
-}
-
-bool buttonmask(const button_t *b, unsigned int state)
-{
-	return ((b->ctrl ? ControlMask : 0) | (b->shift ? ShiftMask : 0)) ==
-	       (state & (ControlMask | ShiftMask));
-}
-
 void on_keypress(XKeyEvent *kev)
 {
   KeySym ksym;
   char key;
-
   if (kev == NULL)
     return;
-
   XLookupString(kev, &key, 1, &ksym, NULL);
-
   if (call_guile_keypress(key, kev->state & ControlMask, kev->state & Mod1Mask))
     redraw();
 }
@@ -564,8 +555,6 @@ int main(int argc, char **argv)
 	r_dir_t dir;
 
 
-        
-        
 	parse_options(argc, argv);
 
 	if (options->clean_cache) {

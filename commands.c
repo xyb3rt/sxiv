@@ -496,3 +496,17 @@ bool it_shell_cmd(arg_t a)
 	}
 	return true;
 }
+
+bool p_set_bar_left(char *str) {
+  strncpy(win.bar.l, str, BAR_L_LEN);
+  free(str);
+  win.bar.skip_update = 1;
+  return true;
+}
+
+bool p_set_bar_right(char *str) {
+  strncpy(win.bar.r, str, BAR_R_LEN);
+  free(str);
+  win.bar.skip_update = 1;
+  return true;
+}
