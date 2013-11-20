@@ -347,7 +347,6 @@ bool it_toggle_alpha()
 	return true;
 }
 
-
 bool p_set_bar_left(char *str) {
   strncpy(win.bar.l, str, BAR_L_LEN);
   free(str);
@@ -359,5 +358,18 @@ bool p_set_bar_right(char *str) {
   strncpy(win.bar.r, str, BAR_R_LEN);
   free(str);
   win.bar.skip_update = 1;
+  return true;
+}
+
+bool it_add_image(char *filename) {
+  fileidx = filecnt;
+  check_add_file(filename);
+  free(filename);
+  
+  filecnt = fileidx;
+  tns_free(&tns);
+  tns_init(&tns, filecnt, &win);
+  it_n_or_last(fileidx);
+  if (mode == MODE_THUMB) fileidx--;
   return true;
 }

@@ -134,6 +134,7 @@ void check_add_file(char *filename)
 	else
 		files[fileidx].base = files[fileidx].name;
 	fileidx++;
+        printf("added a file %d/%d: %s\n", fileidx, filecnt, filename);
 }
 
 void remove_file(int n, bool manual)

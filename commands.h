@@ -68,5 +68,6 @@ bool i_toggle_antialias();
 bool it_toggle_alpha();
 bool it_open_with(arg_t);
 bool it_shell_cmd(arg_t);
+bool it_add_image(char *filename);
 
 #endif /* COMMANDS_H */

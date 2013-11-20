@@ -70,6 +70,7 @@
             (#\k (it-scroll-screen (const up)))
             (#\l (it-scroll-screen (const right)))
             (#\e (apply-input-to (lambda (str) (p-set-bar-left (object->string (eval-string str))))))
+            (#\a (apply-input-to it-add-image))
             (else #f))
           (match (integer->char key)
             (#\q (it-quit))
