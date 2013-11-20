@@ -373,3 +373,11 @@ bool it_add_image(char *filename) {
   if (mode == MODE_THUMB) fileidx--;
   return true;
 }
+
+int p_get_file_count(){
+  return filecnt;
+}
+
+int p_get_file_index(){
+  return fileidx;
+}
