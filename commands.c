@@ -383,6 +383,6 @@ int p_get_file_index(){
 }
 
 bool it_redraw(){
-  redraw(); // hangs on imlib_render_image_part_on_drawable_at_size
+  redraw(); // hangs on imlib_render_image_part_on_drawable_at_size when called from another thread
   return true;
 }

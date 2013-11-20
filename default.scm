@@ -27,7 +27,7 @@
 (define *slideshow*)
 
 (define (start-slideshow rand time)
-  (define (slideshow-thread n cnt time)
+  (define (slideshow-proc n cnt time)
     (display `(sleeping ,time))
     (sleep time)
     (yield)
@@ -41,9 +41,10 @@
       (display 'redraw)
       (it-redraw)
       (display 'iter)
-      (slideshow-thread (if n next n) cnt time)))
+      (slideshow-proc (if n next n) cnt time)))
   (set! *slideshow*
-        (call-with-new-thread (lambda () (slideshow-thread (if rand #f (p-get-file-index)) (p-get-file-count) time))))
+        ;; this should run in a separate thread, but imlib_render_image_part_on_drawable_at_size hangs that way
+        (slideshow-proc (if rand #f (p-get-file-index)) (p-get-file-count) time))
   (set! *waiter* (lambda (key ctrl mod1)
                    (cancel-thread *slideshow*)
                    (set! *waiter* default-waiter)
