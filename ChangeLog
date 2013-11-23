@@ -1,0 +1,3057 @@
+commit 5eb082a1eb9be173aeeb9fac7d14f06c1b930b73
+Author: Victor Frankenstein <victor@frankenstein>
+Date:   Sat Nov 23 07:17:04 2013 +0400
+
+    forgot to add LICENSE, added it into COPYING
+
+commit bf6e5986698222ff57f467aabe525ad7102ec714
+Author: Victor Frankenstein <victor@frankenstein>
+Date:   Sat Nov 23 07:10:23 2013 +0400
+
+    commit 4780ec5463ee49a30d55c1c63d9947eee69e9d66 ('Close info file descriptor after reading')
+
+commit 4f3689ebb96d32776cb84f58cc9d83f34d63eb08
+Author: Victor Frankenstein <victor@frankenstein>
+Date:   Sat Nov 23 07:03:39 2013 +0400
+
+    added a couple of header checks
+
+commit 8d5727402c203aeabd43a69d1e72849a31224a26
+Author: Victor Frankenstein <victor@frankenstein>
+Date:   Sat Nov 23 06:55:45 2013 +0400
+
+    restored old README.md
+
+commit 843596fb09cdc18b478ba135fdd0e479127a7cfe
+Author: Victor Frankenstein <victor@frankenstein>
+Date:   Sat Nov 23 06:54:11 2013 +0400
+
+    made a distro
+
+commit 309639888eb538edaba1b5e451bd092cda046017
+Author: Victor Frankenstein <victor@frankenstein>
+Date:   Thu Nov 21 00:31:57 2013 +0400
+
+    there's no exit from slideshow now, but it works somehow
+
+commit cbe9c90dd6910d30ae4db8cd94938bb094ceb585
+Author: Victor Frankenstein <victor@frankenstein>
+Date:   Wed Nov 20 23:57:44 2013 +0400
+
+    tried to add a slideshow, but it hangs on redraw (imlib_render_image_part_on_drawable_at_size)
+
+commit eeb531635be909c5f5df0b326f0965168d98adf8
+Author: Victor Frankenstein <victor@frankenstein>
+Date:   Wed Nov 20 21:15:07 2013 +0400
+
+    added p-get-file-index and p-get-file-count functions
+
+commit 0451e069a6f3631eb9a24756be9e6fe068085ed4
+Author: Victor Frankenstein <victor@frankenstein>
+Date:   Wed Nov 20 21:02:48 2013 +0400
+
+    added it-add-image function
+
+commit 9ba734fcc63bafe9e413625cddf10c978a298cc9
+Author: Victor Frankenstein <victor@frankenstein>
+Date:   Wed Nov 20 19:16:47 2013 +0400
+
+    removed another useless function
+
+commit 4372d9e8cd03dbdd4f0af40985dab0047a181679
+Author: Victor Frankenstein <victor@frankenstein>
+Date:   Wed Nov 20 19:13:53 2013 +0400
+
+    fix
+
+commit 98db6d5f9bdca407fee57bed4771b6ca9301bdfb
+Author: Victor Frankenstein <victor@frankenstein>
+Date:   Wed Nov 20 19:09:34 2013 +0400
+
+    made i-navigate work in thumb mode
+
+commit 73d44c91f4a3493c66a023a4278f2389ee86da59
+Author: Victor Frankenstein <victor@frankenstein>
+Date:   Wed Nov 20 14:34:26 2013 +0400
+
+    removing most useless stuff
+
+commit 4483cce2dab1e9c9f41286aaf1e2557dec8a0bde
+Author: Victor Frankenstein <victor@frankenstein>
+Date:   Wed Nov 20 14:00:13 2013 +0400
+
+    fixed output
+
+commit 519787803255fa6d9fca9f09f8c9683f9dc0586e
+Author: Victor Frankenstein <victor@frankenstein>
+Date:   Wed Nov 20 13:51:38 2013 +0400
+
+    added scheme repl support (C-e) and output of input
+
+commit bba28cccea7d87ada12940e323b4d5cfbb714eeb
+Author: Victor Frankenstein <victor@frankenstein>
+Date:   Wed Nov 20 12:17:36 2013 +0400
+
+    added mouse support
+
+commit 92d61b12fbb4f78d27ce6c72bef7a03b638d21c5
+Author: Victor Frankenstein <victor@frankenstein>
+Date:   Wed Nov 20 11:30:56 2013 +0400
+
+    added more hotkeys
+
+commit 7df6000e8985ec31eac8cefa3fc7b5e75d624ce8
+Author: Victor Frankenstein <victor@frankenstein>
+Date:   Wed Nov 20 08:02:42 2013 +0400
+
+    added some guile support, work in progress
+
+commit 1b089bc2fa36fdbd69af25a15ec5ee3e8963b80d
+Author: Bert Münnich <ber.t@posteo.de>
+Date:   Sat Oct 5 17:37:00 2013 +0200
+
+    Seek over EXIF APP0 frame instead of reading and discarding it
+
+commit 5dea695c719dc2ee61e7677d553f16c1c4c3ac52
+Author: Jacek Naglak <jnaglak@tlen.pl>
+Date:   Tue Sep 24 22:14:47 2013 +0200
+
+    Fixed image orientation if a JFIF APP0 segment is present in a JPEG header.
+
+commit 745eacbcf5404cd0b597ac4d986e819c3e03e786
+Author: Bert Münnich <be.muennich@gmail.com>
+Date:   Sat Sep 7 17:59:58 2013 +0200
+
+    Updated unstable version number
+
+commit b98a48576e380e6f3f953b3d01b25172449e14d7
+Author: Peter Hofmann <scm@uninformativ.de>
+Date:   Sat Sep 7 17:06:47 2013 +0200
+
+    Warp pointer on first/last pixel
+    
+    Previously, the pointer would get warped when it had left the window.
+    This doesn't work when sxiv is run in fullscreen mode (or similar -- see
+    dwm's monocle mode): The pointer can never leave the window in such
+    situations.
+    
+    To fix this, warp the pointer when it's on the first/last pixel. To
+    avoid an endless warping loop, the new position must be at least one
+    pixel away from the next warp position.
+
+commit 26a624a543f2e723550996d76d90ccbb7b954aeb
+Author: Bert Münnich <be.muennich@gmail.com>
+Date:   Thu Aug 22 12:59:05 2013 +0200
+
+    Added options for anti-alias & alpha layer coloring to config.def.h
+    
+    Also removed now obsolete -p command line option; fixes issue #98
+
+commit fb6e4bdd980f72082a264894c12ed7e0650a5bf9
+Author: Bert Münnich <be.muennich@gmail.com>
+Date:   Thu Aug 22 09:44:14 2013 +0200
+
+    Only print marked files when -o is given
+    
+    Fallback to print all files, if no images are marked, was kind of
+    irritating.
+
+commit 7d878bd16df1abffde780e195144b845dc133166
+Author: Bert Münnich <be.muennich@gmail.com>
+Date:   Sat Aug 10 21:18:53 2013 +0200
+
+    Added file marks; fixes issue #94
+    
+    - Command it_toggle_image_mark (bound to 'm') toggles mark of current
+      image
+    - Command it_navigate_marked (bound to 'N'/'P') can be used to go to
+      the next/previous marked image
+    - When option -o is given, all marked files get printed
+
+commit 84d77b173288f838ffdbe2cd12061cf7a725f185
+Author: Bert Münnich <be.muennich@gmail.com>
+Date:   Sat Aug 10 15:59:45 2013 +0200
+
+    Updated unstable version number
+
+commit c6bc6069d6b6100cd1cc9af4822bf71b43fbd6d5
+Author: Bert Münnich <be.muennich@gmail.com>
+Date:   Sat Aug 10 15:58:16 2013 +0200
+
+    Changed key bindings for flipping to bar & underscore
+
+commit 56142bd3bafedf51882b368ab08a580ac98f2619
+Author: Bert Münnich <be.muennich@gmail.com>
+Date:   Sat Aug 10 15:55:18 2013 +0200
+
+    Refactored merged rotation code
+
+commit 7e51c35801f9921685c3acf0d1d17d9370ae4d59
+Author: Bastien Dejean <nihilhill@gmail.com>
+Date:   Sun Jun 23 16:02:26 2013 +0200
+
+    Handle 180 degrees image rotation
+
+commit 68ff9d71f1c9c2e27b2eabea22433f39b7cd98bb
+Author: Bert Münnich <be.muennich@gmail.com>
+Date:   Sun Jun 2 12:31:27 2013 +0200
+
+    Fixed typo in README.md
+
+commit b4346a93971c0d5766eb64445d38ad5c1cc07562
+Author: Bert Münnich <be.muennich@gmail.com>
+Date:   Sun Jun 2 12:04:40 2013 +0200
+
+    Stable version 1.1.1
+
+commit b1a24cb018ac3a10b30ffd999e2e5b8a7da6d8ea
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Sun Apr 21 13:55:08 2013 +0200
+
+    Fixed build for giflib version >= 5.0; fixed issue #90
+
+commit 593da23cf309aa4dd8b221b896f9d0dc77731ad7
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Sun Apr 14 19:50:47 2013 +0200
+
+    Use bgcol as window background pixel; fixed issue #89
+
+commit 16a598ca12a8592c20ff9276fc4c25c1e624fe65
+Author: Bert Münnich <be.muennich@gmail.com>
+Date:   Sat Apr 6 14:23:58 2013 +0200
+
+    Updated source tarball URLs in README.md
+
+commit aac28cce7ad3300a9a1e6265d6dd9e30b1d223e9
+Author: Bert Münnich <be.muennich@gmail.com>
+Date:   Sat Apr 6 14:04:46 2013 +0200
+
+    Fixed non-ASCII characters in window bar, issue #88
+
+commit 264a345a98fb0f9f4245414b7766fdeb00d81ee9
+Author: Bert Münnich <be.muennich@gmail.com>
+Date:   Tue Apr 2 22:48:13 2013 +0200
+
+    Updated .gitignore
+
+commit 7ea8a4ed2fbd26a1bbf5f000327ff486de91ca25
+Author: Bert Münnich <be.muennich@gmail.com>
+Date:   Tue Apr 2 19:43:55 2013 +0200
+
+    Updated source tarball URLs in README.md
+
+commit 98972e98f942fa3d3cd2b8f6a831da0a1f94551f
+Author: Bert Münnich <be.muennich@gmail.com>
+Date:   Tue Apr 2 19:32:59 2013 +0200
+
+    Fixed segfault caused by FD_ISSET() on negative fd
+    
+    Reported by Kris Siwiec
+
+commit af69b2a7bbac973c837177de03616460393e28d2
+Author: Bert Münnich <be.muennich@gmail.com>
+Date:   Sat Mar 30 12:50:54 2013 +0100
+
+    Stable version 1.1
+
+commit 6f05e777280cd36a8ccaf20182c4e8a0554bb563
+Author: Bert Münnich <be.muennich@gmail.com>
+Date:   Tue Mar 19 21:11:29 2013 +0100
+
+    New options: -[io], read/write files from/to stdin/out
+    
+    Fixes issue #84
+
+commit 447bc1c784cc358078f4ffbbac0c63ee74a069c8
+Merge: 9ee3447 825c52c
+Author: Bert Münnich <be.muennich@gmail.com>
+Date:   Tue Mar 19 20:40:11 2013 +0100
+
+    Merge branch 'asyncinfo'
+
+commit 825c52c33fcaec5dbaa361cb39835987de8312f2
+Author: Bert Münnich <be.muennich@gmail.com>
+Date:   Sun Feb 24 20:04:55 2013 +0100
+
+    Made bar fields more distinguishable
+
+commit 38ecea3b4d01d1c41a7692d75b888044268a9d02
+Author: Bert Münnich <be.muennich@gmail.com>
+Date:   Sun Feb 24 14:55:49 2013 +0100
+
+    Polished info script execution
+
+commit 30802cec0f233aa9977256684cb749df6c7e28c0
+Author: Bert Münnich <be.muennich@gmail.com>
+Date:   Tue Feb 12 17:55:47 2013 +0100
+
+    Spawn info script & update bar contents only when needed
+
+commit f3298400e6704844aeb1d3e0951e84b4236d2302
+Author: Bert Münnich <be.muennich@gmail.com>
+Date:   Mon Feb 11 23:05:26 2013 +0100
+
+    Spawn and read from info script without blocking
+
+commit 9ee34477f81dc9630e902e8059e56fa665ad007b
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Mon Mar 4 19:23:07 2013 +0100
+
+    Applied code style on merged changes
+
+commit ce8460108aafc98aa932832e7353271f4dab8c0c
+Merge: 408b75a c8fcc3d
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Mon Mar 4 19:18:58 2013 +0100
+
+    Merge pointer warping in i_drag from Rob Pilling
+
+commit c8fcc3d3543f650dd846a89edfcd33d1674485f6
+Author: Rob Pilling <rob@egbert>
+Date:   Sun Mar 3 18:16:32 2013 +0000
+
+    Wrap the pointer when the edge of the window is reached
+
+commit 408b75a0b4fd16b833c01f6030d799c0148eacf4
+Author: Bert Münnich <be.muennich@gmail.com>
+Date:   Mon Feb 11 21:39:41 2013 +0100
+
+    Ignore dotfiles for -r
+
+commit c6bfac15664d8d9619ca7793118e719d6e0dcd44
+Merge: a527025 1e2ddc4
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Sat Feb 9 19:07:29 2013 +0100
+
+    Merge branch 'sizehints', fixed issue #78
+
+commit 1e2ddc44d85c87449a6ad2ad62689fb41cfae858
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Sat Feb 9 17:24:41 2013 +0100
+
+    No checks on window size, use whatever the user has specified
+
+commit a5270253149c278b5baf6ffa77bfddce050b798d
+Author: Bert Münnich <be.muennich@gmail.com>
+Date:   Sat Feb 9 01:39:18 2013 +0100
+
+    Correctly set window height after i_fit_to_img()
+
+commit cef8d51153073d694f66889ad536736109aaf77e
+Author: Bert Münnich <be.muennich@gmail.com>
+Date:   Sat Feb 9 01:36:10 2013 +0100
+
+    Refined US{Position,Size} & WinGravity handling
+
+commit bf4101249306669ebd5134fd0594376f00cb4538
+Merge: f7301cf 3f25b90
+Author: Bert Münnich <be.muennich@gmail.com>
+Date:   Sat Feb 9 01:21:57 2013 +0100
+
+    Merge remote-tracking branch '4z3/set-user-specified-sizehints' into sizehints
+    
+    Conflicts:
+    	window.c
+
+commit f7301cf4f9f93a00faecbf8701e690ba99ddac35
+Author: Bert Münnich <be.muennich@gmail.com>
+Date:   Fri Feb 8 23:26:06 2013 +0100
+
+    Correctly updated window pixmap after i_fit_to_img()
+
+commit e810072d71355ef68315f1c087168f290585c716
+Author: Bert Münnich <be.muennich@gmail.com>
+Date:   Fri Feb 8 23:20:11 2013 +0100
+
+    Use bool from stdbool.h after switching to C99
+
+commit b3f3bc29a1031c88533d1bd9e09a36946ac2481c
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Fri Feb 8 22:07:48 2013 +0100
+
+    Be honest about using C99
+
+commit 08ae25da225d22a874b371d018e1942feef8a74e
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Fri Feb 8 22:05:31 2013 +0100
+
+    Refactored function definitions to use dangling brace
+
+commit 6d3bbc6d5e8c9361dc49c51c1fa7268f042fa3b7
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Fri Feb 8 21:52:41 2013 +0100
+
+    Updated/corrected license header
+
+commit 3f25b907bd1fbea563ddf335fb3d308094fa81c6
+Author: tv <tv@nomic.retiolum>
+Date:   Wed Jan 30 20:39:28 2013 +0100
+
+    When using -g hint the WM that we've got user specified geometry
+    
+    Without this some window managers (e.g. fvwm) will ignore the initial
+    window position and place it according to it's own rules.
+
+commit bcbe3b1475261cb76de62d0e89c7f83ee2b4c53a
+Author: Bert Münnich <be.muennich@gmail.com>
+Date:   Tue Jan 29 18:45:10 2013 +0100
+
+    Fixed issue #77, limit geometry info to first image frame
+
+commit aa6ccf42b8aace05154bf2eebcba8695524b0b17
+Merge: 3a0a1ae 9c0a53b
+Author: Bert Münnich <be.muennich@gmail.com>
+Date:   Sun Jan 27 18:03:07 2013 +0100
+
+    Merge branch 'userinfo'
+
+commit 9c0a53bc34c53424613ee203253fee526ba9f049
+Author: Bert Münnich <be.muennich@gmail.com>
+Date:   Sun Jan 27 18:03:01 2013 +0100
+
+    Added documentation for image-info script
+
+commit 3a0a1ae889bc4de959cfe5079d541b0ec9119089
+Author: hut <hut@lavabit.com>
+Date:   Thu Jan 24 08:25:30 2013 +0100
+
+    Removed old definitions from commands.h
+
+commit cae5358234ecfe6a3fd3c5bad29a0a9f032888a9
+Author: Bert Münnich <be.muennich@gmail.com>
+Date:   Thu Jan 10 19:25:49 2013 +0100
+
+    Added skeleton for image-info user script
+
+commit b6a6c260e1876172c764c6eca3aae004026cd8aa
+Author: Bert Münnich <be.muennich@gmail.com>
+Date:   Tue Jan 8 20:55:02 2013 +0100
+
+    Moved thumbnail cache to ~/.sxiv/cache/
+
+commit d6a475e4b1c0d5025806c4a6e47c68e46a3c31d9
+Author: muennich <be.muennich@googlemail.com>
+Date:   Mon Jan 7 14:30:42 2013 +0100
+
+    Simplified status bar, filled by user script
+
+commit 385ba28fd78a5e1454d46a09a05b8d10ef8e0c6f
+Author: Bert Münnich <be.muennich@gmail.com>
+Date:   Sat Jan 12 23:39:59 2013 +0100
+
+    Fixed completely insane {C,LD}FLAGS -I/-L settings
+
+commit ec7382702ac7443bc6428a2d3329b2e9ceefb205
+Author: Bert Münnich <be.muennich@gmail.com>
+Date:   Thu Jan 10 19:11:57 2013 +0100
+
+    Made Makefile more verbose
+
+commit eea8b7a98db3e8f84833a0f92946ffa137bea472
+Author: Bert Münnich <be.muennich@gmail.com>
+Date:   Fri Jan 4 20:55:30 2013 +0100
+
+    Fixed compilation with giflib version 4.2.1
+
+commit 97a2c05cc30adb3b90842b671607a05857db63a0
+Author: Bert Münnich <be.muennich@gmail.com>
+Date:   Thu Dec 27 16:43:19 2012 +0100
+
+    Fixed issue #74, conditional compilation of gif support
+
+commit cd929eabfeb5344b2f7c43555eea20fc15a7f1ca
+Author: Bert Münnich <be.muennich@gmail.com>
+Date:   Thu Dec 27 16:34:51 2012 +0100
+
+    Fixed issue #73
+
+commit b542d63f964f66d14c9118448df4cf332fa023bf
+Author: Bert Münnich <be.muennich@gmail.com>
+Date:   Fri Dec 21 23:37:36 2012 +0100
+
+    Moved screenshots to gh-pages branch
+
+commit b39f34a131a69b2a7735046653e009bc97aea084
+Author: Bert Münnich <be.muennich@gmail.com>
+Date:   Fri Dec 21 23:36:59 2012 +0100
+
+    Added Download/Changelog section to README
+
+commit 5106472d8b353ef34cdd867b3240f5a1815fb7d7
+Author: muennich <be.muennich@googlemail.com>
+Date:   Thu Dec 20 09:57:36 2012 +0100
+
+    Fixed issue #72
+
+commit 69a6df2762688b1a4fa5445c7124c699c0524c6f
+Merge: 0155223 6f9b4f5
+Author: Bert Münnich <be.muennich@gmail.com>
+Date:   Sat Dec 1 18:50:59 2012 +0100
+
+    Merge branch 'winname'
+
+commit 0155223a1a609e44cd9532f19ae1713b9d68606e
+Merge: 1ae06ff 22a8b66
+Author: Bert Münnich <be.muennich@gmail.com>
+Date:   Sat Dec 1 18:50:10 2012 +0100
+
+    Merge branch 'newdraw'
+
+commit 1ae06ffd0977ecab52d0027b6fefaf3677d0475d
+Author: Bert Münnich <be.muennich@gmail.com>
+Date:   Wed Oct 31 23:24:21 2012 +0100
+
+    Next try to fix issue #71
+
+commit 22a8b665716edab993ce09008d0fb541498d633b
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Mon Oct 29 23:23:50 2012 +0100
+
+    Fixed BadDrawable errors caused by invalid window pixmap
+
+commit 5dbf1b8eb9d7e9fe6bb7ea8b526e58d77dcf48f8
+Author: Bert Münnich <be.muennich@gmail.com>
+Date:   Mon Oct 29 20:55:55 2012 +0100
+
+    Smaller minimum gif delay, fixed issue #71
+
+commit 4a5d5d26aa8c66ef9c4e64cc355c63888b04d4e3
+Author: Bert Münnich <be.muennich@gmail.com>
+Date:   Mon Oct 29 18:25:17 2012 +0100
+
+    Overhauled window drawing
+    
+    - Draw onto pixmap as before, but use the same size for the pixmap as
+      for the window, allocate new pixmap after configure requests
+    - Use XCopyArea() instead of XSetWindowBackgroundPixmap(), which now
+      requires handling of Expose events
+
+commit 6f9b4f5b2ed5a82ad4711d1add9ccd620d8526ba
+Author: Bert Münnich <be.muennich@gmail.com>
+Date:   Mon Oct 29 00:53:50 2012 +0100
+
+    New option: -N, set X window resource name
+
+commit 65d5d4469610a375d9fb9a5b7b269aaad98334e0
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Fri Aug 24 18:25:03 2012 +0200
+
+    Changed default font to support more encodings; fixed issue #66
+
+commit fd519ffc40bdd13d8b418b6f95cf28ae6a167d7d
+Author: Bert Münnich <be.muennich@googlemail.com>
+Date:   Fri Aug 17 16:54:29 2012 +0200
+
+    Disregard obsolete events, fixed issue #64
+
+commit c78f55ebb43f5d73033a4709dfd32830a016a7cb
+Author: Bert Münnich <be.muennich@googlemail.com>
+Date:   Thu Aug 16 21:21:08 2012 +0200
+
+    Simplified zoomdiff function
+
+commit f2a3d73212ad63e1081278347c189f2554cab8a4
+Author: Bert Münnich <be.muennich@googlemail.com>
+Date:   Thu Aug 16 13:40:04 2012 +0200
+
+    New command: i_alternate, go to last image, issue #65
+
+commit 8a652a786c2edc5f630d6f032d8ef775cdea9142
+Author: Bert Münnich <be.muennich@googlemail.com>
+Date:   Thu Aug 16 13:09:44 2012 +0200
+
+    Corrected zoom level handling
+
+commit 4ce323213dbafd8e82b7f0cbcf4d7d20598ddf22
+Author: Bert Münnich <be.muennich@googlemail.com>
+Date:   Tue Aug 7 13:11:53 2012 +0200
+
+    Slightly changed the doc after merging remote changes
+
+commit 795beac132ad31a87a84bb46890466d971d83b01
+Merge: c86079e b56989f
+Author: Bert Münnich <be.muennich@googlemail.com>
+Date:   Tue Aug 7 12:57:07 2012 +0200
+
+    Merge remote-tracking branch 'baskerville/master'
+
+commit c86079e6503db20b4fd5cac5d4a162926ef06bf4
+Author: Bert Münnich <be.muennich@googlemail.com>
+Date:   Tue Aug 7 12:46:20 2012 +0200
+
+    Removed dropped slideshow mappings from man page & README
+
+commit d5f0a20de0c204b81e422530921be0df41f6c6ce
+Author: Bert Münnich <be.muennich@googlemail.com>
+Date:   Tue Aug 7 12:09:52 2012 +0200
+
+    Fixed WMProtocols registration order (before mapping window)
+
+commit b56989f8fbfa6ab32e1fa8f54c0d03ff924c7308
+Author: baskerville <nihilhill@gmail.com>
+Date:   Thu Jul 19 12:28:44 2012 +0200
+
+    New commands: fit to the window's height/width
+
+commit 5b6467913cca4086ebb6056e7235a3c78570ce6f
+Author: Bert Münnich <be.muennich@googlemail.com>
+Date:   Sun Jul 15 18:52:30 2012 +0200
+
+    Made remote changes adhere to code style
+
+commit c330b55de4035b058965d45989a14662b99a77a3
+Author: baskerville <nihilhill@gmail.com>
+Date:   Sun Jul 15 10:30:58 2012 +0200
+
+    handle count prefix in thumbnail movements
+
+commit 4451f4a5eb62beda28cdb5f32ca57dc654b66621
+Merge: 496c540 e86b713
+Author: Bert Münnich <be.muennich@googlemail.com>
+Date:   Thu Jun 7 21:04:22 2012 +0200
+
+    Merge remote-tracking branch 'origin/master'
+
+commit 496c5404e94bf2159d750e08e5f4113481500883
+Author: Bert Münnich <be.muennich@googlemail.com>
+Date:   Thu Jun 7 21:01:05 2012 +0200
+
+    Reduced file size of screenshots, thanks Kevin
+
+commit e86b713f2d697c56b2b3d08ff59e00c8171d85b4
+Author: muennich <b.muennich@stagetec.com>
+Date:   Wed May 16 11:18:55 2012 +0200
+
+    Fixed mail address in man page
+
+commit dde2fd0aa89b4d167fef2035d73cace3d36cb274
+Author: Bert Münnich <be.muennich@googlemail.com>
+Date:   Tue May 15 20:42:14 2012 +0200
+
+    Added baskerville to Contributors list in man page
+
+commit 57c211e9a54ae9b58e68ead08162db770ac8808e
+Author: Bert Münnich <be.muennich@googlemail.com>
+Date:   Mon May 14 22:01:46 2012 +0200
+
+    Updated screenshots
+
+commit 9d74a57447207097f94e62f002c5c306d8cc65cf
+Author: Bert Münnich <be.muennich@googlemail.com>
+Date:   Mon May 14 21:45:24 2012 +0200
+
+    Fixed issue #51, no more bar artifact when switching to fullscreen
+
+commit 60f84190f0baae527c04db70c50a7b020fd8e165
+Author: Bert Münnich <be.muennich@googlemail.com>
+Date:   Mon May 14 21:43:18 2012 +0200
+
+    Added section CONTRIBUTORS to man page
+
+commit 72071d5e9d40c4c14767f701d92b020571f98bdd
+Author: Bert Münnich <be.muennich@googlemail.com>
+Date:   Sun May 13 22:01:09 2012 +0200
+
+    Fixed mem-leak in tns_init/tns_free
+
+commit d1a1e0142b453a7083463eaf02402b4d3b31ff65
+Author: Bert Münnich <be.muennich@googlemail.com>
+Date:   Sun May 13 21:52:53 2012 +0200
+
+    Simplified & sped up reloading of all thumbnails
+
+commit 4057453d6d48fe3fa070c90449cc7308dfd84559
+Merge: b605b98 de4e9fc
+Author: Bert Münnich <be.muennich@googlemail.com>
+Date:   Sun May 13 21:40:56 2012 +0200
+
+    Merge remote-tracking branch 'baskerville/master'
+
+commit b605b98455f2caf2e984764c8102641d868966cf
+Author: Bert Münnich <be.muennich@googlemail.com>
+Date:   Sun May 13 21:39:36 2012 +0200
+
+    Made Makefile more POSIX-compliant
+
+commit de4e9fc83ea58afa14a815af78edadc155bb8221
+Author: baskerville <nihilhill@gmail.com>
+Date:   Tue May 8 16:30:56 2012 +0200
+
+    Added a command to refresh the thumbnails
+
+commit 4c40cc24bc6b3e11fc9e6cf337ddb035fa750eb3
+Author: Bert Münnich <be.muennich@googlemail.com>
+Date:   Sun May 6 13:02:34 2012 +0200
+
+    Slightly refactored flipping
+
+commit ba0a5b89fa1e9147c60ddb8bbc2b1bcbe2995cd8
+Author: baskerville <nihilhill@gmail.com>
+Date:   Sun May 6 09:39:45 2012 +0200
+
+    Added horizontal and vertical flip commands
+
+commit 56b6d23c0cb05973415bdd2c66af26e8f7db2539
+Author: muennich <be.muennich@googlemail.com>
+Date:   Wed Apr 18 06:05:27 2012 +0200
+
+    Only provide the .desktop file, do not install it by default
+
+commit dd15e3137311ab3f550abec59e8a2ad84e6c1415
+Author: Bert Münnich <be.muennich@googlemail.com>
+Date:   Tue Apr 17 22:09:01 2012 +0200
+
+    Fixed typo in Makefile; increases unstable version number
+
+commit 45f4f6d3c48c27d36f4ea7942c7a0d98f6871a24
+Author: Bartłomiej Piotrowski <b@bpiotrowski.pl>
+Date:   Tue Apr 17 17:48:51 2012 +0200
+
+    Add desktop file and appropriate lines to Makefile.
+
+commit bca3666862bc6ab717ba25ecc9173eb0e9e6ba80
+Author: Bert Münnich <be.muennich@googlemail.com>
+Date:   Wed Mar 28 21:14:01 2012 +0200
+
+    Fixed issue #47
+
+commit 8ab3cee6a5fba0bd5d7ad092c30c65490f2cd524
+Author: Bert Münnich <be.muennich@googlemail.com>
+Date:   Fri Mar 16 21:03:49 2012 +0100
+
+    Fixed issue #44
+
+commit edd016945a5a3d8a742dae65cec5025bd5e508be
+Author: Bert Münnich <be.muennich@googlemail.com>
+Date:   Fri Mar 16 20:56:10 2012 +0100
+
+    Fixed it_scroll_move(DIR_DOWN) in thumb mode for last line
+
+commit d7ff54bb6efc3dbaa2e524a141b423f894bcbc98
+Author: Bert Münnich <be.muennich@googlemail.com>
+Date:   Tue Mar 13 21:58:48 2012 +0100
+
+    Optimized redraw timeout after window resize for tiling window managers; related to issue #44
+
+commit 3238ef6bf6a4a0e1842aff565f4286ef9de6ce3c
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Fri Mar 2 19:42:14 2012 +0100
+
+    Fixed issue #41, added WIN_FS_COLOR to config.h
+
+commit 37a42dba34db11374315951a72dc287a6f1a2129
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Fri Mar 2 19:32:56 2012 +0100
+
+    Added alternative empty directory removal command line to manpage, fixed issue #40
+
+commit 497880e102876e49cb496fcf9622c969d721c2b2
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Fri Mar 2 19:19:27 2012 +0100
+
+    Fixed issue #42: image dragging broken by commit b845827
+
+commit 751ebb3b29367bdcfd4e1956a36fa8f8f49f15a3
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Mon Feb 27 19:22:05 2012 +0100
+
+    Fixed issue #39: missing include of <sys/select.h>
+
+commit ed2c9f7caa67dcd1c9b0331c5634d9ccdb3b9fa8
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Tue Feb 21 12:49:29 2012 +0100
+
+    Display full name in info bar, if there is enough space
+
+commit 9c346c322a8d76b04db60f4528aaa4448adeca8e
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Tue Feb 21 08:19:12 2012 +0100
+
+    Updated homepage URL in manpage
+
+commit 2d4264af286db2a746d600139a12472841c2677d
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Thu Feb 16 23:20:27 2012 +0100
+
+    Added option -b: disable bar
+
+commit b418df7afc01796254fdf24d4afe12da3f0795bd
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Wed Feb 15 22:43:34 2012 +0100
+
+    Removed unneeded members from img type
+
+commit c666d30eeacd6faf41dce50b301ad2fe3195fdb8
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Wed Feb 15 22:33:39 2012 +0100
+
+    Added it_toggle_bar command; default mapping: XK_b
+
+commit 011dac90c83d5440f2f228deab93f264d87b15d0
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Wed Feb 15 19:37:19 2012 +0100
+
+    Removed debug output
+
+commit a329615c684c68700134aaed6b5e172ff9924130
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Wed Feb 15 19:29:56 2012 +0100
+
+    Show info message in bar while loading thumbnails
+
+commit d407dd65d58819210defd4d96eb8d4fb878c96ef
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Wed Feb 15 19:16:24 2012 +0100
+
+    Already in the year 2012
+
+commit 691c6d7e7e7667696dcf5996316fba6a120f2e7b
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Wed Feb 15 19:13:44 2012 +0100
+
+    Added own exif tag handling in files exif.[ch]
+
+commit b752d5c594d5aac083cc563e8c7e575baf7b8edc
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Wed Feb 15 18:25:45 2012 +0100
+
+    Added symbol BAR_SEPARATOR
+
+commit b8fa2e86fe6aa1e1906cc051a8ea915b6f1b4d43
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Tue Feb 14 22:12:57 2012 +0100
+
+    Fixed typo in Makefile
+
+commit b410c022a881b98c69639dcca039863dea95de83
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Tue Feb 14 22:12:09 2012 +0100
+
+    Fix recreation of thumbnail cache file after manual reload
+
+commit 7177270c10b51f60753f45070565ac2fb7e130db
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Sun Feb 12 19:06:07 2012 +0100
+
+    Changed default font string, removed missing fontset warnings
+
+commit b8458271fba9929831dcc71d86c205fb52578e3a
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Sun Feb 12 19:00:41 2012 +0100
+
+    Added text bar on bottom of window
+
+commit 8fc7cb73b37cb00f164425bcced0afbc949a3429
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Sat Feb 11 03:36:15 2012 +0100
+
+    Nicer window title
+
+commit ef0ed3226428c00507e76bdda77c522729ed6809
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Sat Feb 11 02:42:52 2012 +0100
+
+    Removed exif support; made gif support non-optional
+
+commit c3c95ab2187037793f9a827a8930eb4080337487
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Sat Feb 11 02:34:18 2012 +0100
+
+    Removed slideshow support
+
+commit d2ec67e3311d0f20376f2de3e9b712e4adb0e878
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Sat Dec 17 16:36:21 2011 +0100
+
+    Fixed issue #32: wrong antialias setting after it_shell_cmd
+
+commit ac4eb5302943a4c086445fa5efd41ff66851505f
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Sun Nov 13 15:53:09 2011 +0100
+
+    Fixed issue #28 (again)
+
+commit c4007beb2eca82d19f4ef7a533c74a9fcfc435df
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Fri Nov 11 23:57:36 2011 +0100
+
+    Fixed rendering after fit win to img
+
+commit c65f512fabf20d9887e4aa580ec49cfbd10f6479
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Fri Nov 11 22:54:59 2011 +0100
+
+    Removed target "dist" from Makefile
+
+commit 92b2779b001058accd561d2fff4d1348d04dd448
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Fri Nov 11 22:54:20 2011 +0100
+
+    Fixed issue #28
+
+commit 5034792948e181de5f1f19737cccc394116a82b4
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Sat Nov 5 13:11:50 2011 +0100
+
+    Thumbnails only get scaled down, fixed issue #27
+
+commit 71a7940d74459c8a575100f93fe43e204413c2db
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Tue Nov 1 08:36:20 2011 +0100
+
+    Better fix for issue #25
+
+commit 964bf133bbeb706bd966b85cd55902bcc581d346
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Mon Oct 31 15:56:36 2011 +0100
+
+    Stable version 1.0
+
+commit ac1300ae0043ecca645c9af54130a229727860fa
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Mon Oct 31 11:46:56 2011 +0100
+
+    Fixed issue #25: invalid file cnt and sel in thumb mode
+
+commit 1cdbeb972a64e1fb12db5dc05fbaa1428e72bb12
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Thu Oct 27 16:21:01 2011 +0200
+
+    Added screen-wise scrolling for thumbnail mode
+
+commit 3e2523818b2420a86d71ac7c908ddcbb800abd38
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Mon Oct 17 18:39:33 2011 +0200
+
+    Fixed handling of gif disposal method (issue #23)
+
+commit 55da6fb8dd58829555172b57a0237d6c3381e573
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Sun Oct 16 20:33:23 2011 +0200
+
+    Updated doc
+
+commit 4e8dabd6ac47185697744621b3ee638fc34e473a
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Sun Oct 16 18:58:32 2011 +0200
+
+    Added i_reset_slideshow: set slideshow delay to number prefix
+
+commit c6bddfe838621cee9cd2b538c15be5acd222f20b
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Sun Oct 16 18:36:25 2011 +0200
+
+    Multiply i_navigate argument with number prefix
+
+commit 8dcb54705aed7175c91d991486552d497a2e861e
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Sun Oct 16 18:31:01 2011 +0200
+
+    Fixed pixel-wise panning by chaning x, y vars to float
+
+commit 4f5ce2e8282d3f317449dc8854397c042644e134
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Sun Oct 16 17:58:53 2011 +0200
+
+    Added i_set_zoom command: set zoom to number prefix
+
+commit 867940ea85495ac4e8e23efbb574fd9d86bccf42
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Sun Oct 16 17:39:22 2011 +0200
+
+    Pan by pixel count, if number prefix given
+
+commit dc727b8dce89811d755ed03d11688b13a42e794a
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Sun Oct 16 16:08:55 2011 +0200
+
+    Added support for number prefix for commands
+
+commit 960026d600d3824832dc83f925962f2d2d5839d7
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Sun Oct 16 15:41:23 2011 +0200
+
+    Mention min/max zoom level in config.def.h
+
+commit 36177fb180d0a3e478bdee86664285c6a21c0be8
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Fri Oct 14 10:40:49 2011 +0200
+
+    Updated contact information
+
+commit 61caa5511f6dd6b5df98e1ea5deb25e61b216e19
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Thu Oct 13 16:53:17 2011 +0200
+
+    Fix TV_ADD_MSEC macro
+
+commit 4383a651c733ac59cd00f193c5115567f6a72f5d
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Thu Oct 13 16:50:06 2011 +0200
+
+    Strictly adhere to ANSI-C standard
+
+commit a09b20c5e63839b10bae306e4a23ca5a9d8ebac0
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Wed Oct 12 18:38:29 2011 +0200
+
+    Use void for empty argument lists
+
+commit 4864f0445549d5d4da9afcc696312d6cb0886d40
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Tue Oct 11 20:28:58 2011 +0200
+
+    Regard gif disposal method; fix bug #18
+
+commit 71e61b13b287091480794bdb7ca2c395d2d6a42e
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Thu Sep 29 13:12:40 2011 +0200
+
+    Made zoomdiff an inline function
+
+commit 8dcf682de9dc9bf5fe4a98205acfa2835499baf2
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Thu Sep 29 12:43:36 2011 +0200
+
+    Made all conditionals more precise
+
+commit 22d4e991d5726ca034924fa697a32a42578202c2
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Thu Sep 29 10:16:13 2011 +0200
+
+    Transformed function macros in util.h to inline functions
+
+commit d369f10aa56deafbc1816037d5a30af2f9bdbc50
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Wed Sep 28 12:53:44 2011 +0200
+
+    Fix layering of small gif frames
+
+commit 0a91ede86c370aacb2b3a91e411f1f05349c12f6
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Mon Sep 26 22:01:27 2011 +0200
+
+    Fix include for ssize_t
+
+commit d721d8453e6c0ff7112e8228eb58aa438d1f7f1a
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Mon Sep 26 21:53:52 2011 +0200
+
+    Added STREQ macro
+
+commit d08408e94250425e677e1ab33d917e05e229faa2
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Mon Sep 26 21:28:27 2011 +0200
+
+    Make use of EXIT_* macros (2)
+
+commit 9e52ae768e628ffbefabd6f7445d47d10c0aced9
+Merge: 8e1d8a9 3a81af4
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Mon Sep 26 21:20:33 2011 +0200
+
+    Merge commit '3a81af4'
+
+commit 3a81af41ac3ebdcfa13f70cca0408b2d7acfff3f
+Author: rck <dev.rck@gmail.com>
+Date:   Mon Sep 26 15:40:07 2011 +0200
+
+    make use of EXIT_ macros
+
+commit 8e1d8a97d3558d704a764d75234729fa2440d527
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Fri Sep 23 00:18:51 2011 +0200
+
+    Simplified config.c
+
+commit 515e41045198074cc1b015c6296f536edbfedff5
+Author: Bert Münnich <ber.t@gmx.com>
+Date:   Sat Sep 17 17:23:51 2011 +0200
+
+    Use win_t member in img_t & tns_t instead of parameters
+
+commit 82df0b34e96f2b9eec87a4c8e7a47ff86aedc580
+Author: Daniel <quite@hack.org>
+Date:   Wed Sep 14 19:28:44 2011 +0200
+
+    270/90 = 3
+
+commit 78f48fe68d9614bb3f85657c84b64c07b4fa70ee
+Author: Bert <ber.t@gmx.com>
+Date:   Tue Sep 13 10:08:55 2011 +0200
+
+    Updated doc
+
+commit 81cfbf171dfd11c6f8a4d277159ee077b5ca0255
+Author: Bert <ber.t@gmx.com>
+Date:   Tue Sep 13 10:08:35 2011 +0200
+
+    Renamed XLIBS to config, added -D/-l options
+
+commit 255dd5bbcda9de790e543ef8c658cfab942ab71f
+Author: Bert <ber.t@gmx.com>
+Date:   Mon Sep 12 19:35:37 2011 +0200
+
+    Updated screenshot to reflect new title bar
+
+commit dad06c7561d6f0ca0ea8d7f104ade04ab0e051fd
+Author: Bert <ber.t@gmx.com>
+Date:   Mon Sep 12 19:28:02 2011 +0200
+
+    Much nicer handling of compile-time features
+    
+    - *_SUPPORT enabled in config.h
+    - XLIBS helper app prints lib flags needed for current settings
+
+commit 32a65201bb2114790d98a73427fab80f41d94b97
+Author: Bert <ber.t@gmx.com>
+Date:   Mon Sep 12 15:12:55 2011 +0200
+
+    Shortened additional features section
+
+commit da829a63b232c477a25812d82097b67e6a3f8bc3
+Author: Bert <ber.t@gmx.com>
+Date:   Mon Sep 12 12:16:21 2011 +0200
+
+    Removed Makefile.netbsd
+
+commit 8f99adbbbd7fe5ebfc7e4a80ca4a0da9b49d92bc
+Author: Bert <ber.t@gmx.com>
+Date:   Mon Sep 12 12:16:10 2011 +0200
+
+    Made XFLAGS & XLIBS macros only
+
+commit b2a2a62b7b8a066467d7e8ef520fef7c17e3c5ca
+Author: Bert <ber.t@gmx.com>
+Date:   Sun Sep 11 21:01:24 2011 +0200
+
+    Added own bool type
+
+commit e2d4b9c7915a2a356cae04d33f1713ae224fbe7e
+Author: Bert <ber.t@gmx.com>
+Date:   Sun Sep 11 01:13:45 2011 +0200
+
+    Added dirty flag to img struct
+
+commit 510512714df01110cf42cb2a11d944f55297c5cc
+Author: Bert <ber.t@gmx.com>
+Date:   Sat Sep 10 18:41:20 2011 +0200
+
+    Added slideshow support
+
+commit 79d780a701e47ea1aacf49728e28900bb2b17743
+Author: Bert <ber.t@gmx.com>
+Date:   Sat Sep 10 12:29:54 2011 +0200
+
+    List additional features in usage message (-v)
+
+commit 6e575b0f721e1743fab098004d7dc26de5c7db49
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Sep 8 20:54:24 2011 +0200
+
+    Strict conformance to IEEE Std 1003.1-2001
+
+commit 3a4f3862a7eccc4505f81582f62397c3651dc87f
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Sep 8 17:31:37 2011 +0200
+
+    Added screenshots to README.md
+
+commit 0f91d28f40530fe306cc3e94b4c8a60fe4984efd
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Sep 8 16:48:55 2011 +0200
+
+    Added feature overview to README.md
+
+commit 70d37c583ced0e212f1a9b20ade41598a72ab69e
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Sep 8 16:19:39 2011 +0200
+
+    Updated doc
+
+commit 03b8e85a4f9918bf69eb0fee079c8c50edcf0efc
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Sep 8 16:19:30 2011 +0200
+
+    Fixed exif-only typo in tns_load()
+
+commit 348707a366f4d55bdb3664d0e54bf93ef17f8a67
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Sep 8 16:02:46 2011 +0200
+
+    Added section "Additional features" to README.md
+
+commit fdbc5cf76b547e60395027e60011d9f301bbb776
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Sep 8 15:55:03 2011 +0200
+
+    Added EXIF_SUPPORT macro for optional dependency on libexif
+
+commit bfab4dc328f580cc21c31ee3e4f53e1b8ca7c4ab
+Author: Bert <ber.t@gmx.com>
+Date:   Tue Sep 6 11:09:57 2011 +0200
+
+    Added EXIF auto-orientation
+
+commit b96c10633782d697a4f5573099b0762630b45347
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Sep 8 15:41:18 2011 +0200
+
+    Overhauled building
+    
+    - config.h -> config.def.h
+    - Create config.h during make, if it does not exist
+    - Nice make output
+    - Use XFLAGS and XLIBS to include additional compile-time features,
+      which depend on third-party libraries
+
+commit 8f34b7e95cc4de30b67eacb264688ca14acaaf60
+Author: Bert <ber.t@gmx.com>
+Date:   Tue Sep 6 11:55:31 2011 +0200
+
+    Load as much of a corrupted gif file as possible
+
+commit 14d1daf280f6912b33a57e802cc12a9ee96a3e4f
+Author: Bert <ber.t@gmx.com>
+Date:   Tue Sep 6 11:04:47 2011 +0200
+
+    Removed useless zl_cnt variable
+
+commit 711494ad361dcce5075545b5886a5986f88b60ef
+Author: Bert <ber.t@gmx.com>
+Date:   Tue Sep 6 09:11:03 2011 +0200
+
+    Avoid conflicting macros
+
+commit 2bbdd2f5b9529ab7cebd8fafa5cd4aa491a24010
+Author: Bert <ber.t@gmx.com>
+Date:   Sun Sep 4 20:14:38 2011 +0200
+
+    Fixed title-update in thumb mode
+
+commit 26eae8be966ab8e7ef940806077b56bbc7c191bc
+Author: Bert <ber.t@gmx.com>
+Date:   Sun Sep 4 13:29:17 2011 +0200
+
+    Made i(t)_toggle_alpha command work in thumbnail mode too
+
+commit d585b863548737f6e3815e204d4d01b206236ec2
+Author: Bert <ber.t@gmx.com>
+Date:   Sat Sep 3 23:11:45 2011 +0200
+
+    Reformated license header
+
+commit a23636d95ea1cdb40f03cd15b7db49f3a9d7cf42
+Author: Bert <ber.t@gmx.com>
+Date:   Sat Sep 3 23:07:14 2011 +0200
+
+    Fixed pointer-to-int-cast warnings on x86_64
+
+commit c2320a2f49fc4447c2b717f8f3d03b7612e76ab8
+Author: Bert <ber.t@gmx.com>
+Date:   Sat Sep 3 19:08:49 2011 +0200
+
+    Fixed remove_file()
+
+commit a7a849761fed7f829da3874ef6a5b5097a7b9e6a
+Author: Bert <ber.t@gmx.com>
+Date:   Sat Sep 3 17:01:39 2011 +0200
+
+    Simplified cursor resetting
+
+commit 9fa0bbca17f6346f10cffb618d2905dd3711c291
+Author: Bert <ber.t@gmx.com>
+Date:   Sat Sep 3 15:58:58 2011 +0200
+
+    Simplified it_shell_cmd() using SXIV_IMG env-variable
+
+commit de6b58a3156e64963f5bf48fa446bfbf3bb9da3f
+Author: Bert <ber.t@gmx.com>
+Date:   Sat Sep 3 14:22:06 2011 +0200
+
+    Unified feature test macro requirements
+
+commit e2ea759444145d2af623babe633ca9ac3d95dc44
+Author: Bert <ber.t@gmx.com>
+Date:   Fri Sep 2 18:54:52 2011 +0200
+
+    Updated docs
+
+commit abb5feeb786a711e57a63fa6027ca06002226c68
+Author: Bert <ber.t@gmx.com>
+Date:   Fri Sep 2 18:54:41 2011 +0200
+
+    Corrected timeout handling
+
+commit dcd04e526d8d4382f6a26534897901d882d43526
+Author: Bert <ber.t@gmx.com>
+Date:   Fri Sep 2 15:56:03 2011 +0200
+
+    Corrected thumbnail loading and timeout handling
+
+commit 1e84773276ede56309a145dc08a4f3d47ad3a29f
+Author: Bert <ber.t@gmx.com>
+Date:   Fri Sep 2 04:33:44 2011 +0200
+
+    Data driven timeout handling
+
+commit 391e6e707968a8ee74e88b5e19ba90e799572c93
+Author: Bert <ber.t@gmx.com>
+Date:   Sat Aug 20 13:07:36 2011 +0200
+
+    Mention origin of img_load_gif() in comment
+
+commit bb577d274dbd9981a726092a504466bc9b5c9bdb
+Author: Bert <ber.t@gmx.com>
+Date:   Fri Aug 19 18:46:17 2011 +0200
+
+    Added command to toggle gif animations
+
+commit 8b3ae5027e9490bd7edfeea3d3cd2fbc5ec4beaf
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Aug 18 16:05:32 2011 +0200
+
+    Added support for gif animation
+
+commit a4b90aee2001d0b0f458f3d741fbf5bcad04a7cb
+Author: Bert <ber.t@gmx.com>
+Date:   Wed Aug 17 18:17:40 2011 +0200
+
+    Added HAVE_GIFLIB macro for optional dependency on giflib
+
+commit 79bd86defb5c86a50e2def4c03129c4215c07ca5
+Author: Bert <ber.t@gmx.com>
+Date:   Wed Aug 17 18:01:21 2011 +0200
+
+    Refactored img_load_gif()
+    
+    - Corrected handling of transparency settings for individual frames
+    - Corrected handling of different frame dimensions & offsets
+
+commit 86a6f00112576f3fc1ca565c2b5ad11d784cab8d
+Author: Bert <ber.t@gmx.com>
+Date:   Wed Aug 17 00:56:18 2011 +0200
+
+    Added support for multi-frame images
+
+commit a85707ef63e6c441d91cd06d53af07ee58746681
+Author: Bert <ber.t@gmx.com>
+Date:   Fri Aug 19 15:02:35 2011 +0200
+
+    Fixed include in thumbs.h
+
+commit 1d749382f00bb0bfdb900b6ddb0bb8b3743b99d0
+Author: Bert <ber.t@gmx.com>
+Date:   Fri Aug 19 15:02:10 2011 +0200
+
+    Put event handling back into main.c; events -> commands
+
+commit 1d7849efc1fe85d20b8aa4916e75cb3eb658dba9
+Author: Bert <ber.t@gmx.com>
+Date:   Fri Aug 19 13:26:58 2011 +0200
+
+    Added force parameter to tns_load() to disregard cache
+
+commit 421f01202238ad56c5b2edc2e1b26194482b614f
+Author: Bert <ber.t@gmx.com>
+Date:   Fri Aug 19 13:09:22 2011 +0200
+
+    Renamed application modes
+
+commit 1c68a34463f9eb94da9a8289b659ce02677b865f
+Author: Bert <ber.t@gmx.com>
+Date:   Fri Aug 19 13:06:19 2011 +0200
+
+    Renamed key/mouse commands to indicate supported modes
+
+commit 535c18afdaceaf79759621ccaeee4ec99da9cf5d
+Author: Bert <ber.t@gmx.com>
+Date:   Fri Aug 19 12:20:00 2011 +0200
+
+    Uniform thumbnail selection border size
+    
+    - Consistent handling of thumbnails
+    - Makes it easier to select very small thumbnails with mouse
+
+commit 27591b5a52a4ec703bf5d2e61a4f933a7938500f
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Aug 18 12:05:38 2011 +0200
+
+    Small refactorings
+
+commit 5c77e1aa221c168003b673bd2d22baa090444b8e
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Aug 18 01:19:59 2011 +0200
+
+    Fixed hyphen-used-as-minus-sign issues in man page
+
+commit 8763f6930f4c1ebcf2c176cdb7c97ac7b70cae50
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Aug 18 01:18:26 2011 +0200
+
+    Corrected FSF address in license headers
+
+commit ff013dd0092df247b2c9f1c550e03542581ed21d
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Aug 18 00:38:55 2011 +0200
+
+    Revised handling of file names & paths
+
+commit 2a3a9657d360a4952ef84aa4e8665f211d490321
+Author: Bert <ber.t@gmx.com>
+Date:   Wed Aug 17 01:11:47 2011 +0200
+
+    Fixed keyboard mappings
+
+commit 6d624f6cc2fe5c4f918408177aac7da1deb9f91d
+Author: Bert <ber.t@gmx.com>
+Date:   Wed Aug 17 00:57:48 2011 +0200
+
+    Stable version 0.9
+
+commit 49c580c84e87fb1a60c1c93e9f804d73b8d1a23e
+Author: Bert <ber.t@gmx.com>
+Date:   Fri Aug 12 17:14:28 2011 +0200
+
+    No more need for CLEANMASK macro
+
+commit d86c95d7951236199d9b11314e262d8ed71ad449
+Author: Bert <ber.t@gmx.com>
+Date:   Fri Aug 12 17:14:14 2011 +0200
+
+    Made run_command() a normal key/button handler
+
+commit 75e36939a1cf3205b56f45ca34802cffb8e140a5
+Author: Bert <ber.t@gmx.com>
+Date:   Fri Aug 12 12:27:07 2011 +0200
+
+    Much better drag()
+    
+    No more need to pass XEvent* to handler functions
+
+commit 2b7192b1ac0a72e80cf5a06f406953a600ad54eb
+Author: Bert <ber.t@gmx.com>
+Date:   Fri Aug 5 10:17:36 2011 +0200
+
+    Renamed scroll() to pan_screen()
+
+commit 6b2a0982890f6d2b9f8de873f4d2589d65f90d72
+Author: Bert <ber.t@gmx.com>
+Date:   Fri Aug 5 10:17:07 2011 +0200
+
+    Added -O2 flag to CFLAGS
+
+commit 2bad53c33d7cfb15bbd0f0cbeb96d51d4d6df18c
+Author: Bert <ber.t@gmx.com>
+Date:   Wed Jul 27 00:20:27 2011 +0200
+
+    Simpler thumbnail selection border
+
+commit 3e4f63e3e2cd046ef6672c7ca3a5ed8b3f4bd0e5
+Author: Bert <ber.t@gmx.com>
+Date:   Tue Jul 26 23:58:31 2011 +0200
+
+    Nicer thumbnail selection border; new default colors
+
+commit b8ff1677b1cbb4d3e769861d1e14234c6a38a80a
+Author: Bert <ber.t@gmx.com>
+Date:   Tue Jul 26 18:01:29 2011 +0200
+
+    Major code refactoring
+    
+    - Configurable key and mouse mappings in config.h
+    - Put event handling code from main.c into events.[ch]
+
+commit a271e167443aedca2ed9c28b51fc6de33692dadb
+Author: Bert <ber.t@gmx.com>
+Date:   Fri Jul 22 14:49:06 2011 +0200
+
+    Reduced usage of preprocessor macros
+
+commit 5f780fc3e77aef1f1b87fdd6662a7caee6efbc3b
+Author: Bert <ber.t@gmx.com>
+Date:   Sun Jul 17 22:18:09 2011 +0200
+
+    Made selection border in thumb mode 3px wide
+
+commit 0a171a9c8b10b47d9267714670c611c415c3e804
+Author: Bert <ber.t@gmx.com>
+Date:   Sun Jul 17 22:16:46 2011 +0200
+
+    Fixed dependency on Makefile & config.h
+
+commit 272ebff865f6269b257b3a2409708eee25038fdd
+Author: Bert <ber.t@gmx.com>
+Date:   Sun Jul 17 20:20:34 2011 +0200
+
+    Lighter selection color
+
+commit bff3e84b0caa3dd7860b834c9a957c0dd85fbbd8
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Jul 7 13:34:21 2011 +0200
+
+    Mention the vi key bindings in the README
+
+commit c4b48e77668ab073d175c3b81db55f391f19467d
+Author: Bert <ber.t@gmx.com>
+Date:   Wed Jun 29 16:07:12 2011 +0200
+
+    Stable version 0.8.2
+
+commit 1c05ef49e4e79389e7e33c7b6b556cb9137b2a61
+Author: Bert <ber.t@gmx.com>
+Date:   Wed Jun 29 16:06:23 2011 +0200
+
+    Fixed Makefile.netbsd
+
+commit 8a420ff4a6ab3fbf03a44acc3ae169479c91bcfb
+Author: Bert <ber.t@gmx.com>
+Date:   Tue Jun 28 19:19:02 2011 +0200
+
+    Added Makefile for NetBSD
+
+commit fe281548fc172f0416667e221d097691ab71ee44
+Author: Bert <ber.t@gmx.com>
+Date:   Tue Jun 28 19:18:05 2011 +0200
+
+    Fixed Makefile
+
+commit 2e1d752777cbd4144498e28869fa5795f93f4103
+Author: Bert <ber.t@gmx.com>
+Date:   Tue Jun 28 15:48:17 2011 +0200
+
+    Fix compile error on NetBSD
+
+commit dde2d9d0232efbaa2fb1e691a9ef2e197a46692a
+Author: Bert <ber.t@gmx.com>
+Date:   Tue Jun 28 15:47:48 2011 +0200
+
+    Support XK_KP_{Add,Subtract} for zooming
+
+commit bd87ae9346503cb13ab1d12ff6f135b77fa0b473
+Author: Bert <ber.t@gmx.com>
+Date:   Tue Jun 28 13:45:57 2011 +0200
+
+    All timeouts in milliseconds
+
+commit f52603b31a50a2e7159cc3229d36ec214c3064f0
+Author: Bert <ber.t@gmx.com>
+Date:   Fri Jun 24 13:28:25 2011 +0200
+
+    Small refactoring
+
+commit 03009f59fc12902a7f21c6661a8260bf9ae1506b
+Author: Bert <ber.t@gmx.com>
+Date:   Wed Jun 8 20:10:28 2011 +0200
+
+    Made Makefile POSIX compliant
+
+commit b563a0adb2eb384b04354796eabe6065b6bc906f
+Author: Bert <ber.t@gmx.com>
+Date:   Mon Jun 6 15:58:59 2011 +0200
+
+    Fixed mtime cache check on filesystems supporting nsec resolution
+
+commit a6100373c1be2796966fa7e15d7b41f2f8a112f7
+Author: Bert <ber.t@gmx.com>
+Date:   Fri Jun 3 23:39:22 2011 +0200
+
+    New mappings: ctrl-[hjkl], pan image one window width/height
+
+commit ea23115af449e086ba05c9757ad22108944f6ec2
+Author: Bert <ber.t@gmx.com>
+Date:   Sun May 29 11:45:58 2011 +0200
+
+    Use getline instead of readline
+
+commit 2252a0148d11fc988131eb0bf6397453427d67e8
+Author: Bert <ber.t@gmx.com>
+Date:   Wed May 25 09:23:23 2011 +0200
+
+    New option: -n, start at given picture
+
+commit 00e6cd2bd1a7bfc0b9fcbf958cefee07ef41cb71
+Author: Bert <ber.t@gmx.com>
+Date:   Sun May 22 19:42:33 2011 +0200
+
+    Show image dimension in window title
+
+commit 65a2c8625d62b5fad9bcd84007d47bd5d2c198b5
+Author: Bert <ber.t@gmx.com>
+Date:   Mon May 16 15:58:19 2011 +0200
+
+    Updated doc
+
+commit 485e6c863a2f25737e75359da1f1c74f6f17e004
+Author: Bert <ber.t@gmx.com>
+Date:   Mon May 16 15:54:09 2011 +0200
+
+    H/J/K/L mappings to pan to edges
+
+commit 1763e9f2537d4ca3cf8a614fad8a606db69da6ea
+Author: Bert <ber.t@gmx.com>
+Date:   Tue May 10 09:47:24 2011 +0200
+
+    Unstable version number in Makefile
+
+commit f3cd56e3d361e955466ee9539fb4d0b71053fb62
+Author: Petr Sabata <psabata@redhat.com>
+Date:   Tue May 10 09:31:43 2011 +0200
+
+    Support DESTDIR
+    
+    GNU coding standard recommends supporting DESTDIR in projects Makefiles. This
+    is already expected by many GNU/Linux distributions. This patch adds DESTDIR
+    support to sxiv Makefile.
+    
+    Signed-off-by: Petr Sabata <psabata@redhat.com>
+
+commit fdafbf72b7eeb8c2395204aaf4ebd9931cf47436
+Author: Bert <ber.t@gmx.com>
+Date:   Sun May 8 17:47:29 2011 +0200
+
+    Stable version 0.8.1
+
+commit d227b17d96f04895146a7db92b4106669b6c4e3e
+Author: Bert <ber.t@gmx.com>
+Date:   Tue Apr 19 14:44:26 2011 +0200
+
+    Made fullscreen work under buggy window managers
+
+commit d54e64faaee6ba788bc5a57232d615fef816ed97
+Author: Bert <ber.t@gmx.com>
+Date:   Tue Apr 19 14:25:43 2011 +0200
+
+    Fixed background color for non-EWMH-compliant WMs
+
+commit ba293b09dfd6bea651bc40e711813302b87e6437
+Author: Bert <ber.t@gmx.com>
+Date:   Tue Apr 19 13:27:20 2011 +0200
+
+    Center zoomed area
+
+commit 548b383f0be8a8a4248fd0858cd0922c47ef4275
+Author: Bert <ber.t@gmx.com>
+Date:   Fri Apr 15 11:23:58 2011 +0200
+
+    Fixed mouse cursor
+
+commit 0b9132818134d8f7ec3dbd8685115377d1eabeba
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Apr 14 20:01:11 2011 +0200
+
+    Fix fullscreen mode
+
+commit 8056ddbfd741934ffd53fa0d7bc1a0a4a7e150c8
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Apr 14 12:19:20 2011 +0200
+
+    Slightly changed config.h
+
+commit c58307ba38e568c9851749ee8e2c721ed4741ca1
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Apr 14 12:00:35 2011 +0200
+
+    Merged commands.h into config.h
+
+commit 75c79bef6fb75c5cb897c82237df11a22766673c
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Apr 14 11:17:24 2011 +0200
+
+    Stable version 0.8
+
+commit ecd5e7108cf515898a04c848b17234a5e3ee6179
+Author: Bert <ber.t@gmx.com>
+Date:   Mon Apr 11 21:27:20 2011 +0200
+
+    Renamed option -C -> -c
+
+commit 5f8201110e0d64c65eb979a7450f6db3711fb5f6
+Author: Bert <ber.t@gmx.com>
+Date:   Mon Apr 11 20:42:08 2011 +0200
+
+    Slightly changed introductory text
+
+commit c6ca88ea3ff7a6e341b17906308be588d88c222f
+Author: Bert <ber.t@gmx.com>
+Date:   Mon Apr 11 17:02:59 2011 +0200
+
+    Removed invalid icon
+
+commit f4b9bc9a1d569041aab3bfc07ebc53d35e1fff0f
+Author: Bert <ber.t@gmx.com>
+Date:   Mon Apr 11 17:01:33 2011 +0200
+
+    Removed option -a
+
+commit d15264ea3213a56113952d16b042fd4fb249da6d
+Author: Bert <ber.t@gmx.com>
+Date:   Mon Apr 11 16:58:38 2011 +0200
+
+    Remove invalid images when loading them; refactorings
+
+commit 5cb6d12a94a287817a3e0ea04fae40c1ff53618d
+Author: Bert <ber.t@gmx.com>
+Date:   Mon Apr 11 11:53:00 2011 +0200
+
+    Refactored main.c
+
+commit bac610ddc486fba1f6d40cd5a9a95fbb2bc6c8e5
+Merge: b2f1b99 dd9e5da
+Author: Bert <ber.t@gmx.com>
+Date:   Mon Apr 11 08:52:07 2011 +0200
+
+    Merge branch 'tcache'
+    
+    Conflicts:
+    	main.c
+
+commit dd9e5dabb155fb9bb06d5a8e5fd6717df1751762
+Author: Bert <ber.t@gmx.com>
+Date:   Fri Apr 8 19:43:27 2011 +0200
+
+    Removed debug output
+
+commit bb85d3dca6d6618c6e02c3fe6030029730d5c973
+Author: Bert <ber.t@gmx.com>
+Date:   Fri Apr 8 17:07:25 2011 +0200
+
+    Updated doc for thumbnail cache
+
+commit dc54981a68589c719937c82c36eeb9247d915a81
+Author: Bert <ber.t@gmx.com>
+Date:   Fri Apr 8 14:44:00 2011 +0200
+
+    New option: -C, clean thumbnail cache
+
+commit eee921efe0959251daec3d23e652b4f3a924df92
+Author: Bert <ber.t@gmx.com>
+Date:   Fri Apr 8 10:24:10 2011 +0200
+
+    Refactored thumbs.c
+
+commit a90bd1c833b3475e434bd2de95ab9dd0347f1780
+Author: Bert <ber.t@gmx.com>
+Date:   Fri Apr 8 10:23:42 2011 +0200
+
+    Refactored recursive directory util functions
+
+commit e9996882cb55c5b6974a3448f29bda32d6aa373d
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Apr 7 19:15:00 2011 +0200
+
+    Moved read_dir_rec into util.c
+
+commit 7d40faeba6076477645e36034b58e4bf82d4a96c
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Apr 7 18:00:01 2011 +0200
+
+    Do not create cache files for cache files
+
+commit 92709b2b2f579300b1c007e5a3ba869e78fcc922
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Apr 7 17:29:59 2011 +0200
+
+    Use directory structure in cache dir
+
+commit f52a99db6c1f0a659934a50ae4a4ef8085ee3752
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Apr 7 17:23:47 2011 +0200
+
+    Refactored thumbnail cache_dir
+
+commit f93f4d887cb17fe4d7e702cbf71a4f10b851b32f
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Apr 7 16:17:10 2011 +0200
+
+    Write cache file for thumbnail directly after creating it
+
+commit 1d0f51f95a5035f62b69bd85ef634e50f0e8c56e
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Apr 7 15:05:17 2011 +0200
+
+    Load thumbnails from cache
+
+commit c21a3e3f28a5c45497d09ab27d71538b983ca535
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Apr 7 14:33:57 2011 +0200
+
+    Write thumbnail cache files on exit
+
+commit b2f1b997ed60a40ffb9c0964ed0716c375b30072
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Apr 7 10:17:27 2011 +0200
+
+    Disable support for external commands by default
+
+commit 83bdf67d51c3f7ae996886c56556afe2a7f462e3
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Apr 7 01:26:08 2011 +0200
+
+    First things for thumbnail caching
+
+commit 9fcf2c8f3467f163031b56c1750e2a27df0d3d64
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Apr 7 00:26:45 2011 +0200
+
+    Small refactoring in tns_load()
+
+commit d7c1f0a85d08a10638d8621f80a8c2cbe215fa13
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Apr 7 00:21:28 2011 +0200
+
+    Removed escape key mapping
+
+commit 4e808cea15194790e296502b46d15e1a1fbd375e
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Apr 7 00:20:11 2011 +0200
+
+    Refactored key/mouse mappings in man page
+
+commit 72ced4b86904ddd362f042f4677dc876a9651dd0
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Apr 7 00:04:01 2011 +0200
+
+    Refactored key/mouse mappings in README
+
+commit fa81707540b716b6d819d209bcb7629fe2739111
+Author: Bert <ber.t@gmx.com>
+Date:   Wed Apr 6 23:33:23 2011 +0200
+
+    New key mapping: D, remove image from file list
+
+commit facd7e3b42cbf638c1a58caebd3bbaedf74e0b1a
+Author: Bert <ber.t@gmx.com>
+Date:   Wed Apr 6 19:30:06 2011 +0200
+
+    New option: -a, do not filter out unsupported files
+
+commit 426edfb3498469b171aae6a582491c2c7e30fd51
+Author: Bert <ber.t@gmx.com>
+Date:   Tue Apr 5 00:37:37 2011 +0200
+
+    Readded file-type check at startup
+
+commit 8d4e3a57ab93429ca8c3e8e9b1cb1ce21ee4b609
+Author: Bert <ber.t@gmx.com>
+Date:   Mon Apr 4 20:35:10 2011 +0200
+
+    Do not check file-type at startup
+
+commit 8ee73709d786bd0eb6aead937fcad45ad5906f91
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Mar 17 23:45:04 2011 +0100
+
+    More accurate README
+
+commit 87a982841757da100993839b9c0002c2548838bc
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Mar 17 23:39:17 2011 +0100
+
+    Filename cosmetics
+
+commit 55659ffcc38d547b2a1525b9e444ae9ec8394643
+Author: Bert <ber.t@gmx.com>
+Date:   Tue Mar 15 13:55:52 2011 +0100
+
+    Use imlib-handles in thumbs.c instead of pixmaps
+
+commit aadba6f7e57274f8e1337edb093cb73c8381ba91
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Mar 10 11:51:47 2011 +0100
+
+    Updated doc
+
+commit 3672c0bc636aa82f8fc38aa75f226915686d0bd3
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Mar 10 11:41:40 2011 +0100
+
+    Toggle image transparency with A-key
+
+commit d982b06eed04cb080a4dd730b75f93285d5b159b
+Author: Bert <ber.t@gmx.com>
+Date:   Wed Mar 9 11:37:49 2011 +0100
+
+    White background for images with alpha
+
+commit a82c45431bd31bfedaad00d77cc2ab4c772774d0
+Author: Bert <ber.t@gmx.com>
+Date:   Wed Mar 9 10:08:43 2011 +0100
+
+    Use ctrl for ext cmds, disable them in config.h
+
+commit 00d4b0f7cf6742a66f2bac262d5a3b3a9d0cc275
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Mar 3 10:52:16 2011 +0100
+
+    Use "/bin/sh -c" for external commands
+
+commit 50e8fbf7b3261668f213e0b46523084bc7966c69
+Author: Bert <ber.t@gmx.com>
+Date:   Tue Mar 1 22:14:09 2011 +0100
+
+    Slightly refactored commands.h
+
+commit c05fd44bdda2934fa6f2f83b776038659f9d7d71
+Author: Bert <ber.t@gmx.com>
+Date:   Tue Mar 1 18:49:02 2011 +0100
+
+    Support for external commands like mogrify & jpegtran
+
+commit 955c39a5c5e3193e18c21abe87110651cc2472d2
+Author: Bert <ber.t@gmx.com>
+Date:   Tue Mar 1 14:23:09 2011 +0100
+
+    Shorter typedefs
+
+commit 8919fbd676dccdcb298503326ca7c7194b853ef0
+Author: Bert <ber.t@gmx.com>
+Date:   Sun Feb 27 14:09:21 2011 +0100
+
+    Shorter version information
+
+commit 9b24f82404754fc1ea17bf5ffb55a9e94b603f7d
+Author: Bert <ber.t@gmx.com>
+Date:   Sun Feb 27 13:29:24 2011 +0100
+
+    Small refactorings, removed over-ambitious todo
+
+commit 7334bdfa51778d143958811bd38d4719fcbf72f0
+Author: Bert <ber.t@gmx.com>
+Date:   Sun Feb 27 13:03:16 2011 +0100
+
+    Revert "Save rotated png-files with S-key"
+    
+    This reverts commit 090ee5405b70d6dfa16a8ca3a691dbd556c41bdb.
+
+commit 090ee5405b70d6dfa16a8ca3a691dbd556c41bdb
+Author: Bert <ber.t@gmx.com>
+Date:   Sun Feb 27 01:48:00 2011 +0100
+
+    Save rotated png-files with S-key
+
+commit dc68127ae54ae86459d92457c5ea1f08009f67ab
+Author: Bert <ber.t@gmx.com>
+Date:   Sat Feb 26 22:28:06 2011 +0100
+
+    Stable version 0.7
+
+commit c5f6b2c0d5099b5ae94ff4412f5b181532e2d6a8
+Author: Bert <ber.t@gmx.com>
+Date:   Sat Feb 26 16:57:21 2011 +0100
+
+    Sort directory entries when using -r
+
+commit 5a35484e715d33763472ea473096a40b87ed126c
+Author: Bert <ber.t@gmx.com>
+Date:   Sat Feb 26 13:16:14 2011 +0100
+
+    Align big images on top-left corner
+
+commit dafe7eac742301952c088d68a455586b0225a7bd
+Author: Bert <ber.t@gmx.com>
+Date:   Fri Feb 25 12:08:12 2011 +0100
+
+    Refactored imlib context handling
+
+commit 62fb69b3287addfc5f28db1117b2e314b68e761c
+Author: Bert <ber.t@gmx.com>
+Date:   Fri Feb 25 09:29:37 2011 +0100
+
+    Todo: save rotated images
+
+commit 4cfb8a204a2d56cb3b41681bf0fa3d68b89c6b31
+Author: Bert <ber.t@gmx.com>
+Date:   Mon Feb 21 22:05:30 2011 +0100
+
+    Correct timeout handling, more complex
+
+commit 88b5c5f2e4dd6eca240770e3429499c8df884d71
+Author: Bert <ber.t@gmx.com>
+Date:   Mon Feb 21 18:37:24 2011 +0100
+
+    Fixed cursor hiding after switching to thumb mode
+
+commit fde9f5bf859e582fb85d43831b90b7588ebfc3d3
+Author: Bert <ber.t@gmx.com>
+Date:   Mon Feb 21 18:26:21 2011 +0100
+
+    Hide cursor on redraw or after 1.5s mouse inactivity
+
+commit 280fcf6bf005476fb51330f22ef503d4474a13f7
+Author: Bert <ber.t@gmx.com>
+Date:   Mon Feb 21 17:06:32 2011 +0100
+
+    Updated doc
+
+commit ea80c735207d72b22a953374296a5255d903ba4e
+Author: Bert <ber.t@gmx.com>
+Date:   Mon Feb 21 16:49:34 2011 +0100
+
+    Fixed title for thumbnail mode
+
+commit f2b8a75f6cb3a9cbbaddd2e16f9ba9105b650142
+Author: Bert <ber.t@gmx.com>
+Date:   Mon Feb 21 14:59:29 2011 +0100
+
+    Always support thumbs; start thumb-mode with single -t
+
+commit 72e8baf13e7b41a843b1a4e5ed282d32d943e917
+Author: Bert <ber.t@gmx.com>
+Date:   Sun Feb 20 01:41:44 2011 +0100
+
+    Mode-guard in on_motionnotify
+
+commit f0f6644fae8673378936a15781ce96e55f66bec4
+Author: Bert <ber.t@gmx.com>
+Date:   Sun Feb 20 00:28:28 2011 +0100
+
+    Replaced -T flag with -tt; default thumbnail size
+
+commit a30901210cfde971bac780b5c0bbdeda215ea809
+Author: Bert <ber.t@gmx.com>
+Date:   Sun Feb 20 00:08:17 2011 +0100
+
+    Mouse-wheel scrolling in thumb mode
+
+commit 4cc6ca939c1e111aa491d5c81ee63170eee00fbd
+Author: Bert <ber.t@gmx.com>
+Date:   Sat Feb 19 23:16:01 2011 +0100
+
+    g/G key mappings in thumbnail mode
+
+commit a345c963f894626269c6f3581d1db982770bac7d
+Author: Bert <ber.t@gmx.com>
+Date:   Sat Feb 19 23:07:10 2011 +0100
+
+    Double click thumb to open
+
+commit 26bb005458ec83fbd4d4227b0b092353f3941633
+Merge: a152f82 09335fd
+Author: Bert <ber.t@gmx.com>
+Date:   Sat Feb 19 22:55:40 2011 +0100
+
+    Merge branch 'master' into thumbs
+    
+    Conflicts:
+    	main.c
+
+commit 09335fdc1404de66849ee0232596978e9f234490
+Author: Bert <ber.t@gmx.com>
+Date:   Sat Feb 19 22:53:22 2011 +0100
+
+    Fixed offsets in resize win to image
+
+commit a152f82ce6e010859232f83f466a4c1628bb18ed
+Author: Bert <ber.t@gmx.com>
+Date:   Sat Feb 19 22:12:08 2011 +0100
+
+    Sync thumb selection & fileidx; check thumb view
+
+commit 2194df82ed76870829ef948cd2d53abbe8126457
+Author: Bert <ber.t@gmx.com>
+Date:   Sat Feb 19 09:51:45 2011 +0100
+
+    Lighter selection color (for fullscreen)
+
+commit a367d35ba0f9edf8a01f7d98d9f58df9df292c15
+Author: Bert <ber.t@gmx.com>
+Date:   Sat Feb 19 09:47:53 2011 +0100
+
+    Update title when moving selection
+
+commit c6726ed331ed1fbe72fd28f48ebe41c4ccd721e0
+Author: Bert <ber.t@gmx.com>
+Date:   Fri Feb 18 15:33:52 2011 +0100
+
+    Nicer tns_move_selection
+
+commit 62f4ab037aad918d5b6c92b423e54f29b5c1ecf8
+Author: Bert <ber.t@gmx.com>
+Date:   Fri Feb 18 15:21:13 2011 +0100
+
+    Fixed moving of selection while loading thumbnails
+
+commit 637be490753ff107e1c43a1c69a786ada6b02e2c
+Author: Bert <ber.t@gmx.com>
+Date:   Fri Feb 18 15:02:49 2011 +0100
+
+    Nicer tns_translate
+
+commit 73a92795982d1c0896217caabcd48335c3ed9d63
+Author: Bert <ber.t@gmx.com>
+Date:   Fri Feb 18 14:57:24 2011 +0100
+
+    Center humbnails in window
+
+commit 76cca4ecb683e520d2ad63f383c9327ddcc1102f
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Feb 17 18:00:02 2011 +0100
+
+    Activate thumb-mode with Return key
+
+commit f235b62741c74879fbe7b784d60b7ee8981f77bb
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Feb 17 17:38:48 2011 +0100
+
+    Fixed cursor when opening thumb
+
+commit e2ef9b8323a475f5e9f1a5692578e59df47eeb9b
+Merge: 6adbb38 fbfec45
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Feb 17 17:32:29 2011 +0100
+
+    Variable timeout (2)
+
+commit fbfec45b3360d4d0d4011bad182fc2a21f8da6ae
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Feb 17 17:30:38 2011 +0100
+
+    Variable timeout
+
+commit 6adbb3831d889b7a0fa3b69e40843d8b70beaf55
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Feb 17 17:28:13 2011 +0100
+
+    Use Button1 to open thumbnail
+
+commit f08c24bbb31ae0e3f7001d5d4d0e8f31b0c817f8
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Feb 17 16:57:55 2011 +0100
+
+    Select and open thumbnails
+
+commit ef24ded6afeb185192e815868c28a31c4c2e6d97
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Feb 17 16:22:54 2011 +0100
+
+    Highlight selected thumbnail
+
+commit 095217b26f43b711c8ebc281110553ec788f7ebe
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Feb 17 15:58:11 2011 +0100
+
+    Linked thumbnails to files
+
+commit dc04bdc72f87a3f1ec3efe0aaaabbb3ca1455644
+Merge: f554cdf 1ac3302
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Feb 17 15:40:46 2011 +0100
+
+    Merge branch 'master' into thumbs
+
+commit 1ac330292378c92aeaab68b12aec43eef522b843
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Feb 17 15:40:36 2011 +0100
+
+    Nicer icon for broken images
+
+commit f554cdf60ea3808b88053077dc5dae83e427732c
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Feb 17 15:08:58 2011 +0100
+
+    Made key mappings mode-dependent
+
+commit ac747c3f91e7723d6d08a34f94d45cd36587c48d
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Feb 17 14:58:15 2011 +0100
+
+    Removed debug output
+
+commit e09a6b5e3f8c3869617fb3e749c4e455ba50989a
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Feb 17 14:45:54 2011 +0100
+
+    Appropriate title for thumbnail mode
+
+commit 1c072cc0d0b06869630bc2d842a28a7899494de8
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Feb 17 14:20:42 2011 +0100
+
+    Fill window before loading thumbs
+
+commit b828b554191c761776e4757d1b92156c624c75f6
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Feb 17 14:13:18 2011 +0100
+
+    Immediately respond to events while loading thumbs
+
+commit e2889ab891ba91ec71f8e2088fcb2c0123069054
+Merge: 15041f6 800143a
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Feb 17 13:20:19 2011 +0100
+
+    Merge branch 'master' into thumbs
+
+commit 800143affb9a6664c8a8df496574a268b43fdc17
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Feb 17 13:20:10 2011 +0100
+
+    Nicer version info
+
+commit 15041f610024a6bd5677ccd3f9086cd5a8d64e96
+Merge: 783213c caf982d
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Feb 17 13:10:55 2011 +0100
+
+    Merge branch 'master' into thumbs
+    
+    Conflicts:
+    	Makefile
+
+commit caf982d175729603eee4f19382394ab66d4a469c
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Feb 17 13:09:38 2011 +0100
+
+    Higher timeout, faster window resizing
+
+commit 783213c0bbc1b52504c346588742095a766f052d
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Feb 17 11:08:25 2011 +0100
+
+    Use watch-cursor while loading thumbnails
+
+commit bcc70bd7cbcdf56e84984929d9f8c6f1776f2204
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Feb 17 11:04:58 2011 +0100
+
+    Who needs threads to load thumbnails?
+
+commit e0d08920657e8e5132a732c2f429243efa899ac1
+Author: Bert <ber.t@gmx.com>
+Date:   Wed Feb 16 23:03:42 2011 +0100
+
+    Use pthread to load thumbnails
+
+commit 882e630962423a1d60e0722804fe2f9109de9891
+Author: Bert <ber.t@gmx.com>
+Date:   Wed Feb 16 21:45:41 2011 +0100
+
+    Stable version 0.6
+
+commit 26c2179be7676df3049035e5e65039c7fc232cb7
+Author: Bert <ber.t@gmx.com>
+Date:   Wed Feb 16 21:40:20 2011 +0100
+
+    Refactored thumbs, new files thumbs.[ch]
+
+commit 8919204a2e666e12216240a792bfff7a391d4d43
+Author: Bert <ber.t@gmx.com>
+Date:   Wed Feb 16 18:16:00 2011 +0100
+
+    Render thumbnails
+
+commit 89ec18385b1d9e76463afd443b25c203a83c94cb
+Author: Bert <ber.t@gmx.com>
+Date:   Wed Feb 16 17:09:46 2011 +0100
+
+    Added app-mode
+
+commit 7e2c85b04c2a061524a5f70c91aa8947eb7bd567
+Author: Bert <ber.t@gmx.com>
+Date:   Wed Feb 16 16:53:35 2011 +0100
+
+    Fixed thumbnail creation
+
+commit 7b497406136dabcce280bae3886a88ee77ebc1e7
+Author: Bert <ber.t@gmx.com>
+Date:   Wed Feb 16 16:47:12 2011 +0100
+
+    First things for thumbnail mode
+
+commit e8ed491ba9f2fe6df8f071e7c59e0174bb307a1b
+Author: Bert <ber.t@gmx.com>
+Date:   Tue Feb 15 15:30:37 2011 +0100
+
+    Fixed empty lines in readline()
+
+commit cfed65d36fbacf6bec47869c86ea94f1cc49bcb5
+Author: Bert <ber.t@gmx.com>
+Date:   Mon Feb 14 19:22:02 2011 +0100
+
+    More appropriate buffer sizes
+
+commit 788db666be26ace453fc312a78f86cb6ea3f7dac
+Author: Bert <ber.t@gmx.com>
+Date:   Mon Feb 14 18:06:30 2011 +0100
+
+    Updated man page
+
+commit e1cc8058fff4e0d64b840ac6da2eda3f6c2ed5fc
+Merge: f71ea09 c9a887d
+Author: Bert <ber.t@gmx.com>
+Date:   Mon Feb 14 17:56:29 2011 +0100
+
+    Merge remote-tracking branch 'origin/master'
+    
+    Conflicts:
+    	Makefile
+
+commit f71ea095bc11dbc00eb1a27a67eb07d36324213f
+Author: Bert <ber.t@gmx.com>
+Date:   Mon Feb 14 17:53:46 2011 +0100
+
+    Fixed indentation
+
+commit 26cc5aff69856caf01a925ee1357b3650d806d67
+Author: Bert <ber.t@gmx.com>
+Date:   Mon Feb 14 17:51:04 2011 +0100
+
+    Read filenames from stdin
+
+commit c9a887d0fd5ad28fa8c51259fc47b4498ab9c525
+Author: Bert <ber.t@gmx.com>
+Date:   Fri Feb 11 10:24:59 2011 +0100
+
+    Fixed typo in config.h
+
+commit ea65610747bf324c98f390fba91b8a7c8818006a
+Author: Bert <ber.t@gmx.com>
+Date:   Wed Feb 9 17:05:09 2011 +0100
+
+    Load warning icon only once
+
+commit 8e5835d1fd945ee9582aae71b3ee693b6ef46307
+Author: Bert <ber.t@gmx.com>
+Date:   Wed Feb 9 16:32:40 2011 +0100
+
+    Handle image remove/rename while running
+
+commit 9be473443922a39e7cb52e605ccae922dde375a1
+Author: Bert <ber.t@gmx.com>
+Date:   Wed Feb 9 10:55:40 2011 +0100
+
+    New author in man page
+
+commit d731741f046eecdf2788154b0387baf8f2e67007
+Author: Bert <ber.t@gmx.com>
+Date:   Wed Feb 9 10:01:49 2011 +0100
+
+    Handle WM_DELETE_WINDOW messages correctly, thanks to fungt
+
+commit a5335e8ddde6aa53e6f625f5ce1ffd6f7ec098c5
+Author: Bert <ber.t@gmx.com>
+Date:   Wed Feb 9 09:45:35 2011 +0100
+
+    Slightly refactored fungts utf-8 title commit
+
+commit 7fb7b1f4fc8afb1c921b73583452cfe54b132f90
+Author: fungt <sthorde@gmail.com>
+Date:   Wed Feb 9 00:23:36 2011 +0800
+
+    Show correct utf-8 title
+
+commit 7bef1de9c2cd527012d3090e24272251619b9b0b
+Author: Bert <ber.t@gmx.com>
+Date:   Tue Feb 8 15:02:05 2011 +0100
+
+    Stable release 0.5
+
+commit f57954b7aa9b6ad8e2a92554c36e71c605c6a568
+Author: Bert <ber.t@gmx.com>
+Date:   Sun Feb 6 18:45:00 2011 +0100
+
+    Updated doc, 0/W/w key-mappings
+
+commit 603e664f7c9fc5cb228eef90fdaa501ac5dfa3bb
+Author: Bert <ber.t@gmx.com>
+Date:   Sun Feb 6 17:40:48 2011 +0100
+
+    Nicer fit window to image
+
+commit cbf6aae721455a952ab0437bb62143ef8444cc93
+Author: Bert <ber.t@gmx.com>
+Date:   Fri Feb 4 00:26:42 2011 +0100
+
+    One less TODO
+
+commit 8339bb7ee7fe4a2598a30e3c4d0cef42329ee5aa
+Author: Bert <ber.t@gmx.com>
+Date:   Fri Feb 4 00:25:57 2011 +0100
+
+    New key mapping: W, resize window to fit image
+
+commit 096c0ed935f7373c15809183ec474f4628d5fa5d
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Feb 3 22:05:13 2011 +0100
+
+    Removed some warnings
+
+commit 414fa567ce3893c33bc3a7b313b329c783853624
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Feb 3 16:55:24 2011 +0100
+
+    Split img_fit into internal/external function
+
+commit c6556f8cc7a90909b2dd71747ab605954a3f7892
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Feb 3 16:14:49 2011 +0100
+
+    New key mappings: 0/w, zoom to 100%/to fit window
+
+commit bad9a70a48ff38f0d1e22fdedfcaa2241882a0bf
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Feb 3 14:32:02 2011 +0100
+
+    Display filesize in window title
+
+commit 12a94cc40ef0f155a9c99dea915cd3807d760441
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Feb 3 10:55:23 2011 +0100
+
+    Manual event handling in main.c
+
+commit e8cf8da2089a40fb255b8d62fe86279c1219ff60
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Feb 3 10:54:31 2011 +0100
+
+    Fixed die/warn in util.c
+
+commit 8f4af658ae484c3090dbd5b5b9b498943b3eb959
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Feb 3 10:15:01 2011 +0100
+
+    Refactored, new files util.[ch], C89
+
+commit f5c125b3ee7ac6d718cf23ef3c7aaba90ce89ff8
+Author: Bert <ber.t@gmx.com>
+Date:   Wed Feb 2 20:46:56 2011 +0100
+
+    Fixed stupid memory leak in read_dir_rec
+
+commit eb6680b9f1ef0c62eb3b3ba92e78548a98c42be9
+Author: Bert <ber.t@gmx.com>
+Date:   Wed Feb 2 10:43:16 2011 +0100
+
+    Fixed indentation in README.md
+
+commit bbd7b7d595e41535e7152d3941f63e56e57b5641
+Author: Bert <ber.t@gmx.com>
+Date:   Wed Feb 2 10:34:14 2011 +0100
+
+    New option: -r, open all images in directories
+
+commit 2afb989cc415419229d6f6ded02d59ee109ac796
+Author: Bert <ber.t@gmx.com>
+Date:   Wed Feb 2 09:01:05 2011 +0100
+
+    Skeleton for -r
+
+commit e510eda5f1ec77353d2f8b62e35a69df0bdec99e
+Author: Bert <ber.t@gmx.com>
+Date:   Tue Feb 1 18:27:00 2011 +0100
+
+    Stable release 0.4
+
+commit 5607349058a9c50fa08e19de3ebb24e9b480775b
+Author: Bert <ber.t@gmx.com>
+Date:   Tue Feb 1 18:25:47 2011 +0100
+
+    Updated doc
+
+commit f2ceac2f8ab04f91672a9cb168dfdf69dab02b3c
+Author: Bert <ber.t@gmx.com>
+Date:   Tue Feb 1 16:40:37 2011 +0100
+
+    New option: -F, fixed/floating window
+
+commit 8fb3110ebb1f4ac46729ceac906e21674368d93d
+Author: Bert <ber.t@gmx.com>
+Date:   Tue Feb 1 16:21:58 2011 +0100
+
+    Bug fix: handle negative offsets in -g arg correctly
+
+commit 1576eb4e17d4eaaf64fed88592b71c22b3af6fa2
+Author: Bert <ber.t@gmx.com>
+Date:   Tue Feb 1 16:10:08 2011 +0100
+
+    Refactored img_open and img_check
+
+commit 5a682426b128fd33bd76f466831a9a36e80e1c2c
+Author: Bert <ber.t@gmx.com>
+Date:   Mon Jan 31 16:06:40 2011 +0100
+
+    New key command: r, reload image
+
+commit b1ce42edf5fd61239e8a774eea96fbe3300b3cf3
+Author: Bert <ber.t@gmx.com>
+Date:   Mon Jan 31 15:54:51 2011 +0100
+
+    new TODO: update filelist
+
+commit 802c3448793fdfd8255931235c40084558f7f515
+Author: Bert <ber.t@gmx.com>
+Date:   Mon Jan 31 15:51:26 2011 +0100
+
+    Check file timestamps before loading from cache
+
+commit 16cc96eff5d858fe99b561459b7bce90fb64eeed
+Author: Bert <ber.t@gmx.com>
+Date:   Mon Jan 31 15:11:11 2011 +0100
+
+    Revert "TODO: set wallpaper"
+    
+    This reverts commit e2d9463375db0ba0ac1bb62c1573715c3a084346.
+
+commit f0e9ec733ad73147be1db2a11486d1ac803c044f
+Author: Bert <ber.t@gmx.com>
+Date:   Sun Jan 30 22:23:36 2011 +0100
+
+    Replaced option -W with -q, seems more natural
+
+commit 3d8efb21d51b5e9582fdff1a7c138f85f508e927
+Author: Bert <ber.t@gmx.com>
+Date:   Sun Jan 30 22:02:03 2011 +0100
+
+    Updated doc: dragging with button2, -g option
+
+commit 229830ad188fc520da56bfa8a3b8e0da3744c799
+Author: Bert <ber.t@gmx.com>
+Date:   Sun Jan 30 22:00:58 2011 +0100
+
+    Replace -w with well-known geometry option
+
+commit c937570bbe61985f632db2b9285232453a8b8ee5
+Author: Bert <ber.t@gmx.com>
+Date:   Sun Jan 30 20:57:31 2011 +0100
+
+    Unstable version number
+
+commit f7a66469e6cb524ec66e82ef5beaf5d97d505c34
+Author: Bert <ber.t@gmx.com>
+Date:   Sun Jan 30 20:46:48 2011 +0100
+
+    Nicer key handling, does not fix problems
+
+commit 03bfe1015e7e67104c2872bdcf085b1315b24a4c
+Author: Bert <ber.t@gmx.com>
+Date:   Sun Jan 30 16:39:16 2011 +0100
+
+    Explicitly enable printing of warnings
+
+commit e2d9463375db0ba0ac1bb62c1573715c3a084346
+Author: Bert <ber.t@gmx.com>
+Date:   Sun Jan 30 16:23:03 2011 +0100
+
+    TODO: set wallpaper
+
+commit 7f15becf01151aa94984db8519d6a5e01ef92b40
+Author: Bert <ber.t@gmx.com>
+Date:   Sun Jan 30 15:02:27 2011 +0100
+
+    Stable release 0.3.1
+
+commit 56cd150b9d0ef7fb21cafee6152045fd2e2da0ee
+Author: Bert <ber.t@gmx.com>
+Date:   Sun Jan 30 14:47:25 2011 +0100
+
+    Fixed setuid and typo in Makefile, damn copy&paste
+
+commit c52c4fa69e2a6a58813fe35a5c4a1fe23661db03
+Author: Bert <ber.t@gmx.com>
+Date:   Sat Jan 29 22:37:40 2011 +0100
+
+    Mouse-panning while pressing button2
+
+commit 4ab4be31a7fed20c2d1bde4b76c1d22bfd4312aa
+Author: Bert <ber.t@gmx.com>
+Date:   Sat Jan 29 00:18:18 2011 +0100
+
+    Removed one TODO item
+
+commit 9b09a578d49114e63c5469702056c40b86883ba9
+Author: Bert <ber.t@gmx.com>
+Date:   Sat Jan 29 00:16:57 2011 +0100
+
+    Stable version 0.3
+
+commit 019e2274a88f35668bc6687eb4ed5ca16f7cf066
+Author: Bert <ber.t@gmx.com>
+Date:   Fri Jan 28 13:42:39 2011 +0100
+
+    Map arrow keys to h/j/k/l
+
+commit 8123d63c5b76909ce70f09614ac0e45760a69d71
+Author: Bert <ber.t@gmx.com>
+Date:   Fri Jan 28 13:34:16 2011 +0100
+
+    Added plenty lots of options
+
+commit 17e2a795bbcdbf9bc8eb07e2aaca0a494871b9e8
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Jan 27 16:15:43 2011 +0100
+
+    Added -w cmdline option
+
+commit e8a503bcbb5e29e8364095796d1417db4c138e64
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Jan 27 10:18:23 2011 +0100
+
+    Updated section AUTHORS of man page
+
+commit 245b5758ef8a774845e4010d661b94246a7e4934
+Author: Bert <ber.t@gmx.com>
+Date:   Wed Jan 26 18:47:28 2011 +0100
+
+    One more TODO
+
+commit f47092cda2b243519327e4a390f4b87220b4a39a
+Author: Bert <ber.t@gmx.com>
+Date:   Wed Jan 26 18:38:54 2011 +0100
+
+    Complete mouse support
+
+commit 0497a7f69d356f9008e0c89f390e6c72a9dbfbcc
+Merge: a43d51d 9a35f40
+Author: Bert <ber.t@gmx.com>
+Date:   Wed Jan 26 17:48:11 2011 +0100
+
+    Merge remote branch 'falconindy/mouse'
+
+commit a43d51d2bcd3e8964bf6ab51264b2a7f15ccb609
+Author: Bert <ber.t@gmx.com>
+Date:   Wed Jan 26 15:11:31 2011 +0100
+
+    Removed anit-aliasing from TODO list
+
+commit 7834dee6e726df88e82ddc5e4c015023a50ba109
+Author: Bert <ber.t@gmx.com>
+Date:   Wed Jan 26 14:59:32 2011 +0100
+
+    Added a key-mapping for toggle anti-aliasing
+
+commit 2bedd223149e44b8d9ef9a6f2bf07b8a088aabe3
+Author: Bert <ber.t@gmx.com>
+Date:   Wed Jan 26 14:43:20 2011 +0100
+
+    Fixed indentation in README.md
+
+commit 64a5366508142ad938e4a6f9f8bdb5f375b1336c
+Author: Bert <ber.t@gmx.com>
+Date:   Wed Jan 26 14:42:10 2011 +0100
+
+    Added <,> mappings to rotate image
+
+commit d2f9fb89e5517212ac92c00263b57df86c344ee7
+Author: Bert <ber.t@gmx.com>
+Date:   Sun Jan 23 19:27:16 2011 +0100
+
+    More standardish usage info in man page
+
+commit 415f8bcf14a33d4eafa96c5e06b1102de2298d80
+Author: Bert <ber.t@gmx.com>
+Date:   Sun Jan 23 18:55:25 2011 +0100
+
+    Slightly changed README.md
+
+commit c0dacea51fe3a91943338f9be655ad6b33b7a2ba
+Author: Bert <ber.t@gmx.com>
+Date:   Sun Jan 23 18:35:01 2011 +0100
+
+    Nicer man page homepage section
+
+commit 6695d9d5ef751dc3cf3e07e8db18fbc14944fe7c
+Author: Bert <ber.t@gmx.com>
+Date:   Sun Jan 23 18:30:16 2011 +0100
+
+    Fixed usage info in man page
+
+commit f2ec0c838a180f7411cc63f376a622d5274c0ef9
+Author: Bert <ber.t@gmx.com>
+Date:   Sun Jan 23 18:26:06 2011 +0100
+
+    Stable version 0.2
+
+commit 1b0528c7a2bd8cc28af404aa5f5f207719cca7b2
+Author: Bert <ber.t@gmx.com>
+Date:   Sun Jan 23 18:24:48 2011 +0100
+
+    Fixed Makefile
+
+commit d3da0eb71e279f394803eea99f3b1be7b94bd511
+Author: Bert <ber.t@gmx.com>
+Date:   Sun Jan 23 18:20:08 2011 +0100
+
+    Added man page
+
+commit bce599038ceac361c09e9d715e8c94716d6c3d0c
+Author: Bert <ber.t@gmx.com>
+Date:   Sun Jan 23 17:27:44 2011 +0100
+
+    Moved VERSION macro into Makefile
+
+commit fdf24d468135327f16ac568d7310f21b167c3208
+Author: Bert <ber.t@gmx.com>
+Date:   Sun Jan 23 16:19:07 2011 +0100
+
+    Updated README.md usage info
+
+commit 2b1c0885fe53b95455ae650762651c69ae1a227d
+Author: Bert <ber.t@gmx.com>
+Date:   Sun Jan 23 16:14:41 2011 +0100
+
+    Implemented fullscreen mode
+
+commit 9a35f40224a08bfcc27b4ba79301e22a58cf4495
+Author: Dave Reisner <d@falconindy.com>
+Date:   Sat Jan 22 22:04:55 2011 -0500
+
+    main.c: add zooming on mousewheel events
+    
+    Signed-off-by: Dave Reisner <d@falconindy.com>
+
+commit 13eb5ac929eb99955b4c58192b0aed467db1a4a2
+Author: Dave Reisner <d@falconindy.com>
+Date:   Sat Jan 22 22:03:49 2011 -0500
+
+    window.c: include ButtonPress events in Input
+    
+    Signed-off-by: Dave Reisner <d@falconindy.com>
+
+commit 8183b5a20278169007f0c67e58a28ab3d3e2c72a
+Author: Bert <ber.t@gmx.com>
+Date:   Sun Jan 23 13:19:00 2011 +0100
+
+    Updated README.md usage section
+
+commit b7b8705c27d1648e684a170500e52da7851532e5
+Author: Bert <ber.t@gmx.com>
+Date:   Sun Jan 23 12:37:47 2011 +0100
+
+    Unstable version number
+
+commit 3c65f47ca186f6bec9e4cddb8e7935d256e75fd6
+Author: Bert <ber.t@gmx.com>
+Date:   Sun Jan 23 12:37:34 2011 +0100
+
+    Removed one item from TODO list
+
+commit 6fed8db854888381a1d436b76fb9ec3df95763a0
+Author: Bert <ber.t@gmx.com>
+Date:   Sun Jan 23 12:36:27 2011 +0100
+
+    Added [,] mappings for go 10 images back/forward
+
+commit 2f7bd169ea07be3b7f9cbcebfd9dc2082d9edd47
+Author: Bert <ber.t@gmx.com>
+Date:   Sat Jan 22 23:37:13 2011 +0100
+
+    Added g/G mappings for goto first/last image
+
+commit bd6b05c0edbac5168651768d9473a804b00a649a
+Author: Bert <ber.t@gmx.com>
+Date:   Sat Jan 22 23:30:30 2011 +0100
+
+    Fixed typo in README.md
+
+commit 0f714bccda28cd2faa5095fa1ace5d8a113beaec
+Author: Bert <ber.t@gmx.com>
+Date:   Sat Jan 22 23:27:29 2011 +0100
+
+    Handle window resize events properly
+
+commit 60a9ed756778478b19ce9d44cfa3ac963aeec175
+Author: Bert <ber.t@gmx.com>
+Date:   Fri Jan 21 15:30:51 2011 +0100
+
+    version 0.1
+
+commit 50da19f9c12af044b7ed96ab70f608a32a10e32c
+Author: Bert <ber.t@gmx.com>
+Date:   Fri Jan 21 15:30:18 2011 +0100
+
+    Small corrections in README.md
+
+commit 6480a9dc31eee74205dc73dfdb519f8e661176ee
+Author: Bert <ber.t@gmx.com>
+Date:   Fri Jan 21 15:27:06 2011 +0100
+
+    Added README.md
+
+commit 600abe54b7faeb2aa6529dbac3762d7172cea49e
+Author: Bert <ber.t@gmx.com>
+Date:   Fri Jan 21 13:53:53 2011 +0100
+
+    Added todo list
+
+commit b92ebf67ee04134e7c9e006cdef3dace969539aa
+Author: Bert <ber.t@gmx.com>
+Date:   Fri Jan 21 13:48:02 2011 +0100
+
+    Implemented panning
+
+commit 72e56e520704522c52abd349566b1523ad96c808
+Author: Bert <ber.t@gmx.com>
+Date:   Fri Jan 21 12:58:02 2011 +0100
+
+    Made config.h a bit clearer
+
+commit c7860b690b687492f90202e77d575f5855f04433
+Author: Bert <ber.t@gmx.com>
+Date:   Fri Jan 21 12:57:35 2011 +0100
+
+    Stricter object encapsulation
+
+commit 629d37376d1c9b175a525e8c30f8d468996a3bd6
+Author: Bert <ber.t@gmx.com>
+Date:   Fri Jan 21 12:13:52 2011 +0100
+
+    Merged img_display() into img_render()
+
+commit 44921e07aaa36d553f2a4c81d7c431388b5c27e3
+Author: Bert <ber.t@gmx.com>
+Date:   Fri Jan 21 11:21:09 2011 +0100
+
+    Described options in config.h
+
+commit b900105a4e1039ed2404eb8f01dcb14bcbd07c0e
+Author: Bert <ber.t@gmx.com>
+Date:   Fri Jan 21 10:41:50 2011 +0100
+
+    Removed debug output
+
+commit 2d5247af4ac90e304b2f1bb0125262a97c67f8b8
+Author: Bert <ber.t@gmx.com>
+Date:   Fri Jan 21 10:30:10 2011 +0100
+
+    More robust key handling
+
+commit 9dc46c1d81e74716f643dfab8c267cc6c3d8ec08
+Author: Bert <ber.t@gmx.com>
+Date:   Fri Jan 21 10:29:31 2011 +0100
+
+    Nicer zooming
+
+commit bb12b8c0fbc4d0a791f8a2cb8c7f2d64df995a4d
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Jan 20 23:22:00 2011 +0100
+
+    First try on zooming
+
+commit 376c0d90c7d9162c05e693c198911a4cf000f5a3
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Jan 20 22:02:19 2011 +0100
+
+    Bigger background pixmap
+
+commit 029e1208b91250f4bd91ecc2015d051294fb9d3f
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Jan 20 21:44:34 2011 +0100
+
+    No more expose handling
+
+commit 08018427c61435de9cd8dca1d1cc9bb69ca2fd74
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Jan 20 17:00:59 2011 +0100
+
+    Put some useful information in the window title
+
+commit eeb58886a5b9d7460f81a1e3216692b5dc3a6341
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Jan 20 16:32:16 2011 +0100
+
+    Fixed initial window title
+
+commit a732e75d8a484c9e9a1c281d93124580fad83dd4
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Jan 20 16:24:48 2011 +0100
+
+    Check all given files before open the first
+
+commit 004f297ebb3043032661513f40a36c1cc915bc59
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Jan 20 16:04:34 2011 +0100
+
+    Go to next/previous image
+
+commit 45db2881e26dd5e51c0e4142bdefa2d947292c80
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Jan 20 16:03:59 2011 +0100
+
+    Fixed filenames in parse_options()
+
+commit c399c1a08552393633e836219ceeef2f2b0ab5f3
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Jan 20 16:03:10 2011 +0100
+
+    Brighter default background color
+
+commit 00f32120a6c62069b66737a5265d9befa3ac59ac
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Jan 20 15:39:08 2011 +0100
+
+    Handle expose events
+
+commit 822ef72657b60902bd67e48fb339c1c6fc5e0e5a
+Author: Bert <ber.t@gmx.com>
+Date:   Thu Jan 20 15:37:06 2011 +0100
+
+    Rebuild all object files after changing config.h
+
+commit 8b3b28300f3e9a7793fd6c18a0a114af58860e97
+Author: Bert <ber.t@gmx.com>
+Date:   Wed Jan 19 18:16:44 2011 +0100
+
+    Made parse_options void
+
+commit 6851d5c4e59640aedf3f23ff5ab6409d153c5ae3
+Author: Bert <ber.t@gmx.com>
+Date:   Wed Jan 19 18:03:32 2011 +0100
+
+    Removed im member from img struct
+
+commit a7e30bb081ab0a27147f97b8851d7bb76c39c51b
+Author: Bert <ber.t@gmx.com>
+Date:   Wed Jan 19 14:07:45 2011 +0100
+
+    Option handling, merged app.c & events.c into main.c
+
+commit 79c7e6178e9b577158408157ec23a477556ecf16
+Author: Bert <ber.t@gmx.com>
+Date:   Tue Jan 18 20:11:28 2011 +0100
+
+    Render image on window
+
+commit bb4edc756c7ceddb0f13194929cd1d363c85d653
+Author: Bert <ber.t@gmx.com>
+Date:   Tue Jan 18 17:21:59 2011 +0100
+
+    Renamed FATAL to DIE
+
+commit 2a2f0307c1e313dde979de2086d93971c57d342b
+Author: Bert <ber.t@gmx.com>
+Date:   Tue Jan 18 17:20:41 2011 +0100
+
+    Basic image loading
+
+commit 7121e7b468e133cda882c574bf1d6933c490ae94
+Author: Bert <ber.t@gmx.com>
+Date:   Tue Jan 18 16:40:37 2011 +0100
+
+    Initialize imlib2
+
+commit 22db1ed3614cbaf67bac7d24f86ebbe824188bef
+Author: Bert <ber.t@gmx.com>
+Date:   Tue Jan 18 16:38:37 2011 +0100
+
+    Simplified keysym lookup
+
+commit fb6411ab5c887fcd39f01d406eda21ce02f708ec
+Author: Bert <ber.t@gmx.com>
+Date:   Tue Jan 18 16:32:40 2011 +0100
+
+    Encapsulate window environment in win_env_t
+
+commit ab480ecc47c00632c3cf182dec4fd45fa00575bf
+Author: Bert <ber.t@gmx.com>
+Date:   Tue Jan 18 15:37:44 2011 +0100
+
+    Fixed scalemode initialization
+
+commit 544fd8371854dcfd51c92f5ae1da7a8c3085156f
+Author: Bert <ber.t@gmx.com>
+Date:   Tue Jan 18 15:33:25 2011 +0100
+
+    Reordered function definitions
+
+commit 2f4399d53017d76f233967c320362b0f5aa5a758
+Author: Bert <ber.t@gmx.com>
+Date:   Tue Jan 18 15:29:18 2011 +0100
+
+    Added LICENSE
+
+commit 64b76b1602025ca4c3fc6f186b1d83faa48e52c1
+Author: Bert <ber.t@gmx.com>
+Date:   Mon Jan 17 20:24:01 2011 +0100
+
+    Fixed compiler warning about missing include
+
+commit 45b2b45285db636ece8fbb24890bd53d753e4eeb
+Author: Bert <ber.t@gmx.com>
+Date:   Mon Jan 17 20:14:15 2011 +0100
+
+    Small refactorings
+
+commit 75b143a5b0ee62db9b746ecc512855ff9d2f09ff
+Author: Bert <ber.t@gmx.com>
+Date:   Mon Jan 17 19:57:58 2011 +0100
+
+    Return value != 0 on Escape
+
+commit b5526c9db0bad914688c906d3f35422cb9128e29
+Author: Bert <ber.t@gmx.com>
+Date:   Mon Jan 17 19:53:48 2011 +0100
+
+    Gray window background
+
+commit 47d107edb5069176265852fac96ea0eedbec8d34
+Author: Bert <ber.t@gmx.com>
+Date:   Mon Jan 17 19:50:46 2011 +0100
+
+    React to ConfigureNotify
+
+commit 15603c25cf00a11dbdf238203858d9eab313120c
+Author: Bert <ber.t@gmx.com>
+Date:   Mon Jan 17 18:32:28 2011 +0100
+
+    Added event loop
+
+commit 6e0db8c88def1ba5758c385b7586585bcd251c5f
+Author: Bert <ber.t@gmx.com>
+Date:   Mon Jan 17 17:19:13 2011 +0100
+
+    New BG_COLOR setting in config.h
+
+commit 8c240341f1c457b92a703b88087b03ccb774f4d4
+Author: Bert <ber.t@gmx.com>
+Date:   Mon Jan 17 16:43:03 2011 +0100
+
+    Added event handlers
+
+commit 49a69a357bee345148a3d26d166121a6eaf4011c
+Author: Bert <ber.t@gmx.com>
+Date:   Mon Jan 17 16:42:49 2011 +0100
+
+    Added win_open & win_close
+
+commit bbe7ae04702e8e7897de6c7f87d5d8b844e46256
+Author: Bert <ber.t@gmx.com>
+Date:   Mon Jan 17 16:42:13 2011 +0100
+
+    WARN and FATAL macros
+
+commit b9cd06df95af87055492dbd29b465c4748586621
+Author: Bert <ber.t@gmx.com>
+Date:   Mon Jan 17 16:41:50 2011 +0100
+
+    Basic main skeleton
+
+commit 6d4c6daea0e6c3af28ff9a42804178b588f4a8fa
+Author: Bert <ber.t@gmx.com>
+Date:   Mon Jan 17 16:41:22 2011 +0100
+
+    Fixed scalemode enum
+
+commit 01121cea86aa9890b20ba48c674b8085ee799b5c
+Author: Bert <ber.t@gmx.com>
+Date:   Mon Jan 17 16:40:54 2011 +0100
+
+    Basic app_* stuff
+
+commit 1f6af53f37b7a0f13bdfbf06045f083372a82384
+Author: Bert <ber.t@gmx.com>
+Date:   Mon Jan 17 16:18:47 2011 +0100
+
+    Fixed Makefile
+
+commit 7368382e4e54e9adbd4fb008c56d870581b3f679
+Author: Bert <ber.t@gmx.com>
+Date:   Mon Jan 17 16:18:23 2011 +0100
+
+    added .gitignore
+
+commit e7bc3bb71beaa1d026400779706094f870aca069
+Author: Bert <ber.t@gmx.com>
+Date:   Mon Jan 17 14:57:59 2011 +0100
+
+    Non-working skeleton
