@@ -154,7 +154,7 @@
             (#\6 (i-alternate))
             (#\n (i-navigate-frame 1))
             (#\p (i-navigate-frame -1))
-            (#\space (i-toggle-animation))
+            (#\m (i-toggle-animation))
             (#\h (it-scroll-screen (const left)))
             (#\j (it-scroll-screen (const down)))
             (#\k (it-scroll-screen (const up)))
