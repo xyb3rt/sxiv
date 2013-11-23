@@ -27,6 +27,7 @@
 #include "options.h"
 #include "util.h"
 #include "config.h"
+#include "../config.h"
 
 options_t _options;
 const options_t *options = (const options_t*) &_options;
@@ -39,7 +40,7 @@ void print_usage(void)
 
 void print_version(void)
 {
-	printf("sxiv %s - Simple X Image Viewer\n", VERSION);
+	printf("sxiv %s - Simple X Image Viewer\n", GIT_VERSION);
 }
 
 void parse_options(int argc, char **argv)

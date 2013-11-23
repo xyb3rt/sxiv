@@ -73,8 +73,8 @@ int prefix;
 
 bool resized = false;
 
-const char * const INFO_SCRIPT = ".sxiv/exec/image-info";
-const char * const GUILE_SCRIPT = "default.scm";
+//const char * const INFO_SCRIPT = SYSCONFDIR "sxiv-image-info";
+//const char * const GUILE_SCRIPT = SYSCONFDIR "sxiv.scm";
 
 struct {
   char *script;
@@ -378,8 +378,13 @@ void redraw(void)
 		img_render(&img);
 	else
 		tns_render(&tns);
+
 	update_info();
 	win_draw(&win);
+        
+        GC gc = XCreateGC(win.env.dpy, win.xwin, 0, None);
+        XCopyArea(win.env.dpy, win.pm, win.xwin, gc,
+               0, 0, win.w, win.h + win.bar.h, 0, 0);
 	reset_timeout(redraw);
 	reset_cursor();
 }
@@ -657,8 +662,11 @@ int main(int argc, char **argv)
 
         init_guile(GUILE_SCRIPT);
 
+        
 	run();
 	cleanup();
+
+
 
 	return 0;
 }
