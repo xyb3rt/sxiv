@@ -1,10 +1,10 @@
-sxiv
+SxiFFFF
 ====
 
-**Simple X Image Viewer**
+**Supah Extensible Image Viewer**
 
 sxiv is an alternative to feh and qiv. Its only dependencies besides xlib are
-imlib2 and giflib. The primary goal for writing sxiv is to create an image
+imlib2, giflib and guile. The primary goal for writing sxiv is to create an image
 viewer, which only has the most basic features required for fast image viewing
 (the ones I want). It has vi key bindings and works nicely with tiling window
 managers.  Its code base should be kept small and clean to make it easy for you
@@ -21,6 +21,12 @@ Features
 * Basic support for multi-frame images
 * Load all frames from GIF files and play GIF animations
 * Display image information in status bar
+* Slideshow support
+* Guile support
+* Cross-distro configure script
+* Scheme repl support
+* Dynamic file queue (can add files at runtime)
+* Ability to load images directly from imgur through a quick search
 
 
 Screenshots
@@ -38,26 +44,7 @@ Screenshots
 Installation
 ------------
 
-sxiv is built using the commands:
-
-    $ make
-    # make install
-
-Please note, that the latter one requires root privileges.
-By default, sxiv is installed using the prefix "/usr/local", so the full path
-of the executable will be "/usr/local/bin/sxiv".
-
-You can install sxiv into a directory of your choice by changing the second
-command to:
-
-    # make PREFIX="/your/dir" install
-
-The build-time specific settings of sxiv can be found in the file *config.h*.
-Please check and change them, so that they fit your needs.
-If the file *config.h* does not already exist, then you have to create it with
-the following command:
-
-    $ make config.h
+Instructions on how to install sxiv can be found in file INSTALL.
 
 
 Usage
@@ -264,4 +251,3 @@ on GitHub or get a copy using git with the following command:
 *(January 21, 2011)*
 
   * Initial release
-
