@@ -43,7 +43,7 @@ static const float zoom_levels[] = {
 enum {
 	GIF_DELAY    = 100, /* delay time (in ms) */
 	GIF_AUTOPLAY = 1,   /* autoplay when loaded [0/1] */
-	GIF_LOOP     = 0    /* endless loop [0/1] */
+	GIF_LOOP     = 1    /* endless loop [0/1] */
 };
 
 #endif
