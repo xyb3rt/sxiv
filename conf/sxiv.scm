@@ -1,4 +1,7 @@
 (use-modules (ice-9 match))
+(use-modules (ice-9 rdelim))
+(use-modules (ice-9 regex))
+(use-modules (srfi srfi-1))
 
 (define constants
   '((left 0)
@@ -51,8 +54,66 @@
                    #t))
   #t)
 
+(define (take-up-to lst k)
+  (if (>= (length lst) k)
+      (take lst k)
+      lst))
+
+(define (parse-page host page regexp)
+  (define (load-page host page)
+    (define* (read-string port #:optional (result ""))
+      (let ((line (read-char port)))
+        (if (eof-object? line)
+            result
+            (read-string port (string-append result (string line))))))
+    (let* ((ai (car (getaddrinfo host "http")))
+           (s  (socket (addrinfo:fam ai)
+                       (addrinfo:socktype ai)
+                       (addrinfo:protocol ai))))
+      (connect s (addrinfo:addr ai))
+      (display (string-append "GET /" page " HTTP/1.1\n"
+                              "User-Agent: sxiv\n"
+                              "Host: " host "\n"
+                              "Accept: text/html\n"
+                              "Connection: close\n\n")
+               s)
+      (read-string s)))
+  (map (lambda (match) (match:substring match 1))
+       (list-matches regexp
+                     (load-page host page))))
+
+(define (sort-of-url-encode str)
+  (string-map (lambda (c) (if (eqv? c #\space)
+                         #\+
+                         c))
+              str))
+
+(define (load-imgur-images raw-query max-galleries max-images-per-gallery max-images)
+  (display "loading links") (newline)
+  (let* ((query (sort-of-url-encode raw-query))
+         (galleries (take-up-to (filter (lambda (gallery) (not (string=? gallery "random")))
+                                        (parse-page "imgur.com"
+                                                    (string-append "?q=" query)
+                                                    "href=\"/gallery/([^\"]+)\""))
+                                max-galleries))
+         (images (take-up-to (append-map (lambda (gallery) (take-up-to (parse-page "imgur.com"
+                                                                              (string-append "gallery/" gallery)
+                                                                              "img src=\"//i.imgur.com/([a-z0-9A-Z]+\\.[a-z]+)\"")
+                                                                  max-images-per-gallery))
+                                         galleries)
+                             max-images))
+         (directory (string-append "/tmp/" query (number->string (random (* 42 42))))))
+    (display "loaded data") (newline)
+    (system (string-append "mkdir " directory))
+    (map (lambda (image) (begin
+                      (display (string-append "loading http://i.imgur.com/" image)) (newline)
+                      (system (string-append "wget -qO " directory image " http://i.imgur.com/" image))
+                      (it-add-image (string-append directory image))))
+         images)
+    #t))
+
 (define (apply-input-to func)
-  (display "waiting for an input ")
+  (display "waiting for an input")
   (newline)
   (set! *input* "")
   (set! *waiter*
@@ -98,6 +159,7 @@
             (#\e (apply-input-to (lambda (str) (p-set-bar-left (object->string (eval-string str))))))
             (#\a (apply-input-to it-add-image))
             (#\s (start-slideshow #f 2))
+            (#\i (apply-input-to (lambda (query) (load-imgur-images query 15 5 50))))
             (else #f))
           (match (integer->char key)
             (#\q (it-quit))
