@@ -122,7 +122,11 @@
   (set! *waiter*
         (lambda (key ctrl mod1)
           (let ((char (integer->char key)))
-            (cond ((eqv? char #\return) (begin
+            (cond ((and ctrl
+                        (eqv? (integer->char (+ key 96)) #\g))
+                   (begin (set! *waiter* default-waiter)
+                          #t))
+                  ((eqv? char #\return) (begin
                                           (set! *waiter* default-waiter)
                                           (func *input*)
                                           #t))
