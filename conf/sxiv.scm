@@ -88,12 +88,15 @@
                          c))
               str))
 
-(define (load-imgur-images raw-query max-galleries max-images-per-gallery max-images)
+(define (load-imgur-images raw-query page max-galleries max-images-per-gallery max-images)
   (display "loading links") (newline)
   (let* ((query (sort-of-url-encode raw-query))
          (galleries (take-up-to (filter (lambda (gallery) (not (string=? gallery "random")))
                                         (parse-page "imgur.com"
-                                                    (string-append "?q=" query)
+                                                    (string-append "gallery/hot/viral/day/page/"
+                                                                   (number->string page)
+                                                                   "/hit?scrolled&set=0&q="
+                                                                   query)
                                                     "href=\"/gallery/([^\"]+)\""))
                                 max-galleries))
          (images (take-up-to (append-map (lambda (gallery) (take-up-to (parse-page "imgur.com"
@@ -159,7 +162,7 @@
             (#\e (apply-input-to (lambda (str) (p-set-bar-left (object->string (eval-string str))))))
             (#\a (apply-input-to it-add-image))
             (#\s (start-slideshow #f 2))
-            (#\i (apply-input-to (lambda (query) (load-imgur-images query 15 5 50))))
+            (#\i (apply-input-to (lambda (query) (load-imgur-images query 0 15 5 50))))
             (else #f))
           (match (integer->char key)
             (#\q (it-quit))
