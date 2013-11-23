@@ -280,6 +280,7 @@ end:
 	info.i -= info.lastsep;
 	win.bar.l[info.i] = '\0';
 	win_update_bar(&win);
+        close(info.fd);
 	info.fd = -1;
 	while (waitpid(-1, NULL, WNOHANG) > 0);
 }
