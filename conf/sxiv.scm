@@ -1,7 +1,7 @@
-(use-modules (ice-9 match))
-(use-modules (ice-9 rdelim))
-(use-modules (ice-9 regex))
-(use-modules (srfi srfi-1))
+(use-modules (ice-9 match)
+             (ice-9 rdelim)
+             (ice-9 regex)
+             (srfi srfi-1))
 
 (define constants
   '((left 0)
@@ -102,7 +102,7 @@
                                                                   max-images-per-gallery))
                                          galleries)
                              max-images))
-         (directory (string-append "/tmp/" query "-" (number->string (random (* 42 42))))))
+         (directory (string-append "/tmp/" query "-" (number->string (random (* 42 42))) "/")))
     (display "loaded data") (newline)
     (system (string-append "mkdir " directory))
     (map (lambda (image) (begin
