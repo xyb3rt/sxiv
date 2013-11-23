@@ -102,7 +102,7 @@
                                                                   max-images-per-gallery))
                                          galleries)
                              max-images))
-         (directory (string-append "/tmp/" query (number->string (random (* 42 42))))))
+         (directory (string-append "/tmp/" query "-" (number->string (random (* 42 42))))))
     (display "loaded data") (newline)
     (system (string-append "mkdir " directory))
     (map (lambda (image) (begin
