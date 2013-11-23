@@ -21,7 +21,7 @@ AM_PROG_CC_C_O
 
 # Checks for header files.
 AC_PATH_X
-AC_CHECK_HEADERS([fcntl.h locale.h stdlib.h string.h sys/time.h unistd.h utime.h])
+AC_CHECK_HEADERS([fcntl.h locale.h stdlib.h string.h sys/time.h unistd.h utime.h X11/keysym.h Imlib2.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_CHECK_HEADER_STDBOOL

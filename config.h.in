@@ -18,6 +18,9 @@
 /* Define to 1 if you have the `gettimeofday' function. */
 #undef HAVE_GETTIMEOFDAY
 
+/* Define to 1 if you have the <Imlib2.h> header file. */
+#undef HAVE_IMLIB2_H
+
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 
@@ -110,6 +113,9 @@
 
 /* Define to 1 if `vfork' works. */
 #undef HAVE_WORKING_VFORK
+
+/* Define to 1 if you have the <X11/keysym.h> header file. */
+#undef HAVE_X11_KEYSYM_H
 
 /* Define to 1 if the system has the type `_Bool'. */
 #undef HAVE__BOOL
