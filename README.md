@@ -20,11 +20,11 @@ Features
 * Ability to cache thumbnails for fast re-loading
 * Basic support for multi-frame images
 * Load all frames from GIF files and play GIF animations
-* Display image information in status bar
+* Display image information in the status bar
 * Slideshow support
 * Guile support
 * Cross-distro configure script
-* Scheme repl support
+* Scheme REPL support
 * Dynamic file queue (can add files at runtime)
 * Ability to load images directly from imgur through a quick search
 
@@ -80,8 +80,6 @@ of small previews is displayed, making it easy to choose an image to open.
     q            Quit sxiv
     Return       Switch to thumbnail mode / open selected image
 
-    0-9          Prefix the next command with a number (denoted via [count])
-
     g            Go to first image
     G            Go to the last image, or image number [count]
 
@@ -93,10 +91,6 @@ of small previews is displayed, making it easy to choose an image to open.
     r            Reload image
     R            Reload all thumbnails
     D            Remove image from file list and go to next image
-
-    m            Mark/unmark current image
-    N            Go [count] marked images forward
-    P            Go [count] marked images backward
 
 *Thumbnail mode:*
 
