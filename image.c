@@ -126,7 +126,7 @@ bool img_load_gif(img_t *img, const fileinfo_t *file)
 	ColorMapObject *cmap;
 	DATA32 bgpixel, *data, *ptr;
 	DATA32 *prev_frame = NULL;
-	Imlib_Image *im;
+	Imlib_Image im;
 	int i, j, bg, r, g, b;
 	int x, y, w, h, sw, sh;
 	int px, py, pw, ph;

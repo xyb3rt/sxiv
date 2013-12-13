@@ -27,7 +27,7 @@
 
 typedef struct {
 	const fileinfo_t *file;
-	Imlib_Image *im;
+	Imlib_Image im;
 	int w;
 	int h;
 	int x;

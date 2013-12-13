@@ -25,7 +25,7 @@
 #include "window.h"
 
 typedef struct {
-	Imlib_Image *im;
+	Imlib_Image im;
 	unsigned int delay;
 } img_frame_t;
 
@@ -38,7 +38,7 @@ typedef struct {
 } multi_img_t;
 
 typedef struct {
-	Imlib_Image *im;
+	Imlib_Image im;
 	int w;
 	int h;
 

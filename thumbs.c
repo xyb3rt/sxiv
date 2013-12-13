@@ -62,11 +62,11 @@ char* tns_cache_filepath(const char *filepath)
 	return cfile;
 }
 
-Imlib_Image* tns_cache_load(const char *filepath)
+Imlib_Image tns_cache_load(const char *filepath)
 {
 	char *cfile;
 	struct stat cstats, fstats;
-	Imlib_Image *im = NULL;
+	Imlib_Image im = NULL;
 
 	if (filepath == NULL)
 		return NULL;
@@ -223,7 +223,7 @@ bool tns_load(tns_t *tns, int n, const fileinfo_t *file,
 	bool use_cache, cache_hit = false;
 	float z, zw, zh;
 	thumb_t *t;
-	Imlib_Image *im;
+	Imlib_Image im;
 	const char *fmt;
 
 	if (tns == NULL || tns->thumbs == NULL)
