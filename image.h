@@ -35,6 +35,8 @@ typedef struct {
 	int cnt;
 	int sel;
 	bool animate;
+	int anim_repeats; // -1=don't repeat, 0=repeat infinitely, N=repeat N times
+	unsigned int repeats_currently_left;
 } multi_img_t;
 
 typedef struct {
