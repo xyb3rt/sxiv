@@ -83,8 +83,7 @@ void img_init(img_t *img, win_t *win)
 	img->alpha = !RENDER_WHITE_ALPHA;
 	img->multi.cap = img->multi.cnt = 0;
 	img->multi.animate = false;
-	img->multi.anim_repeats = -1;
-	img->multi.repeats_currently_left = 0;
+	img->multi.repeat = 0;
 
 	img->cmod = imlib_create_color_modifier();
 	img->gamma = MIN(MAX(options->gamma, -GAMMA_RANGE), GAMMA_RANGE);
@@ -146,8 +145,7 @@ bool img_load_gif(img_t *img, const fileinfo_t *file)
 	}
 	img->multi.cnt = 0;
 	img->multi.sel = 0;
-	img->multi.anim_repeats = -1;
-	img->multi.repeats_currently_left = 0;
+	img->multi.repeat = 0;
 
 #if defined(GIFLIB_MAJOR) && GIFLIB_MAJOR >= 5
 	gif = DGifOpenFileName(file->path, NULL);
@@ -174,7 +172,7 @@ bool img_load_gif(img_t *img, const fileinfo_t *file)
 
 			DGifGetExtension(gif, &ext_code, &ext);
 			while (ext) {
-				if (ext_code == 0xf9) { /*Graphics Control Extension*/
+				if (ext_code == GRAPHICS_EXT_FUNC_CODE) {
 					if (ext[1] & 1)
 						transp = (int) ext[4];
 					else
@@ -185,15 +183,11 @@ bool img_load_gif(img_t *img, const fileinfo_t *file)
 						delay = MAX(delay, MIN_GIF_DELAY);
 
 					disposal = (unsigned int) ext[1] >> 2 & 0x7;
-				} else if (ext_code == 0xff) { /*Application Extension*/
-					if(ext[0] == 11 && memcmp(ext+1, "NETSCAPE2.0", 11) == 0) {
+				} else if (ext_code == APPLICATION_EXT_FUNC_CODE) {
+					if (ext[0] == 11 && memcmp(ext+1, "NETSCAPE2.0", 11) == 0) {
 						DGifGetExtensionNext(gif, &ext);
-
-						if(ext && ext[0] == 3 && ext[1] == 1) {
-							img->multi.repeats_currently_left =
-							img->multi.anim_repeats =
-								((unsigned int) ext[3] << 8 | (unsigned int) ext[2]);
-						}
+						if (ext && ext[0] == 3 && ext[1] == 1)
+							img->multi.repeat = ((int) ext[3] << 8 | (int) ext[2]) - 1;
 					}
 				}
 				ext = NULL;
@@ -811,15 +805,12 @@ bool img_frame_animate(img_t *img, bool restart)
 		return false;
 
 	if (img->multi.sel + 1 >= img->multi.cnt) {
-		if (GIF_LOOP == 1 || (GIF_LOOP == -1 && img->multi.anim_repeats == 0) ) {
+		if (restart || GIF_LOOP == 1) {
 			img_frame_goto(img, 0);
-		} else if(restart) {
+		} else if (GIF_LOOP == -1 && img->multi.repeat != 0) {
+			if (img->multi.repeat > 0)
+				img->multi.repeat--;
 			img_frame_goto(img, 0);
-			img->multi.repeats_currently_left =
-				(img->multi.anim_repeats != -1 ? img->multi.anim_repeats : 0);
-		} else if(GIF_LOOP == -1 && img->multi.repeats_currently_left != 0) {
-			img_frame_goto(img, 0);
-			--img->multi.repeats_currently_left;
 		} else {
 			img->multi.animate = false;
 			return false;
