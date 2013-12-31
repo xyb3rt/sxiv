@@ -78,6 +78,7 @@ of small previews is displayed, making it easy to choose an image to open.
     -g GEOMETRY  Set window position and size
                  (see section GEOMETRY SPECIFICATIONS of X(7))
     -i           Read file list from stdin
+    -m FILE      Read the names of the marked files from FILE
     -N NAME      Set X window resource name to NAME
     -n NUM       Start at picture NUM
     -o           Write list of marked files to stdout when quitting
