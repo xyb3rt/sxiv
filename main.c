@@ -418,30 +418,28 @@ void clear_resize(void)
 	resized = false;
 }
 
-bool keymask(const keymap_t *k, unsigned int state)
-{
-	return (k->ctrl ? ControlMask : 0) == (state & ControlMask);
-}
-
-bool buttonmask(const button_t *b, unsigned int state)
-{
-	return ((b->ctrl ? ControlMask : 0) | (b->shift ? ShiftMask : 0)) ==
-	       (state & (ControlMask | ShiftMask));
-}
+#define MODMASK(mask) ((mask) & (ShiftMask|ControlMask|Mod1Mask))
 
 void on_keypress(XKeyEvent *kev)
 {
 	int i;
-	KeySym ksym;
+	unsigned int sh;
+	KeySym ksym, shksym;
 	char key;
 
 	if (kev == NULL)
 		return;
 
+	if (kev->state & ShiftMask) {
+		kev->state &= ~ShiftMask;
+		XLookupString(kev, &key, 1, &shksym, NULL);
+		kev->state |= ShiftMask;
+	}
 	XLookupString(kev, &key, 1, &ksym, NULL);
+	sh = (kev->state & ShiftMask) && ksym != shksym ? ShiftMask : 0;
 
-	if ((ksym == XK_Escape || (key >= '0' && key <= '9')) &&
-	    (kev->state & ControlMask) == 0)
+	if ((ksym == XK_Escape && MODMASK(kev->state) == 0) ||
+		  (key >= '0' && key <= '9'))
 	{
 		/* number prefix for commands */
 		prefix = ksym == XK_Escape ? 0 : prefix * 10 + (int) (key - '0');
@@ -449,7 +447,9 @@ void on_keypress(XKeyEvent *kev)
 	}
 
 	for (i = 0; i < ARRLEN(keys); i++) {
-		if (keys[i].ksym == ksym && keymask(&keys[i], kev->state)) {
+		if (keys[i].ksym == ksym &&
+		    MODMASK(keys[i].mask | sh) == MODMASK(kev->state))
+		{
 			if (keys[i].cmd != NULL && keys[i].cmd(keys[i].arg))
 				redraw();
 			prefix = 0;
@@ -471,7 +471,7 @@ void on_buttonpress(XButtonEvent *bev)
 
 		for (i = 0; i < ARRLEN(buttons); i++) {
 			if (buttons[i].button == bev->button &&
-			    buttonmask(&buttons[i], bev->state))
+			    MODMASK(buttons[i].mask) == MODMASK(bev->state))
 			{
 				if (buttons[i].cmd != NULL && buttons[i].cmd(buttons[i].arg))
 					redraw();

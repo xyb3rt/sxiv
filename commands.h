@@ -27,15 +27,14 @@ typedef void* arg_t;
 typedef bool (*command_f)(arg_t);
 
 typedef struct {
-	bool ctrl;
+	unsigned int mask;
 	KeySym ksym;
 	command_f cmd;
 	arg_t arg;
 } keymap_t;
 
 typedef struct {
-	bool ctrl;
-	bool shift;
+	unsigned int mask;
 	unsigned int button;
 	command_f cmd;
 	arg_t arg;
