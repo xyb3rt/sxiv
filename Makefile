@@ -35,8 +35,8 @@ install: all
 	sed "s!PREFIX!$(PREFIX)!g; s!VERSION!$(VERSION)!g" sxiv.1 > $(DESTDIR)$(MANPREFIX)/man1/sxiv.1
 	chmod 644 $(DESTDIR)$(MANPREFIX)/man1/sxiv.1
 	mkdir -p $(DESTDIR)$(PREFIX)/share/sxiv/exec
-	cp image-info $(DESTDIR)$(PREFIX)/share/sxiv/exec/image-info
-	chmod 755 $(DESTDIR)$(PREFIX)/share/sxiv/exec/image-info
+	cp exec/* $(DESTDIR)$(PREFIX)/share/sxiv/exec/
+	chmod 755 $(DESTDIR)$(PREFIX)/share/sxiv/exec/*
 
 uninstall:
 	rm -f $(DESTDIR)$(PREFIX)/bin/sxiv

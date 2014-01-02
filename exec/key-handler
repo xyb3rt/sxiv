@@ -1,0 +1,19 @@
+#!/bin/sh
+
+case "$1" in
+"C-g")
+	gimp "$2" & ;;
+"C-comma")
+	exec jpegtran -rotate 270 -copy all -outfile "$2" "$2" ;;
+"C-period")
+	exec jpegtran -rotate  90 -copy all -outfile "$2" "$2" ;;
+"C-slash")
+	exec jpegtran -rotate 180 -copy all -outfile "$2" "$2" ;;
+"C-less")
+	exec mogrify -rotate -90 "$2" ;;
+"C-greater")
+	exec mogrify -rotate +90 "$2" ;;
+"C-question")
+	exec mogrify -rotate 180 "$2" ;;
+esac
+

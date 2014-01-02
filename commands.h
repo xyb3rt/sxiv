@@ -69,7 +69,5 @@ bool i_flip(arg_t);
 bool i_toggle_antialias(arg_t);
 bool i_change_gamma(arg_t);
 bool it_toggle_alpha(arg_t);
-bool it_open_with(arg_t);
-bool it_shell_cmd(arg_t);
 
 #endif /* COMMANDS_H */

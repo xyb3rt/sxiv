@@ -151,23 +151,6 @@ static const keymap_t keys[] = {
 	{ 0,            XK_braceleft,     i_change_gamma,       (arg_t) -1 },
 	{ 0,            XK_braceright,    i_change_gamma,       (arg_t) +1 },
 	{ ControlMask,  XK_G,             i_change_gamma,       (arg_t)  0 },
-
-	/* open current image with given program: */
-	{ ControlMask,  XK_g,             it_open_with,         (arg_t) "gimp" },
-
-	/* run shell command line on current file ("$SXIV_IMG"): */
-	{ ControlMask,  XK_less,          it_shell_cmd,         (arg_t) \
-			"mogrify -rotate -90 \"$SXIV_IMG\"" },
-	{ ControlMask,  XK_greater,       it_shell_cmd,         (arg_t) \
-			"mogrify -rotate +90 \"$SXIV_IMG\"" },
-	{ ControlMask,  XK_question,      it_shell_cmd,         (arg_t) \
-			"mogrify -rotate 180 \"$SXIV_IMG\"" },
-	{ ControlMask,  XK_comma,         it_shell_cmd,         (arg_t) \
-			"jpegtran -rotate 270 -copy all -outfile \"$SXIV_IMG\" \"$SXIV_IMG\"" },
-	{ ControlMask,  XK_period,        it_shell_cmd,         (arg_t) \
-			"jpegtran -rotate  90 -copy all -outfile \"$SXIV_IMG\" \"$SXIV_IMG\"" },
-	{ ControlMask,  XK_slash,         it_shell_cmd,         (arg_t) \
-			"jpegtran -rotate 180 -copy all -outfile \"$SXIV_IMG\" \"$SXIV_IMG\"" },
 };
 
 /* mouse button mappings for image mode: */

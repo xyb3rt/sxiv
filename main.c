@@ -46,6 +46,18 @@ enum {
 	TITLE_LEN    = 256
 };
 
+#define EXEC_REL_DIR ".sxiv/exec"
+
+enum {
+	EXEC_INFO,
+	EXEC_KEY
+};
+
+typedef struct {
+	const char *name;
+	char *cmd;
+} exec_t;
+
 typedef struct {
 	struct timeval when;
 	bool active;
@@ -71,9 +83,13 @@ int prefix;
 
 bool resized = false;
 
-const char * const INFO_SCRIPT = ".sxiv/exec/image-info";
+exec_t exec[] = {
+	{ "image-info",  NULL },
+	{ "key-handler", NULL }
+};
+
 struct {
-  char *script;
+  char *cmd;
   int fd;
   unsigned int i, lastsep;
   bool open;
@@ -221,7 +237,7 @@ void open_info(void)
 	static pid_t pid;
 	int pfd[2];
 
-	if (info.script == NULL || info.open || win.bar.h == 0)
+	if (info.cmd == NULL || info.open || win.bar.h == 0)
 		return;
 	if (info.fd != -1) {
 		close(info.fd);
@@ -242,8 +258,8 @@ void open_info(void)
 	} else if (pid == 0) {
 		close(pfd[0]);
 		dup2(pfd[1], 1);
-		execl(info.script, info.script, files[fileidx].name, NULL);
-		warn("could not exec: %s", info.script);
+		execl(info.cmd, info.cmd, files[fileidx].name, NULL);
+		warn("could not exec: %s", info.cmd);
 		exit(EXIT_FAILURE);
 	}
 }
@@ -356,7 +372,7 @@ void update_info(void)
 			              fn, img.multi.sel + 1, img.multi.cnt);
 		}
 		n += snprintf(rt + n, rlen - n, "%0*d/%d", fw, sel + 1, filecnt);
-		ow_info = info.script == NULL;
+		ow_info = info.cmd == NULL;
 	}
 	if (ow_info) {
 		fn = strlen(files[sel].name);
@@ -418,6 +434,49 @@ void clear_resize(void)
 	resized = false;
 }
 
+void key_handler(const char *key, unsigned int mask)
+{
+	pid_t pid;
+	int retval, status, n = mode == MODE_IMAGE ? fileidx : tns.sel;
+	char *cmd = exec[EXEC_KEY].cmd, kstr[32];
+
+	if (cmd == NULL || key == NULL)
+		return;
+
+	snprintf(kstr, sizeof(kstr), "%s%s%s%s",
+	         mask & ControlMask ? "C-" : "",
+	         mask & Mod1Mask    ? "M-" : "",
+	         mask & ShiftMask   ? "S-" : "", key);
+
+	if ((pid = fork()) == 0) {
+		execl(cmd, cmd, kstr, files[n].path, NULL);
+		warn("could not exec key handler");
+		exit(EXIT_FAILURE);
+	} else if (pid < 0) {
+		warn("could not fork key handler");
+		return;
+	}
+	win_set_cursor(&win, CURSOR_WATCH);
+
+	waitpid(pid, &status, 0);
+	retval = WEXITSTATUS(status);
+	if (WIFEXITED(status) == 0 || retval != 0)
+		warn("key handler exited with non-zero return value: %d", retval);
+	if (mode == MODE_IMAGE) {
+		img_close(&img, true);
+		load_image(fileidx);
+	}
+	if (!tns_load(&tns, n, &files[n], true, mode == MODE_IMAGE) &&
+	    mode == MODE_THUMB)
+	{
+		remove_file(tns.sel, false);
+		tns.dirty = true;
+		if (tns.sel >= tns.cnt)
+			tns.sel = tns.cnt - 1;
+	}
+	redraw();
+}
+
 #define MODMASK(mask) ((mask) & (ShiftMask|ControlMask|Mod1Mask))
 
 void on_keypress(XKeyEvent *kev)
@@ -438,6 +497,9 @@ void on_keypress(XKeyEvent *kev)
 	XLookupString(kev, &key, 1, &ksym, NULL);
 	sh = (kev->state & ShiftMask) && ksym != shksym ? ShiftMask : 0;
 
+	if (IsModifierKey(ksym))
+		return;
+
 	if ((ksym == XK_Escape && MODMASK(kev->state) == 0) ||
 		  (key >= '0' && key <= '9'))
 	{
@@ -456,6 +518,7 @@ void on_keypress(XKeyEvent *kev)
 			return;
 		}
 	}
+	key_handler(XKeysymToString(ksym), kev->state & ~sh);
 }
 
 void on_buttonpress(XButtonEvent *bev)
@@ -706,16 +769,17 @@ int main(int argc, char **argv)
 
 	if ((homedir = getenv("HOME")) == NULL) {
 		warn("could not locate home directory");
-	} else {
-		len = strlen(homedir) + strlen(INFO_SCRIPT) + 2;
-		info.script = (char*) s_malloc(len);
-		snprintf(info.script, len, "%s/%s", homedir, INFO_SCRIPT);
-		if (access(info.script, X_OK) != 0) {
-			free(info.script);
-			info.script = NULL;
+	} else for (i = 0; i < ARRLEN(exec); i++) {
+		len = strlen(homedir) + strlen(EXEC_REL_DIR) + strlen(exec[i].name) + 3;
+		exec[i].cmd = (char*) s_malloc(len);
+		snprintf(exec[i].cmd, len, "%s/%s/%s", homedir, EXEC_REL_DIR, exec[i].name);
+		if (access(exec[i].cmd, X_OK) != 0) {
+			free(exec[i].cmd);
+			exec[i].cmd = NULL;
 		}
 	}
 	info.fd = -1;
+	info.cmd = exec[EXEC_INFO].cmd;
 
 	if (options->thumb_mode) {
 		mode = MODE_THUMB;
