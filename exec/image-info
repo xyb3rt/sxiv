@@ -12,7 +12,7 @@ filesize=$(du -Hh "$1" | cut -f 1)
 
 geometry=$(identify -format '%wx%h' "$1[0]")
 
-tags=$(exiv2 -q pr -pi "$1" | awk '$1~"Keywords" { printf("%s,", $4); }')
+tags=$(exiv2 -q -P v -g "Iptc.Application2.Keywords" "$1" | tr '\n' ',')
 tags=${tags%,}
 
 echo "${filesize}${s}${geometry}${tags:+$s}${tags}${s}${filename}"
