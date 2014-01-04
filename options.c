@@ -34,7 +34,7 @@ const options_t *options = (const options_t*) &_options;
 void print_usage(void)
 {
 	printf("usage: sxiv [-bcdFfhioqrstvZ] [-G GAMMA] [-g GEOMETRY] [-n NUM] "
-	       "[-N name] [-z ZOOM] FILES...\n");
+	       "[-N NAME] [-S DELAY] [-z ZOOM] FILES...\n");
 }
 
 void print_version(void)
@@ -44,7 +44,7 @@ void print_version(void)
 
 void parse_options(int argc, char **argv)
 {
-	int opt, t, gamma;
+	int n, opt;
 	char *end;
 
 	_options.from_stdin = false;
@@ -55,6 +55,7 @@ void parse_options(int argc, char **argv)
 	_options.scalemode = SCALE_MODE;
 	_options.zoom = 1.0;
 	_options.gamma = 0;
+	_options.slideshow = 0;
 
 	_options.fixed_win = false;
 	_options.fullscreen = false;
@@ -66,7 +67,7 @@ void parse_options(int argc, char **argv)
 	_options.thumb_mode = false;
 	_options.clean_cache = false;
 
-	while ((opt = getopt(argc, argv, "bcdFfG:g:hin:N:oqrstvZz:")) != -1) {
+	while ((opt = getopt(argc, argv, "bcdFfG:g:hin:N:oqrS:stvZz:")) != -1) {
 		switch (opt) {
 			case '?':
 				print_usage();
@@ -87,13 +88,12 @@ void parse_options(int argc, char **argv)
 				_options.fullscreen = true;
 				break;
 			case 'G':
-				gamma = strtol(optarg, &end, 0);
+				n = strtol(optarg, &end, 0);
 				if (*end != '\0') {
-					fprintf(stderr, "sxiv: invalid argument for option -G: %s\n",
-					        optarg);
+					fprintf(stderr, "sxiv: invalid argument for option -G: %s\n", optarg);
 					exit(EXIT_FAILURE);
 				}
-				_options.gamma = gamma;
+				_options.gamma = n;
 				break;
 			case 'g':
 				_options.geometry = optarg;
@@ -105,13 +105,12 @@ void parse_options(int argc, char **argv)
 				_options.from_stdin = true;
 				break;
 			case 'n':
-				if (sscanf(optarg, "%d", &t) <= 0 || t < 1) {
-					fprintf(stderr, "sxiv: invalid argument for option -n: %s\n",
-					        optarg);
+				n = strtol(optarg, &end, 0);
+				if (*end != '\0' || n <= 0) {
+					fprintf(stderr, "sxiv: invalid argument for option -n: %s\n", optarg);
 					exit(EXIT_FAILURE);
-				} else {
-					_options.startnum = t - 1;
 				}
+				_options.startnum = n - 1;
 				break;
 			case 'N':
 				_options.res_name = optarg;
@@ -124,6 +123,14 @@ void parse_options(int argc, char **argv)
 				break;
 			case 'r':
 				_options.recursive = true;
+				break;
+			case 'S':
+				n = strtol(optarg, &end, 0);
+				if (*end != '\0' || n <= 0) {
+					fprintf(stderr, "sxiv: invalid argument for option -S: %s\n", optarg);
+					exit(EXIT_FAILURE);
+				}
+				_options.slideshow = n;
 				break;
 			case 's':
 				_options.scalemode = SCALE_FIT;
@@ -139,13 +146,13 @@ void parse_options(int argc, char **argv)
 				_options.zoom = 1.0;
 				break;
 			case 'z':
-				_options.scalemode = SCALE_ZOOM;
-				if (sscanf(optarg, "%d", &t) <= 0 || t <= 0) {
-					fprintf(stderr, "sxiv: invalid argument for option -z: %s\n",
-					        optarg);
+				n = strtol(optarg, &end, 0);
+				if (*end != '\n' || n <= 0) {
+					fprintf(stderr, "sxiv: invalid argument for option -z: %s\n", optarg);
 					exit(EXIT_FAILURE);
 				}
-				_options.zoom = (float) t / 100.0;
+				_options.scalemode = SCALE_ZOOM;
+				_options.zoom = (float) n / 100.0;
 				break;
 		}
 	}

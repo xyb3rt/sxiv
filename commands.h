@@ -66,8 +66,9 @@ bool i_fit_to_win(arg_t);
 bool i_fit_to_img(arg_t);
 bool i_rotate(arg_t);
 bool i_flip(arg_t);
+bool i_slideshow(arg_t);
 bool i_toggle_antialias(arg_t);
-bool i_change_gamma(arg_t);
 bool it_toggle_alpha(arg_t);
+bool i_change_gamma(arg_t);
 
 #endif /* COMMANDS_H */

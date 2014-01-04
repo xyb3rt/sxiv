@@ -83,10 +83,13 @@ void img_init(img_t *img, win_t *win)
 	img->alpha = !RENDER_WHITE_ALPHA;
 	img->multi.cap = img->multi.cnt = 0;
 	img->multi.animate = false;
-	img->multi.repeat = 0;
+	img->multi.length = img->multi.repeat = 0;
 
 	img->cmod = imlib_create_color_modifier();
 	img->gamma = MIN(MAX(options->gamma, -GAMMA_RANGE), GAMMA_RANGE);
+	
+	img->ss.on = options->slideshow > 0;
+	img->ss.delay = options->slideshow > 0 ? options->slideshow : SLIDESHOW_DELAY;
 }
 
 void exif_auto_orientate(const fileinfo_t *file)
@@ -143,9 +146,8 @@ bool img_load_gif(img_t *img, const fileinfo_t *file)
 		img->multi.frames = (img_frame_t*)
 		                    s_malloc(sizeof(img_frame_t) * img->multi.cap);
 	}
-	img->multi.cnt = 0;
-	img->multi.sel = 0;
-	img->multi.repeat = 0;
+	img->multi.cnt = img->multi.sel = 0;
+	img->multi.length = img->multi.repeat = 0;
 
 #if defined(GIFLIB_MAJOR) && GIFLIB_MAJOR >= 5
 	gif = DGifOpenFileName(file->path, NULL);
@@ -275,6 +277,7 @@ bool img_load_gif(img_t *img, const fileinfo_t *file)
 			}
 			img->multi.frames[img->multi.cnt].im = im;
 			img->multi.frames[img->multi.cnt].delay = delay ? delay : GIF_DELAY;
+			img->multi.length += img->multi.frames[img->multi.cnt].delay;
 			img->multi.cnt++;
 		}
 	} while (rec != TERMINATE_RECORD_TYPE);

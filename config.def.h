@@ -39,6 +39,9 @@ static const float zoom_levels[] = {
 	100.0, 150.0, 200.0, 400.0, 800.0
 };
 
+/* default slideshow delay (in sec, overwritten via -S option): */
+enum { SLIDESHOW_DELAY = 5 };
+
 /* default settings for multi-frame gif images: */
 enum {
 	GIF_DELAY    = 100, /* delay time (in ms) */
@@ -144,6 +147,8 @@ static const keymap_t keys[] = {
 
 	{ 0,            XK_bar,           i_flip,               (arg_t) FLIP_HORIZONTAL },
 	{ 0,            XK_underscore,    i_flip,               (arg_t) FLIP_VERTICAL },
+
+	{ 0,            XK_s,             i_slideshow,          (arg_t) None },
 
 	{ 0,            XK_a,             i_toggle_antialias,   (arg_t) None },
 	{ 0,            XK_A,             it_toggle_alpha,      (arg_t) None },

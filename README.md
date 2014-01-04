@@ -83,6 +83,7 @@ of small previews is displayed, making it easy to choose an image to open.
     -o           Write list of marked files to stdout when quitting
     -q           Be quiet, disable warnings
     -r           Search given directories recursively for images
+    -S DELAY     Enable slideshow and set slideshow delay to DELAY seconds
     -s           Scale all images to fit into window
     -t           Start in thumbnail mode
     -v           Print version information and exit
@@ -144,8 +145,11 @@ of small previews is displayed, making it easy to choose an image to open.
     ?            Rotate image by 180 degrees
     |,_          Flip image horizontally/vertically
 
+    s            Toggle slideshow or set delay to [count] seconds
+
     a            Toggle anti-aliasing
     W            Resize window to fit image
+
 
 **Mouse button mappings:**
 

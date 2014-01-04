@@ -68,6 +68,7 @@ typedef struct {
 void redraw(void);
 void reset_cursor(void);
 void animate(void);
+void slideshow(void);
 void clear_resize(void);
 
 appmode_t mode;
@@ -96,9 +97,10 @@ struct {
 } info;
 
 timeout_t timeouts[] = {
-	{ { 0, 0 }, false, redraw },
+	{ { 0, 0 }, false, redraw       },
 	{ { 0, 0 }, false, reset_cursor },
-	{ { 0, 0 }, false, animate },
+	{ { 0, 0 }, false, animate      },
+	{ { 0, 0 }, false, slideshow    },
 	{ { 0, 0 }, false, clear_resize },
 };
 
@@ -304,6 +306,7 @@ void load_image(int new)
 		return;
 
 	win_set_cursor(&win, CURSOR_WATCH);
+	reset_timeout(slideshow);
 
 	if (new != fileidx)
 		alternate = fileidx;
@@ -363,6 +366,8 @@ void update_info(void)
 		}
 	} else {
 		n = snprintf(rt, rlen, "%s", mark);
+		if (img.ss.on)
+			n += snprintf(rt + n, rlen - n, "%ds | ", img.ss.delay);
 		if (img.gamma != 0)
 			n += snprintf(rt + n, rlen - n, "G%+d | ", img.gamma);
 		n += snprintf(rt + n, rlen - n, "%3d%% | ", (int) (img.zoom * 100.0));
@@ -389,10 +394,18 @@ void update_info(void)
 
 void redraw(void)
 {
-	if (mode == MODE_IMAGE)
+	int t;
+
+	if (mode == MODE_IMAGE) {
 		img_render(&img);
-	else
+		if (img.ss.on) {
+			t = img.ss.delay * 1000;
+			t = img.multi.animate ? MAX(t, img.multi.length) : t;
+			set_timeout(slideshow, t, false);
+		}
+	} else {
 		tns_render(&tns);
+	}
 	update_info();
 	win_draw(&win);
 	reset_timeout(redraw);
@@ -427,6 +440,12 @@ void animate(void)
 		redraw();
 		set_timeout(animate, img.multi.frames[img.multi.sel].delay, true);
 	}
+}
+
+void slideshow(void)
+{
+	load_image(fileidx + 1 < filecnt ? fileidx + 1 : 0);
+	redraw();
 }
 
 void clear_resize(void)

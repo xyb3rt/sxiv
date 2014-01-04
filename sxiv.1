@@ -12,6 +12,8 @@ sxiv \- Simple X Image Viewer
 .IR NAME ]
 .RB [ \-n
 .IR NUM ]
+.RB [ \-S
+.IR DELAY ]
 .RB [ \-z
 .IR ZOOM ]
 .IR FILE ...
@@ -77,6 +79,9 @@ Be quiet, disable warnings to standard error stream.
 .TP
 .B \-r
 Search the given directories recursively for images to view.
+.TP
+.BI "\-S " DELAY
+Start in slideshow mode. Set the delay between images to DELAY seconds.
 .TP
 .B \-s
 Scale all images to fit into window.
@@ -301,6 +306,11 @@ Increase gamma.
 .B Ctrl-G
 Reset gamma.
 .SS Miscellaneous
+.TP
+.B s
+Toggle slideshow mode and/or set the delay between images to
+.I count
+seconds.
 .TP
 .B a
 Toggle anti-aliasing.

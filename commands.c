@@ -38,6 +38,7 @@ void open_info(void);
 void redraw(void);
 void reset_cursor(void);
 void animate(void);
+void slideshow(void);
 void set_timeout(timeout_f, int, bool);
 void reset_timeout(timeout_f);
 
@@ -79,6 +80,10 @@ bool it_switch_mode(arg_t a)
 		}
 		img_close(&img, false);
 		reset_timeout(reset_cursor);
+		if (img.ss.on) {
+			img.ss.on = false;
+			reset_timeout(slideshow);
+		}
 		tns.sel = fileidx;
 		tns.dirty = true;
 		mode = MODE_THUMB;
@@ -475,20 +480,30 @@ bool i_flip(arg_t a)
 	}
 }
 
-bool i_toggle_antialias(arg_t a)
+bool i_slideshow(arg_t a)
 {
 	if (mode == MODE_IMAGE) {
-		img_toggle_antialias(&img);
+		if (prefix > 0) {
+			img.ss.on = true;
+			img.ss.delay = prefix;
+			set_timeout(slideshow, img.ss.delay * 1000, true);
+		} else if (img.ss.on) {
+			img.ss.on = false;
+			reset_timeout(slideshow);
+		} else {
+			img.ss.on = true;
+		}
 		return true;
 	} else {
 		return false;
 	}
 }
 
-bool i_change_gamma(arg_t a)
+bool i_toggle_antialias(arg_t a)
 {
 	if (mode == MODE_IMAGE) {
-		return img_change_gamma(&img, (long) a);
+		img_toggle_antialias(&img);
+		return true;
 	} else {
 		return false;
 	}
@@ -502,5 +517,14 @@ bool it_toggle_alpha(arg_t a)
 	else
 		tns.dirty = true;
 	return true;
+}
+
+bool i_change_gamma(arg_t a)
+{
+	if (mode == MODE_IMAGE) {
+		return img_change_gamma(&img, (long) a);
+	} else {
+		return false;
+	}
 }
 

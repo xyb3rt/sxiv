@@ -35,6 +35,7 @@ typedef struct {
 	int cnt;
 	int sel;
 	bool animate;
+	int length;
 	int repeat;
 } multi_img_t;
 
@@ -58,6 +59,11 @@ typedef struct {
 
 	Imlib_Color_Modifier cmod;
 	int gamma;
+
+	struct {
+		bool on;
+		int delay;
+	} ss;
 
 	multi_img_t multi;
 } img_t;
