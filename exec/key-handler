@@ -1,5 +1,16 @@
 #!/bin/sh
 
+# Example for ~/.sxiv/exec/key-handler
+# Called by sxiv(1) whenever an unbound key combo is used,
+# with the key combo as its first argument and the path of the current image
+# as its second argument.
+# sxiv(1) blocks until this script terminates. It then checks if the image
+# has been modified and reloads it.
+
+# The key combo argument has the following form: "[C-][M-][S-]KEY",
+# where C/M/S indicate Ctrl/Meta(Alt)/Shift modifier states and KEY is the X
+# keysym as listed in /usr/include/X11/keysymdef.h without the "XK_" prefix.
+
 case "$1" in
 "C-c")
 	echo -n "$2" | xsel -i ;;
