@@ -3,6 +3,8 @@
 case "$1" in
 "C-c")
 	echo -n "$2" | xsel -i ;;
+"C-e")
+	urxvt -bg "#444" -fg "#eee" -sl 0 -title "$2" -e sh -c "exiv2 pr -q -pa '$2' | less" & ;;
 "C-g")
 	gimp "$2" & ;;
 "C-comma")
