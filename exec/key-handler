@@ -1,6 +1,8 @@
 #!/bin/sh
 
 case "$1" in
+"C-c")
+	echo -n "$2" | xsel -i ;;
 "C-g")
 	gimp "$2" & ;;
 "C-comma")
