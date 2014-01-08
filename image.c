@@ -337,6 +337,8 @@ bool img_load(img_t *img, const fileinfo_t *file)
 
 	img->w = imlib_image_get_width();
 	img->h = imlib_image_get_height();
+	img->flip = FLIP_NONE;
+	img->rotation = DEGREE_0;
 	img->scalemode = options->scalemode;
 	img->re = false;
 	img->checkpan = false;
@@ -689,9 +691,13 @@ bool img_pan_edge(img_t *img, direction_t dir)
 void img_rotate(img_t *img, degree_t d)
 {
 	int ox, oy, tmp;
+	bool reapply = d == -1;
 
 	if (img == NULL || img->im == NULL || img->win == NULL)
 		return;
+
+	if (reapply)
+		d = img->rotation;
 
 	imlib_context_set_image(img->im);
 	imlib_image_orientate(d);
@@ -708,25 +714,29 @@ void img_rotate(img_t *img, degree_t d)
 		img->h = tmp;
 		img->checkpan = true;
 	}
-
+	if (!reapply)
+		img->rotation = (img->rotation + d) % 4;
 	img->dirty = true;
 }
 
 void img_flip(img_t *img, flipdir_t d)
 {
+	bool reapply = d == -1;
+
 	if (img == NULL || img->im == NULL)
 		return;
 
+	if (reapply)
+		d = img->flip;
+
 	imlib_context_set_image(img->im);
 
-	switch (d) {
-		case FLIP_HORIZONTAL:
-			imlib_image_flip_horizontal();
-			break;
-		case FLIP_VERTICAL:
-			imlib_image_flip_vertical();
-			break;
-	}
+	if (d & FLIP_HORIZONTAL)
+		imlib_image_flip_horizontal();
+	if (d & FLIP_VERTICAL)
+		imlib_image_flip_vertical();
+	if (!reapply)
+		img->flip ^= d;
 	img->dirty = true;
 }
 
@@ -785,6 +795,10 @@ bool img_frame_goto(img_t *img, int n)
 	img->checkpan = true;
 	img->dirty = true;
 
+	if (img->flip != FLIP_NONE)
+		img_flip(img, -1);
+	if (img->rotation != DEGREE_0)
+		img_rotate(img, -1);
 	return true;
 }
 
