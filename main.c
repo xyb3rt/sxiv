@@ -400,7 +400,8 @@ void redraw(void)
 		img_render(&img);
 		if (img.ss.on) {
 			t = img.ss.delay * 1000;
-			t = img.multi.animate ? MAX(t, img.multi.length) : t;
+			if (img.multi.cnt > 0 && img.multi.animate)
+				t = MAX(t, img.multi.length);
 			set_timeout(slideshow, t, false);
 		}
 	} else {
