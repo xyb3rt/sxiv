@@ -459,6 +459,7 @@ void key_handler(const char *key, unsigned int mask)
 	pid_t pid;
 	int retval, status, n = mode == MODE_IMAGE ? fileidx : tns.sel;
 	char *cmd = exec[EXEC_KEY].cmd, kstr[32];
+	struct stat oldstat, newstat;
 
 	if (cmd == NULL || key == NULL)
 		return;
@@ -467,6 +468,8 @@ void key_handler(const char *key, unsigned int mask)
 	         mask & ControlMask ? "C-" : "",
 	         mask & Mod1Mask    ? "M-" : "",
 	         mask & ShiftMask   ? "S-" : "", key);
+
+	stat(files[n].path, &oldstat);
 
 	if ((pid = fork()) == 0) {
 		execl(cmd, cmd, kstr, files[n].path, NULL);
@@ -482,6 +485,13 @@ void key_handler(const char *key, unsigned int mask)
 	retval = WEXITSTATUS(status);
 	if (WIFEXITED(status) == 0 || retval != 0)
 		warn("key handler exited with non-zero return value: %d", retval);
+
+	if (stat(files[n].path, &newstat) == 0 &&
+	    memcmp(&oldstat, &newstat, sizeof(oldstat)) == 0)
+	{
+		/* file has not changed */
+		return;
+	}
 	if (mode == MODE_IMAGE) {
 		img_close(&img, true);
 		load_image(fileidx);
