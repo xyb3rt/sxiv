@@ -57,7 +57,7 @@ const int ss_delays[] = {
 	1, 2, 3, 5, 10, 15, 20, 30, 60, 120, 180, 300, 600
 };
 
-bool it_quit(arg_t a)
+cmdreturn_t it_quit(arg_t a)
 {
 	unsigned int i;
 
@@ -71,7 +71,7 @@ bool it_quit(arg_t a)
 	exit(EXIT_SUCCESS);
 }
 
-bool it_switch_mode(arg_t a)
+cmdreturn_t it_switch_mode(arg_t a)
 {
 	if (mode == MODE_IMAGE) {
 		if (tns.thumbs == NULL) {
@@ -91,10 +91,10 @@ bool it_switch_mode(arg_t a)
 		load_image(tns.sel);
 		mode = MODE_IMAGE;
 	}
-	return true;
+	return CMD_DIRTY;
 }
 
-bool it_toggle_fullscreen(arg_t a)
+cmdreturn_t it_toggle_fullscreen(arg_t a)
 {
 	win_toggle_fullscreen(&win);
 	/* redraw after next ConfigureNotify event */
@@ -103,10 +103,10 @@ bool it_toggle_fullscreen(arg_t a)
 		img.checkpan = img.dirty = true;
 	else
 		tns.dirty = true;
-	return false;
+	return CMD_OK;
 }
 
-bool it_toggle_bar(arg_t a)
+cmdreturn_t it_toggle_bar(arg_t a)
 {
 	win_toggle_bar(&win);
 	if (mode == MODE_IMAGE) {
@@ -116,21 +116,21 @@ bool it_toggle_bar(arg_t a)
 	} else {
 		tns.dirty = true;
 	}
-	return true;
+	return CMD_DIRTY;
 }
 
-bool t_reload_all(arg_t a)
+cmdreturn_t t_reload_all(arg_t a)
 {
 	if (mode == MODE_THUMB) {
 		tns_free(&tns);
 		tns_init(&tns, filecnt, &win);
-		return true;
+		return CMD_DIRTY;
 	} else {
-		return false;
+		return CMD_INVALID;
 	}
 }
 
-bool it_reload_image(arg_t a)
+cmdreturn_t it_reload_image(arg_t a)
 {
 	if (mode == MODE_IMAGE) {
 		load_image(fileidx);
@@ -143,27 +143,27 @@ bool it_reload_image(arg_t a)
 				tns.sel = tns.cnt - 1;
 		}
 	}
-	return true;
+	return CMD_DIRTY;
 }
 
-bool it_remove_image(arg_t a)
+cmdreturn_t it_remove_image(arg_t a)
 {
 	if (mode == MODE_IMAGE) {
 		remove_file(fileidx, true);
 		load_image(fileidx >= filecnt ? filecnt - 1 : fileidx);
-		return true;
+		return CMD_DIRTY;
 	} else if (tns.sel < tns.cnt) {
 		remove_file(tns.sel, true);
 		tns.dirty = true;
 		if (tns.sel >= tns.cnt)
 			tns.sel = tns.cnt - 1;
-		return true;
+		return CMD_DIRTY;
 	} else {
-		return false;
+		return CMD_OK;
 	}
 }
 
-bool i_navigate(arg_t a)
+cmdreturn_t i_navigate(arg_t a)
 {
 	long n = (long) a;
 
@@ -178,64 +178,64 @@ bool i_navigate(arg_t a)
 
 		if (n != fileidx) {
 			load_image(n);
-			return true;
+			return CMD_DIRTY;
 		}
 	}
-	return false;
+	return CMD_INVALID;
 }
 
-bool i_alternate(arg_t a)
+cmdreturn_t i_alternate(arg_t a)
 {
 	if (mode == MODE_IMAGE) {
 		load_image(alternate);
-		return true;
+		return CMD_DIRTY;
 	} else {
-		return false;
+		return CMD_INVALID;
 	}
 }
 
-bool it_first(arg_t a)
+cmdreturn_t it_first(arg_t a)
 {
 	if (mode == MODE_IMAGE && fileidx != 0) {
 		load_image(0);
-		return true;
+		return CMD_DIRTY;
 	} else if (mode == MODE_THUMB && tns.sel != 0) {
 		tns.sel = 0;
 		tns.dirty = true;
-		return true;
+		return CMD_DIRTY;
 	} else {
-		return false;
+		return CMD_OK;
 	}
 }
 
-bool it_n_or_last(arg_t a)
+cmdreturn_t it_n_or_last(arg_t a)
 {
 	int n = prefix != 0 && prefix - 1 < filecnt ? prefix - 1 : filecnt - 1;
 
 	if (mode == MODE_IMAGE && fileidx != n) {
 		load_image(n);
-		return true;
+		return CMD_DIRTY;
 	} else if (mode == MODE_THUMB && tns.sel != n) {
 		tns.sel = n;
 		tns.dirty = true;
-		return true;
+		return CMD_DIRTY;
 	} else {
-		return false;
+		return CMD_OK;
 	}
 }
 
-bool i_navigate_frame(arg_t a)
-{
-	if (mode == MODE_IMAGE && !img.multi.animate)
-		return img_frame_navigate(&img, (long) a);
-	else
-		return false;
-}
-
-bool i_toggle_animation(arg_t a)
+cmdreturn_t i_navigate_frame(arg_t a)
 {
 	if (mode != MODE_IMAGE)
-		return false;
+		return CMD_INVALID;
+	else
+		return !img.multi.animate && img_frame_navigate(&img, (long) a);
+}
+
+cmdreturn_t i_toggle_animation(arg_t a)
+{
+	if (mode != MODE_IMAGE)
+		return CMD_INVALID;
 
 	if (img.multi.animate) {
 		reset_timeout(animate);
@@ -243,20 +243,20 @@ bool i_toggle_animation(arg_t a)
 	} else if (img_frame_animate(&img, true)) {
 		set_timeout(animate, img.multi.frames[img.multi.sel].delay, true);
 	}
-	return true;
+	return CMD_DIRTY;
 }
 
-bool it_toggle_image_mark(arg_t a)
+cmdreturn_t it_toggle_image_mark(arg_t a)
 {
 	int sel = mode == MODE_IMAGE ? fileidx : tns.sel;
 
 	files[sel].marked = !files[sel].marked;
 	if (mode == MODE_THUMB)
 		tns_mark(&tns, sel, files[sel].marked);
-	return true;
+	return CMD_DIRTY;
 }
 
-bool it_reverse_marks(arg_t a)
+cmdreturn_t it_reverse_marks(arg_t a)
 {
 	int i, cnt = mode == MODE_IMAGE ? filecnt : tns.cnt;
 
@@ -264,10 +264,10 @@ bool it_reverse_marks(arg_t a)
 		files[i].marked = !files[i].marked;
 	if (mode == MODE_THUMB)
 		tns.dirty = true;
-	return true;
+	return CMD_DIRTY;
 }
 
-bool it_navigate_marked(arg_t a)
+cmdreturn_t it_navigate_marked(arg_t a)
 {
 	long n = (long) a;
 	int d, i, cnt, sel, new;
@@ -292,13 +292,13 @@ bool it_navigate_marked(arg_t a)
 			tns.sel = new;
 			tns.dirty = true;
 		}
-		return true;
+		return CMD_DIRTY;
 	} else {
-		return false;
+		return CMD_OK;
 	}
 }
 
-bool it_scroll_move(arg_t a)
+cmdreturn_t it_scroll_move(arg_t a)
 {
 	direction_t dir = (direction_t) a;
 
@@ -308,7 +308,7 @@ bool it_scroll_move(arg_t a)
 		return tns_move_selection(&tns, dir, prefix);
 }
 
-bool it_scroll_screen(arg_t a)
+cmdreturn_t it_scroll_screen(arg_t a)
 {
 	direction_t dir = (direction_t) a;
 
@@ -318,14 +318,14 @@ bool it_scroll_screen(arg_t a)
 		return tns_scroll(&tns, dir, true);
 }
 
-bool i_scroll_to_edge(arg_t a)
+cmdreturn_t i_scroll_to_edge(arg_t a)
 {
 	direction_t dir = (direction_t) a;
 
 	if (mode == MODE_IMAGE)
 		return img_pan_edge(&img, dir);
 	else
-		return false;
+		return CMD_INVALID;
 }
 
 /* Xlib helper function for i_drag() */
@@ -339,7 +339,7 @@ Bool is_motionnotify(Display *d, XEvent *e, XPointer a)
 	ox = x, oy = y; \
 	break
 
-bool i_drag(arg_t a)
+cmdreturn_t i_drag(arg_t a)
 {
 	int dx = 0, dy = 0, i, ox, oy, x, y;
 	unsigned int ui;
@@ -348,9 +348,9 @@ bool i_drag(arg_t a)
 	Window w;
 
 	if (mode != MODE_IMAGE)
-		return false;
+		return CMD_INVALID;
 	if (!XQueryPointer(win.env.dpy, win.xwin, &w, &w, &i, &i, &ox, &oy, &ui))
-		return false;
+		return CMD_OK;
 	
 	win_set_cursor(&win, CURSOR_HAND);
 
@@ -398,35 +398,35 @@ bool i_drag(arg_t a)
 	set_timeout(reset_cursor, TO_CURSOR_HIDE, true);
 	reset_timeout(redraw);
 
-	return false;
+	return CMD_OK;
 }
 
-bool i_zoom(arg_t a)
+cmdreturn_t i_zoom(arg_t a)
 {
 	long scale = (long) a;
 
 	if (mode != MODE_IMAGE)
-		return false;
+		return CMD_INVALID;
 
 	if (scale > 0)
 		return img_zoom_in(&img);
 	else if (scale < 0)
 		return img_zoom_out(&img);
 	else
-		return false;
+		return CMD_OK;
 }
 
-bool i_set_zoom(arg_t a)
+cmdreturn_t i_set_zoom(arg_t a)
 {
 	if (mode == MODE_IMAGE)
 		return img_zoom(&img, (prefix ? prefix : (long) a) / 100.0);
 	else
-		return false;
+		return CMD_INVALID;
 }
 
-bool i_fit_to_win(arg_t a)
+cmdreturn_t i_fit_to_win(arg_t a)
 {
-	bool ret = false;
+	cmdreturn_t ret = CMD_INVALID;
 	scalemode_t sm = (scalemode_t) a;
 
 	if (mode == MODE_IMAGE) {
@@ -436,11 +436,11 @@ bool i_fit_to_win(arg_t a)
 	return ret;
 }
 
-bool i_fit_to_img(arg_t a)
+cmdreturn_t i_fit_to_img(arg_t a)
 {
 	int x, y;
 	unsigned int w, h;
-	bool ret = false;
+	cmdreturn_t ret = CMD_INVALID;
 
 	if (mode == MODE_IMAGE) {
 		x = MAX(0, win.x + img.x);
@@ -456,31 +456,31 @@ bool i_fit_to_img(arg_t a)
 	return ret;
 }
 
-bool i_rotate(arg_t a)
+cmdreturn_t i_rotate(arg_t a)
 {
 	degree_t degree = (degree_t) a;
 
 	if (mode == MODE_IMAGE) {
 		img_rotate(&img, degree);
-		return true;
+		return CMD_DIRTY;
 	}	else {
-		return false;
+		return CMD_INVALID;
 	}
 }
 
-bool i_flip(arg_t a)
+cmdreturn_t i_flip(arg_t a)
 {
 	flipdir_t dir = (flipdir_t) a;
 
 	if (mode == MODE_IMAGE) {
 		img_flip(&img, dir);
-		return true;
+		return CMD_DIRTY;
 	} else {
-		return false;
+		return CMD_INVALID;
 	}
 }
 
-bool i_slideshow(arg_t a)
+cmdreturn_t i_slideshow(arg_t a)
 {
 	if (mode == MODE_IMAGE) {
 		if (prefix > 0) {
@@ -493,38 +493,38 @@ bool i_slideshow(arg_t a)
 		} else {
 			img.ss.on = true;
 		}
-		return true;
+		return CMD_DIRTY;
 	} else {
-		return false;
+		return CMD_INVALID;
 	}
 }
 
-bool i_toggle_antialias(arg_t a)
+cmdreturn_t i_toggle_antialias(arg_t a)
 {
 	if (mode == MODE_IMAGE) {
 		img_toggle_antialias(&img);
-		return true;
+		return CMD_DIRTY;
 	} else {
-		return false;
+		return CMD_INVALID;
 	}
 }
 
-bool it_toggle_alpha(arg_t a)
+cmdreturn_t it_toggle_alpha(arg_t a)
 {
 	img.alpha = tns.alpha = !img.alpha;
 	if (mode == MODE_IMAGE)
 		img.dirty = true;
 	else
 		tns.dirty = true;
-	return true;
+	return CMD_DIRTY;
 }
 
-bool i_change_gamma(arg_t a)
+cmdreturn_t i_change_gamma(arg_t a)
 {
 	if (mode == MODE_IMAGE) {
 		return img_change_gamma(&img, (long) a);
 	} else {
-		return false;
+		return CMD_INVALID;
 	}
 }
 

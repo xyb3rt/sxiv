@@ -542,15 +542,21 @@ void on_keypress(XKeyEvent *kev)
 
 	for (i = 0; i < ARRLEN(keys); i++) {
 		if (keys[i].ksym == ksym &&
-		    MODMASK(keys[i].mask | sh) == MODMASK(kev->state))
+		    MODMASK(keys[i].mask | sh) == MODMASK(kev->state) &&
+		    keys[i].cmd != NULL)
 		{
-			if (keys[i].cmd != NULL && keys[i].cmd(keys[i].arg))
+			cmdreturn_t ret = keys[i].cmd(keys[i].arg);
+
+			if (ret == CMD_INVALID)
+				continue;
+			if (ret == CMD_DIRTY)
 				redraw();
-			prefix = 0;
-			return;
+			break;
 		}
 	}
-	key_handler(XKeysymToString(ksym), kev->state & ~sh);
+	if (i == ARRLEN(keys))
+		key_handler(XKeysymToString(ksym), kev->state & ~sh);
+	prefix = 0;
 }
 
 void on_buttonpress(XButtonEvent *bev)
@@ -566,11 +572,16 @@ void on_buttonpress(XButtonEvent *bev)
 
 		for (i = 0; i < ARRLEN(buttons); i++) {
 			if (buttons[i].button == bev->button &&
-			    MODMASK(buttons[i].mask) == MODMASK(bev->state))
+			    MODMASK(buttons[i].mask) == MODMASK(bev->state) &&
+			    buttons[i].cmd != NULL)
 			{
-				if (buttons[i].cmd != NULL && buttons[i].cmd(buttons[i].arg))
+				cmdreturn_t ret = buttons[i].cmd(buttons[i].arg);
+
+				if (ret == CMD_INVALID)
+					continue;
+				if (ret == CMD_DIRTY)
 					redraw();
-				return;
+				break;
 			}
 		}
 	} else {
@@ -606,6 +617,7 @@ void on_buttonpress(XButtonEvent *bev)
 				break;
 		}
 	}
+	prefix = 0;
 }
 
 void run(void)

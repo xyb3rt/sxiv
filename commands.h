@@ -23,8 +23,14 @@
 
 #include "types.h"
 
+typedef enum {
+	CMD_INVALID = -1,
+	CMD_OK      =  0,
+	CMD_DIRTY   =  1
+} cmdreturn_t;
+
 typedef void* arg_t;
-typedef bool (*command_f)(arg_t);
+typedef cmdreturn_t (*command_f)(arg_t);
 
 typedef struct {
 	unsigned int mask;
@@ -40,35 +46,35 @@ typedef struct {
 	arg_t arg;
 } button_t;
 
-bool it_quit(arg_t);
-bool it_switch_mode(arg_t);
-bool it_toggle_fullscreen(arg_t);
-bool it_toggle_bar(arg_t);
-bool t_reload_all(arg_t);
-bool it_reload_image(arg_t);
-bool it_remove_image(arg_t);
-bool i_navigate(arg_t);
-bool i_alternate(arg_t);
-bool it_first(arg_t);
-bool it_n_or_last(arg_t);
-bool i_navigate_frame(arg_t);
-bool i_toggle_animation(arg_t);
-bool it_toggle_image_mark(arg_t);
-bool it_reverse_marks(arg_t);
-bool it_navigate_marked(arg_t);
-bool it_scroll_move(arg_t);
-bool it_scroll_screen(arg_t);
-bool i_scroll_to_edge(arg_t);
-bool i_drag(arg_t);
-bool i_zoom(arg_t);
-bool i_set_zoom(arg_t);
-bool i_fit_to_win(arg_t);
-bool i_fit_to_img(arg_t);
-bool i_rotate(arg_t);
-bool i_flip(arg_t);
-bool i_slideshow(arg_t);
-bool i_toggle_antialias(arg_t);
-bool it_toggle_alpha(arg_t);
-bool i_change_gamma(arg_t);
+cmdreturn_t it_quit(arg_t);
+cmdreturn_t it_switch_mode(arg_t);
+cmdreturn_t it_toggle_fullscreen(arg_t);
+cmdreturn_t it_toggle_bar(arg_t);
+cmdreturn_t t_reload_all(arg_t);
+cmdreturn_t it_reload_image(arg_t);
+cmdreturn_t it_remove_image(arg_t);
+cmdreturn_t i_navigate(arg_t);
+cmdreturn_t i_alternate(arg_t);
+cmdreturn_t it_first(arg_t);
+cmdreturn_t it_n_or_last(arg_t);
+cmdreturn_t i_navigate_frame(arg_t);
+cmdreturn_t i_toggle_animation(arg_t);
+cmdreturn_t it_toggle_image_mark(arg_t);
+cmdreturn_t it_reverse_marks(arg_t);
+cmdreturn_t it_navigate_marked(arg_t);
+cmdreturn_t it_scroll_move(arg_t);
+cmdreturn_t it_scroll_screen(arg_t);
+cmdreturn_t i_scroll_to_edge(arg_t);
+cmdreturn_t i_drag(arg_t);
+cmdreturn_t i_zoom(arg_t);
+cmdreturn_t i_set_zoom(arg_t);
+cmdreturn_t i_fit_to_win(arg_t);
+cmdreturn_t i_fit_to_img(arg_t);
+cmdreturn_t i_rotate(arg_t);
+cmdreturn_t i_flip(arg_t);
+cmdreturn_t i_slideshow(arg_t);
+cmdreturn_t i_toggle_antialias(arg_t);
+cmdreturn_t it_toggle_alpha(arg_t);
+cmdreturn_t i_change_gamma(arg_t);
 
 #endif /* COMMANDS_H */
