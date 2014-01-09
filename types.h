@@ -45,8 +45,8 @@ typedef enum {
 } degree_t;
 
 typedef enum {
-	FLIP_HORIZONTAL,
-	FLIP_VERTICAL
+	FLIP_HORIZONTAL = 1,
+	FLIP_VERTICAL   = 2
 } flipdir_t;
 
 typedef enum {

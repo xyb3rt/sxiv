@@ -100,21 +100,17 @@ void exif_auto_orientate(const fileinfo_t *file)
 		case 2:
 			imlib_image_flip_vertical();
 			break;
-
 		case 3:
 			imlib_image_orientate(2);
 			break;
-
 		case 7:
 			imlib_image_orientate(1);
 		case 4:
 			imlib_image_flip_horizontal();
 			break;
-
 		case 6:
 			imlib_image_orientate(1);
 			break;
-
 		case 8:
 			imlib_image_orientate(3);
 			break;
@@ -688,7 +684,7 @@ bool img_pan_edge(img_t *img, direction_t dir)
 
 void img_rotate(img_t *img, degree_t d)
 {
-	int ox, oy, tmp;
+	int i, ox, oy, tmp;
 
 	if (img == NULL || img->im == NULL || img->win == NULL)
 		return;
@@ -696,6 +692,12 @@ void img_rotate(img_t *img, degree_t d)
 	imlib_context_set_image(img->im);
 	imlib_image_orientate(d);
 
+	for (i = 0; i < img->multi.cnt; i++) {
+		if (i != img->multi.sel) {
+			imlib_context_set_image(img->multi.frames[i].im);
+			imlib_image_orientate(d);
+		}
+	}
 	if (d == DEGREE_90 || d == DEGREE_270) {
 		ox = d == DEGREE_90  ? img->x : img->win->w - img->x - img->w * img->zoom;
 		oy = d == DEGREE_270 ? img->y : img->win->h - img->y - img->h * img->zoom;
@@ -708,24 +710,31 @@ void img_rotate(img_t *img, degree_t d)
 		img->h = tmp;
 		img->checkpan = true;
 	}
-
 	img->dirty = true;
 }
 
 void img_flip(img_t *img, flipdir_t d)
 {
-	if (img == NULL || img->im == NULL)
+	int i;
+	void (*imlib_flip_op[3])(void) = {
+		imlib_image_flip_horizontal,
+		imlib_image_flip_vertical,
+		imlib_image_flip_diagonal
+	};
+
+	d = (d & (FLIP_HORIZONTAL | FLIP_VERTICAL)) - 1;
+
+	if (img == NULL || img->im == NULL || d < 0 || d >= ARRLEN(imlib_flip_op))
 		return;
 
 	imlib_context_set_image(img->im);
+	imlib_flip_op[d]();
 
-	switch (d) {
-		case FLIP_HORIZONTAL:
-			imlib_image_flip_horizontal();
-			break;
-		case FLIP_VERTICAL:
-			imlib_image_flip_vertical();
-			break;
+	for (i = 0; i < img->multi.cnt; i++) {
+		if (i != img->multi.sel) {
+			imlib_context_set_image(img->multi.frames[i].im);
+			imlib_flip_op[d]();
+		}
 	}
 	img->dirty = true;
 }
