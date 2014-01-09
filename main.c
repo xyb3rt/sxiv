@@ -31,6 +31,7 @@
 #include <sys/time.h>
 #include <sys/wait.h>
 #include <X11/keysym.h>
+#include <X11/XF86keysym.h>
 
 #include "types.h"
 #include "commands.h"
