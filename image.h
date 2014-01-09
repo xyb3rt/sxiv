@@ -57,9 +57,6 @@ typedef struct {
 	bool aa;
 	bool alpha;
 
-	flipdir_t flip;
-	degree_t rotation;
-
 	Imlib_Color_Modifier cmod;
 	int gamma;
 
