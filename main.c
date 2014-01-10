@@ -47,8 +47,6 @@ enum {
 	TITLE_LEN    = 256
 };
 
-#define EXEC_REL_DIR ".sxiv/exec"
-
 enum {
 	EXEC_INFO,
 	EXEC_KEY
