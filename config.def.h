@@ -1,3 +1,5 @@
+#define EXEC_REL_DIR ".sxiv/exec"
+
 #ifdef _WINDOW_CONFIG
 
 /* default window dimensions (overwritten via -g option): */
