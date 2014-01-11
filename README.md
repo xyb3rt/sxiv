@@ -212,7 +212,7 @@ on GitHub or get a copy using git with the following command:
 **[v0.8](https://github.com/muennich/sxiv/archive/v0.8.tar.gz)**
 *(April 18, 2011)*
 
-  * Support for thumbnail caching, only enabled if directory `~/.sxiv/` exists
+  * Support for thumbnail caching
   * Ability to run external commands (e.g. jpegtran, convert) on current image
 
 **[v0.7](https://github.com/muennich/sxiv/archive/v0.7.tar.gz)**

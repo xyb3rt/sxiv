@@ -34,7 +34,6 @@
 
 static const int thumb_dim = THUMB_SIZE + 10;
 
-static const char * const CACHE_DIR = ".sxiv/cache";
 static char *cache_dir = NULL;
 
 bool tns_cache_enabled(void)
@@ -163,7 +162,7 @@ void tns_clean_cache(tns_t *tns)
 void tns_init(tns_t *tns, int cnt, win_t *win)
 {
 	int len;
-	char *homedir;
+	const char *homedir, *dsuffix = "";
 
 	if (tns == NULL)
 		return;
@@ -181,12 +180,16 @@ void tns_init(tns_t *tns, int cnt, win_t *win)
 	tns->alpha = !RENDER_WHITE_ALPHA;
 	tns->dirty = false;
 
-	if ((homedir = getenv("HOME")) != NULL) {
+	if ((homedir = getenv("XDG_CACHE_HOME")) == NULL || homedir[0] == '\0') {
+		homedir = getenv("HOME");
+		dsuffix = "/.cache";
+	}
+	if (homedir != NULL) {
 		if (cache_dir != NULL)
 			free(cache_dir);
-		len = strlen(homedir) + strlen(CACHE_DIR) + 2;
+		len = strlen(homedir) + strlen(dsuffix) + 6;
 		cache_dir = (char*) s_malloc(len);
-		snprintf(cache_dir, len, "%s/%s", homedir, CACHE_DIR);
+		snprintf(cache_dir, len, "%s%s/sxiv", homedir, dsuffix);
 	} else {
 		warn("could not locate thumbnail cache directory");
 	}

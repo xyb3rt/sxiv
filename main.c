@@ -47,13 +47,6 @@ enum {
 	TITLE_LEN    = 256
 };
 
-#define EXEC_REL_DIR ".sxiv/exec"
-
-enum {
-	EXEC_INFO,
-	EXEC_KEY
-};
-
 typedef struct {
 	const char *name;
 	char *cmd;
@@ -85,17 +78,14 @@ int prefix;
 
 bool resized = false;
 
-exec_t exec[] = {
-	{ "image-info",  NULL },
-	{ "key-handler", NULL }
-};
-
 struct {
   char *cmd;
   int fd;
   unsigned int i, lastsep;
   bool open;
 } info;
+
+char * keyhandler;
 
 timeout_t timeouts[] = {
 	{ { 0, 0 }, false, redraw       },
@@ -455,14 +445,14 @@ void clear_resize(void)
 	resized = false;
 }
 
-void key_handler(const char *key, unsigned int mask)
+void run_key_handler(const char *key, unsigned int mask)
 {
 	pid_t pid;
 	int retval, status, n = mode == MODE_IMAGE ? fileidx : tns.sel;
-	char *cmd = exec[EXEC_KEY].cmd, kstr[32];
+	char kstr[32];
 	struct stat oldst, newst;
 
-	if (cmd == NULL || key == NULL)
+	if (keyhandler == NULL || key == NULL)
 		return;
 
 	snprintf(kstr, sizeof(kstr), "%s%s%s%s",
@@ -473,7 +463,7 @@ void key_handler(const char *key, unsigned int mask)
 	stat(files[n].path, &oldst);
 
 	if ((pid = fork()) == 0) {
-		execl(cmd, cmd, kstr, files[n].path, NULL);
+		execl(keyhandler, keyhandler, kstr, files[n].path, NULL);
 		warn("could not exec key handler");
 		exit(EXIT_FAILURE);
 	} else if (pid < 0) {
@@ -556,7 +546,7 @@ void on_keypress(XKeyEvent *kev)
 		}
 	}
 	if (i == ARRLEN(keys))
-		key_handler(XKeysymToString(ksym), kev->state & ~sh);
+		run_key_handler(XKeysymToString(ksym), kev->state & ~sh);
 	prefix = 0;
 }
 
@@ -736,7 +726,7 @@ int main(int argc, char **argv)
 	size_t n;
 	ssize_t len;
 	char *filename;
-	const char *homedir;
+	const char *homedir, *dsuffix = "";
 	struct stat fstats;
 	r_dir_t dir;
 
@@ -812,19 +802,27 @@ int main(int argc, char **argv)
 	win_init(&win);
 	img_init(&img, &win);
 
-	if ((homedir = getenv("HOME")) == NULL) {
-		warn("could not locate home directory");
-	} else for (i = 0; i < ARRLEN(exec); i++) {
-		len = strlen(homedir) + strlen(EXEC_REL_DIR) + strlen(exec[i].name) + 3;
-		exec[i].cmd = (char*) s_malloc(len);
-		snprintf(exec[i].cmd, len, "%s/%s/%s", homedir, EXEC_REL_DIR, exec[i].name);
-		if (access(exec[i].cmd, X_OK) != 0) {
-			free(exec[i].cmd);
-			exec[i].cmd = NULL;
+	if ((homedir = getenv("XDG_CONFIG_HOME")) == NULL || homedir[0] == '\0') {
+		homedir = getenv("HOME");
+		dsuffix = "/.config";
+	}
+	if (homedir != NULL) {
+		char **cmd[] = { &info.cmd, &keyhandler };
+		const char *name[] = { "image-info", "key-handler" };
+
+		for (i = 0; i < ARRLEN(cmd); i++) {
+			len = strlen(homedir) + strlen(dsuffix) + strlen(name[i]) + 12;
+			*cmd[i] = (char*) s_malloc(len);
+			snprintf(*cmd[i], len, "%s%s/sxiv/exec/%s", homedir, dsuffix, name[i]);
+			if (access(*cmd[i], X_OK) != 0) {
+				free(*cmd[i]);
+				*cmd[i] = NULL;
+			}
 		}
+	} else {
+		warn("could not locate exec directory");
 	}
 	info.fd = -1;
-	info.cmd = exec[EXEC_INFO].cmd;
 
 	if (options->thumb_mode) {
 		mode = MODE_THUMB;

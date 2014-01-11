@@ -353,14 +353,14 @@ Pan image right.
 The information displayed on the left side of the status bar can be replaced
 with the output of a user-provided script, which is called by sxiv whenever an
 image gets loaded. The path of this script is
-.I ~/.sxiv/exec/image-info
+.I $XDG_CONFIG_HOME/sxiv/exec/image-info
 and the first argument to this script is the path of the loaded image.
 .P
 There is also an example script installed together with sxiv as
 .IR PREFIX/share/sxiv/exec/image-info .
 .SH THUMBNAIL CACHING
 To enable thumbnail caching, please make sure to create the directory
-.I ~/.sxiv/cache/
+.I $XDG_CACHE_HOME/sxiv/
 with write permissions. sxiv will then store all thumbnails inside this
 directory, but it will not create this directory by itself. It rather uses the
 existance of this directory as an affirmation, that the user wants thumbnails
@@ -377,7 +377,7 @@ find . \-depth \-type d \-empty ! \-name '.' \-exec rmdir {} \\;
 .RE
 .SH AUTHOR
 .EX
-Bert Muennich   <be.muennich @ gmail.com>
+Bert Muennich   <ber.t at posteo.de>
 .EE
 .SH CONTRIBUTORS
 .EX
@@ -387,7 +387,6 @@ Fung SzeTat     <sthorde at gmail.com>
 .EE
 .SH HOMEPAGE
 .EX
-http://muennich.github.com/sxiv
 https://github.com/muennich/sxiv
 .EE
 .SH SEE ALSO

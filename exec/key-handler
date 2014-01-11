@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Example for ~/.sxiv/exec/key-handler
+# Example for $XDG_CONFIG_HOME/sxiv/exec/key-handler
 # Called by sxiv(1) whenever an unbound key combo is used,
 # with the key combo as its first argument and the path of the current image
 # as its second argument.
