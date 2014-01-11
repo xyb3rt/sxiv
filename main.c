@@ -553,6 +553,7 @@ void on_keypress(XKeyEvent *kev)
 void on_buttonpress(XButtonEvent *bev)
 {
 	int i, sel;
+	static Time firstclick;
 
 	if (bev == NULL)
 		return;
@@ -580,17 +581,20 @@ void on_buttonpress(XButtonEvent *bev)
 		switch (bev->button) {
 			case Button1:
 				if ((sel = tns_translate(&tns, bev->x, bev->y)) >= 0) {
-					if (sel == tns.sel) {
-						mode = MODE_IMAGE;
-						set_timeout(reset_cursor, TO_CURSOR_HIDE, true);
-						load_image(tns.sel);
-					} else {
+					if (sel != tns.sel) {
 						tns_highlight(&tns, tns.sel, false);
 						tns_highlight(&tns, sel, true);
 						tns.sel = sel;
+						firstclick = bev->time;
+						redraw();
+					} else if (bev->time - firstclick <= TO_DOUBLE_CLICK) {
+						mode = MODE_IMAGE;
+						set_timeout(reset_cursor, TO_CURSOR_HIDE, true);
+						load_image(tns.sel);
+						redraw();
+					} else {
+						firstclick = bev->time;
 					}
-					redraw();
-					break;
 				}
 				break;
 			case Button3:
