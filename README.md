@@ -1,5 +1,4 @@
-sxiv
-====
+![sxiv](http://muennich.github.com/sxiv/img/logo.png "sxiv")
 
 **Simple X Image Viewer**
 
