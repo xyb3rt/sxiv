@@ -147,7 +147,7 @@ void parse_options(int argc, char **argv)
 				break;
 			case 'z':
 				n = strtol(optarg, &end, 0);
-				if (*end != '\n' || n <= 0) {
+				if (*end != '\0' || n <= 0) {
 					fprintf(stderr, "sxiv: invalid argument for option -z: %s\n", optarg);
 					exit(EXIT_FAILURE);
 				}
