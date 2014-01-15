@@ -19,14 +19,17 @@
 #define _POSIX_C_SOURCE 200112L
 #define _WINDOW_CONFIG
 
+#include <stdlib.h>
 #include <string.h>
 #include <locale.h>
 #include <X11/cursorfont.h>
+#include <X11/Xatom.h>
 
 #include "options.h"
 #include "util.h"
 #include "window.h"
 #include "config.h"
+#include "icon/data.h"
 
 enum {
 	H_TEXT_PAD = 5,
@@ -163,10 +166,12 @@ void win_update_sizehints(win_t *win)
 
 void win_open(win_t *win)
 {
+	int c, i, j, n;
 	win_env_t *e;
 	XClassHint classhint;
 	XSetWindowAttributes attr;
 	unsigned long attr_mask;
+	unsigned long *icon_data;
 	XColor col;
 	char none_data[] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 	Pixmap none;
@@ -239,6 +244,26 @@ void win_open(win_t *win)
 	cnone = XCreatePixmapCursor(e->dpy, none, none, &col, &col, 0, 0);
 
 	gc = XCreateGC(e->dpy, win->xwin, 0, None);
+
+	n = icons[ARRLEN(icons)-1].size;
+	icon_data = s_malloc((n * n + 2) * sizeof(*icon_data));
+
+	for (i = 0; i < ARRLEN(icons); i++) {
+		n = 0;
+		icon_data[n++] = icons[i].size;
+		icon_data[n++] = icons[i].size;
+
+		for (j = 0; j < icons[i].cnt; j++) {
+			for (c = icons[i].data[j] >> 4; c >= 0; c--)
+				icon_data[n++] = icon_colors[icons[i].data[j] & 0x0F];
+		}
+		XChangeProperty(e->dpy, win->xwin,
+		                XInternAtom(e->dpy, "_NET_WM_ICON", False),
+		                XA_CARDINAL, 32,
+		                i == 0 ? PropModeReplace : PropModeAppend,
+		                (unsigned char *) icon_data, n);
+	}
+	free(icon_data);
 
 	win_set_title(win, "sxiv");
 
