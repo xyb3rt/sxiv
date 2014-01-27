@@ -682,7 +682,7 @@ void run(void)
 				on_buttonpress(&ev.xbutton);
 				break;
 			case ClientMessage:
-				if ((Atom) ev.xclient.data.l[0] == wm_delete_win)
+				if ((Atom) ev.xclient.data.l[0] == atoms[ATOM_WM_DELETE_WINDOW])
 					return;
 				break;
 			case ConfigureNotify:

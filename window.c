@@ -42,8 +42,6 @@ static Cursor chand;
 static Cursor cwatch;
 static GC gc;
 
-Atom wm_delete_win;
-
 static struct {
 	int ascent;
 	int descent;
@@ -53,6 +51,8 @@ static struct {
 
 static int fontheight;
 static int barheight;
+
+Atom atoms[ATOM_COUNT];
 
 void win_init_font(Display *dpy, const char *fontstr)
 {
@@ -102,6 +102,9 @@ unsigned long win_alloc_color(win_t *win, const char *name)
 	return col.pixel;
 }
 
+#define INIT_ATOM_(atom) \
+	atoms[ATOM_##atom] = XInternAtom(e->dpy, #atom, False);
+
 void win_init(win_t *win)
 {
 	win_env_t *e;
@@ -141,7 +144,12 @@ void win_init(win_t *win)
 		/* actual min/max values set in win_update_sizehints() */
 		win->sizehints.flags |= PMinSize | PMaxSize;
 
-	wm_delete_win = XInternAtom(e->dpy, "WM_DELETE_WINDOW", False);
+	INIT_ATOM_(WM_DELETE_WINDOW);
+	INIT_ATOM_(_NET_WM_NAME);
+	INIT_ATOM_(_NET_WM_ICON_NAME);
+	INIT_ATOM_(_NET_WM_ICON);
+	INIT_ATOM_(_NET_WM_STATE);
+	INIT_ATOM_(_NET_WM_STATE_FULLSCREEN);
 }
 
 void win_update_sizehints(win_t *win)
@@ -258,8 +266,7 @@ void win_open(win_t *win)
 				icon_data[n++] = icon_colors[icons[i].data[j] & 0x0F];
 		}
 		XChangeProperty(e->dpy, win->xwin,
-		                XInternAtom(e->dpy, "_NET_WM_ICON", False),
-		                XA_CARDINAL, 32,
+		                atoms[ATOM__NET_WM_ICON], XA_CARDINAL, 32,
 		                i == 0 ? PropModeReplace : PropModeAppend,
 		                (unsigned char *) icon_data, n);
 	}
@@ -271,7 +278,7 @@ void win_open(win_t *win)
 	classhint.res_name = options->res_name != NULL ? options->res_name : "sxiv";
 	XSetClassHint(e->dpy, win->xwin, &classhint);
 
-	XSetWMProtocols(e->dpy, win->xwin, &wm_delete_win, 1);
+	XSetWMProtocols(e->dpy, win->xwin, &atoms[ATOM_WM_DELETE_WINDOW], 1);
 
 	win->h -= win->bar.h;
 	win_update_sizehints(win);
@@ -379,10 +386,10 @@ void win_toggle_fullscreen(win_t *win)
 
 	cm = &ev.xclient;
 	cm->window = win->xwin;
-	cm->message_type = XInternAtom(win->env.dpy, "_NET_WM_STATE", False);
+	cm->message_type = atoms[ATOM__NET_WM_STATE];
 	cm->format = 32;
 	cm->data.l[0] = win->fullscreen;
-	cm->data.l[1] = XInternAtom(win->env.dpy, "_NET_WM_STATE_FULLSCREEN", False);
+	cm->data.l[1] = atoms[ATOM__NET_WM_STATE_FULLSCREEN];
 	cm->data.l[2] = cm->data.l[3] = 0;
 
 	XSendEvent(win->env.dpy, DefaultRootWindow(win->env.dpy), False,
@@ -540,12 +547,10 @@ void win_set_title(win_t *win, const char *title)
 	XStoreName(win->env.dpy, win->xwin, title);
 	XSetIconName(win->env.dpy, win->xwin, title);
 
-	XChangeProperty(win->env.dpy, win->xwin,
-	                XInternAtom(win->env.dpy, "_NET_WM_NAME", False),
+	XChangeProperty(win->env.dpy, win->xwin, atoms[ATOM__NET_WM_NAME],
 	                XInternAtom(win->env.dpy, "UTF8_STRING", False), 8,
 	                PropModeReplace, (unsigned char *) title, strlen(title));
-	XChangeProperty(win->env.dpy, win->xwin,
-	                XInternAtom(win->env.dpy, "_NET_WM_ICON_NAME", False),
+	XChangeProperty(win->env.dpy, win->xwin, atoms[ATOM__NET_WM_ICON_NAME],
 	                XInternAtom(win->env.dpy, "UTF8_STRING", False), 8,
 	                PropModeReplace, (unsigned char *) title, strlen(title));
 }

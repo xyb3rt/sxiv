@@ -29,6 +29,16 @@ enum {
 	BAR_R_LEN = 64
 };
 
+enum {
+	ATOM_WM_DELETE_WINDOW,
+	ATOM__NET_WM_NAME,
+	ATOM__NET_WM_ICON_NAME,
+	ATOM__NET_WM_ICON,
+	ATOM__NET_WM_STATE,
+	ATOM__NET_WM_STATE_FULLSCREEN,
+	ATOM_COUNT
+};
+
 typedef struct {
 	Display *dpy;
 	int scr;
@@ -67,7 +77,7 @@ typedef struct {
 	} bar;
 } win_t;
 
-extern Atom wm_delete_win;
+extern Atom atoms[ATOM_COUNT];
 
 void win_init(win_t*);
 void win_open(win_t*);
