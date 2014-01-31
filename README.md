@@ -113,9 +113,9 @@ of small previews is displayed, making it easy to choose an image to open.
     N            Go [count] marked images forward
     P            Go [count] marked images backward
 
-    Ctrl-x KEY	 Execute $XDG_CONFIG_HOME/sxiv/exec/key-handler with
-                 KEY and the path of the current image as arguments.
-		 If KEY is Escape, it cancels the effect of Ctrl-x.
+    Ctrl-x KEY   Execute $XDG_CONFIG_HOME/sxiv/exec/key-handler with
+                 KEY and the path of the current image as arguments,
+                 unless KEY is Escape, which cancels Ctrl-x.
 
 *Thumbnail mode:*
 
