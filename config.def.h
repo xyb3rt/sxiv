@@ -85,6 +85,8 @@ static const keymap_t keys[] = {
 	{ 0,            XK_f,             it_toggle_fullscreen, (arg_t) None },
 	{ 0,            XK_b,             it_toggle_bar,        (arg_t) None },
 
+	{ ControlMask,  XK_x,             it_prefix_external,   (arg_t) None },
+
 	{ 0,            XK_r,             it_reload_image,      (arg_t) None },
 	{ 0,            XK_R,             t_reload_all,         (arg_t) None },
 	{ 0,            XK_D,             it_remove_image,      (arg_t) None },
@@ -155,7 +157,7 @@ static const keymap_t keys[] = {
 
 	{ 0,            XK_braceleft,     i_change_gamma,       (arg_t) -1 },
 	{ 0,            XK_braceright,    i_change_gamma,       (arg_t) +1 },
-	{ ControlMask,  XK_G,             i_change_gamma,       (arg_t)  0 },
+	{ ControlMask,  XK_g,             i_change_gamma,       (arg_t)  0 },
 };
 
 /* mouse button mappings for image mode: */

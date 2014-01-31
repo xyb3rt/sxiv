@@ -50,6 +50,7 @@ cmdreturn_t it_quit(arg_t);
 cmdreturn_t it_switch_mode(arg_t);
 cmdreturn_t it_toggle_fullscreen(arg_t);
 cmdreturn_t it_toggle_bar(arg_t);
+cmdreturn_t it_prefix_external(arg_t);
 cmdreturn_t t_reload_all(arg_t);
 cmdreturn_t it_reload_image(arg_t);
 cmdreturn_t it_remove_image(arg_t);

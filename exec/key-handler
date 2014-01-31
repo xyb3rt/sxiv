@@ -1,9 +1,9 @@
 #!/bin/sh
 
 # Example for $XDG_CONFIG_HOME/sxiv/exec/key-handler
-# Called by sxiv(1) whenever an unbound key combo is used,
-# with the key combo as its first argument and the path of the current image
-# as its second argument.
+# Called by sxiv(1) after the external prefix key (C-x by default) is pressed.
+# The next key combo is passed as its first argument and the path of the
+# current image as its second argument.
 # sxiv(1) blocks until this script terminates. It then checks if the image
 # has been modified and reloads it.
 

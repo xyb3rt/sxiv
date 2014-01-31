@@ -52,6 +52,7 @@ extern int filecnt, fileidx;
 extern int alternate;
 
 extern int prefix;
+extern bool extprefix;
 
 const int ss_delays[] = {
 	1, 2, 3, 5, 10, 15, 20, 30, 60, 120, 180, 300, 600
@@ -117,6 +118,12 @@ cmdreturn_t it_toggle_bar(arg_t a)
 		tns.dirty = true;
 	}
 	return CMD_DIRTY;
+}
+
+cmdreturn_t it_prefix_external(arg_t a)
+{
+	extprefix = true;
+	return CMD_OK;
 }
 
 cmdreturn_t t_reload_all(arg_t a)

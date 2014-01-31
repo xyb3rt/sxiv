@@ -96,6 +96,8 @@ of small previews is displayed, making it easy to choose an image to open.
 
     0-9          Prefix the next command with a number (denoted via [count])
 
+    Ctrl-x       Send the next key to the external key-handler
+
     g            Go to first image
     G            Go to the last image, or image number [count]
 
@@ -143,6 +145,9 @@ of small previews is displayed, making it easy to choose an image to open.
     <,>          Rotate image (counter-)clockwise by 90 degrees
     ?            Rotate image by 180 degrees
     |,_          Flip image horizontally/vertically
+
+    {,}          Decrease/increase gamma
+    Ctrl-g       Reset gamma
 
     s            Toggle slideshow or set delay to [count] seconds
 

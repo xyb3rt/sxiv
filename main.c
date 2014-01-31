@@ -75,6 +75,7 @@ int filecnt, fileidx;
 int alternate;
 
 int prefix;
+bool extprefix;
 
 bool resized = false;
 
@@ -522,16 +523,16 @@ void on_keypress(XKeyEvent *kev)
 
 	if (IsModifierKey(ksym))
 		return;
-
-	if ((ksym == XK_Escape && MODMASK(kev->state) == 0) ||
-		  (key >= '0' && key <= '9'))
-	{
+	if (ksym == XK_Escape && MODMASK(kev->state) == 0) {
+		extprefix = False;
+	} else if (extprefix) {
+		run_key_handler(XKeysymToString(ksym), kev->state & ~sh);
+		extprefix = False;
+	} else if (key >= '0' && key <= '9') {
 		/* number prefix for commands */
-		prefix = ksym == XK_Escape ? 0 : prefix * 10 + (int) (key - '0');
+		prefix = prefix * 10 + (int) (key - '0');
 		return;
-	}
-
-	for (i = 0; i < ARRLEN(keys); i++) {
+	} else for (i = 0; i < ARRLEN(keys); i++) {
 		if (keys[i].ksym == ksym &&
 		    MODMASK(keys[i].mask | sh) == MODMASK(kev->state) &&
 		    keys[i].cmd != NULL)
@@ -545,8 +546,6 @@ void on_keypress(XKeyEvent *kev)
 			break;
 		}
 	}
-	if (i == ARRLEN(keys))
-		run_key_handler(XKeysymToString(ksym), kev->state & ~sh);
 	prefix = 0;
 }
 
