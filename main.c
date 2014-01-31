@@ -504,6 +504,7 @@ void run_key_handler(const char *key, unsigned int mask)
 
 void on_keypress(XKeyEvent *kev)
 {
+	static bool seen_prefix_key = false;
 	int i;
 	unsigned int sh;
 	KeySym ksym, shksym;
@@ -522,6 +523,17 @@ void on_keypress(XKeyEvent *kev)
 
 	if (IsModifierKey(ksym))
 		return;
+
+	if (seen_prefix_key) {
+		seen_prefix_key = false;
+		if (!(MODMASK(kev->state) == 0 && ksym == XK_Escape))
+			run_key_handler(XKeysymToString(ksym), kev->state & ~sh);
+		return;
+	} else if (MODMASK(kev->state) == PREFIX_KEYMASK && ksym == PREFIX_KEYSYM) {
+		seen_prefix_key = true;
+		prefix = 0;
+		return;
+	}
 
 	if ((ksym == XK_Escape && MODMASK(kev->state) == 0) ||
 		  (key >= '0' && key <= '9'))
@@ -545,8 +557,6 @@ void on_keypress(XKeyEvent *kev)
 			break;
 		}
 	}
-	if (i == ARRLEN(keys))
-		run_key_handler(XKeysymToString(ksym), kev->state & ~sh);
 	prefix = 0;
 }
 

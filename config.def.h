@@ -77,6 +77,12 @@ static const bool RENDER_WHITE_ALPHA = false;
 #endif
 #ifdef _MAPPINGS_CONFIG
 
+/* the prefix key: when pressed, the next key combo is passed to the external
+ * key handler
+ */
+#define PREFIX_KEYMASK ControlMask
+#define PREFIX_KEYSYM XK_x
+
 /* keyboard mappings for image and thumbnail mode: */
 static const keymap_t keys[] = {
 	/* modifiers    key               function              argument */
