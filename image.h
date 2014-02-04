@@ -76,7 +76,6 @@ void img_close(img_t*, bool);
 void img_render(img_t*);
 
 bool img_fit_win(img_t*, scalemode_t);
-bool img_center(img_t*);
 
 bool img_zoom(img_t*, float);
 bool img_zoom_in(img_t*);

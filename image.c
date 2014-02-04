@@ -334,8 +334,7 @@ bool img_load(img_t *img, const fileinfo_t *file)
 	img->w = imlib_image_get_width();
 	img->h = imlib_image_get_height();
 	img->scalemode = options->scalemode;
-	img->re = false;
-	img->checkpan = false;
+	img->checkpan = true;
 	img->dirty = true;
 
 	return true;
@@ -372,30 +371,29 @@ void img_check_pan(img_t *img, bool moved)
 {
 	win_t *win;
 	int ox, oy;
+	float w, h;
 
 	if (img == NULL || img->im == NULL || img->win == NULL)
 		return;
 
 	win = img->win;
+	w = img->w * img->zoom;
+	h = img->h * img->zoom;
 	ox = img->x;
 	oy = img->y;
 
-	if (img->w * img->zoom > win->w) {
-		if (img->x > 0 && img->x + img->w * img->zoom > win->w)
-			img->x = 0;
-		if (img->x < 0 && img->x + img->w * img->zoom < win->w)
-			img->x = win->w - img->w * img->zoom;
-	} else {
-		img->x = (win->w - img->w * img->zoom) / 2;
-	}
-	if (img->h * img->zoom > win->h) {
-		if (img->y > 0 && img->y + img->h * img->zoom > win->h)
-			img->y = 0;
-		if (img->y < 0 && img->y + img->h * img->zoom < win->h)
-			img->y = win->h - img->h * img->zoom;
-	} else {
-		img->y = (win->h - img->h * img->zoom) / 2;
-	}
+	if (w < win->w)
+		img->x = (win->w - w) / 2;
+	else if (img->x > 0)
+		img->x = 0;
+	else if (img->x + w < win->w)
+		img->x = win->w - w;
+	if (h < win->h)
+		img->y = (win->h - h) / 2;
+	else if (img->y > 0)
+		img->y = 0;
+	else if (img->y + h < win->h)
+		img->y = win->h - h;
 
 	if (!moved && (ox != img->x || oy != img->y))
 		img->dirty = true;
@@ -450,19 +448,6 @@ void img_render(img_t *img)
 	win = img->win;
 	img_fit(img);
 
-	if (!img->re) {
-		/* rendered for the first time */
-		img->re = true;
-		if (img->zoom * img->w <= win->w)
-			img->x = (win->w - img->w * img->zoom) / 2;
-		else
-			img->x = 0;
-		if (img->zoom * img->h <= win->h)
-			img->y = (win->h - img->h * img->zoom) / 2;
-		else
-			img->y = 0;
-	}
-	
 	if (img->checkpan) {
 		img_check_pan(img, false);
 		img->checkpan = false;
@@ -511,28 +496,18 @@ void img_render(img_t *img)
 
 bool img_fit_win(img_t *img, scalemode_t sm)
 {
-	if (img == NULL || img->im == NULL)
-		return false;
-
-	img->scalemode = sm;
-	return img_fit(img);
-}
-
-bool img_center(img_t *img)
-{
-	int ox, oy;
+	float oz;
 
 	if (img == NULL || img->im == NULL || img->win == NULL)
 		return false;
-	
-	ox = img->x;
-	oy = img->y;
 
-	img->x = (img->win->w - img->w * img->zoom) / 2;
-	img->y = (img->win->h - img->h * img->zoom) / 2;
-	
-	if (ox != img->x || oy != img->y) {
-		img->dirty = true;
+	oz = img->zoom;
+	img->scalemode = sm;
+
+	if (img_fit(img)) {
+		img->x = img->win->w / 2 - (img->win->w / 2 - img->x) * img->zoom / oz;
+		img->y = img->win->h / 2 - (img->win->h / 2 - img->y) * img->zoom / oz;
+		img->checkpan = true;
 		return true;
 	} else {
 		return false;

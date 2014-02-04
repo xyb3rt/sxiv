@@ -433,14 +433,12 @@ cmdreturn_t i_set_zoom(arg_t a)
 
 cmdreturn_t i_fit_to_win(arg_t a)
 {
-	cmdreturn_t ret = CMD_INVALID;
 	scalemode_t sm = (scalemode_t) a;
 
-	if (mode == MODE_IMAGE) {
-		if ((ret = img_fit_win(&img, sm)))
-			img_center(&img);
-	}
-	return ret;
+	if (mode == MODE_IMAGE)
+		return img_fit_win(&img, sm);
+	else
+		return CMD_INVALID;
 }
 
 cmdreturn_t i_fit_to_img(arg_t a)
