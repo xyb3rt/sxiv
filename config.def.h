@@ -23,14 +23,6 @@ static const char * const BAR_FG_COLOR = "#EEEEEE";
 #endif
 #ifdef _IMAGE_CONFIG
 
-/* how should images be scaled when they are loaded?
- * (also controllable via -d/-s/-Z/-z options)
- *   SCALE_DOWN: 100%, but fit large images into window,
- *   SCALE_FIT:  fit all images into window,
- *   SCALE_ZOOM: use current zoom level, 100% at startup
- */
-static const scalemode_t SCALE_MODE = SCALE_DOWN;
-
 /* levels (in percent) to use when zooming via '-' and '+':
  * (first/last value is used as min/max zoom level)
  */
@@ -138,7 +130,8 @@ static const keymap_t keys[] = {
 	{ 0,            XK_minus,         i_zoom,               (arg_t) -1 },
 	{ 0,            XK_KP_Subtract,   i_zoom,               (arg_t) -1 },
 	{ 0,            XK_equal,         i_set_zoom,           (arg_t) 100 },
-	{ 0,            XK_w,             i_fit_to_win,         (arg_t) SCALE_FIT },
+	{ 0,            XK_w,             i_fit_to_win,         (arg_t) SCALE_DOWN },
+	{ 0,            XK_W,             i_fit_to_win,         (arg_t) SCALE_FIT },
 	{ 0,            XK_e,             i_fit_to_win,         (arg_t) SCALE_WIDTH },
 	{ 0,            XK_E,             i_fit_to_win,         (arg_t) SCALE_HEIGHT },
 

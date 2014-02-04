@@ -3,7 +3,7 @@
 sxiv \- Simple X Image Viewer
 .SH SYNOPSIS
 .B sxiv
-.RB [ \-bcdFfhiopqrstvZ ]
+.RB [ \-bcFfhioqrstvZ ]
 .RB [ \-G
 .IR GAMMA ]
 .RB [ \-g
@@ -37,9 +37,6 @@ Do not show info bar on bottom of window.
 .TP
 .B \-c
 Remove all orphaned cache files from the thumbnail cache directory and exit.
-.TP
-.B \-d
-Scale all images to 100%, but fit large images into window.
 .TP
 .B \-F
 Make the window fixed/floating by setting the minimum and maximum width/height
@@ -84,7 +81,7 @@ Search the given directories recursively for images to view.
 Start in slideshow mode. Set the delay between images to DELAY seconds.
 .TP
 .B \-s
-Scale all images to fit into window.
+Fit images to window.
 .TP
 .B \-t
 Start in thumbnail mode.
@@ -96,9 +93,7 @@ Print version information to standard output and exit.
 The same as `\-z 100'.
 .TP
 .BI "\-z " ZOOM
-Scale all images to the current zoom level, use a zoom level of
-.I ZOOM
-at startup.
+Set zoom level to ZOOM percent.
 .SH GENERAL KEYBOARD COMMANDS
 The following keyboard commands are available in both image and thumbnail mode:
 .TP
@@ -229,13 +224,16 @@ Set zoom level to 100%, or
 .IR count %.
 .TP
 .B w
-Set zoom level to fit image into window.
+Set zoom level to 100%, but fit large images into window.
+.TP
+.B W
+Fit image to window.
 .TP
 .B e
-Set zoom level to fit image width to window width.
+Fit image to window width.
 .TP
 .B E
-Set zoom level to fit image height to window height.
+Fit image to window height.
 .SS Panning
 .TP
 .BR h ", " Left

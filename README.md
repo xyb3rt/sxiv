@@ -70,7 +70,6 @@ of small previews is displayed, making it easy to choose an image to open.
 
     -b           Do not show info bar on bottom of window
     -c           Remove all orphaned cache files from thumbnail cache and exit
-    -d           Scale all images to 100%, but fit large images into window
     -F           Use size-hints to make the window fixed/floating
     -f           Start in fullscreen mode
     -G GAMMA     Set image gamma to GAMMA (-32..32)
@@ -83,11 +82,11 @@ of small previews is displayed, making it easy to choose an image to open.
     -q           Be quiet, disable warnings
     -r           Search given directories recursively for images
     -S DELAY     Enable slideshow and set slideshow delay to DELAY seconds
-    -s           Scale all images to fit into window
+    -s           Fit images to window
     -t           Start in thumbnail mode
     -v           Print version information and exit
     -Z           Same as `-z 100'
-    -z ZOOM      Scale all images to current zoom level, use ZOOM at startup
+    -z ZOOM      Set zoom level to ZOOM percent
 
 **Key mappings:**
 
@@ -132,9 +131,10 @@ of small previews is displayed, making it easy to choose an image to open.
     +            Zoom in
     -            Zoom out
     =            Set zoom level to 100%, or [count]%
-    w            Fit image into window
-    e            Fit image width to window width
-    E            Fit image height to window height
+    w            Set zoom level to 100%, but fit large images into window
+    W            Fit image to window
+    e            Fit image to window width
+    E            Fit image to window height
 
     h,j,k,l      Pan image 1/5 of window width/height or [count] pixels
                  left/down/up/right (also with arrow keys)

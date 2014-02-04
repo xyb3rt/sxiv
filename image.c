@@ -74,6 +74,7 @@ void img_init(img_t *img, win_t *win)
 
 	img->im = NULL;
 	img->win = win;
+	img->scalemode = options->scalemode;
 	img->zoom = options->zoom;
 	img->zoom = MAX(img->zoom, zoom_min);
 	img->zoom = MIN(img->zoom, zoom_max);
@@ -333,7 +334,6 @@ bool img_load(img_t *img, const fileinfo_t *file)
 
 	img->w = imlib_image_get_width();
 	img->h = imlib_image_get_height();
-	img->scalemode = options->scalemode;
 	img->checkpan = true;
 	img->dirty = true;
 
