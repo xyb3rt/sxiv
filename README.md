@@ -149,10 +149,9 @@ of small previews is displayed, making it easy to choose an image to open.
     {,}          Decrease/increase gamma
     Ctrl-g       Reset gamma
 
-    s            Toggle slideshow or set delay to [count] seconds
-
     a            Toggle anti-aliasing
-    W            Resize window to fit image
+
+    s            Toggle slideshow or set delay to [count] seconds
 
 
 **Mouse button mappings:**

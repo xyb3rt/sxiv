@@ -70,7 +70,6 @@ cmdreturn_t i_drag(arg_t);
 cmdreturn_t i_zoom(arg_t);
 cmdreturn_t i_set_zoom(arg_t);
 cmdreturn_t i_fit_to_win(arg_t);
-cmdreturn_t i_fit_to_img(arg_t);
 cmdreturn_t i_rotate(arg_t);
 cmdreturn_t i_flip(arg_t);
 cmdreturn_t i_slideshow(arg_t);

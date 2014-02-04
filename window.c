@@ -374,39 +374,6 @@ void win_expose(win_t *win, XExposeEvent *e)
 	          e->x, e->y, e->width, e->height, e->x, e->y);
 }
 
-bool win_moveresize(win_t *win, int x, int y, unsigned int w, unsigned int h)
-{
-	if (win == NULL || win->xwin == None)
-		return false;
-
-	/* caller knows nothing about the bar */
-	h += win->bar.h;
-
-	x = MAX(0, x);
-	y = MAX(0, y);
-	w = MIN(w, win->env.scrw - 2 * win->bw);
-	h = MIN(h, win->env.scrh - 2 * win->bw);
-
-	if (win->x == x && win->y == y && win->w == w && win->h + win->bar.h == h)
-		return false;
-
-	win->x = x;
-	win->y = y;
-	win->w = w;
-	win->h = h - win->bar.h;
-
-	win_update_sizehints(win);
-
-	XMoveResizeWindow(win->env.dpy, win->xwin, x, y, w, h);
-
-	if (win->pm != None) {
-		XFreePixmap(win->env.dpy, win->pm);
-		win->pm = None;
-	}
-
-	return true;
-}
-
 void win_toggle_fullscreen(win_t *win)
 {
 	XEvent ev;

@@ -441,26 +441,6 @@ cmdreturn_t i_fit_to_win(arg_t a)
 		return CMD_INVALID;
 }
 
-cmdreturn_t i_fit_to_img(arg_t a)
-{
-	int x, y;
-	unsigned int w, h;
-	cmdreturn_t ret = CMD_INVALID;
-
-	if (mode == MODE_IMAGE) {
-		x = MAX(0, win.x + img.x);
-		y = MAX(0, win.y + img.y);
-		w = img.w * img.zoom;
-		h = img.h * img.zoom;
-		if ((ret = win_moveresize(&win, x, y, w, h))) {
-			img.x = x - win.x;
-			img.y = y - win.y;
-			img.dirty = true;
-		}
-	}
-	return ret;
-}
-
 cmdreturn_t i_rotate(arg_t a)
 {
 	degree_t degree = (degree_t) a;

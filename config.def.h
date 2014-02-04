@@ -141,7 +141,6 @@ static const keymap_t keys[] = {
 	{ 0,            XK_w,             i_fit_to_win,         (arg_t) SCALE_FIT },
 	{ 0,            XK_e,             i_fit_to_win,         (arg_t) SCALE_WIDTH },
 	{ 0,            XK_E,             i_fit_to_win,         (arg_t) SCALE_HEIGHT },
-	{ 0,            XK_W,             i_fit_to_img,         (arg_t) None },
 
 	{ 0,            XK_less,          i_rotate,             (arg_t) DEGREE_270 },
 	{ 0,            XK_greater,       i_rotate,             (arg_t) DEGREE_90 },
