@@ -3,7 +3,7 @@
 sxiv \- Simple X Image Viewer
 .SH SYNOPSIS
 .B sxiv
-.RB [ \-bcFfhioqrstvZ ]
+.RB [ \-bcFfhioqrtvZ ]
 .RB [ \-G
 .IR GAMMA ]
 .RB [ \-g
@@ -14,6 +14,8 @@ sxiv \- Simple X Image Viewer
 .IR NUM ]
 .RB [ \-S
 .IR DELAY ]
+.RB [ \-s
+.IR MODE ]
 .RB [ \-z
 .IR ZOOM ]
 .IR FILE ...
@@ -50,8 +52,7 @@ Set image gamma to GAMMA (-32..32).
 .TP
 .BI "\-g " GEOMETRY
 Set window position and size. See section GEOMETRY SPECIFICATIONS of X(7) for
-more information on
-.IR GEOMETRY .
+more information on GEOMETRY argument.
 .TP
 .BI "\-N " NAME
 Set the resource name of sxiv's X window to NAME.
@@ -68,7 +69,7 @@ Read names of files to open from standard input.
 .B \-o
 Write list of all marked files to standard output when quitting. In combination
 with
-.I \-i
+.B \-i
 sxiv can be used as a visual filter/pipe.
 .TP
 .B \-q
@@ -80,8 +81,9 @@ Search the given directories recursively for images to view.
 .BI "\-S " DELAY
 Start in slideshow mode. Set the delay between images to DELAY seconds.
 .TP
-.B \-s
-Fit images to window.
+.BI "\-s " MODE
+Set scale mode according to MODE character. Supported modes are: [d]own, 
+[f]it, [w]idth, [h]eight.
 .TP
 .B \-t
 Start in thumbnail mode.

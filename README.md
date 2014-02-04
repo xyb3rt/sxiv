@@ -82,7 +82,7 @@ of small previews is displayed, making it easy to choose an image to open.
     -q           Be quiet, disable warnings
     -r           Search given directories recursively for images
     -S DELAY     Enable slideshow and set slideshow delay to DELAY seconds
-    -s           Fit images to window
+    -s MODE      Set scale mode to MODE ([d]own, [f]it, [w]idth, [h]eight)
     -t           Start in thumbnail mode
     -v           Print version information and exit
     -Z           Same as `-z 100'

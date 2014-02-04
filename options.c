@@ -33,8 +33,8 @@ const options_t *options = (const options_t*) &_options;
 
 void print_usage(void)
 {
-	printf("usage: sxiv [-bcFfhioqrstvZ] [-G GAMMA] [-g GEOMETRY] [-n NUM] "
-	       "[-N NAME] [-S DELAY] [-z ZOOM] FILES...\n");
+	printf("usage: sxiv [-bcFfhioqrtvZ] [-G GAMMA] [-g GEOMETRY] [-n NUM] "
+	       "[-N NAME] [-S DELAY] [-s MODE] [-z ZOOM] FILES...\n");
 }
 
 void print_version(void)
@@ -45,7 +45,8 @@ void print_version(void)
 void parse_options(int argc, char **argv)
 {
 	int n, opt;
-	char *end;
+	char *end, *s;
+	const char *scalemodes = "dfwh";
 
 	_options.from_stdin = false;
 	_options.to_stdout = false;
@@ -67,7 +68,7 @@ void parse_options(int argc, char **argv)
 	_options.thumb_mode = false;
 	_options.clean_cache = false;
 
-	while ((opt = getopt(argc, argv, "bcFfG:g:hin:N:oqrS:stvZz:")) != -1) {
+	while ((opt = getopt(argc, argv, "bcFfG:g:hin:N:oqrS:s:tvZz:")) != -1) {
 		switch (opt) {
 			case '?':
 				print_usage();
@@ -130,7 +131,12 @@ void parse_options(int argc, char **argv)
 				_options.slideshow = n;
 				break;
 			case 's':
-				_options.scalemode = SCALE_FIT;
+				s = strchr(scalemodes, optarg[0]);
+				if (s == NULL || *s == '\0' || strlen(optarg) != 1) {
+					fprintf(stderr, "sxiv: invalid argument for option -s: %s\n", optarg);
+					exit(EXIT_FAILURE);
+				}
+				_options.scalemode = s - scalemodes;
 				break;
 			case 't':
 				_options.thumb_mode = true;
