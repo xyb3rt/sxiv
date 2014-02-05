@@ -65,8 +65,6 @@ typedef struct {
 	unsigned int h; /* = win height - bar height */
 	unsigned int bw;
 
-	XSizeHints sizehints;
-
 	bool fullscreen;
 
 	struct {

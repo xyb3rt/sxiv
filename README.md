@@ -70,7 +70,6 @@ of small previews is displayed, making it easy to choose an image to open.
 
     -b           Do not show info bar on bottom of window
     -c           Remove all orphaned cache files from thumbnail cache and exit
-    -F           Use size-hints to make the window fixed/floating
     -f           Start in fullscreen mode
     -G GAMMA     Set image gamma to GAMMA (-32..32)
     -g GEOMETRY  Set window position and size

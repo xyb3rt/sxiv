@@ -38,7 +38,6 @@ typedef struct {
 	int slideshow;
 
 	/* window: */
-	bool fixed_win;
 	bool fullscreen;
 	bool hide_bar;
 	char *geometry;

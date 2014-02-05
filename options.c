@@ -33,7 +33,7 @@ const options_t *options = (const options_t*) &_options;
 
 void print_usage(void)
 {
-	printf("usage: sxiv [-bcFfhioqrtvZ] [-G GAMMA] [-g GEOMETRY] [-n NUM] "
+	printf("usage: sxiv [-bcfhioqrtvZ] [-G GAMMA] [-g GEOMETRY] [-n NUM] "
 	       "[-N NAME] [-S DELAY] [-s MODE] [-z ZOOM] FILES...\n");
 }
 
@@ -58,7 +58,6 @@ void parse_options(int argc, char **argv)
 	_options.gamma = 0;
 	_options.slideshow = 0;
 
-	_options.fixed_win = false;
 	_options.fullscreen = false;
 	_options.hide_bar = false;
 	_options.geometry = NULL;
@@ -68,7 +67,7 @@ void parse_options(int argc, char **argv)
 	_options.thumb_mode = false;
 	_options.clean_cache = false;
 
-	while ((opt = getopt(argc, argv, "bcFfG:g:hin:N:oqrS:s:tvZz:")) != -1) {
+	while ((opt = getopt(argc, argv, "bcfG:g:hin:N:oqrS:s:tvZz:")) != -1) {
 		switch (opt) {
 			case '?':
 				print_usage();
@@ -78,9 +77,6 @@ void parse_options(int argc, char **argv)
 				break;
 			case 'c':
 				_options.clean_cache = true;
-				break;
-			case 'F':
-				_options.fixed_win = true;
 				break;
 			case 'f':
 				_options.fullscreen = true;

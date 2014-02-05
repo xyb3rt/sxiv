@@ -171,12 +171,6 @@ void win_init(win_t *win)
 	win->bar.fgcol = win_alloc_color(win, BAR_FG_COLOR);
 	win->bar.h     = options->hide_bar ? 0 : barheight;
 
-	win->sizehints.flags = PWinGravity;
-	win->sizehints.win_gravity = NorthWestGravity;
-	if (options->fixed_win)
-		/* actual min/max values set in win_update_sizehints() */
-		win->sizehints.flags |= PMinSize | PMaxSize;
-
 	INIT_ATOM_(WM_DELETE_WINDOW);
 	INIT_ATOM_(_NET_WM_NAME);
 	INIT_ATOM_(_NET_WM_ICON_NAME);
@@ -186,26 +180,6 @@ void win_init(win_t *win)
 	INIT_ATOM_(_NET_SUPPORTED);
 
 	win_check_wm_support(e->dpy, RootWindow(e->dpy, e->scr));
-}
-
-void win_update_sizehints(win_t *win)
-{
-	if (win == NULL || win->xwin == None)
-		return;
-
-	if ((win->sizehints.flags & USSize) != 0) {
-		win->sizehints.width  = win->w;
-		win->sizehints.height = win->h + win->bar.h;
-	}
-	if ((win->sizehints.flags & USPosition) != 0) {
-		win->sizehints.x = win->x;
-		win->sizehints.y = win->y;
-	}
-	if (options->fixed_win) {
-		win->sizehints.min_width  = win->sizehints.max_width  = win->w;
-		win->sizehints.min_height = win->sizehints.max_height = win->h + win->bar.h;
-	}
-	XSetWMNormalHints(win->env.dpy, win->xwin, &win->sizehints);
 }
 
 void win_open(win_t *win)
@@ -220,11 +194,15 @@ void win_open(win_t *win)
 	char none_data[] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 	Pixmap none;
 	int gmask;
+	XSizeHints sizehints;
 
 	if (win == NULL)
 		return;
 
 	e = &win->env;
+
+	sizehints.flags = PWinGravity;
+	sizehints.win_gravity = NorthWestGravity;
 
 	/* determine window offsets, width & height */
 	if (options->geometry == NULL)
@@ -233,31 +211,29 @@ void win_open(win_t *win)
 		gmask = XParseGeometry(options->geometry, &win->x, &win->y,
 		                       &win->w, &win->h);
 	if ((gmask & WidthValue) != 0)
-		win->sizehints.flags |= USSize;
+		sizehints.flags |= USSize;
 	else
 		win->w = WIN_WIDTH;
 	if ((gmask & HeightValue) != 0)
-		win->sizehints.flags |= USSize;
+		sizehints.flags |= USSize;
 	else
 		win->h = WIN_HEIGHT;
 	if ((gmask & XValue) != 0) {
 		if ((gmask & XNegative) != 0) {
 			win->x += e->scrw - win->w;
-			win->sizehints.win_gravity = NorthEastGravity;
+			sizehints.win_gravity = NorthEastGravity;
 		}
-		win->sizehints.flags |= USPosition;
+		sizehints.flags |= USPosition;
 	} else {
 		win->x = (e->scrw - win->w) / 2;
 	}
 	if ((gmask & YValue) != 0) {
 		if ((gmask & YNegative) != 0) {
 			win->y += e->scrh - win->h;
-			if (win->sizehints.win_gravity == NorthEastGravity)
-				win->sizehints.win_gravity = SouthEastGravity;
-			else
-				win->sizehints.win_gravity = SouthWestGravity;
+			sizehints.win_gravity = sizehints.win_gravity == NorthEastGravity
+			                      ? SouthEastGravity : SouthWestGravity;
 		}
-		win->sizehints.flags |= USPosition;
+		sizehints.flags |= USPosition;
 	} else {
 		win->y = (e->scrh - win->h) / 2;
 	}
@@ -316,8 +292,13 @@ void win_open(win_t *win)
 
 	XSetWMProtocols(e->dpy, win->xwin, &atoms[ATOM_WM_DELETE_WINDOW], 1);
 
+	sizehints.width = win->w;
+	sizehints.height = win->h;
+	sizehints.x = win->x;
+	sizehints.y = win->y;
+	XSetWMNormalHints(win->env.dpy, win->xwin, &sizehints);
+
 	win->h -= win->bar.h;
-	win_update_sizehints(win);
 
 	XMapWindow(e->dpy, win->xwin);
 	XFlush(e->dpy);
