@@ -441,6 +441,8 @@ void img_render(img_t *img)
 	win_t *win;
 	int sx, sy, sw, sh;
 	int dx, dy, dw, dh;
+	Imlib_Image bg;
+	unsigned long c;
 
 	if (img == NULL || img->im == NULL || img->win == NULL)
 		return;
@@ -456,8 +458,11 @@ void img_render(img_t *img)
 	if (!img->dirty)
 		return;
 
-	/* calculate source and destination offsets */
-	if (img->x < 0) {
+	/* calculate source and destination offsets:
+	 *   - part of image drawn on full window, or
+	 *   - full image drawn on part of window
+	 */
+	if (img->x <= 0) {
 		sx = -img->x / img->zoom;
 		sw = win->w / img->zoom;
 		dx = 0;
@@ -468,7 +473,7 @@ void img_render(img_t *img)
 		dx = img->x;
 		dw = img->w * img->zoom;
 	}
-	if (img->y < 0) {
+	if (img->y <= 0) {
 		sy = -img->y / img->zoom;
 		sh = win->h / img->zoom;
 		dy = 0;
@@ -484,13 +489,30 @@ void img_render(img_t *img)
 
 	imlib_context_set_image(img->im);
 	imlib_context_set_anti_alias(img->aa);
-
-	if (!img->alpha && imlib_image_has_alpha())
-		win_draw_rect(win, win->pm, dx, dy, dw, dh, True, 0, win->white);
-	
 	imlib_context_set_drawable(win->pm);
-	imlib_render_image_part_on_drawable_at_size(sx, sy, sw, sh, dx, dy, dw, dh);
 
+	if (imlib_image_has_alpha()) {
+		bg = imlib_create_image(dw, dh);
+		imlib_context_set_image(bg);
+		imlib_image_set_has_alpha(0);
+
+		if (img->alpha)
+			c = win->fullscreen ? win->fscol : win->bgcol;
+		else
+			c = win->white;
+		imlib_context_set_color(c >> 16 & 0xFF, c >> 8 & 0xFF, c & 0xFF, 0xFF);
+		imlib_image_fill_rectangle(0, 0, dw, dh);
+
+		imlib_blend_image_onto_image(img->im, 0, sx, sy, sw, sh, 0, 0, dw, dh);
+		imlib_context_set_color_modifier(NULL);
+		imlib_render_image_on_drawable(dx, dy);
+
+		imlib_free_image();
+		if (img->gamma != 0)
+			imlib_context_set_color_modifier(img->cmod);
+	} else {
+		imlib_render_image_part_on_drawable_at_size(sx, sy, sw, sh, dx, dy, dw, dh);
+	}
 	img->dirty = false;
 }
 
