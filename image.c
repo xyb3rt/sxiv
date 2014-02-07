@@ -492,7 +492,8 @@ void img_render(img_t *img)
 	imlib_context_set_drawable(win->pm);
 
 	if (imlib_image_has_alpha()) {
-		bg = imlib_create_image(dw, dh);
+		if ((bg = imlib_create_image(dw, dh)) == NULL)
+			die("could not allocate memory");
 		imlib_context_set_image(bg);
 		imlib_image_set_has_alpha(0);
 
