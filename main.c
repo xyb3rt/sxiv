@@ -86,7 +86,10 @@ struct {
   bool open;
 } info;
 
-char * keyhandler;
+struct {
+	char *cmd;
+	bool warned;
+} keyhandler;
 
 timeout_t timeouts[] = {
 	{ { 0, 0 }, false, redraw       },
@@ -453,7 +456,14 @@ void run_key_handler(const char *key, unsigned int mask)
 	char kstr[32];
 	struct stat oldst, newst;
 
-	if (keyhandler == NULL || key == NULL)
+	if (keyhandler.cmd == NULL) {
+		if (!keyhandler.warned) {
+			warn("key handler not installed");
+			keyhandler.warned = true;
+		}
+		return;
+	}
+	if (key == NULL)
 		return;
 
 	snprintf(kstr, sizeof(kstr), "%s%s%s%s",
@@ -464,7 +474,7 @@ void run_key_handler(const char *key, unsigned int mask)
 	stat(files[n].path, &oldst);
 
 	if ((pid = fork()) == 0) {
-		execl(keyhandler, keyhandler, kstr, files[n].path, NULL);
+		execl(keyhandler.cmd, keyhandler.cmd, kstr, files[n].path, NULL);
 		warn("could not exec key handler");
 		exit(EXIT_FAILURE);
 	} else if (pid < 0) {
@@ -810,7 +820,7 @@ int main(int argc, char **argv)
 		dsuffix = "/.config";
 	}
 	if (homedir != NULL) {
-		char **cmd[] = { &info.cmd, &keyhandler };
+		char **cmd[] = { &info.cmd, &keyhandler.cmd };
 		const char *name[] = { "image-info", "key-handler" };
 
 		for (i = 0; i < ARRLEN(cmd); i++) {
