@@ -74,7 +74,7 @@ cmdreturn_t i_rotate(arg_t);
 cmdreturn_t i_flip(arg_t);
 cmdreturn_t i_slideshow(arg_t);
 cmdreturn_t i_toggle_antialias(arg_t);
-cmdreturn_t it_toggle_alpha(arg_t);
+cmdreturn_t i_toggle_alpha(arg_t);
 cmdreturn_t i_change_gamma(arg_t);
 
 #endif /* COMMANDS_H */

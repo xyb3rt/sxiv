@@ -75,10 +75,8 @@ cmdreturn_t it_quit(arg_t a)
 cmdreturn_t it_switch_mode(arg_t a)
 {
 	if (mode == MODE_IMAGE) {
-		if (tns.thumbs == NULL) {
+		if (tns.thumbs == NULL)
 			tns_init(&tns, filecnt, &win);
-			tns.alpha = img.alpha;
-		}
 		img_close(&img, false);
 		reset_timeout(reset_cursor);
 		if (img.ss.on) {
@@ -494,14 +492,15 @@ cmdreturn_t i_toggle_antialias(arg_t a)
 	}
 }
 
-cmdreturn_t it_toggle_alpha(arg_t a)
+cmdreturn_t i_toggle_alpha(arg_t a)
 {
-	img.alpha = tns.alpha = !img.alpha;
-	if (mode == MODE_IMAGE)
+	if (mode == MODE_IMAGE) {
+		img.alpha = !img.alpha;
 		img.dirty = true;
-	else
-		tns.dirty = true;
-	return CMD_DIRTY;
+		return CMD_DIRTY;
+	} else {
+		return CMD_INVALID;
+	}
 }
 
 cmdreturn_t i_change_gamma(arg_t a)

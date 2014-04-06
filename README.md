@@ -102,7 +102,6 @@ of small previews is displayed, making it easy to choose an image to open.
     f            Toggle fullscreen mode (requires an EWMH/NetWM compliant
                  window manager)
     b            Toggle visibility of info bar on bottom of window
-    A            Toggle visibility of alpha-channel, i.e. transparency
 
     r            Reload image
     R            Reload all thumbnails
@@ -149,6 +148,7 @@ of small previews is displayed, making it easy to choose an image to open.
     Ctrl-g       Reset gamma
 
     a            Toggle anti-aliasing
+    A            Toggle visibility of alpha-channel, i.e. transparency
 
     s            Toggle slideshow or set delay to [count] seconds
 

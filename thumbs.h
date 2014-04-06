@@ -47,7 +47,6 @@ typedef struct {
 	int cols;
 	int rows;
 
-	bool alpha;
 	bool dirty;
 } tns_t;
 

@@ -18,7 +18,6 @@
 
 #define _POSIX_C_SOURCE 200112L
 #define _IMAGE_CONFIG
-#define _RENDER_CONFIG
 
 #include <stdlib.h>
 #include <string.h>
@@ -80,8 +79,8 @@ void img_init(img_t *img, win_t *win)
 	img->zoom = MIN(img->zoom, zoom_max);
 	img->checkpan = false;
 	img->dirty = false;
-	img->aa = RENDER_ANTI_ALIAS;
-	img->alpha = !RENDER_WHITE_ALPHA;
+	img->aa = ANTI_ALIAS;
+	img->alpha = ALPHA_LAYER;
 	img->multi.cap = img->multi.cnt = 0;
 	img->multi.animate = false;
 	img->multi.length = img->multi.repeat = 0;
@@ -497,13 +496,26 @@ void img_render(img_t *img)
 		imlib_context_set_image(bg);
 		imlib_image_set_has_alpha(0);
 
-		if (img->alpha)
-			c = win->fullscreen ? win->fscol : win->bgcol;
-		else
-			c = win->white;
-		imlib_context_set_color(c >> 16 & 0xFF, c >> 8 & 0xFF, c & 0xFF, 0xFF);
-		imlib_image_fill_rectangle(0, 0, dw, dh);
+		if (img->alpha) {
+			int i, c, r;
+			DATA32 col[2] = { 0xFF666666, 0xFF999999 };
+			DATA32 * data = imlib_image_get_data();
 
+			for (r = 0; r < dh; r++) {
+				i = r * dw;
+				if (r == 0 || r == 8) {
+					for (c = 0; c < dw; c++)
+						data[i++] = col[!(c & 8) ^ !r];
+				} else {
+					memcpy(&data[i], &data[(r & 8) * dw], dw * sizeof(data[0]));
+				}
+			}
+			imlib_image_put_back_data(data);
+		} else {
+			c = win->fullscreen ? win->fscol : win->bgcol;
+			imlib_context_set_color(c >> 16 & 0xFF, c >> 8 & 0xFF, c & 0xFF, 0xFF);
+			imlib_image_fill_rectangle(0, 0, dw, dh);
+		}
 		imlib_blend_image_onto_image(img->im, 0, sx, sy, sw, sh, 0, 0, dw, dh);
 		imlib_context_set_color_modifier(NULL);
 		imlib_render_image_on_drawable(dx, dy);

@@ -53,7 +53,6 @@ typedef struct {
 	Window xwin;
 	win_env_t env;
 
-	unsigned long white;
 	unsigned long bgcol;
 	unsigned long fscol;
 	unsigned long selcol;

@@ -47,24 +47,21 @@ enum {
 static const double GAMMA_MAX   = 10.0;
 static const int    GAMMA_RANGE = 32;
 
+/* if false, pixelate images at zoom level != 100%,
+ * toggled with 'a' key binding
+ */
+static const bool ANTI_ALIAS = true;
+
+/* if true, use a checkerboard background for alpha layer,
+ * toggled with 'A' key binding
+ */
+static const bool ALPHA_LAYER = false;
+
 #endif
 #ifdef _THUMBS_CONFIG
 
 /* default dimension of thumbnails (width == height): */
 enum { THUMB_SIZE = 60 };
-
-#endif
-#ifdef _RENDER_CONFIG
-
-/* if false, pixelate images at zoom level != 100%,
- * toggled with 'a' key binding
- */
-static const bool RENDER_ANTI_ALIAS = true;
-
-/* if true, use white background for alpha layer,
- * toggled with 'A' key binding
- */
-static const bool RENDER_WHITE_ALPHA = false;
 
 #endif
 #ifdef _MAPPINGS_CONFIG
@@ -145,7 +142,7 @@ static const keymap_t keys[] = {
 	{ 0,            XK_s,             i_slideshow,          (arg_t) None },
 
 	{ 0,            XK_a,             i_toggle_antialias,   (arg_t) None },
-	{ 0,            XK_A,             it_toggle_alpha,      (arg_t) None },
+	{ 0,            XK_A,             i_toggle_alpha,       (arg_t) None },
 
 	{ 0,            XK_braceleft,     i_change_gamma,       (arg_t) -1 },
 	{ 0,            XK_braceright,    i_change_gamma,       (arg_t) +1 },

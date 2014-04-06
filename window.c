@@ -163,7 +163,6 @@ void win_init(win_t *win)
 
 	win_init_font(e->dpy, BAR_FONT);
 
-	win->white     = WhitePixel(e->dpy, e->scr);
 	win->bgcol     = win_alloc_color(win, WIN_BG_COLOR);
 	win->fscol     = win_alloc_color(win, WIN_FS_COLOR);
 	win->selcol    = win_alloc_color(win, SEL_COLOR);

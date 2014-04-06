@@ -18,7 +18,6 @@
 
 #define _POSIX_C_SOURCE 200112L
 #define _THUMBS_CONFIG
-#define _RENDER_CONFIG
 
 #include <stdlib.h>
 #include <string.h>
@@ -177,7 +176,6 @@ void tns_init(tns_t *tns, int cnt, win_t *win)
 	tns->cap = cnt;
 	tns->cnt = tns->first = tns->sel = 0;
 	tns->win = win;
-	tns->alpha = !RENDER_WHITE_ALPHA;
 	tns->dirty = false;
 
 	if ((homedir = getenv("XDG_CACHE_HOME")) == NULL || homedir[0] == '\0') {
@@ -360,10 +358,6 @@ void tns_render(tns_t *tns)
 		t->x = x + (THUMB_SIZE - t->w) / 2;
 		t->y = y + (THUMB_SIZE - t->h) / 2;
 		imlib_context_set_image(t->im);
-
-		if (!tns->alpha && imlib_image_has_alpha())
-			win_draw_rect(win, win->pm, t->x, t->y, t->w, t->h, true, 0, win->white);
-
 		imlib_render_image_part_on_drawable_at_size(0, 0, t->w, t->h,
 		                                            t->x, t->y, t->w, t->h);
 		if (t->file->marked)
