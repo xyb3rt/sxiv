@@ -224,7 +224,7 @@ void win_open(win_t *win)
 		}
 		sizehints.flags |= USPosition;
 	} else {
-		win->x = (e->scrw - win->w) / 2;
+		win->x = 0;
 	}
 	if ((gmask & YValue) != 0) {
 		if ((gmask & YNegative) != 0) {
@@ -234,7 +234,7 @@ void win_open(win_t *win)
 		}
 		sizehints.flags |= USPosition;
 	} else {
-		win->y = (e->scrh - win->h) / 2;
+		win->y = 0;
 	}
 
 	attr.background_pixel = win->bgcol;
