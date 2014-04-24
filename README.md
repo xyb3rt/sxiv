@@ -175,6 +175,17 @@ on GitHub or get a copy using git with the following command:
 
 **Stable releases**
 
+**[v1.2](https://github.com/muennich/sxiv/archive/v1.2.tar.gz)**
+*(April 24, 2014)*
+
+  * Added external key handler, called on keys prefixed with `Ctrl-x`
+  * New keybinding `{`/`}` to change gamma (by András Mohari)
+  * Support for slideshows, enabled with `-S` option & toggled with `s`
+  * Added application icon (created by 0ion9)
+  * Checkerboard background for alpha layer
+  * Option `-o` only prints files marked with `m` key
+  * Fixed rotation/flipping of multi-frame images (gifs)
+
 **[v1.1.1](https://github.com/muennich/sxiv/archive/v1.1.1.tar.gz)**
 *(June 2, 2013)*
 
