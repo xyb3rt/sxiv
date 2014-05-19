@@ -354,6 +354,23 @@ and the first argument to this script is the path of the loaded image.
 .P
 There is also an example script installed together with sxiv as
 .IR PREFIX/share/sxiv/exec/image-info .
+.SH EXTERNAL KEY HANDLER
+Additional keyboard commands can be defined using a handler program
+located in
+.IR $XDG_CONFIG_HOME/sxiv/exec/key-handler .
+You can invoke the handler by pressing
+.B Ctrl-x
+and then a key combo that will be passed to the handler. The key combo
+is passed as its first argument and the path of the current image as
+its second argument.  sxiv(1) will block until handler terminates. It
+then checks if the image has been modified and reloads it.
+
+The key combo argument has the following form: "[C-][M-][S-]KEY",
+where C/M/S indicate Ctrl/Meta(Alt)/Shift modifier states and KEY is the X
+keysym as listed in /usr/include/X11/keysymdef.h without the "XK_" prefix.
+
+There is also an example script installed together with sxiv as
+.IR PREFIX/share/sxiv/exec/key-handler .
 .SH THUMBNAIL CACHING
 To enable thumbnail caching, please make sure to create the directory
 .I $XDG_CACHE_HOME/sxiv/
