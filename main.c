@@ -644,7 +644,7 @@ void run(void)
 	bool discard, to_set;
 	XEvent ev, nextev;
 
-	redraw();
+	set_timeout(redraw, 25, false);
 
 	while (true) {
 		while (mode == MODE_THUMB && tns.cnt < filecnt &&
