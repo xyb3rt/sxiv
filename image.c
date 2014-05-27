@@ -278,7 +278,11 @@ bool img_load_gif(img_t *img, const fileinfo_t *file)
 		}
 	} while (rec != TERMINATE_RECORD_TYPE);
 
+#if defined(GIFLIB_MAJOR) && GIFLIB_MAJOR >= 5 && GIFLIB_MINOR >= 1
+	DGifCloseFile(gif, NULL);
+#else
 	DGifCloseFile(gif);
+#endif
 
 	if (err && !file->loaded)
 		warn("corrupted gif file: %s", file->name);
