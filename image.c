@@ -24,16 +24,19 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#if HAVE_GIFLIB
-#include <gif_lib.h>
-enum { MIN_GIF_DELAY = 25 };
-#endif
-
-#include "exif.h"
 #include "image.h"
 #include "options.h"
 #include "util.h"
 #include "config.h"
+
+#if HAVE_LIBEXIF
+#include <libexif/exif-data.h>
+#endif
+
+#if HAVE_GIFLIB
+#include <gif_lib.h>
+enum { MIN_GIF_DELAY = 25 };
+#endif
 
 float zoom_min;
 float zoom_max;
@@ -92,9 +95,22 @@ void img_init(img_t *img, win_t *win)
 	img->ss.delay = options->slideshow > 0 ? options->slideshow : SLIDESHOW_DELAY;
 }
 
+#if HAVE_LIBEXIF
 void exif_auto_orientate(const fileinfo_t *file)
 {
-	switch (exif_orientation(file)) {
+	ExifData *ed;
+	ExifEntry *entry;
+	int byte_order, orientation = 0;
+
+	if ((ed = exif_data_new_from_file(file->path)) == NULL)
+		return;
+	byte_order = exif_data_get_byte_order(ed);
+	entry = exif_content_get_entry(ed->ifd[EXIF_IFD_0], EXIF_TAG_ORIENTATION);
+	if (entry != NULL)
+		orientation = exif_get_short(entry->data, byte_order);
+	exif_data_unref(ed);
+
+	switch (orientation) {
 		case 5:
 			imlib_image_orientate(1);
 		case 2:
@@ -116,6 +132,7 @@ void exif_auto_orientate(const fileinfo_t *file)
 			break;
 	}
 }
+#endif
 
 #if HAVE_GIFLIB
 bool img_load_gif(img_t *img, const fileinfo_t *file)
@@ -322,17 +339,16 @@ bool img_load(img_t *img, const fileinfo_t *file)
 	imlib_context_set_image(img->im);
 	imlib_image_set_changes_on_disk();
 
-	if ((fmt = imlib_image_format()) == NULL) {
-		warn("could not open image: %s", file->name);
-		return false;
-	}
-	if (STREQ(fmt, "jpeg"))
-		exif_auto_orientate(file);
-#if HAVE_GIFLIB
-	if (STREQ(fmt, "gif"))
-		img_load_gif(img, file);
+#if HAVE_LIBEXIF
+	exif_auto_orientate(file);
 #endif
 
+	if ((fmt = imlib_image_format()) != NULL) {
+#if HAVE_GIFLIB
+		if (STREQ(fmt, "gif"))
+			img_load_gif(img, file);
+#endif
+	}
 	img_apply_gamma(img);
 
 	img->w = imlib_image_get_width();

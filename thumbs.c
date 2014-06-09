@@ -19,6 +19,7 @@
 #define _POSIX_C_SOURCE 200112L
 #define _THUMBS_CONFIG
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
@@ -26,10 +27,14 @@
 #include <unistd.h>
 #include <utime.h>
 
-#include "exif.h"
 #include "thumbs.h"
 #include "util.h"
 #include "config.h"
+
+#if HAVE_LIBEXIF
+#include <libexif/exif-data.h>
+void exif_auto_orientate(const fileinfo_t*);
+#endif
 
 static const int thumb_dim = THUMB_SIZE + 10;
 
@@ -224,8 +229,7 @@ bool tns_load(tns_t *tns, int n, const fileinfo_t *file,
 	bool use_cache, cache_hit = false;
 	float z, zw, zh;
 	thumb_t *t;
-	Imlib_Image im;
-	const char *fmt;
+	Imlib_Image im = NULL;
 
 	if (tns == NULL || tns->thumbs == NULL)
 		return false;
@@ -248,26 +252,75 @@ bool tns_load(tns_t *tns, int n, const fileinfo_t *file,
 	}
 
 	if (!cache_hit) {
-		if (access(file->path, R_OK) < 0 ||
-		    (im = imlib_load_image(file->path)) == NULL)
+#if HAVE_LIBEXIF
+		int pw = 0, ph = 0, x = 0, y = 0;
+		bool err;
+		ExifData *ed;
+		ExifEntry *entry;
+		ExifContent *ifd;
+		ExifByteOrder byte_order;
+		int tmpfd;
+		char tmppath[] = "/tmp/sxiv-XXXXXX";
+		Imlib_Image tmpim;
+
+		if ((ed = exif_data_new_from_file(file->path)) != NULL &&
+			  ed->data != NULL && ed->size > 0)
+		{
+			if ((tmpfd = mkstemp(tmppath)) >= 0) {
+				err = write(tmpfd, ed->data, ed->size) != ed->size;
+				close(tmpfd);
+
+				if (!err && (tmpim = imlib_load_image(tmppath)) != NULL) {
+					byte_order = exif_data_get_byte_order(ed);
+					ifd = ed->ifd[EXIF_IFD_EXIF];
+					entry = exif_content_get_entry(ifd, EXIF_TAG_PIXEL_X_DIMENSION);
+					if (entry != NULL)
+						pw = exif_get_long(entry->data, byte_order);
+					entry = exif_content_get_entry(ifd, EXIF_TAG_PIXEL_Y_DIMENSION);
+					if (entry != NULL)
+						ph = exif_get_long(entry->data, byte_order);
+
+					imlib_context_set_image(tmpim);
+					w = imlib_image_get_width();
+					h = imlib_image_get_height();
+
+					if (pw > w && ph > h) {
+						zw = (float) pw / (float) w;
+						zh = (float) ph / (float) h;
+						if (zw < zh) {
+							pw /= zh;
+							x = (w - pw) / 2;
+							w = pw;
+						} else if (zw > zh) {
+							ph /= zw;
+							y = (h - ph) / 2;
+							h = ph;
+						}
+					}
+					if ((im = imlib_create_cropped_image(x, y, w, h)) == NULL)
+						die("could not allocate memory");
+					imlib_free_image_and_decache();
+				}
+				unlink(tmppath);
+			}
+			exif_data_unref(ed);
+		}
+#endif
+		if (im == NULL && (access(file->path, R_OK) < 0 ||
+		    (im = imlib_load_image(file->path)) == NULL))
 		{
 			if (!silent)
 				warn("could not open image: %s", file->name);
 			return false;
 		}
 	}
-
 	imlib_context_set_image(im);
 	imlib_context_set_anti_alias(1);
 
-	if ((fmt = imlib_image_format()) == NULL) {
-		if (!silent)
-			warn("could not open image: %s", file->name);
-		imlib_free_image_and_decache();
-		return false;
-	}
-	if (STREQ(fmt, "jpeg"))
+#if HAVE_LIBEXIF
+	if (!cache_hit)
 		exif_auto_orientate(file);
+#endif
 
 	w = imlib_image_get_width();
 	h = imlib_image_get_height();

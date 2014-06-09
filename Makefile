@@ -1,15 +1,15 @@
-VERSION = git-20140531
+VERSION = git-20140609
 
 PREFIX    = /usr/local
 MANPREFIX = $(PREFIX)/share/man
 
 CC       = gcc
 CFLAGS   = -std=c99 -Wall -pedantic -O2
-CPPFLAGS = -I$(PREFIX)/include -D_XOPEN_SOURCE=500 -DHAVE_GIFLIB
+CPPFLAGS = -I$(PREFIX)/include -D_XOPEN_SOURCE=500 -DHAVE_LIBEXIF -DHAVE_GIFLIB
 LDFLAGS  = -L$(PREFIX)/lib
-LIBS     = -lX11 -lImlib2 -lgif
+LIBS     = -lX11 -lImlib2 -lexif -lgif
 
-SRC = commands.c exif.c image.c main.c options.c thumbs.c util.c window.c
+SRC = commands.c image.c main.c options.c thumbs.c util.c window.c
 OBJ = $(SRC:.c=.o)
 
 all: sxiv
