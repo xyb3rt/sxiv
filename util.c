@@ -324,14 +324,8 @@ int r_mkdir(const char *path)
 	if (path == NULL || *path == '\0')
 		return -1;
 
-	if (stat(path, &stats) == 0) {
-		if (S_ISDIR(stats.st_mode)) {
-			return 0;
-		} else {
-			warn("not a directory: %s", path);
-			return -1;
-		}
-	}
+	if (stat(path, &stats) == 0)
+		return S_ISDIR(stats.st_mode) ? 0 : -1;
 
 	d = dir = (char*) s_malloc(strlen(path) + 1);
 	strcpy(dir, path);
@@ -346,7 +340,6 @@ int r_mkdir(const char *path)
 				err = -1;
 			}
 		} else if (stat(dir, &stats) < 0 || !S_ISDIR(stats.st_mode)) {
-			warn("not a directory: %s", dir);
 			err = -1;
 		}
 		if (d != NULL)

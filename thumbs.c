@@ -36,17 +36,8 @@
 void exif_auto_orientate(const fileinfo_t*);
 #endif
 
+static char *cache_dir;
 static const int thumb_dim = THUMB_SIZE + 10;
-
-static char *cache_dir = NULL;
-
-bool tns_cache_enabled(void)
-{
-	struct stat stats;
-
-	return cache_dir != NULL && stat(cache_dir, &stats) == 0 &&
-	       S_ISDIR(stats.st_mode) && access(cache_dir, W_OK) == 0;
-}
 
 char* tns_cache_filepath(const char *filepath)
 {
@@ -107,19 +98,15 @@ void tns_cache_write(thumb_t *t, bool force)
 				err = r_mkdir(cfile);
 				*dirend = '/';
 			}
-
 			if (err == 0) {
 				imlib_context_set_image(t->im);
 				imlib_image_set_format("png");
 				imlib_save_image_with_error_return(cfile, &err);
 			}
-
 			if (err == 0) {
 				times.actime = fstats.st_atime;
 				times.modtime = fstats.st_mtime;
 				utime(cfile, &times);
-			} else {
-				warn("could not cache thumbnail: %s", t->file->name);
 			}
 		}
 		free(cfile);
@@ -177,7 +164,6 @@ void tns_init(tns_t *tns, int cnt, win_t *win)
 	} else {
 		tns->thumbs = NULL;
 	}
-
 	tns->cap = cnt;
 	tns->cnt = tns->first = tns->sel = 0;
 	tns->win = win;
@@ -226,7 +212,7 @@ bool tns_load(tns_t *tns, int n, const fileinfo_t *file,
               bool force, bool silent)
 {
 	int w, h;
-	bool use_cache, cache_hit = false;
+	bool cache_hit = false;
 	float z, zw, zh;
 	thumb_t *t;
 	Imlib_Image im = NULL;
@@ -246,64 +232,63 @@ bool tns_load(tns_t *tns, int n, const fileinfo_t *file,
 		imlib_free_image();
 	}
 
-	if ((use_cache = tns_cache_enabled())) {
-		if (!force && (im = tns_cache_load(file->path)) != NULL)
-			cache_hit = true;
-	}
-
-	if (!cache_hit) {
+	if (!force && (im = tns_cache_load(file->path)) != NULL) {
+		cache_hit = true;
+	} else {
 #if HAVE_LIBEXIF
-		int pw = 0, ph = 0, x = 0, y = 0;
-		bool err;
-		ExifData *ed;
-		ExifEntry *entry;
-		ExifContent *ifd;
-		ExifByteOrder byte_order;
-		int tmpfd;
-		char tmppath[] = "/tmp/sxiv-XXXXXX";
-		Imlib_Image tmpim;
+		if (!force) {
+			int pw = 0, ph = 0, x = 0, y = 0;
+			bool err;
+			ExifData *ed;
+			ExifEntry *entry;
+			ExifContent *ifd;
+			ExifByteOrder byte_order;
+			int tmpfd;
+			char tmppath[] = "/tmp/sxiv-XXXXXX";
+			Imlib_Image tmpim;
 
-		if ((ed = exif_data_new_from_file(file->path)) != NULL &&
-			  ed->data != NULL && ed->size > 0)
-		{
-			if ((tmpfd = mkstemp(tmppath)) >= 0) {
-				err = write(tmpfd, ed->data, ed->size) != ed->size;
-				close(tmpfd);
+			if ((ed = exif_data_new_from_file(file->path)) != NULL &&
+					ed->data != NULL && ed->size > 0)
+			{
+				if ((tmpfd = mkstemp(tmppath)) >= 0) {
+					err = write(tmpfd, ed->data, ed->size) != ed->size;
+					close(tmpfd);
 
-				if (!err && (tmpim = imlib_load_image(tmppath)) != NULL) {
-					byte_order = exif_data_get_byte_order(ed);
-					ifd = ed->ifd[EXIF_IFD_EXIF];
-					entry = exif_content_get_entry(ifd, EXIF_TAG_PIXEL_X_DIMENSION);
-					if (entry != NULL)
-						pw = exif_get_long(entry->data, byte_order);
-					entry = exif_content_get_entry(ifd, EXIF_TAG_PIXEL_Y_DIMENSION);
-					if (entry != NULL)
-						ph = exif_get_long(entry->data, byte_order);
+					if (!err && (tmpim = imlib_load_image(tmppath)) != NULL) {
+						byte_order = exif_data_get_byte_order(ed);
+						ifd = ed->ifd[EXIF_IFD_EXIF];
+						entry = exif_content_get_entry(ifd, EXIF_TAG_PIXEL_X_DIMENSION);
+						if (entry != NULL)
+							pw = exif_get_long(entry->data, byte_order);
+						entry = exif_content_get_entry(ifd, EXIF_TAG_PIXEL_Y_DIMENSION);
+						if (entry != NULL)
+							ph = exif_get_long(entry->data, byte_order);
 
-					imlib_context_set_image(tmpim);
-					w = imlib_image_get_width();
-					h = imlib_image_get_height();
+						imlib_context_set_image(tmpim);
+						w = imlib_image_get_width();
+						h = imlib_image_get_height();
 
-					if (pw > w && ph > h && (pw - ph >= 0) == (w - h >= 0)) {
-						zw = (float) pw / (float) w;
-						zh = (float) ph / (float) h;
-						if (zw < zh) {
-							pw /= zh;
-							x = (w - pw) / 2;
-							w = pw;
-						} else if (zw > zh) {
-							ph /= zw;
-							y = (h - ph) / 2;
-							h = ph;
+						if (pw > w && ph > h && (pw - ph >= 0) == (w - h >= 0)) {
+							zw = (float) pw / (float) w;
+							zh = (float) ph / (float) h;
+							if (zw < zh) {
+								pw /= zh;
+								x = (w - pw) / 2;
+								w = pw;
+							} else if (zw > zh) {
+								ph /= zw;
+								y = (h - ph) / 2;
+								h = ph;
+							}
 						}
+						if ((im = imlib_create_cropped_image(x, y, w, h)) == NULL)
+							die("could not allocate memory");
+						imlib_free_image_and_decache();
 					}
-					if ((im = imlib_create_cropped_image(x, y, w, h)) == NULL)
-						die("could not allocate memory");
-					imlib_free_image_and_decache();
+					unlink(tmppath);
 				}
-				unlink(tmppath);
+				exif_data_unref(ed);
 			}
-			exif_data_unref(ed);
 		}
 #endif
 		if (im == NULL && (access(file->path, R_OK) < 0 ||
@@ -337,7 +322,7 @@ bool tns_load(tns_t *tns, int n, const fileinfo_t *file,
 
 	imlib_free_image_and_decache();
 
-	if (use_cache && !cache_hit)
+	if (!cache_hit)
 		tns_cache_write(t, true);
 
 	tns->dirty = true;

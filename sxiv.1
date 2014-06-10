@@ -27,9 +27,6 @@ sxiv has two modes of operation: image and thumbnail mode. The default is image
 mode, in which only the current image is shown. In thumbnail mode a grid of 
 small previews is displayed, making it easy to choose an image to open.
 .P
-sxiv can also cache its thumbnails. Please see the section THUMBNAIL CACHING
-for information on how to enable this feature.
-.P
 Please note, that the fullscreen mode requires an EWMH/NetWM compliant window
 manager.
 .SH OPTIONS
@@ -371,18 +368,13 @@ keysym as listed in /usr/include/X11/keysymdef.h without the "XK_" prefix.
 There is also an example script installed together with sxiv as
 .IR PREFIX/share/sxiv/exec/key-handler .
 .SH THUMBNAIL CACHING
-To enable thumbnail caching, please make sure to create the directory
-.I $XDG_CACHE_HOME/sxiv/
-with write permissions. sxiv will then store all thumbnails inside this
-directory, but it will not create this directory by itself. It rather uses the
-existance of this directory as an affirmation, that the user wants thumbnails
-to be cached.
+sxiv stores all thumbnails under
+.IR $XDG_CACHE_HOME/sxiv/ .
 .P
 Use the command line option
 .I \-c
-to keep the cache directory clean by removing all orphaned cache files.
-Additionally, run the following command afterwards inside the cache directory
-to remove empty subdirectories:
+to remove all orphaned cache files. Additionally, run the following command
+afterwards inside the cache directory to remove empty subdirectories:
 .P
 .RS
 find . \-depth \-type d \-empty ! \-name '.' \-exec rmdir {} \\;
