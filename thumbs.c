@@ -284,7 +284,7 @@ bool tns_load(tns_t *tns, int n, const fileinfo_t *file,
 					w = imlib_image_get_width();
 					h = imlib_image_get_height();
 
-					if (pw > w && ph > h) {
+					if (pw > w && ph > h && (pw - ph >= 0) == (w - h >= 0)) {
 						zw = (float) pw / (float) w;
 						zh = (float) ph / (float) h;
 						if (zw < zh) {
