@@ -481,6 +481,7 @@ void win_draw(win_t *win)
 
 	XCopyArea(win->env.dpy, win->pm, win->xwin, gc,
 	          0, 0, win->w, win->h + win->bar.h, 0, 0);
+	XFlush(win->env.dpy);
 }
 
 void win_draw_rect(win_t *win, Pixmap pm, int x, int y, int w, int h,
@@ -510,6 +511,7 @@ void win_update_bar(win_t *win)
 		win_draw_bar(win);
 		XCopyArea(win->env.dpy, win->pm, win->xwin, gc,
 		          0, win->h, win->w, win->bar.h, 0, win->h);
+		XFlush(win->env.dpy);
 	}
 }
 

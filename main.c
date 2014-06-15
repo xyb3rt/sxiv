@@ -465,7 +465,8 @@ void run_key_handler(const char *key, unsigned int mask)
 {
 	pid_t pid;
 	int retval, status, n = mode == MODE_IMAGE ? fileidx : tns.sel;
-	char kstr[32];
+	char kstr[32], oldbar[sizeof(win.bar.l)];
+	bool restore_bar = mode == MODE_IMAGE && info.cmd != NULL;
 	struct stat oldst, newst;
 
 	if (keyhandler.cmd == NULL) {
@@ -483,6 +484,11 @@ void run_key_handler(const char *key, unsigned int mask)
 	         mask & Mod1Mask    ? "M-" : "",
 	         mask & ShiftMask   ? "S-" : "", key);
 
+	if (restore_bar)
+		memcpy(oldbar, win.bar.l, sizeof(win.bar.l));
+	strncpy(win.bar.l, "Running key handler...", sizeof(win.bar.l));
+	win_update_bar(&win);
+	win_set_cursor(&win, CURSOR_WATCH);
 	stat(files[n].path, &oldst);
 
 	if ((pid = fork()) == 0) {
@@ -491,10 +497,8 @@ void run_key_handler(const char *key, unsigned int mask)
 		exit(EXIT_FAILURE);
 	} else if (pid < 0) {
 		warn("could not fork key handler");
-		return;
+		goto end;
 	}
-	win_set_cursor(&win, CURSOR_WATCH);
-
 	waitpid(pid, &status, 0);
 	retval = WEXITSTATUS(status);
 	if (WIFEXITED(status) == 0 || retval != 0)
@@ -504,10 +508,12 @@ void run_key_handler(const char *key, unsigned int mask)
 	    memcmp(&oldst.st_mtime, &newst.st_mtime, sizeof(oldst.st_mtime)) == 0)
 	{
 		/* file has not changed */
-		win_set_cursor(&win, CURSOR_ARROW);
-		set_timeout(reset_cursor, TO_CURSOR_HIDE, true);
-		return;
+		goto end;
 	}
+	restore_bar = false;
+	strncpy(win.bar.l, "Reloading image...", sizeof(win.bar.l));
+	win_update_bar(&win);
+
 	if (mode == MODE_IMAGE) {
 		img_close(&img, true);
 		load_image(fileidx);
@@ -520,6 +526,10 @@ void run_key_handler(const char *key, unsigned int mask)
 		if (tns.sel >= tns.cnt)
 			tns.sel = tns.cnt - 1;
 	}
+end:
+	if (restore_bar)
+		memcpy(win.bar.l, oldbar, sizeof(win.bar.l));
+	set_timeout(reset_cursor, TO_CURSOR_HIDE, true);
 	redraw();
 }
 
