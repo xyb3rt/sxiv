@@ -32,10 +32,10 @@ typedef enum {
 } appmode_t;
 
 typedef enum {
-	DIR_LEFT,
-	DIR_RIGHT,
-	DIR_UP,
-	DIR_DOWN
+	DIR_LEFT  = 1,
+	DIR_RIGHT = 2,
+	DIR_UP    = 4,
+	DIR_DOWN  = 8
 } direction_t;
 
 typedef enum {

@@ -687,20 +687,14 @@ bool img_pan_edge(img_t *img, direction_t dir)
 	ox = img->x;
 	oy = img->y;
 
-	switch (dir) {
-		case DIR_LEFT:
-			img->x = 0;
-			break;
-		case DIR_RIGHT:
-			img->x = img->win->w - img->w * img->zoom;
-			break;
-		case DIR_UP:
-			img->y = 0;
-			break;
-		case DIR_DOWN:
-			img->y = img->win->h - img->h * img->zoom;
-			break;
-	}
+	if (dir & DIR_LEFT)
+		img->x = 0;
+	if (dir & DIR_RIGHT)
+		img->x = img->win->w - img->w * img->zoom;
+	if (dir & DIR_UP)
+		img->y = 0;
+	if (dir & DIR_DOWN)
+		img->y = img->win->h - img->h * img->zoom;
 
 	img_check_pan(img, true);
 

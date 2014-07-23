@@ -541,6 +541,7 @@ void on_keypress(XKeyEvent *kev)
 	unsigned int sh;
 	KeySym ksym, shksym;
 	char key;
+	bool dirty = false;
 
 	if (kev == NULL)
 		return;
@@ -571,16 +572,18 @@ void on_keypress(XKeyEvent *kev)
 		    (cmds[keys[i].cmd].mode < 0 || cmds[keys[i].cmd].mode == mode))
 		{
 			if (cmds[keys[i].cmd].func(keys[i].arg))
-				redraw();
-			break;
+				dirty = true;
 		}
 	}
+	if (dirty)
+		redraw();
 	prefix = 0;
 }
 
 void on_buttonpress(XButtonEvent *bev)
 {
 	int i, sel;
+	bool dirty = false;
 	static Time firstclick;
 
 	if (bev == NULL)
@@ -597,10 +600,11 @@ void on_buttonpress(XButtonEvent *bev)
 			    (cmds[buttons[i].cmd].mode < 0 || cmds[buttons[i].cmd].mode == mode))
 			{
 				if (cmds[buttons[i].cmd].func(buttons[i].arg))
-					redraw();
-				break;
+					dirty = true;
 			}
 		}
+		if (dirty)
+			redraw();
 	} else {
 		/* thumbnail mode (hard-coded) */
 		switch (bev->button) {
