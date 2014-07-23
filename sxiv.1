@@ -92,22 +92,15 @@ Set zoom level to ZOOM percent.
 .SH GENERAL KEYBOARD COMMANDS
 The following keyboard commands are available in both image and thumbnail mode:
 .TP
+.BR 0 \- 9
+Prefix the next command with a number (denoted via
+.IR count ).
+.TP
 .B q
 Quit sxiv.
 .TP
 .B Return
 Switch to thumbnail mode / open selected image in image mode.
-.TP
-.BR 0 \- 9
-Prefix the next command with a number (denoted via
-.IR count ).
-.TP
-.B g
-Go to the first image.
-.TP
-.B G
-Go to the last image, or image number
-.IR count .
 .TP
 .B f
 Toggle fullscreen mode.
@@ -118,14 +111,30 @@ Toggle visibility of info bar on bottom of window.
 .B Ctrl-x
 Send the next key to the external key-handler.
 .TP
+.B g
+Go to the first image.
+.TP
+.B G
+Go to the last image, or image number
+.IR count .
+.TP
 .B r
 Reload image.
 .TP
-.B R
-Reload all thumbnails.
-.TP
 .B D
 Remove current image from file list and go to next image.
+.TP
+.BR Ctrl-h ", " Ctrl-Left
+Scroll left one screen width.
+.TP
+.BR Ctrl-j ", " Ctrl-Down
+Scroll down one screen height.
+.TP
+.BR Ctrl-k ", " Ctrl-Up
+Scroll up one screen height.
+.TP
+.BR Ctrl-l ", " Ctrl-Right
+Scroll right one screen width.
 .TP
 .B m
 Mark/unmark the current image.
@@ -165,11 +174,8 @@ Move selection right
 .I count
 times.
 .TP
-.BR Ctrl-j ", " Ctrl-Down
-Scroll thumbnail grid one window height down.
-.TP
-.BR Ctrl-k ", " Ctrl-Up
-Scroll thumbnail grid one window height up.
+.B R
+Reload all thumbnails.
 .SH IMAGE KEYBOARD COMMANDS
 The following keyboard commands are only available in image mode:
 .SS Navigate image list
@@ -203,6 +209,39 @@ Go to the previous frame of a multi-frame image.
 .TP
 .B Ctrl-Space
 Play/pause animation of a multi-frame image.
+.SS Panning
+.TP
+.BR h ", " Left
+Scroll image 1/5 of window width or
+.I count
+pixel left.
+.TP
+.BR j ", " Down
+Scroll image 1/5 of window height or
+.I count
+pixel down.
+.TP
+.BR k ", " Up
+Scroll image 1/5 of window height or
+.I count
+pixel up.
+.TP
+.BR l ", " Right
+Scroll image 1/5 of window width or
+.I count
+pixel right.
+.TP
+.B H
+Scroll to left image edge.
+.TP
+.B J
+Scroll to bottom image edge.
+.TP
+.B K
+Scroll to top image edge.
+.TP
+.B L
+Scroll to right image edge.
 .SS Zooming
 .TP
 .BR +
@@ -226,51 +265,6 @@ Fit image to window width.
 .TP
 .B E
 Fit image to window height.
-.SS Panning
-.TP
-.BR h ", " Left
-Pan image 1/5 of window width or
-.I count
-pixel left.
-.TP
-.BR j ", " Down
-Pan image 1/5 of window height or
-.I count
-pixel down.
-.TP
-.BR k ", " Up
-Pan image 1/5 of window height or
-.I count
-pixel up.
-.TP
-.BR l ", " Right
-Pan image 1/5 of window width or
-.I count
-pixel right.
-.TP
-.B H
-Pan to left image edge.
-.TP
-.B J
-Pan to bottom image edge.
-.TP
-.B K
-Pan to top image edge.
-.TP
-.B L
-Pan to right image edge.
-.TP
-.BR Ctrl-h ", " Ctrl-Left
-Pan image one window width left.
-.TP
-.BR Ctrl-j ", " Ctrl-Down
-Pan image one window height down.
-.TP
-.BR Ctrl-k ", " Ctrl-Up
-Pan image one window height up.
-.TP
-.BR Ctrl-l ", " Ctrl-Right
-Pan image one window width right.
 .SS Rotation
 .TP
 .B <
@@ -281,7 +275,7 @@ Rotate image clockwise by 90 degrees.
 .TP
 .B ?
 Rotate image by 180 degrees.
-.SS Flip
+.SS Flipping
 .TP
 .B |
 Flip image horizontally.
@@ -319,6 +313,22 @@ Go to next image.
 .TP
 .B Button3
 Go to the previous image.
+.SS Panning
+.TP
+.B Button2
+Drag the image with the mouse while keeping this button pressed down.
+.TP
+.B ScrollUp
+Scroll image up.
+.TP
+.B ScrollDown
+Scroll image down.
+.TP
+.B Shift+ScrollUp
+Scroll image left.
+.TP
+.B Shift+ScrollDown
+Scroll image right.
 .SS Zooming
 .TP
 .B Ctrl+ScrollUp
@@ -326,22 +336,6 @@ Zoom in.
 .TP
 .B Ctrl+ScrollDown
 Zoom out.
-.SS Panning/Moving
-.TP
-.B Button2
-Drag the image with the mouse while keeping this button pressed down.
-.TP
-.B ScrollUp
-Pan image up.
-.TP
-.B ScrollDown
-Pan image down.
-.TP
-.B Shift+ScrollUp
-Pan image left.
-.TP
-.B Shift+ScrollDown
-Pan image right.
 .SH STATUS BAR
 The information displayed on the left side of the status bar can be replaced
 with the output of a user-provided script, which is called by sxiv whenever an

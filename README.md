@@ -89,24 +89,17 @@ of small previews is displayed, making it easy to choose an image to open.
 
 **Key mappings:**
 
+    0-9          Prefix the next command with a number (denoted via [count])
     q            Quit sxiv
     Return       Switch to thumbnail mode / open selected image
-
-    0-9          Prefix the next command with a number (denoted via [count])
-
+    f            Toggle fullscreen mode
+    b            Toggle visibility of info bar on bottom of window
     Ctrl-x       Send the next key to the external key-handler
-
     g            Go to first image
     G            Go to the last image, or image number [count]
-
-    f            Toggle fullscreen mode (requires an EWMH/NetWM compliant
-                 window manager)
-    b            Toggle visibility of info bar on bottom of window
-
     r            Reload image
-    R            Reload all thumbnails
     D            Remove image from file list and go to next image
-
+    Ctrl-h,j,k,l Scroll one window width/height left/down/up/right
     m            Mark/unmark current image
     M            Reverse all image marks
     N            Go [count] marked images forward
@@ -114,18 +107,20 @@ of small previews is displayed, making it easy to choose an image to open.
 
 *Thumbnail mode:*
 
-    h,j,k,l      Move selection left/down/up/right [count] times
-    Ctrl-j,k     Scroll thumbnail grid one window height down/up
+    h,j,k,l      Move selection left/down/up/right [count] times (also with
+                 arrow keys)
+    R            Reload all thumbnails
 
 *Image mode:*
 
     n,Space      Go [count] images forward
     p,Backspace  Go [count] images backward
     [,]          Go [count] * 10 images backward/forward
-
     Ctrl-n,p     Go to the next/previous frame of a multi-frame image
     Ctrl-Space   Play/pause animation of a multi-frame image
-
+    h,j,k,l      Scroll image 1/5 of window width/height or [count] pixels
+                 left/down/up/right (also with arrow keys)
+    H,J,K,L      Scroll to left/bottom/top/right image edge
     +            Zoom in
     -            Zoom out
     =            Set zoom level to 100%, or [count]%
@@ -133,23 +128,13 @@ of small previews is displayed, making it easy to choose an image to open.
     W            Fit image to window
     e            Fit image to window width
     E            Fit image to window height
-
-    h,j,k,l      Pan image 1/5 of window width/height or [count] pixels
-                 left/down/up/right (also with arrow keys)
-    H,J,K,L      Pan to left/bottom/top/right image edge
-    Ctrl-h,j,k,l Pan image one window width/height left/down/up/right
-                 (also with Ctrl-arrow keys)
-
     <,>          Rotate image (counter-)clockwise by 90 degrees
     ?            Rotate image by 180 degrees
     |,_          Flip image horizontally/vertically
-
     {,}          Decrease/increase gamma
     Ctrl-g       Reset gamma
-
     a            Toggle anti-aliasing
     A            Toggle visibility of alpha-channel, i.e. transparency
-
     s            Toggle slideshow or set delay to [count] seconds
 
 
@@ -158,11 +143,11 @@ of small previews is displayed, making it easy to choose an image to open.
 *Image mode:*
 
     Button1      Go to the next image
-    Button2      Drag image with mouse while keeping it pressed
     Button3      Go to the previous image
-    Scroll       Pan image up/down
-    Shift+Scroll Pan image left/right
-    Ctrl+Scroll  Zoom in/out
+    Button2      Drag image with mouse while keeping it pressed
+    Wheel        Scroll image up/down
+    Shift+Wheel  Scroll image left/right
+    Ctrl+Wheel   Zoom in/out
 
 
 Download & Changelog

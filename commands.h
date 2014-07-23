@@ -1,4 +1,4 @@
-/* Copyright 2011 Bert Muennich
+/* Copyright 2011, 2014 Bert Muennich
  *
  * This file is part of sxiv.
  *
@@ -23,58 +23,37 @@
 
 #include "types.h"
 
-typedef enum {
-	CMD_INVALID = -1,
-	CMD_OK      =  0,
-	CMD_DIRTY   =  1
-} cmdreturn_t;
-
 typedef void* arg_t;
-typedef cmdreturn_t (*command_f)(arg_t);
+typedef bool (*cmd_f)(arg_t);
+
+#define G_CMD(c) g_##c,
+#define I_CMD(c) i_##c,
+#define T_CMD(c) t_##c,
+
+typedef enum {
+#include "commands.lst"
+	CMD_COUNT
+} cmd_id_t;
+
+typedef struct {
+	int mode;
+	cmd_f func;
+} cmd_t;
 
 typedef struct {
 	unsigned int mask;
 	KeySym ksym;
-	command_f cmd;
+	cmd_id_t cmd;
 	arg_t arg;
 } keymap_t;
 
 typedef struct {
 	unsigned int mask;
 	unsigned int button;
-	command_f cmd;
+	cmd_id_t cmd;
 	arg_t arg;
 } button_t;
 
-cmdreturn_t it_quit(arg_t);
-cmdreturn_t it_switch_mode(arg_t);
-cmdreturn_t it_toggle_fullscreen(arg_t);
-cmdreturn_t it_toggle_bar(arg_t);
-cmdreturn_t it_prefix_external(arg_t);
-cmdreturn_t t_reload_all(arg_t);
-cmdreturn_t it_reload_image(arg_t);
-cmdreturn_t it_remove_image(arg_t);
-cmdreturn_t i_navigate(arg_t);
-cmdreturn_t i_alternate(arg_t);
-cmdreturn_t it_first(arg_t);
-cmdreturn_t it_n_or_last(arg_t);
-cmdreturn_t i_navigate_frame(arg_t);
-cmdreturn_t i_toggle_animation(arg_t);
-cmdreturn_t it_toggle_image_mark(arg_t);
-cmdreturn_t it_reverse_marks(arg_t);
-cmdreturn_t it_navigate_marked(arg_t);
-cmdreturn_t it_scroll_move(arg_t);
-cmdreturn_t it_scroll_screen(arg_t);
-cmdreturn_t i_scroll_to_edge(arg_t);
-cmdreturn_t i_drag(arg_t);
-cmdreturn_t i_zoom(arg_t);
-cmdreturn_t i_set_zoom(arg_t);
-cmdreturn_t i_fit_to_win(arg_t);
-cmdreturn_t i_rotate(arg_t);
-cmdreturn_t i_flip(arg_t);
-cmdreturn_t i_slideshow(arg_t);
-cmdreturn_t i_toggle_antialias(arg_t);
-cmdreturn_t i_toggle_alpha(arg_t);
-cmdreturn_t i_change_gamma(arg_t);
+const extern cmd_t cmds[CMD_COUNT];
 
 #endif /* COMMANDS_H */

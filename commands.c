@@ -1,4 +1,4 @@
-/* Copyright 2011, 2012 Bert Muennich
+/* Copyright 2011, 2012, 2014 Bert Muennich
  *
  * This file is part of sxiv.
  *
@@ -58,7 +58,7 @@ const int ss_delays[] = {
 	1, 2, 3, 5, 10, 15, 20, 30, 60, 120, 180, 300, 600
 };
 
-cmdreturn_t it_quit(arg_t a)
+bool cg_quit(arg_t a)
 {
 	unsigned int i;
 
@@ -72,7 +72,7 @@ cmdreturn_t it_quit(arg_t a)
 	exit(EXIT_SUCCESS);
 }
 
-cmdreturn_t it_switch_mode(arg_t a)
+bool cg_switch_mode(arg_t a)
 {
 	if (mode == MODE_IMAGE) {
 		if (tns.thumbs == NULL)
@@ -90,10 +90,10 @@ cmdreturn_t it_switch_mode(arg_t a)
 		load_image(tns.sel);
 		mode = MODE_IMAGE;
 	}
-	return CMD_DIRTY;
+	return true;
 }
 
-cmdreturn_t it_toggle_fullscreen(arg_t a)
+bool cg_toggle_fullscreen(arg_t a)
 {
 	win_toggle_fullscreen(&win);
 	/* redraw after next ConfigureNotify event */
@@ -102,10 +102,10 @@ cmdreturn_t it_toggle_fullscreen(arg_t a)
 		img.checkpan = img.dirty = true;
 	else
 		tns.dirty = true;
-	return CMD_OK;
+	return false;
 }
 
-cmdreturn_t it_toggle_bar(arg_t a)
+bool cg_toggle_bar(arg_t a)
 {
 	win_toggle_bar(&win);
 	if (mode == MODE_IMAGE) {
@@ -115,27 +115,16 @@ cmdreturn_t it_toggle_bar(arg_t a)
 	} else {
 		tns.dirty = true;
 	}
-	return CMD_DIRTY;
+	return true;
 }
 
-cmdreturn_t it_prefix_external(arg_t a)
+bool cg_prefix_external(arg_t a)
 {
 	extprefix = true;
-	return CMD_OK;
+	return false;
 }
 
-cmdreturn_t t_reload_all(arg_t a)
-{
-	if (mode == MODE_THUMB) {
-		tns_free(&tns);
-		tns_init(&tns, filecnt, &win);
-		return CMD_DIRTY;
-	} else {
-		return CMD_INVALID;
-	}
-}
-
-cmdreturn_t it_reload_image(arg_t a)
+bool cg_reload_image(arg_t a)
 {
 	if (mode == MODE_IMAGE) {
 		load_image(fileidx);
@@ -148,120 +137,77 @@ cmdreturn_t it_reload_image(arg_t a)
 				tns.sel = tns.cnt - 1;
 		}
 	}
-	return CMD_DIRTY;
+	return true;
 }
 
-cmdreturn_t it_remove_image(arg_t a)
+bool cg_remove_image(arg_t a)
 {
 	if (mode == MODE_IMAGE) {
 		remove_file(fileidx, true);
 		load_image(fileidx >= filecnt ? filecnt - 1 : fileidx);
-		return CMD_DIRTY;
+		return true;
 	} else if (tns.sel < tns.cnt) {
 		remove_file(tns.sel, true);
 		tns.dirty = true;
 		if (tns.sel >= tns.cnt)
 			tns.sel = tns.cnt - 1;
-		return CMD_DIRTY;
+		return true;
 	} else {
-		return CMD_OK;
+		return false;
 	}
 }
 
-cmdreturn_t i_navigate(arg_t a)
-{
-	long n = (long) a;
-
-	if (mode == MODE_IMAGE) {
-		if (prefix > 0)
-			n *= prefix;
-		n += fileidx;
-		if (n < 0)
-			n = 0;
-		if (n >= filecnt)
-			n = filecnt - 1;
-
-		if (n != fileidx) {
-			load_image(n);
-			return CMD_DIRTY;
-		}
-	}
-	return CMD_INVALID;
-}
-
-cmdreturn_t i_alternate(arg_t a)
-{
-	if (mode == MODE_IMAGE) {
-		load_image(alternate);
-		return CMD_DIRTY;
-	} else {
-		return CMD_INVALID;
-	}
-}
-
-cmdreturn_t it_first(arg_t a)
+bool cg_first(arg_t a)
 {
 	if (mode == MODE_IMAGE && fileidx != 0) {
 		load_image(0);
-		return CMD_DIRTY;
+		return true;
 	} else if (mode == MODE_THUMB && tns.sel != 0) {
 		tns.sel = 0;
 		tns.dirty = true;
-		return CMD_DIRTY;
+		return true;
 	} else {
-		return CMD_OK;
+		return false;
 	}
 }
 
-cmdreturn_t it_n_or_last(arg_t a)
+bool cg_n_or_last(arg_t a)
 {
 	int n = prefix != 0 && prefix - 1 < filecnt ? prefix - 1 : filecnt - 1;
 
 	if (mode == MODE_IMAGE && fileidx != n) {
 		load_image(n);
-		return CMD_DIRTY;
+		return true;
 	} else if (mode == MODE_THUMB && tns.sel != n) {
 		tns.sel = n;
 		tns.dirty = true;
-		return CMD_DIRTY;
+		return true;
 	} else {
-		return CMD_OK;
+		return false;
 	}
 }
 
-cmdreturn_t i_navigate_frame(arg_t a)
+bool cg_scroll_screen(arg_t a)
 {
-	if (mode != MODE_IMAGE)
-		return CMD_INVALID;
+	direction_t dir = (direction_t) a;
+
+	if (mode == MODE_IMAGE)
+		return img_pan(&img, dir, -1);
 	else
-		return !img.multi.animate && img_frame_navigate(&img, (long) a);
+		return tns_scroll(&tns, dir, true);
 }
 
-cmdreturn_t i_toggle_animation(arg_t a)
-{
-	if (mode != MODE_IMAGE)
-		return CMD_INVALID;
-
-	if (img.multi.animate) {
-		reset_timeout(animate);
-		img.multi.animate = false;
-	} else if (img_frame_animate(&img, true)) {
-		set_timeout(animate, img.multi.frames[img.multi.sel].delay, true);
-	}
-	return CMD_DIRTY;
-}
-
-cmdreturn_t it_toggle_image_mark(arg_t a)
+bool cg_toggle_image_mark(arg_t a)
 {
 	int sel = mode == MODE_IMAGE ? fileidx : tns.sel;
 
 	files[sel].marked = !files[sel].marked;
 	if (mode == MODE_THUMB)
 		tns_mark(&tns, sel, files[sel].marked);
-	return CMD_DIRTY;
+	return true;
 }
 
-cmdreturn_t it_reverse_marks(arg_t a)
+bool cg_reverse_marks(arg_t a)
 {
 	int i, cnt = mode == MODE_IMAGE ? filecnt : tns.cnt;
 
@@ -269,10 +215,10 @@ cmdreturn_t it_reverse_marks(arg_t a)
 		files[i].marked = !files[i].marked;
 	if (mode == MODE_THUMB)
 		tns.dirty = true;
-	return CMD_DIRTY;
+	return true;
 }
 
-cmdreturn_t it_navigate_marked(arg_t a)
+bool cg_navigate_marked(arg_t a)
 {
 	long n = (long) a;
 	int d, i, cnt, sel, new;
@@ -297,40 +243,66 @@ cmdreturn_t it_navigate_marked(arg_t a)
 			tns.sel = new;
 			tns.dirty = true;
 		}
-		return CMD_DIRTY;
+		return true;
 	} else {
-		return CMD_OK;
+		return false;
 	}
 }
 
-cmdreturn_t it_scroll_move(arg_t a)
+bool ci_navigate(arg_t a)
 {
-	direction_t dir = (direction_t) a;
+	long n = (long) a;
 
-	if (mode == MODE_IMAGE)
-		return img_pan(&img, dir, prefix);
-	else
-		return tns_move_selection(&tns, dir, prefix);
+	if (prefix > 0)
+		n *= prefix;
+	n += fileidx;
+	if (n < 0)
+		n = 0;
+	if (n >= filecnt)
+		n = filecnt - 1;
+
+	if (n != fileidx) {
+		load_image(n);
+		return true;
+	} else {
+		return false;
+	}
 }
 
-cmdreturn_t it_scroll_screen(arg_t a)
+bool ci_alternate(arg_t a)
 {
-	direction_t dir = (direction_t) a;
-
-	if (mode == MODE_IMAGE)
-		return img_pan(&img, dir, -1);
-	else
-		return tns_scroll(&tns, dir, true);
+	load_image(alternate);
+	return true;
 }
 
-cmdreturn_t i_scroll_to_edge(arg_t a)
+bool ci_navigate_frame(arg_t a)
+{
+	return !img.multi.animate && img_frame_navigate(&img, (long) a);
+}
+
+bool ci_toggle_animation(arg_t a)
+{
+	if (img.multi.animate) {
+		reset_timeout(animate);
+		img.multi.animate = false;
+	} else if (img_frame_animate(&img, true)) {
+		set_timeout(animate, img.multi.frames[img.multi.sel].delay, true);
+	}
+	return true;
+}
+
+bool ci_scroll(arg_t a)
 {
 	direction_t dir = (direction_t) a;
 
-	if (mode == MODE_IMAGE)
-		return img_pan_edge(&img, dir);
-	else
-		return CMD_INVALID;
+	return img_pan(&img, dir, prefix);
+}
+
+bool ci_scroll_to_edge(arg_t a)
+{
+	direction_t dir = (direction_t) a;
+
+	return img_pan_edge(&img, dir);
 }
 
 /* Xlib helper function for i_drag() */
@@ -344,7 +316,7 @@ Bool is_motionnotify(Display *d, XEvent *e, XPointer a)
 	ox = x, oy = y; \
 	break
 
-cmdreturn_t i_drag(arg_t a)
+bool ci_drag(arg_t a)
 {
 	int dx = 0, dy = 0, i, ox, oy, x, y;
 	unsigned int ui;
@@ -352,10 +324,8 @@ cmdreturn_t i_drag(arg_t a)
 	XEvent e;
 	Window w;
 
-	if (mode != MODE_IMAGE)
-		return CMD_INVALID;
 	if (!XQueryPointer(win.env.dpy, win.xwin, &w, &w, &i, &i, &ox, &oy, &ui))
-		return CMD_OK;
+		return false;
 	
 	win_set_cursor(&win, CURSOR_HAND);
 
@@ -398,117 +368,109 @@ cmdreturn_t i_drag(arg_t a)
 			dx = dy = 0;
 		}
 	}
-	
 	win_set_cursor(&win, CURSOR_ARROW);
 	set_timeout(reset_cursor, TO_CURSOR_HIDE, true);
 	reset_timeout(redraw);
 
-	return CMD_OK;
+	return true;
 }
 
-cmdreturn_t i_zoom(arg_t a)
+bool ci_zoom(arg_t a)
 {
 	long scale = (long) a;
-
-	if (mode != MODE_IMAGE)
-		return CMD_INVALID;
 
 	if (scale > 0)
 		return img_zoom_in(&img);
 	else if (scale < 0)
 		return img_zoom_out(&img);
 	else
-		return CMD_OK;
+		return false;
 }
 
-cmdreturn_t i_set_zoom(arg_t a)
+bool ci_set_zoom(arg_t a)
 {
-	if (mode == MODE_IMAGE)
-		return img_zoom(&img, (prefix ? prefix : (long) a) / 100.0);
-	else
-		return CMD_INVALID;
+	return img_zoom(&img, (prefix ? prefix : (long) a) / 100.0);
 }
 
-cmdreturn_t i_fit_to_win(arg_t a)
+bool ci_fit_to_win(arg_t a)
 {
 	scalemode_t sm = (scalemode_t) a;
 
-	if (mode == MODE_IMAGE)
-		return img_fit_win(&img, sm);
-	else
-		return CMD_INVALID;
+	return img_fit_win(&img, sm);
 }
 
-cmdreturn_t i_rotate(arg_t a)
+bool ci_rotate(arg_t a)
 {
 	degree_t degree = (degree_t) a;
 
-	if (mode == MODE_IMAGE) {
-		img_rotate(&img, degree);
-		return CMD_DIRTY;
-	}	else {
-		return CMD_INVALID;
-	}
+	img_rotate(&img, degree);
+	return true;
 }
 
-cmdreturn_t i_flip(arg_t a)
+bool ci_flip(arg_t a)
 {
 	flipdir_t dir = (flipdir_t) a;
 
-	if (mode == MODE_IMAGE) {
-		img_flip(&img, dir);
-		return CMD_DIRTY;
-	} else {
-		return CMD_INVALID;
-	}
+	img_flip(&img, dir);
+	return true;
 }
 
-cmdreturn_t i_slideshow(arg_t a)
+bool ci_change_gamma(arg_t a)
 {
-	if (mode == MODE_IMAGE) {
-		if (prefix > 0) {
-			img.ss.on = true;
-			img.ss.delay = prefix;
-			set_timeout(slideshow, img.ss.delay * 1000, true);
-		} else if (img.ss.on) {
-			img.ss.on = false;
-			reset_timeout(slideshow);
-		} else {
-			img.ss.on = true;
-		}
-		return CMD_DIRTY;
-	} else {
-		return CMD_INVALID;
-	}
+	return img_change_gamma(&img, (long) a);
 }
 
-cmdreturn_t i_toggle_antialias(arg_t a)
+bool ci_toggle_antialias(arg_t a)
 {
-	if (mode == MODE_IMAGE) {
-		img_toggle_antialias(&img);
-		return CMD_DIRTY;
-	} else {
-		return CMD_INVALID;
-	}
+	img_toggle_antialias(&img);
+	return true;
 }
 
-cmdreturn_t i_toggle_alpha(arg_t a)
+bool ci_toggle_alpha(arg_t a)
 {
-	if (mode == MODE_IMAGE) {
-		img.alpha = !img.alpha;
-		img.dirty = true;
-		return CMD_DIRTY;
-	} else {
-		return CMD_INVALID;
-	}
+	img.alpha = !img.alpha;
+	img.dirty = true;
+	return true;
 }
 
-cmdreturn_t i_change_gamma(arg_t a)
+bool ci_slideshow(arg_t a)
 {
-	if (mode == MODE_IMAGE) {
-		return img_change_gamma(&img, (long) a);
+	if (prefix > 0) {
+		img.ss.on = true;
+		img.ss.delay = prefix;
+		set_timeout(slideshow, img.ss.delay * 1000, true);
+	} else if (img.ss.on) {
+		img.ss.on = false;
+		reset_timeout(slideshow);
 	} else {
-		return CMD_INVALID;
+		img.ss.on = true;
 	}
+	return true;
 }
+
+bool ct_move_sel(arg_t a)
+{
+	direction_t dir = (direction_t) a;
+
+	return tns_move_selection(&tns, dir, prefix);
+}
+
+bool ct_reload_all(arg_t a)
+{
+	tns_free(&tns);
+	tns_init(&tns, filecnt, &win);
+	return false;
+}
+
+
+#undef  G_CMD
+#define G_CMD(c) { -1, cg_##c },
+#undef  I_CMD
+#define I_CMD(c) { MODE_IMAGE, ci_##c },
+#undef  T_CMD
+#define T_CMD(c) { MODE_THUMB, ct_##c },
+
+const cmd_t cmds[CMD_COUNT] = {
+#include "commands.lst"
+};
 

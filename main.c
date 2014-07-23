@@ -567,13 +567,10 @@ void on_keypress(XKeyEvent *kev)
 	} else for (i = 0; i < ARRLEN(keys); i++) {
 		if (keys[i].ksym == ksym &&
 		    MODMASK(keys[i].mask | sh) == MODMASK(kev->state) &&
-		    keys[i].cmd != NULL)
+		    keys[i].cmd >= 0 && keys[i].cmd < CMD_COUNT &&
+		    (cmds[keys[i].cmd].mode < 0 || cmds[keys[i].cmd].mode == mode))
 		{
-			cmdreturn_t ret = keys[i].cmd(keys[i].arg);
-
-			if (ret == CMD_INVALID)
-				continue;
-			if (ret == CMD_DIRTY)
+			if (cmds[keys[i].cmd].func(keys[i].arg))
 				redraw();
 			break;
 		}
@@ -596,13 +593,10 @@ void on_buttonpress(XButtonEvent *bev)
 		for (i = 0; i < ARRLEN(buttons); i++) {
 			if (buttons[i].button == bev->button &&
 			    MODMASK(buttons[i].mask) == MODMASK(bev->state) &&
-			    buttons[i].cmd != NULL)
+			    buttons[i].cmd >= 0 && buttons[i].cmd < CMD_COUNT &&
+			    (cmds[buttons[i].cmd].mode < 0 || cmds[buttons[i].cmd].mode == mode))
 			{
-				cmdreturn_t ret = buttons[i].cmd(buttons[i].arg);
-
-				if (ret == CMD_INVALID)
-					continue;
-				if (ret == CMD_DIRTY)
+				if (cmds[buttons[i].cmd].func(buttons[i].arg))
 					redraw();
 				break;
 			}
