@@ -282,13 +282,17 @@ bool ci_navigate_frame(arg_t a)
 
 bool ci_toggle_animation(arg_t a)
 {
+	bool dirty = false;
+
+	img.multi.animate = !img.multi.animate;
+
 	if (img.multi.animate) {
-		reset_timeout(animate);
-		img.multi.animate = false;
-	} else if (img_frame_animate(&img, true)) {
+		dirty = img_frame_animate(&img, true);
 		set_timeout(animate, img.multi.frames[img.multi.sel].delay, true);
+	} else {
+		reset_timeout(animate);
 	}
-	return true;
+	return dirty;
 }
 
 bool ci_scroll(arg_t a)

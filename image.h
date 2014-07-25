@@ -36,7 +36,6 @@ typedef struct {
 	int sel;
 	bool animate;
 	int length;
-	int repeat;
 } multi_img_t;
 
 typedef struct {
@@ -51,7 +50,6 @@ typedef struct {
 	scalemode_t scalemode;
 	float zoom;
 
-	bool re;
 	bool checkpan;
 	bool dirty;
 	bool aa;

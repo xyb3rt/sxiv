@@ -34,6 +34,7 @@ typedef struct {
 	/* image: */
 	scalemode_t scalemode;
 	float zoom;
+	bool animate;
 	int gamma;
 	int slideshow;
 

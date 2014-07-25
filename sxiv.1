@@ -3,7 +3,7 @@
 sxiv \- Simple X Image Viewer
 .SH SYNOPSIS
 .B sxiv
-.RB [ \-bcfhioqrtvZ ]
+.RB [ \-abcfhioqrtvZ ]
 .RB [ \-G
 .IR GAMMA ]
 .RB [ \-g
@@ -30,6 +30,9 @@ small previews is displayed, making it easy to choose an image to open.
 Please note, that the fullscreen mode requires an EWMH/NetWM compliant window
 manager.
 .SH OPTIONS
+.TP
+.B \-a
+Play animations of multi-frame images.
 .TP
 .B \-b
 Do not show info bar on bottom of window.
@@ -208,7 +211,7 @@ Go to the next frame of a multi-frame image.
 Go to the previous frame of a multi-frame image.
 .TP
 .B Ctrl-Space
-Play/pause animation of a multi-frame image.
+Play/stop animations of multi-frame images.
 .SS Panning
 .TP
 .BR h ", " Left

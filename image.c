@@ -35,7 +35,7 @@
 
 #if HAVE_GIFLIB
 #include <gif_lib.h>
-enum { MIN_GIF_DELAY = 25 };
+enum { DEF_GIF_DELAY = 75 };
 #endif
 
 float zoom_min;
@@ -85,8 +85,8 @@ void img_init(img_t *img, win_t *win)
 	img->aa = ANTI_ALIAS;
 	img->alpha = ALPHA_LAYER;
 	img->multi.cap = img->multi.cnt = 0;
-	img->multi.animate = false;
-	img->multi.length = img->multi.repeat = 0;
+	img->multi.animate = options->animate;
+	img->multi.length = 0;
 
 	img->cmod = imlib_create_color_modifier();
 	img->gamma = MIN(MAX(options->gamma, -GAMMA_RANGE), GAMMA_RANGE);
@@ -160,7 +160,7 @@ bool img_load_gif(img_t *img, const fileinfo_t *file)
 		                    s_malloc(sizeof(img_frame_t) * img->multi.cap);
 	}
 	img->multi.cnt = img->multi.sel = 0;
-	img->multi.length = img->multi.repeat = 0;
+	img->multi.length = 0;
 
 #if defined(GIFLIB_MAJOR) && GIFLIB_MAJOR >= 5
 	gif = DGifOpenFileName(file->path, NULL);
@@ -194,16 +194,7 @@ bool img_load_gif(img_t *img, const fileinfo_t *file)
 						transp = -1;
 
 					delay = 10 * ((unsigned int) ext[3] << 8 | (unsigned int) ext[2]);
-					if (delay)
-						delay = MAX(delay, MIN_GIF_DELAY);
-
 					disposal = (unsigned int) ext[1] >> 2 & 0x7;
-				} else if (ext_code == APPLICATION_EXT_FUNC_CODE) {
-					if (ext[0] == 11 && memcmp(ext+1, "NETSCAPE2.0", 11) == 0) {
-						DGifGetExtensionNext(gif, &ext);
-						if (ext && ext[0] == 3 && ext[1] == 1)
-							img->multi.repeat = ((int) ext[3] << 8 | (int) ext[2]) - 1;
-					}
 				}
 				ext = NULL;
 				DGifGetExtensionNext(gif, &ext);
@@ -289,7 +280,7 @@ bool img_load_gif(img_t *img, const fileinfo_t *file)
 				                              img->multi.cap * sizeof(img_frame_t));
 			}
 			img->multi.frames[img->multi.cnt].im = im;
-			img->multi.frames[img->multi.cnt].delay = delay ? delay : GIF_DELAY;
+			img->multi.frames[img->multi.cnt].delay = delay > 0 ? delay : DEF_GIF_DELAY;
 			img->multi.length += img->multi.frames[img->multi.cnt].delay;
 			img->multi.cnt++;
 		}
@@ -308,12 +299,10 @@ bool img_load_gif(img_t *img, const fileinfo_t *file)
 		imlib_context_set_image(img->im);
 		imlib_free_image();
 		img->im = img->multi.frames[0].im;
-		img->multi.animate = GIF_AUTOPLAY;
 	} else if (img->multi.cnt == 1) {
 		imlib_context_set_image(img->multi.frames[0].im);
 		imlib_free_image();
 		img->multi.cnt = 0;
-		img->multi.animate = false;
 	}
 
 	imlib_context_set_image(img->im);
@@ -841,21 +830,15 @@ bool img_frame_animate(img_t *img, bool restart)
 		return false;
 
 	if (img->multi.sel + 1 >= img->multi.cnt) {
-		if (restart || GIF_LOOP == 1) {
-			img_frame_goto(img, 0);
-		} else if (GIF_LOOP == -1 && img->multi.repeat != 0) {
-			if (img->multi.repeat > 0)
-				img->multi.repeat--;
-			img_frame_goto(img, 0);
-		} else {
-			img->multi.animate = false;
-			return false;
-		}
+		img_frame_goto(img, 0);
+		img->dirty = true;
+		return true;
 	} else if (!restart) {
 		img_frame_goto(img, img->multi.sel + 1);
+		img->dirty = true;
+		return true;
+	} else {
+		return false;
 	}
-	img->multi.animate = true;
-	img->dirty = true;
-
-	return true;
 }
+

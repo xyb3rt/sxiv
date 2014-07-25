@@ -68,6 +68,7 @@ of small previews is displayed, making it easy to choose an image to open.
 
 **Command line options:**
 
+    -a           Play animations of multi-frame images
     -b           Do not show info bar on bottom of window
     -c           Remove all orphaned cache files from thumbnail cache and exit
     -f           Start in fullscreen mode
@@ -117,7 +118,7 @@ of small previews is displayed, making it easy to choose an image to open.
     p,Backspace  Go [count] images backward
     [,]          Go [count] * 10 images backward/forward
     Ctrl-n,p     Go to the next/previous frame of a multi-frame image
-    Ctrl-Space   Play/pause animation of a multi-frame image
+    Ctrl-Space   Play/stop animations of multi-frame images
     h,j,k,l      Scroll image 1/5 of window width/height or [count] pixels
                  left/down/up/right (also with arrow keys)
     H,J,K,L      Scroll to left/bottom/top/right image edge
