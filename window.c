@@ -237,8 +237,8 @@ void win_open(win_t *win)
 		win->y = 0;
 	}
 
-	attr.background_pixel = win->bgcol;
-	attr_mask = CWBackPixel;
+	attr.background_pixmap = win->bgcol;
+	attr_mask = CWBackPixmap;
 
 	win->xwin = XCreateWindow(e->dpy, RootWindow(e->dpy, e->scr),
 	                          win->x, win->y, win->w, win->h, 0,
