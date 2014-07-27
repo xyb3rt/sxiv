@@ -102,7 +102,7 @@ unsigned long win_alloc_color(win_t *win, const char *name)
 	{
 		die("could not allocate color: %s", name);
 	}
-	return col.pixel;
+	return col.pixmap;
 }
 
 void win_check_wm_support(Display *dpy, Window root)
