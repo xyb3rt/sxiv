@@ -186,14 +186,13 @@ void win_open(win_t *win)
 	int c, i, j, n;
 	win_env_t *e;
 	XClassHint classhint;
-	XSetWindowAttributes attr;
-	unsigned long attr_mask;
 	unsigned long *icon_data;
 	XColor col;
 	char none_data[] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 	Pixmap none;
 	int gmask;
 	XSizeHints sizehints;
+	Bool fullscreen = options->fullscreen && fs_support;
 
 	if (win == NULL)
 		return;
@@ -237,18 +236,15 @@ void win_open(win_t *win)
 		win->y = 0;
 	}
 
-	attr.background_pixel = win->bgcol;
-	attr_mask = CWBackPixel;
-
 	win->xwin = XCreateWindow(e->dpy, RootWindow(e->dpy, e->scr),
 	                          win->x, win->y, win->w, win->h, 0,
-	                          e->depth, InputOutput, e->vis, attr_mask, &attr);
+	                          e->depth, InputOutput, e->vis, 0, NULL);
 	if (win->xwin == None)
 		die("could not create window");
 	
 	XSelectInput(e->dpy, win->xwin,
-	             ExposureMask | ButtonReleaseMask | ButtonPressMask |
-	             KeyPressMask | PointerMotionMask | StructureNotifyMask);
+	             ButtonReleaseMask | ButtonPressMask | KeyPressMask |
+	             PointerMotionMask | StructureNotifyMask);
 
 	carrow = XCreateFontCursor(e->dpy, XC_left_ptr);
 	chand = XCreateFontCursor(e->dpy, XC_fleur);
@@ -299,10 +295,18 @@ void win_open(win_t *win)
 
 	win->h -= win->bar.h;
 
+	win->buf.w = e->scrw;
+	win->buf.h = e->scrh;
+	win->buf.pm = XCreatePixmap(e->dpy, win->xwin,
+	                            win->buf.w, win->buf.h, e->depth);
+	XSetForeground(e->dpy, gc, fullscreen ? win->fscol : win->bgcol);
+	XFillRectangle(e->dpy, win->buf.pm, gc, 0, 0, win->buf.w, win->buf.h);
+	XSetWindowBackgroundPixmap(e->dpy, win->xwin, win->buf.pm);
+
 	XMapWindow(e->dpy, win->xwin);
 	XFlush(e->dpy);
 
-	if (options->fullscreen)
+	if (fullscreen)
 		win_toggle_fullscreen(win);
 }
 
@@ -329,12 +333,7 @@ bool win_configure(win_t *win, XConfigureEvent *c)
 	if (win == NULL || c == NULL)
 		return false;
 
-	if ((changed = win->w != c->width || win->h + win->bar.h != c->height)) {
-		if (win->pm != None) {
-			XFreePixmap(win->env.dpy, win->pm);
-			win->pm = None;
-		}
-	}
+	changed = win->w != c->width || win->h + win->bar.h != c->height;
 
 	win->x = c->x;
 	win->y = c->y;
@@ -343,15 +342,6 @@ bool win_configure(win_t *win, XConfigureEvent *c)
 	win->bw = c->border_width;
 
 	return changed;
-}
-
-void win_expose(win_t *win, XExposeEvent *e)
-{
-	if (win == NULL || win->xwin == None || win->pm == None || e == NULL)
-		return;
-
-	XCopyArea(win->env.dpy, win->pm, win->xwin, gc,
-	          e->x, e->y, e->width, e->height, e->x, e->y);
 }
 
 void win_toggle_fullscreen(win_t *win)
@@ -402,20 +392,22 @@ void win_toggle_bar(win_t *win)
 
 void win_clear(win_t *win)
 {
-	int h;
 	win_env_t *e;
 
 	if (win == NULL || win->xwin == None)
 		return;
 
-	h = win->h + win->bar.h;
 	e = &win->env;
 
-	if (win->pm == None)
-		win->pm = XCreatePixmap(e->dpy, win->xwin, win->w, h, e->depth);
-
+	if (win->w > win->buf.w || win->h + win->bar.h > win->buf.h) {
+		XFreePixmap(e->dpy, win->buf.pm);
+		win->buf.w = MAX(win->buf.w, win->w);
+		win->buf.h = MAX(win->buf.h, win->h + win->bar.h);
+		win->buf.pm = XCreatePixmap(e->dpy, win->xwin,
+		                            win->buf.w, win->buf.h, e->depth);
+	}
 	XSetForeground(e->dpy, gc, win->fullscreen ? win->fscol : win->bgcol);
-	XFillRectangle(e->dpy, win->pm, gc, 0, 0, win->w, h);
+	XFillRectangle(e->dpy, win->buf.pm, gc, 0, 0, win->buf.w, win->buf.h);
 }
 
 void win_draw_bar(win_t *win)
@@ -425,7 +417,7 @@ void win_draw_bar(win_t *win)
 	const char *dots = "...";
 	win_env_t *e;
 
-	if (win == NULL || win->xwin == None || win->pm == None)
+	if (win == NULL || win->xwin == None)
 		return;
 
 	e = &win->env;
@@ -433,7 +425,7 @@ void win_draw_bar(win_t *win)
 	w = win->w;
 
 	XSetForeground(e->dpy, gc, win->bar.bgcol);
-	XFillRectangle(e->dpy, win->pm, gc, 0, win->h, win->w, win->bar.h);
+	XFillRectangle(e->dpy, win->buf.pm, gc, 0, win->h, win->w, win->bar.h);
 
 	XSetForeground(e->dpy, gc, win->bar.fgcol);
 	XSetBackground(e->dpy, gc, win->bar.bgcol);
@@ -444,9 +436,9 @@ void win_draw_bar(win_t *win)
 		x = win->w - tw + H_TEXT_PAD;
 		w -= tw;
 		if (font.set)
-			XmbDrawString(e->dpy, win->pm, font.set, gc, x, y, win->bar.r, len);
+			XmbDrawString(e->dpy, win->buf.pm, font.set, gc, x, y, win->bar.r, len);
 		else
-			XDrawString(e->dpy, win->pm, gc, x, y, win->bar.r, len);
+			XDrawString(e->dpy, win->buf.pm, gc, x, y, win->bar.r, len);
 	}
 	if ((len = strlen(win->bar.l)) > 0) {
 		olen = len;
@@ -462,9 +454,9 @@ void win_draw_bar(win_t *win)
 			}
 			x = H_TEXT_PAD;
 			if (font.set)
-				XmbDrawString(e->dpy, win->pm, font.set, gc, x, y, win->bar.l, len);
+				XmbDrawString(e->dpy, win->buf.pm, font.set, gc, x, y, win->bar.l, len);
 			else
-				XDrawString(e->dpy, win->pm, gc, x, y, win->bar.l, len);
+				XDrawString(e->dpy, win->buf.pm, gc, x, y, win->bar.l, len);
 			if (len != olen)
 			  memcpy(win->bar.l + len - w, rest, w);
 		}
@@ -473,14 +465,14 @@ void win_draw_bar(win_t *win)
 
 void win_draw(win_t *win)
 {
-	if (win == NULL || win->xwin == None || win->pm == None)
+	if (win == NULL || win->xwin == None)
 		return;
 
 	if (win->bar.h > 0)
 		win_draw_bar(win);
 
-	XCopyArea(win->env.dpy, win->pm, win->xwin, gc,
-	          0, 0, win->w, win->h + win->bar.h, 0, 0);
+	XSetWindowBackgroundPixmap(win->env.dpy, win->xwin, win->buf.pm);
+	XClearWindow(win->env.dpy, win->xwin);
 	XFlush(win->env.dpy);
 }
 
@@ -500,19 +492,6 @@ void win_draw_rect(win_t *win, Pixmap pm, int x, int y, int w, int h,
 		XFillRectangle(win->env.dpy, pm, gc, x, y, w, h);
 	else
 		XDrawRectangle(win->env.dpy, pm, gc, x, y, w, h);
-}
-
-void win_update_bar(win_t *win)
-{
-	if (win == NULL || win->xwin == None || win->pm == None)
-		return;
-
-	if (win->bar.h > 0) {
-		win_draw_bar(win);
-		XCopyArea(win->env.dpy, win->pm, win->xwin, gc,
-		          0, win->h, win->w, win->bar.h, 0, win->h);
-		XFlush(win->env.dpy);
-	}
 }
 
 int win_textwidth(const char *text, unsigned int len, bool with_padding)

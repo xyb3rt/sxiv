@@ -497,7 +497,7 @@ void img_render(img_t *img)
 
 	imlib_context_set_image(img->im);
 	imlib_context_set_anti_alias(img->aa);
-	imlib_context_set_drawable(win->pm);
+	imlib_context_set_drawable(win->buf.pm);
 
 	if (imlib_image_has_alpha()) {
 		if ((bg = imlib_create_image(dw, dh)) == NULL)

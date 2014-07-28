@@ -56,7 +56,6 @@ typedef struct {
 	unsigned long bgcol;
 	unsigned long fscol;
 	unsigned long selcol;
-	Pixmap pm;
 
 	int x;
 	int y;
@@ -65,6 +64,12 @@ typedef struct {
 	unsigned int bw;
 
 	bool fullscreen;
+
+	struct {
+		int w;
+		int h;
+		Pixmap pm;
+	} buf;
 
 	struct {
 		unsigned int h;
@@ -82,7 +87,6 @@ void win_open(win_t*);
 void win_close(win_t*);
 
 bool win_configure(win_t*, XConfigureEvent*);
-void win_expose(win_t*, XExposeEvent*);
 
 void win_toggle_fullscreen(win_t*);
 void win_toggle_bar(win_t*);
@@ -91,8 +95,6 @@ void win_clear(win_t*);
 void win_draw(win_t*);
 void win_draw_rect(win_t*, Pixmap, int, int, int, int, bool, int,
                    unsigned long);
-
-void win_update_bar(win_t*);
 
 int win_textwidth(const char*, unsigned int, bool);
 

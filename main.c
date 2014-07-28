@@ -301,7 +301,7 @@ void read_info(void)
 end:
 	info.i -= info.lastsep;
 	win.bar.l[info.i] = '\0';
-	win_update_bar(&win);
+	win_draw(&win);
 	close(info.fd);
 	info.fd = -1;
 	while (waitpid(-1, NULL, WNOHANG) > 0);
@@ -487,7 +487,7 @@ void run_key_handler(const char *key, unsigned int mask)
 	if (restore_bar)
 		memcpy(oldbar, win.bar.l, sizeof(win.bar.l));
 	strncpy(win.bar.l, "Running key handler...", sizeof(win.bar.l));
-	win_update_bar(&win);
+	win_draw(&win);
 	win_set_cursor(&win, CURSOR_WATCH);
 	stat(files[n].path, &oldst);
 
@@ -512,7 +512,7 @@ void run_key_handler(const char *key, unsigned int mask)
 	}
 	restore_bar = false;
 	strncpy(win.bar.l, "Reloading image...", sizeof(win.bar.l));
-	win_update_bar(&win);
+	win_draw(&win);
 
 	if (mode == MODE_IMAGE) {
 		img_close(&img, true);
@@ -529,7 +529,7 @@ void run_key_handler(const char *key, unsigned int mask)
 end:
 	if (restore_bar)
 		memcpy(win.bar.l, oldbar, sizeof(win.bar.l));
-	set_timeout(reset_cursor, TO_CURSOR_HIDE, true);
+	reset_cursor();
 	redraw();
 }
 
@@ -732,9 +732,6 @@ void run(void)
 					}
 				}
 				break;
-			case Expose:
-				win_expose(&win, &ev.xexpose);
-				break;
 			case KeyPress:
 				on_keypress(&ev.xkey);
 				break;
@@ -870,6 +867,7 @@ int main(int argc, char **argv)
 	}
 
 	win_open(&win);
+	win_set_cursor(&win, CURSOR_WATCH);
 
 	run();
 	cleanup();

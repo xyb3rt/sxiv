@@ -370,7 +370,7 @@ void tns_render(tns_t *tns)
 
 	win = tns->win;
 	win_clear(win);
-	imlib_context_set_drawable(win->pm);
+	imlib_context_set_drawable(win->buf.pm);
 
 	tns->cols = MAX(1, win->w / thumb_dim);
 	tns->rows = MAX(1, win->h / thumb_dim);
@@ -429,14 +429,14 @@ void tns_mark(tns_t *tns, int n, bool mark)
 		else
 			col = win->bgcol;
 
-		win_draw_rect(win, win->pm, x - 4,     y - 4,     8, 2, true, 0, col);
-		win_draw_rect(win, win->pm, x - 4,     y - 4,     2, 8, true, 0, col);
-		win_draw_rect(win, win->pm, x + w - 4, y - 4,     8, 2, true, 0, col);
-		win_draw_rect(win, win->pm, x + w + 2, y - 4,     2, 8, true, 0, col);
-		win_draw_rect(win, win->pm, x - 4,     y + h + 2, 8, 2, true, 0, col);
-		win_draw_rect(win, win->pm, x - 4,     y + h - 4, 2, 8, true, 0, col);
-		win_draw_rect(win, win->pm, x + w - 4, y + h + 2, 8, 2, true, 0, col);
-		win_draw_rect(win, win->pm, x + w + 2, y + h - 4, 2, 8, true, 0, col);
+		win_draw_rect(win, win->buf.pm, x - 4,     y - 4,     8, 2, true, 0, col);
+		win_draw_rect(win, win->buf.pm, x - 4,     y - 4,     2, 8, true, 0, col);
+		win_draw_rect(win, win->buf.pm, x + w - 4, y - 4,     8, 2, true, 0, col);
+		win_draw_rect(win, win->buf.pm, x + w + 2, y - 4,     2, 8, true, 0, col);
+		win_draw_rect(win, win->buf.pm, x - 4,     y + h + 2, 8, 2, true, 0, col);
+		win_draw_rect(win, win->buf.pm, x - 4,     y + h - 4, 2, 8, true, 0, col);
+		win_draw_rect(win, win->buf.pm, x + w - 4, y + h + 2, 8, 2, true, 0, col);
+		win_draw_rect(win, win->buf.pm, x + w + 2, y + h - 4, 2, 8, true, 0, col);
 	}
 }
 
@@ -457,7 +457,7 @@ void tns_highlight(tns_t *tns, int n, bool hl)
 		else
 			col = win->bgcol;
 
-		win_draw_rect(win, win->pm, t->x - 3, t->y - 3, t->w + 6, t->h + 6,
+		win_draw_rect(win, win->buf.pm, t->x - 3, t->y - 3, t->w + 6, t->h + 6,
 		              false, 2, col);
 
 		if (!hl && t->file->marked)
