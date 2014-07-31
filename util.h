@@ -63,7 +63,7 @@ typedef struct {
 
 void* s_malloc(size_t);
 void* s_realloc(void*, size_t);
-char* s_strdup(char*);
+char* s_strdup(const char*);
 
 void warn(const char*, ...);
 void die(const char*, ...);

@@ -54,7 +54,7 @@ void* s_realloc(void *ptr, size_t size)
 	return ptr;
 }
 
-char* s_strdup(char *s)
+char* s_strdup(const char *s)
 {
 	char *d = NULL;
 
