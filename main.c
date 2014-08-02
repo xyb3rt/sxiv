@@ -245,6 +245,8 @@ void open_info(void)
 {
 	static pid_t pid;
 	int pfd[2];
+    char buffer[256];
+    char* infocmd[7];
 
 	if (info.cmd == NULL || info.open || win.bar.h == 0)
 		return;
@@ -267,7 +269,15 @@ void open_info(void)
 	} else if (pid == 0) {
 		close(pfd[0]);
 		dup2(pfd[1], 1);
-		execl(info.cmd, info.cmd, files[fileidx].name, NULL);
+
+        infocmd[0] = info.cmd;
+        infocmd[1] = s_strdup(files[fileidx].name);
+        snprintf(buffer, 256, "%i", img.w);       infocmd[2] = s_strdup(buffer);
+        snprintf(buffer, 256, "%i", img.h);       infocmd[3] = s_strdup(buffer);
+        snprintf(buffer, 256, "%i", fileidx + 1); infocmd[4] = s_strdup(buffer);
+        snprintf(buffer, 256, "%i", filecnt);     infocmd[5] = s_strdup(buffer);
+        infocmd[6] = NULL;
+		execv(info.cmd, infocmd);
 		warn("could not exec: %s", info.cmd);
 		exit(EXIT_FAILURE);
 	}

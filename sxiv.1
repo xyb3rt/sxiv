@@ -344,7 +344,9 @@ The information displayed on the left side of the status bar can be replaced
 with the output of a user-provided script, which is called by sxiv whenever an
 image gets loaded. The path of this script is
 .I $XDG_CONFIG_HOME/sxiv/exec/image-info
-and the first argument to this script is the path of the loaded image.
+and the first argument to this script is the path of the loaded image. The
+second and third arguments are the width and height of the picture. The fourth
+is the rank of the picture and and the fifth the total number of pcitures.
 .P
 There is also an example script installed together with sxiv as
 .IR PREFIX/share/sxiv/exec/image-info .
