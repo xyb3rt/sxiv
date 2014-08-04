@@ -44,6 +44,16 @@ typedef struct {
 	char *geometry;
 	char *res_name;
 
+	/* colors: */
+	char *win_bg_color;
+	char *win_fs_color;
+	char *sel_color;
+	char *bar_bg_color;
+	char *bar_fg_color;
+
+	/* font: */
+	char *bar_font;
+
 	/* misc flags: */
 	bool quiet;
 	bool thumb_mode;

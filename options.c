@@ -64,11 +64,19 @@ void parse_options(int argc, char **argv)
 	_options.geometry = NULL;
 	_options.res_name = NULL;
 
+	_options.win_bg_color = NULL;
+	_options.win_fs_color = NULL;
+	_options.sel_color = NULL;
+	_options.bar_bg_color = NULL;
+	_options.bar_fg_color = NULL;
+
+	_options.bar_font = NULL;
+
 	_options.quiet = false;
 	_options.thumb_mode = false;
 	_options.clean_cache = false;
 
-	while ((opt = getopt(argc, argv, "abcfG:g:hin:N:oqrS:s:tvZz:")) != -1) {
+	while ((opt = getopt(argc, argv, "abcfG:g:hin:N:oqrS:s:tu:vW:w:x:Y:y:Zz:")) != -1) {
 		switch (opt) {
 			case '?':
 				print_usage();
@@ -141,9 +149,27 @@ void parse_options(int argc, char **argv)
 			case 't':
 				_options.thumb_mode = true;
 				break;
+			case 'u':
+				_options.bar_font = optarg;
+				break;
 			case 'v':
 				print_version();
 				exit(EXIT_SUCCESS);
+			case 'W':
+				_options.win_bg_color = optarg;
+				break;
+			case 'w':
+				_options.win_fs_color = optarg;
+				break;
+			case 'x':
+				_options.sel_color = optarg;
+				break;
+			case 'Y':
+				_options.bar_bg_color = optarg;
+				break;
+			case 'y':
+				_options.bar_fg_color = optarg;
+				break;
 			case 'Z':
 				_options.scalemode = SCALE_ZOOM;
 				_options.zoom = 1.0;

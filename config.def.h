@@ -11,7 +11,7 @@ enum {
  */
 static const char * const BAR_FONT = "-*-fixed-medium-r-*-*-13-*-*-*-*-60-*-*";
 
-/* colors:
+/* default colors (overwritten via options):
  * (see X(7) section "COLOR NAMES" for valid values)
  */
 static const char * const WIN_BG_COLOR = "#777777";

@@ -161,13 +161,32 @@ void win_init(win_t *win)
 	if (setlocale(LC_CTYPE, "") == NULL || XSupportsLocale() == 0)
 		warn("no locale support");
 
-	win_init_font(e->dpy, BAR_FONT);
+	if (options->bar_font == NULL)
+		win_init_font(e->dpy, BAR_FONT);
+	else
+		win_init_font(e->dpy, options->bar_font);
 
-	win->bgcol     = win_alloc_color(win, WIN_BG_COLOR);
-	win->fscol     = win_alloc_color(win, WIN_FS_COLOR);
-	win->selcol    = win_alloc_color(win, SEL_COLOR);
-	win->bar.bgcol = win_alloc_color(win, BAR_BG_COLOR);
-	win->bar.fgcol = win_alloc_color(win, BAR_FG_COLOR);
+	if (options->win_bg_color == NULL)
+		win->bgcol = win_alloc_color(win, WIN_BG_COLOR);
+	else
+		win->bgcol = win_alloc_color(win, options->win_bg_color);
+	if (options->win_fs_color == NULL)
+		win->fscol = win_alloc_color(win, WIN_FS_COLOR);
+	else
+		win->fscol = win_alloc_color(win, options->win_fs_color);
+	if (options->sel_color == NULL)
+		win->selcol = win_alloc_color(win, SEL_COLOR);
+	else
+		win->selcol = win_alloc_color(win, options->sel_color);
+	if (options->bar_bg_color == NULL)
+		win->bar.bgcol = win_alloc_color(win, BAR_BG_COLOR);
+	else
+		win->bar.bgcol = win_alloc_color(win, options->bar_bg_color);
+	if (options->bar_fg_color == NULL)
+		win->bar.fgcol = win_alloc_color(win, BAR_FG_COLOR);
+	else
+		win->bar.fgcol = win_alloc_color(win, options->bar_fg_color);
+	
 	win->bar.h     = options->hide_bar ? 0 : barheight;
 
 	INIT_ATOM_(WM_DELETE_WINDOW);
