@@ -75,7 +75,7 @@ Imlib_Image tns_cache_load(const char *filepath)
 	return im;
 }
 
-void tns_cache_write(thumb_t *t, bool force)
+void tns_cache_write(thumb_t *t, const fileinfo_t *file, bool force)
 {
 	char *cfile, *dirend;
 	struct stat cstats, fstats;
@@ -84,12 +84,12 @@ void tns_cache_write(thumb_t *t, bool force)
 
 	if (t == NULL || t->im == NULL)
 		return;
-	if (t->file == NULL || t->file->name == NULL || t->file->path == NULL)
+	if (file == NULL || file->name == NULL || file->path == NULL)
 		return;
-	if (stat(t->file->path, &fstats) < 0)
+	if (stat(file->path, &fstats) < 0)
 		return;
 
-	if ((cfile = tns_cache_filepath(t->file->path)) != NULL) {
+	if ((cfile = tns_cache_filepath(file->path)) != NULL) {
 		if (force || stat(cfile, &cstats) < 0 ||
 		    cstats.st_mtime != fstats.st_mtime)
 		{
@@ -150,7 +150,7 @@ void tns_clean_cache(tns_t *tns)
 }
 
 
-void tns_init(tns_t *tns, int cnt, win_t *win, int *sel)
+void tns_init(tns_t *tns, const fileinfo_t *files, int cnt, int *sel, win_t *win)
 {
 	int len;
 	const char *homedir, *dsuffix = "";
@@ -164,6 +164,7 @@ void tns_init(tns_t *tns, int cnt, win_t *win, int *sel)
 	} else {
 		tns->thumbs = NULL;
 	}
+	tns->files = files;
 	tns->cap = cnt;
 	tns->cnt = tns->loadnext = tns->first = 0;
 	tns->sel = sel;
@@ -209,23 +210,24 @@ void tns_free(tns_t *tns)
 	}
 }
 
-bool tns_load(tns_t *tns, int n, const fileinfo_t *file, bool force)
+bool tns_load(tns_t *tns, int n, bool force)
 {
 	int w, h;
 	bool cache_hit = false;
 	float z, zw, zh;
 	thumb_t *t;
 	Imlib_Image im = NULL;
+	const fileinfo_t *file;
 
 	if (tns == NULL || tns->thumbs == NULL)
 		return false;
-	if (file == NULL || file->name == NULL || file->path == NULL)
-		return false;
 	if (n < 0 || n >= tns->cap)
+		return false;
+	file = &tns->files[n];
+	if (file->name == NULL || file->path == NULL)
 		return false;
 
 	t = &tns->thumbs[n];
-	t->file = file;
 
 	if (t->im != NULL) {
 		imlib_context_set_image(t->im);
@@ -322,7 +324,7 @@ bool tns_load(tns_t *tns, int n, const fileinfo_t *file, bool force)
 	imlib_free_image_and_decache();
 
 	if (!cache_hit)
-		tns_cache_write(t, true);
+		tns_cache_write(t, file, true);
 
 	t->loaded = true;
 	tns->dirty = true;
@@ -398,7 +400,7 @@ void tns_render(tns_t *tns)
 		imlib_context_set_image(t->im);
 		imlib_render_image_part_on_drawable_at_size(0, 0, t->w, t->h,
 		                                            t->x, t->y, t->w, t->h);
-		if (t->file->marked)
+		if (tns->files[tns->first + i].marked)
 			tns_mark(tns, tns->first + i, true);
 		if ((i + 1) % tns->cols == 0) {
 			x = tns->x;
@@ -460,7 +462,7 @@ void tns_highlight(tns_t *tns, int n, bool hl)
 		win_draw_rect(win, win->buf.pm, t->x - 3, t->y - 3, t->w + 6, t->h + 6,
 		              false, 2, col);
 
-		if (!hl && t->file->marked)
+		if (!hl && tns->files[n].marked)
 			tns_mark(tns, n, true);
 	}
 }

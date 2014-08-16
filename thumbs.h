@@ -26,7 +26,6 @@
 #include "window.h"
 
 typedef struct {
-	const fileinfo_t *file;
 	Imlib_Image im;
 	int w;
 	int h;
@@ -36,6 +35,7 @@ typedef struct {
 } thumb_t;
 
 typedef struct {
+	const fileinfo_t *files;
 	thumb_t *thumbs;
 	int cap;
 	int cnt;
@@ -54,10 +54,10 @@ typedef struct {
 
 void tns_clean_cache(tns_t*);
 
-void tns_init(tns_t*, int, win_t*, int*);
+void tns_init(tns_t*, const fileinfo_t*, int, int*, win_t*);
 void tns_free(tns_t*);
 
-bool tns_load(tns_t*, int, const fileinfo_t*, bool);
+bool tns_load(tns_t*, int, bool);
 
 void tns_render(tns_t*);
 void tns_mark(tns_t*, int, bool);

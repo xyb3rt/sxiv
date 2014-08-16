@@ -77,7 +77,7 @@ bool cg_switch_mode(arg_t a)
 {
 	if (mode == MODE_IMAGE) {
 		if (tns.thumbs == NULL)
-			tns_init(&tns, filecnt, &win, &fileidx);
+			tns_init(&tns, files, filecnt, &fileidx, &win);
 		img_close(&img, false);
 		reset_timeout(reset_cursor);
 		if (img.ss.on) {
@@ -130,7 +130,7 @@ bool cg_reload_image(arg_t a)
 		load_image(fileidx);
 	} else {
 		win_set_cursor(&win, CURSOR_WATCH);
-		if (!tns_load(&tns, fileidx, &files[fileidx], true)) {
+		if (!tns_load(&tns, fileidx, true)) {
 			remove_file(fileidx, false);
 			tns.dirty = true;
 		}
@@ -456,7 +456,7 @@ bool ct_move_sel(arg_t a)
 bool ct_reload_all(arg_t a)
 {
 	tns_free(&tns);
-	tns_init(&tns, filecnt, &win, &fileidx);
+	tns_init(&tns, files, filecnt, &fileidx, &win);
 	return false;
 }
 

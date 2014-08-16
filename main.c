@@ -679,7 +679,7 @@ void run(void)
 			/* load thumbnails */
 			reload = tns.loadnext != tns.cnt;
 			set_timeout(redraw, TO_REDRAW_THUMBS, false);
-			if (tns_load(&tns, tns.loadnext, &files[tns.loadnext], reload)) {
+			if (tns_load(&tns, tns.loadnext, reload)) {
 				if (!reload)
 					tns.cnt++;
 			} else {
@@ -783,7 +783,7 @@ int main(int argc, char **argv)
 	parse_options(argc, argv);
 
 	if (options->clean_cache) {
-		tns_init(&tns, 0, NULL, NULL);
+		tns_init(&tns, NULL, 0, NULL, NULL);
 		tns_clean_cache(&tns);
 		exit(EXIT_SUCCESS);
 	}
@@ -876,8 +876,8 @@ int main(int argc, char **argv)
 
 	if (options->thumb_mode) {
 		mode = MODE_THUMB;
-		tns_init(&tns, filecnt, &win, &fileidx);
-		while (!tns_load(&tns, 0, &files[0], false))
+		tns_init(&tns, files, filecnt, &fileidx, &win);
+		while (!tns_load(&tns, 0, false))
 			remove_file(0, false);
 		tns.cnt = 1;
 	} else {
