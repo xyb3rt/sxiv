@@ -73,6 +73,7 @@ win_t win;
 fileinfo_t *files;
 int filecnt, fileidx;
 int alternate;
+int markcnt;
 
 int prefix;
 bool extprefix;
@@ -168,6 +169,8 @@ void remove_file(int n, bool manual)
 		cleanup();
 		exit(manual ? EXIT_SUCCESS : EXIT_FAILURE);
 	}
+	if (files[n].marked)
+		markcnt--;
 
 	if (files[n].path != files[n].name)
 		free((void*) files[n].path);
@@ -627,6 +630,7 @@ void on_buttonpress(XButtonEvent *bev)
 			case Button3:
 				if ((sel = tns_translate(&tns, bev->x, bev->y)) >= 0) {
 					files[sel].marked = !files[sel].marked;
+					markcnt += files[sel].marked ? 1 : -1;
 					tns_mark(&tns, sel, files[sel].marked);
 					redraw();
 				}

@@ -50,6 +50,7 @@ extern win_t win;
 extern fileinfo_t *files;
 extern int filecnt, fileidx;
 extern int alternate;
+extern int markcnt;
 
 extern int prefix;
 extern bool extprefix;
@@ -62,7 +63,7 @@ bool cg_quit(arg_t a)
 {
 	unsigned int i;
 
-	if (options->to_stdout) {
+	if (options->to_stdout && markcnt > 0) {
 		for (i = 0; i < filecnt; i++) {
 			if (files[i].marked)
 				printf("%s\n", files[i].name);
@@ -195,6 +196,7 @@ bool cg_scroll_screen(arg_t a)
 bool cg_toggle_image_mark(arg_t a)
 {
 	files[fileidx].marked = !files[fileidx].marked;
+	markcnt += files[fileidx].marked ? 1 : -1;
 	if (mode == MODE_THUMB)
 		tns_mark(&tns, fileidx, files[fileidx].marked);
 	return true;
@@ -202,10 +204,12 @@ bool cg_toggle_image_mark(arg_t a)
 
 bool cg_reverse_marks(arg_t a)
 {
-	int i, cnt = mode == MODE_IMAGE ? filecnt : tns.cnt;
+	int i;
 
-	for (i = 0; i < cnt; i++)
+	for (i = 0; i < filecnt; i++) {
 		files[i].marked = !files[i].marked;
+		markcnt += files[i].marked ? 1 : -1;
+	}
 	if (mode == MODE_THUMB)
 		tns.dirty = true;
 	return true;
