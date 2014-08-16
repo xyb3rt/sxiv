@@ -467,10 +467,12 @@ void clear_resize(void)
 void run_key_handler(const char *key, unsigned int mask)
 {
 	pid_t pid;
-	int retval, status;
-	char kstr[32], oldbar[sizeof(win.bar.l)];
-	bool restore_bar = mode == MODE_IMAGE && info.cmd != NULL;
-	struct stat oldst, newst;
+	int i, j, retval, status;
+	int fcnt = mode == MODE_THUMB && markcnt > 0 ? markcnt : 1;
+	bool changed = false;
+	char **args, kstr[32], oldbar[sizeof(win.bar.l)];
+	struct stat *oldst, newst;
+	struct { int fn; struct stat st; } *finfo;
 
 	if (keyhandler.cmd == NULL) {
 		if (!keyhandler.warned) {
@@ -482,20 +484,34 @@ void run_key_handler(const char *key, unsigned int mask)
 	if (key == NULL)
 		return;
 
+	finfo = s_malloc(fcnt * sizeof(*finfo));
+	args = s_malloc((fcnt + 3) * sizeof(*args));
+	args[0] = keyhandler.cmd;
+	args[1] = kstr;
+	args[fcnt+2] = NULL;
+	if (mode == MODE_IMAGE || markcnt == 0) {
+		finfo[0].fn = fileidx;
+		stat(files[fileidx].path, &finfo[0].st);
+		args[2] = (char*) files[fileidx].path;
+	} else for (i = j = 0; i < filecnt; i++) {
+		if (files[i].marked) {
+			finfo[j].fn = i;
+			stat(files[i].path, &finfo[j++].st);
+			args[j+1] = (char*) files[i].path;
+		}
+	}
 	snprintf(kstr, sizeof(kstr), "%s%s%s%s",
 	         mask & ControlMask ? "C-" : "",
 	         mask & Mod1Mask    ? "M-" : "",
 	         mask & ShiftMask   ? "S-" : "", key);
 
-	if (restore_bar)
-		memcpy(oldbar, win.bar.l, sizeof(win.bar.l));
+	memcpy(oldbar, win.bar.l, sizeof(win.bar.l));
 	strncpy(win.bar.l, "Running key handler...", sizeof(win.bar.l));
 	win_draw(&win);
 	win_set_cursor(&win, CURSOR_WATCH);
-	stat(files[fileidx].path, &oldst);
 
 	if ((pid = fork()) == 0) {
-		execl(keyhandler.cmd, keyhandler.cmd, kstr, files[fileidx].path, NULL);
+		execv(keyhandler.cmd, args);
 		warn("could not exec key handler");
 		exit(EXIT_FAILURE);
 	} else if (pid < 0) {
@@ -507,31 +523,31 @@ void run_key_handler(const char *key, unsigned int mask)
 	if (WIFEXITED(status) == 0 || retval != 0)
 		warn("key handler exited with non-zero return value: %d", retval);
 
-	if (stat(files[fileidx].path, &newst) == 0 &&
-	    memcmp(&oldst.st_mtime, &newst.st_mtime, sizeof(oldst.st_mtime)) == 0)
-	{
-		/* file has not changed */
-		goto end;
-	}
-	restore_bar = false;
-	strncpy(win.bar.l, "Reloading image...", sizeof(win.bar.l));
-	win_draw(&win);
-
-	if (mode == MODE_IMAGE) {
-		img_close(&img, true);
-		load_image(fileidx);
-	}
-	if (!tns_load(&tns, fileidx, &files[fileidx], true, mode == MODE_IMAGE) &&
-	    mode == MODE_THUMB)
-	{
-		remove_file(fileidx, false);
-		tns.dirty = true;
+	for (i = 0; i < fcnt; i++) {
+		oldst = &finfo[i].st;
+		if (stat(files[finfo[i].fn].path, &newst) != 0 ||
+				memcmp(&oldst->st_mtime, &newst.st_mtime, sizeof(newst.st_mtime)) != 0)
+		{
+			if (tns.thumbs != NULL) {
+				tns.thumbs[finfo[i].fn].loaded = false;
+				tns.loadnext = MIN(tns.loadnext, finfo[i].fn);
+			}
+			changed = true;
+		}
 	}
 end:
-	if (restore_bar)
-		memcpy(win.bar.l, oldbar, sizeof(win.bar.l));
+	if (mode == MODE_IMAGE) {
+		if (changed) {
+			img_close(&img, true);
+			load_image(fileidx);
+		} else if (info.cmd != NULL) {
+			memcpy(win.bar.l, oldbar, sizeof(win.bar.l));
+		}
+	}
 	reset_cursor();
 	redraw();
+	free(finfo);
+	free(args);
 }
 
 #define MODMASK(mask) ((mask) & (ShiftMask|ControlMask|Mod1Mask))
@@ -651,7 +667,7 @@ void run(void)
 	int xfd;
 	fd_set fds;
 	struct timeval timeout;
-	bool discard, to_set;
+	bool discard, reload, to_set;
 	XEvent ev, nextev;
 
 	set_timeout(redraw, 25, false);
@@ -661,9 +677,10 @@ void run(void)
 		       XPending(win.env.dpy) == 0)
 		{
 			/* load thumbnails */
+			reload = tns.loadnext != tns.cnt;
 			set_timeout(redraw, TO_REDRAW_THUMBS, false);
-			if (tns_load(&tns, tns.loadnext, &files[tns.loadnext], false, false)) {
-				if (tns.cnt == tns.loadnext)
+			if (tns_load(&tns, tns.loadnext, &files[tns.loadnext], reload)) {
+				if (!reload)
 					tns.cnt++;
 			} else {
 				remove_file(tns.loadnext, false);
@@ -860,7 +877,7 @@ int main(int argc, char **argv)
 	if (options->thumb_mode) {
 		mode = MODE_THUMB;
 		tns_init(&tns, filecnt, &win, &fileidx);
-		while (!tns_load(&tns, 0, &files[0], false, false))
+		while (!tns_load(&tns, 0, &files[0], false))
 			remove_file(0, false);
 		tns.cnt = 1;
 	} else {

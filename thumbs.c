@@ -209,8 +209,7 @@ void tns_free(tns_t *tns)
 	}
 }
 
-bool tns_load(tns_t *tns, int n, const fileinfo_t *file,
-              bool force, bool silent)
+bool tns_load(tns_t *tns, int n, const fileinfo_t *file, bool force)
 {
 	int w, h;
 	bool cache_hit = false;
@@ -295,8 +294,7 @@ bool tns_load(tns_t *tns, int n, const fileinfo_t *file,
 		if (im == NULL && (access(file->path, R_OK) < 0 ||
 		    (im = imlib_load_image(file->path)) == NULL))
 		{
-			if (!silent)
-				warn("could not open image: %s", file->name);
+			warn("could not open image: %s", file->name);
 			return false;
 		}
 	}

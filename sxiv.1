@@ -112,7 +112,8 @@ Toggle fullscreen mode.
 Toggle visibility of info bar on bottom of window.
 .TP
 .B Ctrl-x
-Send the next key to the external key-handler.
+Send the next key to the external key-handler. See section EXTERNAL KEY HANDLER
+for more information.
 .TP
 .B g
 Go to the first image.
@@ -354,9 +355,10 @@ located in
 .IR $XDG_CONFIG_HOME/sxiv/exec/key-handler .
 The handler is invoked by pressing
 .BR Ctrl-x .
-The next key combo is then passed as its first argument and the path of the
-current image as its second argument.  sxiv(1) will block until the handler
-terminates. It then checks if the image has been modified and reloads it.
+The next key combo is then passed as its first argument, followed by the paths
+of all marked images or the path of the current image, if no image is marked.
+sxiv(1) will block until the handler terminates. It then checks which images
+have been modified and reloads them.
 
 The key combo argument has the following form: "[C-][M-][S-]KEY",
 where C/M/S indicate Ctrl/Meta(Alt)/Shift modifier states and KEY is the X

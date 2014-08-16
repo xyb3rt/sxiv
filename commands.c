@@ -130,7 +130,7 @@ bool cg_reload_image(arg_t a)
 		load_image(fileidx);
 	} else {
 		win_set_cursor(&win, CURSOR_WATCH);
-		if (!tns_load(&tns, fileidx, &files[fileidx], true, false)) {
+		if (!tns_load(&tns, fileidx, &files[fileidx], true)) {
 			remove_file(fileidx, false);
 			tns.dirty = true;
 		}
