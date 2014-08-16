@@ -184,6 +184,8 @@ void remove_file(int n, bool manual)
 	filecnt--;
 	if (n < tns.cnt)
 		tns.cnt--;
+	if (mode == MODE_THUMB && fileidx >= tns.cnt)
+		fileidx = tns.cnt - 1;
 	if (n < alternate)
 		alternate--;
 }
@@ -340,7 +342,6 @@ void load_image(int new)
 
 void update_info(void)
 {
-	int sel;
 	unsigned int i, fn, fw, n;
 	unsigned int llen = sizeof(win.bar.l), rlen = sizeof(win.bar.r);
 	char *lt = win.bar.l, *rt = win.bar.r, title[TITLE_LEN];
@@ -348,23 +349,22 @@ void update_info(void)
 	bool ow_info;
 
 	for (fw = 0, i = filecnt; i > 0; fw++, i /= 10);
-	sel = mode == MODE_IMAGE ? fileidx : tns.sel;
 
 	/* update window title */
 	if (mode == MODE_THUMB) {
 		win_set_title(&win, "sxiv");
 	} else {
-		snprintf(title, sizeof(title), "sxiv - %s", files[sel].name);
+		snprintf(title, sizeof(title), "sxiv - %s", files[fileidx].name);
 		win_set_title(&win, title);
 	}
 
 	/* update bar contents */
 	if (win.bar.h == 0)
 		return;
-	mark = files[sel].marked ? "* " : "";
+	mark = files[fileidx].marked ? "* " : "";
 	if (mode == MODE_THUMB) {
 		if (tns.loadnext >= filecnt) {
-			n = snprintf(rt, rlen, "%s%0*d/%d", mark, fw, sel + 1, filecnt);
+			n = snprintf(rt, rlen, "%s%0*d/%d", mark, fw, fileidx + 1, filecnt);
 			ow_info = true;
 		} else {
 			snprintf(lt, llen, "Loading... %0*d/%d", fw, tns.loadnext, filecnt);
@@ -383,18 +383,18 @@ void update_info(void)
 			n += snprintf(rt + n, rlen - n, "%0*d/%d | ",
 			              fn, img.multi.sel + 1, img.multi.cnt);
 		}
-		n += snprintf(rt + n, rlen - n, "%0*d/%d", fw, sel + 1, filecnt);
+		n += snprintf(rt + n, rlen - n, "%0*d/%d", fw, fileidx + 1, filecnt);
 		ow_info = info.cmd == NULL;
 	}
 	if (ow_info) {
-		fn = strlen(files[sel].name);
+		fn = strlen(files[fileidx].name);
 		if (fn < llen &&
-		    win_textwidth(files[sel].name, fn, true) +
+		    win_textwidth(files[fileidx].name, fn, true) +
 		    win_textwidth(rt, n, true) < win.w)
 		{
-			strncpy(lt, files[sel].name, llen);
+			strncpy(lt, files[fileidx].name, llen);
 		} else {
-			strncpy(lt, files[sel].base, llen);
+			strncpy(lt, files[fileidx].base, llen);
 		}
 	}
 }
@@ -464,7 +464,7 @@ void clear_resize(void)
 void run_key_handler(const char *key, unsigned int mask)
 {
 	pid_t pid;
-	int retval, status, n = mode == MODE_IMAGE ? fileidx : tns.sel;
+	int retval, status;
 	char kstr[32], oldbar[sizeof(win.bar.l)];
 	bool restore_bar = mode == MODE_IMAGE && info.cmd != NULL;
 	struct stat oldst, newst;
@@ -489,10 +489,10 @@ void run_key_handler(const char *key, unsigned int mask)
 	strncpy(win.bar.l, "Running key handler...", sizeof(win.bar.l));
 	win_draw(&win);
 	win_set_cursor(&win, CURSOR_WATCH);
-	stat(files[n].path, &oldst);
+	stat(files[fileidx].path, &oldst);
 
 	if ((pid = fork()) == 0) {
-		execl(keyhandler.cmd, keyhandler.cmd, kstr, files[n].path, NULL);
+		execl(keyhandler.cmd, keyhandler.cmd, kstr, files[fileidx].path, NULL);
 		warn("could not exec key handler");
 		exit(EXIT_FAILURE);
 	} else if (pid < 0) {
@@ -504,7 +504,7 @@ void run_key_handler(const char *key, unsigned int mask)
 	if (WIFEXITED(status) == 0 || retval != 0)
 		warn("key handler exited with non-zero return value: %d", retval);
 
-	if (stat(files[n].path, &newst) == 0 &&
+	if (stat(files[fileidx].path, &newst) == 0 &&
 	    memcmp(&oldst.st_mtime, &newst.st_mtime, sizeof(oldst.st_mtime)) == 0)
 	{
 		/* file has not changed */
@@ -518,13 +518,11 @@ void run_key_handler(const char *key, unsigned int mask)
 		img_close(&img, true);
 		load_image(fileidx);
 	}
-	if (!tns_load(&tns, n, &files[n], true, mode == MODE_IMAGE) &&
+	if (!tns_load(&tns, fileidx, &files[fileidx], true, mode == MODE_IMAGE) &&
 	    mode == MODE_THUMB)
 	{
-		remove_file(tns.sel, false);
+		remove_file(fileidx, false);
 		tns.dirty = true;
-		if (tns.sel >= tns.cnt)
-			tns.sel = tns.cnt - 1;
 	}
 end:
 	if (restore_bar)
@@ -610,16 +608,16 @@ void on_buttonpress(XButtonEvent *bev)
 		switch (bev->button) {
 			case Button1:
 				if ((sel = tns_translate(&tns, bev->x, bev->y)) >= 0) {
-					if (sel != tns.sel) {
-						tns_highlight(&tns, tns.sel, false);
+					if (sel != fileidx) {
+						tns_highlight(&tns, fileidx, false);
 						tns_highlight(&tns, sel, true);
-						tns.sel = sel;
+						fileidx = sel;
 						firstclick = bev->time;
 						redraw();
 					} else if (bev->time - firstclick <= TO_DOUBLE_CLICK) {
 						mode = MODE_IMAGE;
 						set_timeout(reset_cursor, TO_CURSOR_HIDE, true);
-						load_image(tns.sel);
+						load_image(fileidx);
 						redraw();
 					} else {
 						firstclick = bev->time;
@@ -665,8 +663,6 @@ void run(void)
 					tns.cnt++;
 			} else {
 				remove_file(tns.loadnext, false);
-				if (tns.sel > 0 && tns.sel >= tns.cnt)
-					tns.sel--;
 			}
 			while (tns.loadnext < filecnt && tns.thumbs[tns.loadnext].loaded)
 				tns.loadnext++;
@@ -766,7 +762,7 @@ int main(int argc, char **argv)
 	parse_options(argc, argv);
 
 	if (options->clean_cache) {
-		tns_init(&tns, 0, NULL);
+		tns_init(&tns, 0, NULL, NULL);
 		tns_clean_cache(&tns);
 		exit(EXIT_SUCCESS);
 	}
@@ -859,7 +855,7 @@ int main(int argc, char **argv)
 
 	if (options->thumb_mode) {
 		mode = MODE_THUMB;
-		tns_init(&tns, filecnt, &win);
+		tns_init(&tns, filecnt, &win, &fileidx);
 		while (!tns_load(&tns, 0, &files[0], false, false))
 			remove_file(0, false);
 		tns.cnt = 1;

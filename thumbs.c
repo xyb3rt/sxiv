@@ -150,7 +150,7 @@ void tns_clean_cache(tns_t *tns)
 }
 
 
-void tns_init(tns_t *tns, int cnt, win_t *win)
+void tns_init(tns_t *tns, int cnt, win_t *win, int *sel)
 {
 	int len;
 	const char *homedir, *dsuffix = "";
@@ -165,7 +165,8 @@ void tns_init(tns_t *tns, int cnt, win_t *win)
 		tns->thumbs = NULL;
 	}
 	tns->cap = cnt;
-	tns->cnt = tns->loadnext = tns->first = tns->sel = 0;
+	tns->cnt = tns->loadnext = tns->first = 0;
+	tns->sel = sel;
 	tns->win = win;
 	tns->dirty = false;
 
@@ -338,21 +339,21 @@ void tns_check_view(tns_t *tns, bool scrolled)
 		return;
 
 	tns->first -= tns->first % tns->cols;
-	r = tns->sel % tns->cols;
+	r = *tns->sel % tns->cols;
 
 	if (scrolled) {
 		/* move selection into visible area */
-		if (tns->sel >= tns->first + tns->cols * tns->rows)
-			tns->sel = tns->first + r + tns->cols * (tns->rows - 1);
-		else if (tns->sel < tns->first)
-			tns->sel = tns->first + r;
+		if (*tns->sel >= tns->first + tns->cols * tns->rows)
+			*tns->sel = tns->first + r + tns->cols * (tns->rows - 1);
+		else if (*tns->sel < tns->first)
+			*tns->sel = tns->first + r;
 	} else {
 		/* scroll to selection */
-		if (tns->first + tns->cols * tns->rows <= tns->sel) {
-			tns->first = tns->sel - r - tns->cols * (tns->rows - 1);
+		if (tns->first + tns->cols * tns->rows <= *tns->sel) {
+			tns->first = *tns->sel - r - tns->cols * (tns->rows - 1);
 			tns->dirty = true;
-		} else if (tns->first > tns->sel) {
-			tns->first = tns->sel - r;
+		} else if (tns->first > *tns->sel) {
+			tns->first = *tns->sel - r;
 			tns->dirty = true;
 		}
 	}
@@ -409,7 +410,7 @@ void tns_render(tns_t *tns)
 		}
 	}
 	tns->dirty = false;
-	tns_highlight(tns, tns->sel, true);
+	tns_highlight(tns, *tns->sel, true);
 }
 
 void tns_mark(tns_t *tns, int n, bool mark)
@@ -423,7 +424,7 @@ void tns_mark(tns_t *tns, int n, bool mark)
 		win_t *win = tns->win;
 		int x = t->x, y = t->y, w = t->w, h = t->h;
 
-		if (mark || n == tns->sel)
+		if (mark || n == *tns->sel)
 			col = win->selcol;
 		else if (win->fullscreen)
 			col = win->fscol;
@@ -473,33 +474,33 @@ bool tns_move_selection(tns_t *tns, direction_t dir, int cnt)
 	if (tns == NULL || tns->thumbs == NULL)
 		return false;
 
-	old = tns->sel;
+	old = *tns->sel;
 	cnt = cnt > 1 ? cnt : 1;
 
 	switch (dir) {
 		case DIR_UP:
-			tns->sel = MAX(tns->sel - cnt * tns->cols, tns->sel % tns->cols);
+			*tns->sel = MAX(*tns->sel - cnt * tns->cols, *tns->sel % tns->cols);
 			break;
 		case DIR_DOWN:
 			max = tns->cols * ((tns->cnt - 1) / tns->cols) +
-			      MIN((tns->cnt - 1) % tns->cols, tns->sel % tns->cols);
-			tns->sel = MIN(tns->sel + cnt * tns->cols, max);
+			      MIN((tns->cnt - 1) % tns->cols, *tns->sel % tns->cols);
+			*tns->sel = MIN(*tns->sel + cnt * tns->cols, max);
 			break;
 		case DIR_LEFT:
-			tns->sel = MAX(tns->sel - cnt, 0);
+			*tns->sel = MAX(*tns->sel - cnt, 0);
 			break;
 		case DIR_RIGHT:
-			tns->sel = MIN(tns->sel + cnt, tns->cnt - 1);
+			*tns->sel = MIN(*tns->sel + cnt, tns->cnt - 1);
 			break;
 	}
 
-	if (tns->sel != old) {
+	if (*tns->sel != old) {
 		tns_highlight(tns, old, false);
 		tns_check_view(tns, false);
 		if (!tns->dirty)
-			tns_highlight(tns, tns->sel, true);
+			tns_highlight(tns, *tns->sel, true);
 	}
-	return tns->sel != old;
+	return *tns->sel != old;
 }
 
 bool tns_scroll(tns_t *tns, direction_t dir, bool screen)

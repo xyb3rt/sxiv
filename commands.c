@@ -76,18 +76,17 @@ bool cg_switch_mode(arg_t a)
 {
 	if (mode == MODE_IMAGE) {
 		if (tns.thumbs == NULL)
-			tns_init(&tns, filecnt, &win);
+			tns_init(&tns, filecnt, &win, &fileidx);
 		img_close(&img, false);
 		reset_timeout(reset_cursor);
 		if (img.ss.on) {
 			img.ss.on = false;
 			reset_timeout(slideshow);
 		}
-		tns.sel = fileidx;
 		tns.dirty = true;
 		mode = MODE_THUMB;
 	} else {
-		load_image(tns.sel);
+		load_image(fileidx);
 		mode = MODE_IMAGE;
 	}
 	return true;
@@ -130,11 +129,9 @@ bool cg_reload_image(arg_t a)
 		load_image(fileidx);
 	} else {
 		win_set_cursor(&win, CURSOR_WATCH);
-		if (!tns_load(&tns, tns.sel, &files[tns.sel], true, false)) {
-			remove_file(tns.sel, false);
+		if (!tns_load(&tns, fileidx, &files[fileidx], true, false)) {
+			remove_file(fileidx, false);
 			tns.dirty = true;
-			if (tns.sel >= tns.cnt)
-				tns.sel = tns.cnt - 1;
 		}
 	}
 	return true;
@@ -146,11 +143,9 @@ bool cg_remove_image(arg_t a)
 		remove_file(fileidx, true);
 		load_image(fileidx >= filecnt ? filecnt - 1 : fileidx);
 		return true;
-	} else if (tns.sel < tns.cnt) {
-		remove_file(tns.sel, true);
+	} else if (fileidx < tns.cnt) {
+		remove_file(fileidx, true);
 		tns.dirty = true;
-		if (tns.sel >= tns.cnt)
-			tns.sel = tns.cnt - 1;
 		return true;
 	} else {
 		return false;
@@ -162,8 +157,8 @@ bool cg_first(arg_t a)
 	if (mode == MODE_IMAGE && fileidx != 0) {
 		load_image(0);
 		return true;
-	} else if (mode == MODE_THUMB && tns.sel != 0) {
-		tns.sel = 0;
+	} else if (mode == MODE_THUMB && fileidx != 0) {
+		fileidx = 0;
 		tns.dirty = true;
 		return true;
 	} else {
@@ -178,8 +173,8 @@ bool cg_n_or_last(arg_t a)
 	if (mode == MODE_IMAGE && fileidx != n) {
 		load_image(n);
 		return true;
-	} else if (mode == MODE_THUMB && tns.sel != n) {
-		tns.sel = n;
+	} else if (mode == MODE_THUMB && fileidx != n) {
+		fileidx = n;
 		tns.dirty = true;
 		return true;
 	} else {
@@ -199,11 +194,9 @@ bool cg_scroll_screen(arg_t a)
 
 bool cg_toggle_image_mark(arg_t a)
 {
-	int sel = mode == MODE_IMAGE ? fileidx : tns.sel;
-
-	files[sel].marked = !files[sel].marked;
+	files[fileidx].marked = !files[fileidx].marked;
 	if (mode == MODE_THUMB)
-		tns_mark(&tns, sel, files[sel].marked);
+		tns_mark(&tns, fileidx, files[fileidx].marked);
 	return true;
 }
 
@@ -221,26 +214,23 @@ bool cg_reverse_marks(arg_t a)
 bool cg_navigate_marked(arg_t a)
 {
 	long n = (long) a;
-	int d, i, cnt, sel, new;
+	int d, i;
+	int cnt = mode == MODE_IMAGE ? filecnt : tns.cnt, new = fileidx;
 	
-	if (mode == MODE_IMAGE)
-		cnt = filecnt, sel = new = fileidx;
-	else
-		cnt = tns.cnt, sel = new = tns.sel;
 	if (prefix > 0)
 		n *= prefix;
 	d = n > 0 ? 1 : -1;
-	for (i = sel + d; n != 0 && i >= 0 && i < cnt; i += d) {
+	for (i = fileidx + d; n != 0 && i >= 0 && i < cnt; i += d) {
 		if (files[i].marked) {
 			n -= d;
 			new = i;
 		}
 	}
-	if (new != sel) {
+	if (new != fileidx) {
 		if (mode == MODE_IMAGE) {
 			load_image(new);
 		} else {
-			tns.sel = new;
+			fileidx = new;
 			tns.dirty = true;
 		}
 		return true;
@@ -462,7 +452,7 @@ bool ct_move_sel(arg_t a)
 bool ct_reload_all(arg_t a)
 {
 	tns_free(&tns);
-	tns_init(&tns, filecnt, &win);
+	tns_init(&tns, filecnt, &win, &fileidx);
 	return false;
 }
 

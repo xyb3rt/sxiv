@@ -41,7 +41,7 @@ typedef struct {
 	int cnt;
 	int loadnext;
 	int first;
-	int sel;
+	int *sel;
 
 	win_t *win;
 	int x;
@@ -54,7 +54,7 @@ typedef struct {
 
 void tns_clean_cache(tns_t*);
 
-void tns_init(tns_t*, int, win_t*);
+void tns_init(tns_t*, int, win_t*, int*);
 void tns_free(tns_t*);
 
 bool tns_load(tns_t*, int, const fileinfo_t*, bool, bool);
