@@ -363,11 +363,11 @@ void update_info(void)
 		return;
 	mark = files[sel].marked ? "* " : "";
 	if (mode == MODE_THUMB) {
-		if (tns.cnt == filecnt) {
+		if (tns.loadnext >= filecnt) {
 			n = snprintf(rt, rlen, "%s%0*d/%d", mark, fw, sel + 1, filecnt);
 			ow_info = true;
 		} else {
-			snprintf(lt, llen, "Loading... %0*d/%d", fw, tns.cnt, filecnt);
+			snprintf(lt, llen, "Loading... %0*d/%d", fw, tns.loadnext, filecnt);
 			rt[0] = '\0';
 			ow_info = false;
 		}
@@ -434,7 +434,7 @@ void reset_cursor(void)
 			}
 		}
 	} else {
-		if (tns.cnt != filecnt)
+		if (tns.loadnext < filecnt)
 			cursor = CURSOR_WATCH;
 		else
 			cursor = CURSOR_ARROW;
@@ -655,19 +655,22 @@ void run(void)
 	set_timeout(redraw, 25, false);
 
 	while (true) {
-		while (mode == MODE_THUMB && tns.cnt < filecnt &&
+		while (mode == MODE_THUMB && tns.loadnext < filecnt &&
 		       XPending(win.env.dpy) == 0)
 		{
 			/* load thumbnails */
 			set_timeout(redraw, TO_REDRAW_THUMBS, false);
-			if (tns_load(&tns, tns.cnt, &files[tns.cnt], false, false)) {
-				tns.cnt++;
+			if (tns_load(&tns, tns.loadnext, &files[tns.loadnext], false, false)) {
+				if (tns.cnt == tns.loadnext)
+					tns.cnt++;
 			} else {
-				remove_file(tns.cnt, false);
+				remove_file(tns.loadnext, false);
 				if (tns.sel > 0 && tns.sel >= tns.cnt)
 					tns.sel--;
 			}
-			if (tns.cnt == filecnt)
+			while (tns.loadnext < filecnt && tns.thumbs[tns.loadnext].loaded)
+				tns.loadnext++;
+			if (tns.loadnext >= filecnt)
 				redraw();
 			else
 				check_timeouts(NULL);

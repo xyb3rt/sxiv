@@ -32,12 +32,14 @@ typedef struct {
 	int h;
 	int x;
 	int y;
+	bool loaded;
 } thumb_t;
 
 typedef struct {
 	thumb_t *thumbs;
 	int cap;
 	int cnt;
+	int loadnext;
 	int first;
 	int sel;
 

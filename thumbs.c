@@ -165,7 +165,7 @@ void tns_init(tns_t *tns, int cnt, win_t *win)
 		tns->thumbs = NULL;
 	}
 	tns->cap = cnt;
-	tns->cnt = tns->first = tns->sel = 0;
+	tns->cnt = tns->loadnext = tns->first = tns->sel = 0;
 	tns->win = win;
 	tns->dirty = false;
 
@@ -325,6 +325,7 @@ bool tns_load(tns_t *tns, int n, const fileinfo_t *file,
 	if (!cache_hit)
 		tns_cache_write(t, true);
 
+	t->loaded = true;
 	tns->dirty = true;
 	return true;
 }
