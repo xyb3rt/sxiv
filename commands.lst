@@ -10,6 +10,7 @@ G_CMD(n_or_last)
 G_CMD(scroll_screen)
 G_CMD(toggle_image_mark)
 G_CMD(reverse_marks)
+G_CMD(unmark_all)
 G_CMD(navigate_marked)
 
 I_CMD(navigate)

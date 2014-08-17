@@ -81,6 +81,7 @@ static const keymap_t keys[] = {
 	{ ControlMask,  XK_Right,         g_scroll_screen,      (arg_t) DIR_RIGHT },
 	{ 0,            XK_m,             g_toggle_image_mark,  (arg_t) None },
 	{ 0,            XK_M,             g_reverse_marks,      (arg_t) None },
+	{ ControlMask,  XK_m,             g_unmark_all,         (arg_t) None },
 	{ 0,            XK_N,             g_navigate_marked,    (arg_t) +1 },
 	{ 0,            XK_P,             g_navigate_marked,    (arg_t) -1 },
 

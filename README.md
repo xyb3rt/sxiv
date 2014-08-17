@@ -103,6 +103,7 @@ of small previews is displayed, making it easy to choose an image to open.
     Ctrl-h,j,k,l Scroll one window width/height left/down/up/right
     m            Mark/unmark current image
     M            Reverse all image marks
+    Ctrl-m       Remove all image marks
     N            Go [count] marked images forward
     P            Go [count] marked images backward
 

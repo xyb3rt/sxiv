@@ -215,6 +215,18 @@ bool cg_reverse_marks(arg_t a)
 	return true;
 }
 
+bool cg_unmark_all(arg_t a)
+{
+	int i;
+
+	for (i = 0; i < filecnt; i++)
+		files[i].marked = false;
+	markcnt = 0;
+	if (mode == MODE_THUMB)
+		tns.dirty = true;
+	return true;
+}
+
 bool cg_navigate_marked(arg_t a)
 {
 	long n = (long) a;
