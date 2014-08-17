@@ -684,6 +684,8 @@ void run(void)
 					tns.cnt++;
 			} else {
 				remove_file(tns.loadnext, false);
+				if (reload)
+					tns.dirty = true;
 			}
 			while (tns.loadnext < filecnt && tns.thumbs[tns.loadnext].loaded)
 				tns.loadnext++;
