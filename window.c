@@ -476,12 +476,12 @@ void win_draw(win_t *win)
 	XFlush(win->env.dpy);
 }
 
-void win_draw_rect(win_t *win, Pixmap pm, int x, int y, int w, int h,
-                   bool fill, int lw, unsigned long col)
+void win_draw_rect(win_t *win, int x, int y, int w, int h, bool fill, int lw,
+                   unsigned long col)
 {
 	XGCValues gcval;
 
-	if (win == NULL || pm == None)
+	if (win == NULL || win->buf.pm == None)
 		return;
 
 	gcval.line_width = lw;
@@ -489,9 +489,9 @@ void win_draw_rect(win_t *win, Pixmap pm, int x, int y, int w, int h,
 	XChangeGC(win->env.dpy, gc, GCForeground | GCLineWidth, &gcval);
 
 	if (fill)
-		XFillRectangle(win->env.dpy, pm, gc, x, y, w, h);
+		XFillRectangle(win->env.dpy, win->buf.pm, gc, x, y, w, h);
 	else
-		XDrawRectangle(win->env.dpy, pm, gc, x, y, w, h);
+		XDrawRectangle(win->env.dpy, win->buf.pm, gc, x, y, w, h);
 }
 
 int win_textwidth(const char *text, unsigned int len, bool with_padding)

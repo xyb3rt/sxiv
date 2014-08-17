@@ -422,23 +422,21 @@ void tns_mark(tns_t *tns, int n, bool mark)
 		unsigned long col;
 		thumb_t *t = &tns->thumbs[n];
 		win_t *win = tns->win;
-		int x = t->x, y = t->y, w = t->w, h = t->h;
 
-		if (mark || n == *tns->sel)
+		if (mark)
 			col = win->selcol;
 		else if (win->fullscreen)
 			col = win->fscol;
 		else
 			col = win->bgcol;
 
-		win_draw_rect(win, win->buf.pm, x - 4,     y - 4,     8, 2, true, 0, col);
-		win_draw_rect(win, win->buf.pm, x - 4,     y - 4,     2, 8, true, 0, col);
-		win_draw_rect(win, win->buf.pm, x + w - 4, y - 4,     8, 2, true, 0, col);
-		win_draw_rect(win, win->buf.pm, x + w + 2, y - 4,     2, 8, true, 0, col);
-		win_draw_rect(win, win->buf.pm, x - 4,     y + h + 2, 8, 2, true, 0, col);
-		win_draw_rect(win, win->buf.pm, x - 4,     y + h - 4, 2, 8, true, 0, col);
-		win_draw_rect(win, win->buf.pm, x + w - 4, y + h + 2, 8, 2, true, 0, col);
-		win_draw_rect(win, win->buf.pm, x + w + 2, y + h - 4, 2, 8, true, 0, col);
+		win_draw_rect(win, t->x - 4,    t->y - 4,    4, 4, true, 1, col);
+		win_draw_rect(win, t->x + t->w, t->y - 4,    4, 4, true, 1, col);
+		win_draw_rect(win, t->x - 4,    t->y + t->h, 4, 4, true, 1, col);
+		win_draw_rect(win, t->x + t->w, t->y + t->h, 4, 4, true, 1, col);
+
+		if (!mark && n == *tns->sel)
+			tns_highlight(tns, n, true);
 	}
 }
 
@@ -459,8 +457,7 @@ void tns_highlight(tns_t *tns, int n, bool hl)
 		else
 			col = win->bgcol;
 
-		win_draw_rect(win, win->buf.pm, t->x - 3, t->y - 3, t->w + 6, t->h + 6,
-		              false, 2, col);
+		win_draw_rect(win, t->x - 3, t->y - 3, t->w + 6, t->h + 6, false, 2, col);
 
 		if (!hl && tns->files[n].marked)
 			tns_mark(tns, n, true);
