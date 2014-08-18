@@ -364,7 +364,7 @@ void update_info(void)
 	/* update bar contents */
 	if (win.bar.h == 0)
 		return;
-	mark = files[fileidx].marked ? "* " : "";
+	mark = files[fileidx].marked ? "+ " : "";
 	if (mode == MODE_THUMB) {
 		if (tns.loadnext >= filecnt) {
 			n = snprintf(rt, rlen, "%s%0*d/%d", mark, fw, fileidx + 1, filecnt);

@@ -430,10 +430,8 @@ void tns_mark(tns_t *tns, int n, bool mark)
 		else
 			col = win->bgcol;
 
-		win_draw_rect(win, t->x - 4,    t->y - 4,    4, 4, true, 1, col);
-		win_draw_rect(win, t->x + t->w, t->y - 4,    4, 4, true, 1, col);
-		win_draw_rect(win, t->x - 4,    t->y + t->h, 4, 4, true, 1, col);
-		win_draw_rect(win, t->x + t->w, t->y + t->h, 4, 4, true, 1, col);
+		win_draw_rect(win, t->x + t->w - 1, t->y + t->h + 1, 6, 2, true, 1, col);
+		win_draw_rect(win, t->x + t->w + 1, t->y + t->h - 1, 2, 6, true, 1, col);
 
 		if (!mark && n == *tns->sel)
 			tns_highlight(tns, n, true);
@@ -457,7 +455,7 @@ void tns_highlight(tns_t *tns, int n, bool hl)
 		else
 			col = win->bgcol;
 
-		win_draw_rect(win, t->x - 3, t->y - 3, t->w + 6, t->h + 6, false, 2, col);
+		win_draw_rect(win, t->x - 2, t->y - 2, t->w + 4, t->h + 4, false, 2, col);
 
 		if (!hl && tns->files[n].marked)
 			tns_mark(tns, n, true);
