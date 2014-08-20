@@ -11,11 +11,28 @@
 # where C/M/S indicate Ctrl/Meta(Alt)/Shift modifier states and KEY is the X
 # keysym as listed in /usr/include/X11/keysymdef.h without the "XK_" prefix.
 
+readonly TAGFILE="$HOME/.config/sxiv/tags"
+
 rotate() {
 	case "$(file -b -i "$2")" in
 	image/jpeg*) jpegtran -rotate "$1" -copy all -outfile "$2" "$2" ;;
 	*)           mogrify  -rotate "$1" "$2" ;;
 	esac
+}
+
+tag_add() {
+	>>"$TAGFILE"
+	tags=$(dmenu <"$TAGFILE" | tr '\n' ',')
+	[ -z "$tags" ] && return
+	iptckwed -a "$tags" "$@"
+	echo -n "$tags" | tr ',' '\n' | sort - "$TAGFILE" | uniq >"$TAGFILE.new"
+	mv -f "$TAGFILE"{.new,}
+}
+
+tag_del() {
+	tags=$(iptckwed -ql "$@" | cut -f 2 | tr ',' '\n' | sort | uniq | dmenu | tr '\n' ',')
+	[ -z "$tags" ] && return
+	iptckwed -r "$tags" "$@"
 }
 
 key="$1"
@@ -28,5 +45,7 @@ case "$key" in
 "C-comma")  for file in "$@"; do rotate 270 "$file"; done ;;
 "C-period") for file in "$@"; do rotate  90 "$file"; done ;;
 "C-slash")  for file in "$@"; do rotate 180 "$file"; done ;;
+"C-t")      tag_add "$@" ;;
+"M-T")      tag_del "$@" ;;
 esac
 
