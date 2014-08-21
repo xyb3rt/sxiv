@@ -176,8 +176,7 @@ void tns_init(tns_t *tns, const fileinfo_t *files, int cnt, int *sel, win_t *win
 		dsuffix = "/.cache";
 	}
 	if (homedir != NULL) {
-		if (cache_dir != NULL)
-			free(cache_dir);
+		free(cache_dir);
 		len = strlen(homedir) + strlen(dsuffix) + 6;
 		cache_dir = (char*) s_malloc(len);
 		snprintf(cache_dir, len, "%s%s/sxiv", homedir, dsuffix);
@@ -204,10 +203,8 @@ void tns_free(tns_t *tns)
 		tns->thumbs = NULL;
 	}
 
-	if (cache_dir != NULL) {
-		free(cache_dir);
-		cache_dir = NULL;
-	}
+	free(cache_dir);
+	cache_dir = NULL;
 }
 
 bool tns_load(tns_t *tns, int n, bool force)

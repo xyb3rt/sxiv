@@ -198,18 +198,13 @@ char* absolute_path(const char *filename)
 	goto end;
 
 error:
-	if (path != NULL) {
-		free(path);
-		path = NULL;
-	}
+	free(path);
+	path = NULL;
 
 end:
-	if (dirname != NULL)
-		free(dirname);
-	if (cwd != NULL)
-		free(cwd);
-	if (twd != NULL)
-		free(twd);
+	free(dirname);
+	free(cwd);
+	free(twd);
 
 	return path;
 }
@@ -254,7 +249,7 @@ int r_closedir(r_dir_t *rdir)
 			rdir->dir = NULL;
 	}
 
-	if (rdir->d != 0 && rdir->name != NULL) {
+	if (rdir->d) {
 		free(rdir->name);
 		rdir->name = NULL;
 	}

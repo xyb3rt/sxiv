@@ -810,8 +810,7 @@ int main(int argc, char **argv)
 				filename[len-1] = '\0';
 			check_add_file(filename);
 		}
-		if (filename != NULL)
-			free(filename);
+		free(filename);
 	}
 
 	for (i = 0; i < options->filecnt; i++) {
