@@ -314,14 +314,16 @@ end:
 
 void load_image(int new)
 {
+	static int current;
+
 	if (new < 0 || new >= filecnt)
 		return;
 
 	win_set_cursor(&win, CURSOR_WATCH);
 	reset_timeout(slideshow);
 
-	if (new != fileidx)
-		alternate = fileidx;
+	if (new != current)
+		alternate = current;
 
 	img_close(&img, false);
 	while (!img_load(&img, &files[new])) {
@@ -332,7 +334,7 @@ void load_image(int new)
 			new--;
 	}
 	files[new].loaded = true;
-	fileidx = new;
+	fileidx = current = new;
 
 	info.open = false;
 	open_info();
