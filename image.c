@@ -824,21 +824,16 @@ bool img_frame_navigate(img_t *img, int d)
 	return img_frame_goto(img, d);
 }
 
-bool img_frame_animate(img_t *img, bool restart)
+bool img_frame_animate(img_t *img)
 {
 	if (img == NULL || img->im == NULL || img->multi.cnt == 0)
 		return false;
 
-	if (img->multi.sel + 1 >= img->multi.cnt) {
+	if (img->multi.sel + 1 >= img->multi.cnt)
 		img_frame_goto(img, 0);
-		img->dirty = true;
-		return true;
-	} else if (!restart) {
+	else
 		img_frame_goto(img, img->multi.sel + 1);
-		img->dirty = true;
-		return true;
-	} else {
-		return false;
-	}
+	img->dirty = true;
+	return true;
 }
 

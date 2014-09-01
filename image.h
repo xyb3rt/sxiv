@@ -91,6 +91,6 @@ void img_toggle_antialias(img_t*);
 bool img_change_gamma(img_t*, int);
 
 bool img_frame_navigate(img_t*, int);
-bool img_frame_animate(img_t*, bool);
+bool img_frame_animate(img_t*);
 
 #endif /* IMAGE_H */
