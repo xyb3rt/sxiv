@@ -187,7 +187,7 @@ void remove_file(int n, bool manual)
 	filecnt--;
 	if (n < tns.cnt)
 		tns.cnt--;
-	if (mode == MODE_THUMB && fileidx >= tns.cnt)
+	if (mode == MODE_THUMB && tns.cnt > 0 && fileidx >= tns.cnt)
 		fileidx = tns.cnt - 1;
 	if (n < alternate)
 		alternate--;
