@@ -368,14 +368,13 @@ void update_info(void)
 		return;
 	mark = files[fileidx].marked ? "+ " : "";
 	if (mode == MODE_THUMB) {
-		if (tns.loadnext >= filecnt) {
-			n = snprintf(rt, rlen, "%s%0*d/%d", mark, fw, fileidx + 1, filecnt);
-			ow_info = true;
-		} else {
-			snprintf(lt, llen, "Loading... %0*d/%d", fw, tns.loadnext, filecnt);
-			rt[0] = '\0';
+		if (tns.loadnext < tns.end) {
+			snprintf(lt, llen, "Loading... %0*d", fw, tns.loadnext);
 			ow_info = false;
+		} else {
+			ow_info = true;
 		}
+		n = snprintf(rt, rlen, "%s%0*d/%d", mark, fw, fileidx + 1, filecnt);
 	} else {
 		n = snprintf(rt, rlen, "%s", mark);
 		if (img.ss.on)
@@ -439,7 +438,7 @@ void reset_cursor(void)
 			}
 		}
 	} else {
-		if (tns.loadnext < filecnt)
+		if (tns.loadnext < tns.end)
 			cursor = CURSOR_WATCH;
 		else
 			cursor = CURSOR_ARROW;
@@ -531,7 +530,7 @@ void run_key_handler(const char *key, unsigned int mask)
 				memcmp(&oldst->st_mtime, &newst.st_mtime, sizeof(newst.st_mtime)) != 0)
 		{
 			if (tns.thumbs != NULL) {
-				tns.thumbs[finfo[i].fn].loaded = false;
+				tns_unload(&tns, finfo[i].fn);
 				tns.loadnext = MIN(tns.loadnext, finfo[i].fn);
 			}
 			changed = true;
@@ -669,29 +668,24 @@ void run(void)
 	int xfd;
 	fd_set fds;
 	struct timeval timeout;
-	bool discard, reload, to_set;
+	bool discard, to_set;
 	XEvent ev, nextev;
 
 	set_timeout(redraw, 25, false);
 
 	while (true) {
-		while (mode == MODE_THUMB && tns.loadnext < filecnt &&
+		while (mode == MODE_THUMB && tns.loadnext < tns.end &&
 		       XPending(win.env.dpy) == 0)
 		{
 			/* load thumbnails */
-			reload = tns.loadnext != tns.cnt;
 			set_timeout(redraw, TO_REDRAW_THUMBS, false);
-			if (tns_load(&tns, tns.loadnext, reload)) {
-				if (!reload)
-					tns.cnt++;
-			} else {
+			if (!tns_load(&tns, tns.loadnext, false)) {
 				remove_file(tns.loadnext, false);
-				if (reload)
-					tns.dirty = true;
+				tns.dirty = true;
 			}
-			while (tns.loadnext < filecnt && tns.thumbs[tns.loadnext].loaded)
+			while (tns.loadnext < tns.end && tns.thumbs[tns.loadnext].im != NULL)
 				tns.loadnext++;
-			if (tns.loadnext >= filecnt)
+			if (tns.loadnext >= tns.end)
 				redraw();
 			else
 				check_timeouts(NULL);
@@ -882,7 +876,6 @@ int main(int argc, char **argv)
 		tns_init(&tns, files, filecnt, &fileidx, &win);
 		while (!tns_load(&tns, 0, false))
 			remove_file(0, false);
-		tns.cnt = 1;
 	} else {
 		mode = MODE_IMAGE;
 		tns.thumbs = NULL;

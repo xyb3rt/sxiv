@@ -470,7 +470,8 @@ bool ct_reload_all(arg_t a)
 {
 	tns_free(&tns);
 	tns_init(&tns, files, filecnt, &fileidx, &win);
-	return false;
+	tns.dirty = true;
+	return true;
 }
 
 

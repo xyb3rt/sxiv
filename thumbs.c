@@ -56,7 +56,7 @@ char* tns_cache_filepath(const char *filepath)
 	return cfile;
 }
 
-Imlib_Image tns_cache_load(const char *filepath)
+Imlib_Image tns_cache_load(const char *filepath, bool *outdated)
 {
 	char *cfile;
 	struct stat cstats, fstats;
@@ -68,8 +68,12 @@ Imlib_Image tns_cache_load(const char *filepath)
 		return NULL;
 
 	if ((cfile = tns_cache_filepath(filepath)) != NULL) {
-		if (stat(cfile, &cstats) == 0 && cstats.st_mtime == fstats.st_mtime)
-			im = imlib_load_image(cfile);
+		if (stat(cfile, &cstats) == 0) {
+			if (cstats.st_mtime == fstats.st_mtime)
+				im = imlib_load_image(cfile);
+			else
+				*outdated = true;
+		}
 		free(cfile);
 	}
 	return im;
@@ -165,8 +169,8 @@ void tns_init(tns_t *tns, const fileinfo_t *files, int cnt, int *sel, win_t *win
 		tns->thumbs = NULL;
 	}
 	tns->files = files;
-	tns->cap = cnt;
-	tns->cnt = tns->loadnext = tns->first = 0;
+	tns->cnt = cnt;
+	tns->loadnext = tns->first = tns->end = tns->r_first = tns->r_end = 0;
 	tns->sel = sel;
 	tns->win = win;
 	tns->dirty = false;
@@ -218,7 +222,7 @@ bool tns_load(tns_t *tns, int n, bool force)
 
 	if (tns == NULL || tns->thumbs == NULL)
 		return false;
-	if (n < 0 || n >= tns->cap)
+	if (n < 0 || n >= tns->cnt)
 		return false;
 	file = &tns->files[n];
 	if (file->name == NULL || file->path == NULL)
@@ -231,7 +235,7 @@ bool tns_load(tns_t *tns, int n, bool force)
 		imlib_free_image();
 	}
 
-	if (!force && (im = tns_cache_load(file->path)) != NULL) {
+	if (!force && (im = tns_cache_load(file->path, &force)) != NULL) {
 		cache_hit = true;
 	} else {
 #if HAVE_LIBEXIF
@@ -323,9 +327,26 @@ bool tns_load(tns_t *tns, int n, bool force)
 	if (!cache_hit)
 		tns_cache_write(t, file, true);
 
-	t->loaded = true;
 	tns->dirty = true;
 	return true;
+}
+
+void tns_unload(tns_t *tns, int n)
+{
+	thumb_t *t;
+
+	if (tns == NULL || tns->thumbs == NULL)
+		return;
+	if (n < 0 || n >= tns->cnt)
+		return;
+
+	t = &tns->thumbs[n];
+
+	if (t->im != NULL) {
+		imlib_context_set_image(t->im);
+		imlib_free_image();
+		t->im = NULL;
+	}
 }
 
 void tns_check_view(tns_t *tns, bool scrolled)
@@ -385,20 +406,31 @@ void tns_render(tns_t *tns)
 		if (r > 0)
 			cnt -= r % tns->cols;
 	}
-
 	r = cnt % tns->cols ? 1 : 0;
 	tns->x = x = (win->w - MIN(cnt, tns->cols) * thumb_dim) / 2 + 5;
 	tns->y = y = (win->h - (cnt / tns->cols + r) * thumb_dim) / 2 + 5;
+	tns->loadnext = tns->cnt;
+	tns->end = tns->first + cnt;
 
-	for (i = 0; i < cnt; i++) {
-		t = &tns->thumbs[tns->first + i];
-		t->x = x + (THUMB_SIZE - t->w) / 2;
-		t->y = y + (THUMB_SIZE - t->h) / 2;
-		imlib_context_set_image(t->im);
-		imlib_render_image_part_on_drawable_at_size(0, 0, t->w, t->h,
-		                                            t->x, t->y, t->w, t->h);
-		if (tns->files[tns->first + i].marked)
-			tns_mark(tns, tns->first + i, true);
+	for (i = tns->r_first; i < tns->r_end; i++) {
+		if ((i < tns->first || i >= tns->end) && tns->thumbs[i].im != NULL)
+			tns_unload(tns, i);
+	}
+	tns->r_first = tns->first;
+	tns->r_end = tns->end;
+
+	for (i = tns->first; i < tns->end; i++) {
+		t = &tns->thumbs[i];
+		if (t->im != NULL) {
+			t->x = x + (THUMB_SIZE - t->w) / 2;
+			t->y = y + (THUMB_SIZE - t->h) / 2;
+			imlib_context_set_image(t->im);
+			imlib_render_image_on_drawable_at_size(t->x, t->y, t->w, t->h);
+			if (tns->files[i].marked)
+				tns_mark(tns, i, true);
+		} else {
+			tns->loadnext = MIN(tns->loadnext, i);
+		}
 		if ((i + 1) % tns->cols == 0) {
 			x = tns->x;
 			y += thumb_dim;
@@ -415,7 +447,7 @@ void tns_mark(tns_t *tns, int n, bool mark)
 	if (tns == NULL || tns->thumbs == NULL || tns->win == NULL)
 		return;
 
-	if (n >= 0 && n < tns->cnt) {
+	if (n >= 0 && n < tns->cnt && tns->thumbs[n].im != NULL) {
 		win_t *win = tns->win;
 		thumb_t *t = &tns->thumbs[n];
 		unsigned long col = win->fullscreen ? win->fscol : win->bgcol;
@@ -440,7 +472,7 @@ void tns_highlight(tns_t *tns, int n, bool hl)
 	if (tns == NULL || tns->thumbs == NULL || tns->win == NULL)
 		return;
 
-	if (n >= 0 && n < tns->cnt) {
+	if (n >= 0 && n < tns->cnt && tns->thumbs[n].im != NULL) {
 		win_t *win = tns->win;
 		thumb_t *t = &tns->thumbs[n];
 		unsigned long col;
