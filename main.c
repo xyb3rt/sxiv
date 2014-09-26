@@ -671,8 +671,6 @@ void run(void)
 	bool discard, to_set;
 	XEvent ev, nextev;
 
-	set_timeout(redraw, 25, false);
-
 	while (true) {
 		while (mode == MODE_THUMB && tns.loadnext < tns.end &&
 		       XPending(win.env.dpy) == 0)
@@ -881,9 +879,13 @@ int main(int argc, char **argv)
 		tns.thumbs = NULL;
 		load_image(fileidx);
 	}
-
 	win_open(&win);
 	win_set_cursor(&win, CURSOR_WATCH);
+
+	if (mode == MODE_THUMB)
+		tns_render(&tns);
+
+	set_timeout(redraw, 25, false);
 
 	run();
 	cleanup();
