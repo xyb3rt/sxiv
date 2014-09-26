@@ -668,41 +668,39 @@ void run(void)
 	int xfd;
 	fd_set fds;
 	struct timeval timeout;
-	bool discard, to_set;
+	bool discard, load_thumb, to_set;
 	XEvent ev, nextev;
 
 	while (true) {
-		while (mode == MODE_THUMB && tns.loadnext < tns.end &&
-		       XPending(win.env.dpy) == 0)
-		{
-			/* load thumbnails */
-			set_timeout(redraw, TO_REDRAW_THUMBS, false);
-			if (!tns_load(&tns, tns.loadnext, false)) {
-				remove_file(tns.loadnext, false);
-				tns.dirty = true;
-			}
-			while (tns.loadnext < tns.end && tns.thumbs[tns.loadnext].im != NULL)
-				tns.loadnext++;
-			if (tns.loadnext >= tns.end)
-				redraw();
-			else
-				check_timeouts(NULL);
-		}
+		to_set = check_timeouts(&timeout);
+		load_thumb = mode == MODE_THUMB && tns.loadnext < tns.end;
 
-		while (XPending(win.env.dpy) == 0
-		       && ((to_set = check_timeouts(&timeout)) || info.fd != -1))
+		if ((load_thumb || to_set || info.fd != -1) &&
+		    XPending(win.env.dpy) == 0)
 		{
-			/* check for timeouts & input */
-			xfd = ConnectionNumber(win.env.dpy);
-			FD_ZERO(&fds);
-			FD_SET(xfd, &fds);
-			if (info.fd != -1) {
-				FD_SET(info.fd, &fds);
-				xfd = MAX(xfd, info.fd);
+			if (load_thumb) {
+				set_timeout(redraw, TO_REDRAW_THUMBS, false);
+				if (!tns_load(&tns, tns.loadnext, false)) {
+					remove_file(tns.loadnext, false);
+					tns.dirty = true;
+				}
+				while (tns.loadnext < tns.end && tns.thumbs[tns.loadnext].im != NULL)
+					tns.loadnext++;
+				if (tns.loadnext >= tns.end)
+					redraw();
+			} else {
+				xfd = ConnectionNumber(win.env.dpy);
+				FD_ZERO(&fds);
+				FD_SET(xfd, &fds);
+				if (info.fd != -1) {
+					FD_SET(info.fd, &fds);
+					xfd = MAX(xfd, info.fd);
+				}
+				select(xfd + 1, &fds, 0, 0, to_set ? &timeout : NULL);
+				if (info.fd != -1 && FD_ISSET(info.fd, &fds))
+					read_info();
 			}
-			select(xfd + 1, &fds, 0, 0, to_set ? &timeout : NULL);
-			if (info.fd != -1 && FD_ISSET(info.fd, &fds))
-				read_info();
+			continue;
 		}
 
 		do {
@@ -881,9 +879,6 @@ int main(int argc, char **argv)
 	}
 	win_open(&win);
 	win_set_cursor(&win, CURSOR_WATCH);
-
-	if (mode == MODE_THUMB)
-		tns_render(&tns);
 
 	set_timeout(redraw, 25, false);
 
