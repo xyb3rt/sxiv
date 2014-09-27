@@ -101,6 +101,8 @@ of small previews is displayed, making it easy to choose an image to open.
     r            Reload image
     D            Remove image from file list and go to next image
     Ctrl-h,j,k,l Scroll one window width/height left/down/up/right
+    +            Zoom in
+    -            Zoom out
     m            Mark/unmark current image
     M            Reverse all image marks
     Ctrl-m       Remove all image marks
@@ -123,8 +125,6 @@ of small previews is displayed, making it easy to choose an image to open.
     h,j,k,l      Scroll image 1/5 of window width/height or [count] pixels
                  left/down/up/right (also with arrow keys)
     H,J,K,L      Scroll to left/bottom/top/right image edge
-    +            Zoom in
-    -            Zoom out
     =            Set zoom level to 100%, or [count]%
     w            Set zoom level to 100%, but fit large images into window
     W            Fit image to window

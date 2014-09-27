@@ -193,6 +193,20 @@ bool cg_scroll_screen(arg_t a)
 		return tns_scroll(&tns, dir, true);
 }
 
+bool cg_zoom(arg_t a)
+{
+	long d = (long) a;
+
+	if (mode == MODE_THUMB)
+		return tns_zoom(&tns, d);
+	else if (d > 0)
+		return img_zoom_in(&img);
+	else if (d < 0)
+		return img_zoom_out(&img);
+	else
+		return false;
+}
+
 bool cg_toggle_image_mark(arg_t a)
 {
 	files[fileidx].marked = !files[fileidx].marked;
@@ -384,18 +398,6 @@ bool ci_drag(arg_t a)
 	reset_timeout(redraw);
 
 	return true;
-}
-
-bool ci_zoom(arg_t a)
-{
-	long scale = (long) a;
-
-	if (scale > 0)
-		return img_zoom_in(&img);
-	else if (scale < 0)
-		return img_zoom_out(&img);
-	else
-		return false;
 }
 
 bool ci_set_zoom(arg_t a)

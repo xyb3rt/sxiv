@@ -47,6 +47,7 @@ typedef struct {
 	int y;
 	int cols;
 	int rows;
+	int zl;
 
 	bool dirty;
 } tns_t;
@@ -65,6 +66,8 @@ void tns_highlight(tns_t*, int, bool);
 
 bool tns_move_selection(tns_t*, direction_t, int);
 bool tns_scroll(tns_t*, direction_t, bool);
+
+bool tns_zoom(tns_t*, int);
 
 int tns_translate(tns_t*, int, int);
 
