@@ -453,14 +453,13 @@ void tns_mark(tns_t *tns, int n, bool mark)
 		unsigned long col = win->fullscreen ? win->fscol : win->bgcol;
 		int x = t->x + t->w, y = t->y + t->h;
 
-		win_draw_rect(win, x - 2, y + 1, 1, 2, true, 1, col);
-		win_draw_rect(win, x + 1, y - 2, 2, 1, true, 1, col);
+		win_draw_rect(win, x - 1, y + 1, 1, 2, true, 1, col);
+		win_draw_rect(win, x + 1, y - 1, 2, 1, true, 1, col);
 
 		if (mark)
 			col = win->selcol;
 
-		win_draw_rect(win, x - 1, y + 1, 6, 2, true, 1, col);
-		win_draw_rect(win, x + 1, y - 1, 2, 6, true, 1, col);
+		win_draw_rect(win, x, y, 4, 4, true, 1, col);
 
 		if (!mark && n == *tns->sel)
 			tns_highlight(tns, n, true);
