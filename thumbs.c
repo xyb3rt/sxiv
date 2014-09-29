@@ -102,6 +102,7 @@ void tns_cache_write(Imlib_Image im, const char *filepath, bool force)
 			if (err == 0) {
 				imlib_context_set_image(im);
 				imlib_image_set_format("jpg");
+				imlib_image_attach_data_value("quality", NULL, 90, NULL);
 				imlib_save_image_with_error_return(cfile, &err);
 			}
 			if (err == 0) {
