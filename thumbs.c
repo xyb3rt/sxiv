@@ -170,8 +170,10 @@ void tns_init(tns_t *tns, const fileinfo_t *files, int cnt, int *sel, win_t *win
 	tns->loadnext = tns->first = tns->end = tns->r_first = tns->r_end = 0;
 	tns->sel = sel;
 	tns->win = win;
-	tns->zl = 1;
 	tns->dirty = false;
+
+	tns->zl = 0;
+	tns_zoom(tns, 1);
 
 	if ((homedir = getenv("XDG_CACHE_HOME")) == NULL || homedir[0] == '\0') {
 		homedir = getenv("HOME");
@@ -392,7 +394,6 @@ void tns_render(tns_t *tns)
 	thumb_t *t;
 	win_t *win;
 	int i, cnt, r, x, y;
-	int thumb_dim;
 
 	if (tns == NULL || tns->thumbs == NULL || tns->win == NULL)
 		return;
@@ -403,9 +404,8 @@ void tns_render(tns_t *tns)
 	win_clear(win);
 	imlib_context_set_drawable(win->buf.pm);
 
-	thumb_dim = thumb_size[tns->zl] + 10;
-	tns->cols = MAX(1, win->w / thumb_dim);
-	tns->rows = MAX(1, win->h / thumb_dim);
+	tns->cols = MAX(1, win->w / tns->dim);
+	tns->rows = MAX(1, win->h / tns->dim);
 
 	if (tns->cnt < tns->cols * tns->rows) {
 		tns->first = 0;
@@ -419,8 +419,8 @@ void tns_render(tns_t *tns)
 			cnt -= r % tns->cols;
 	}
 	r = cnt % tns->cols ? 1 : 0;
-	tns->x = x = (win->w - MIN(cnt, tns->cols) * thumb_dim) / 2 + 5;
-	tns->y = y = (win->h - (cnt / tns->cols + r) * thumb_dim) / 2 + 5;
+	tns->x = x = (win->w - MIN(cnt, tns->cols) * tns->dim) / 2 + 5;
+	tns->y = y = (win->h - (cnt / tns->cols + r) * tns->dim) / 2 + 5;
 	tns->loadnext = tns->cnt;
 	tns->end = tns->first + cnt;
 
@@ -445,9 +445,9 @@ void tns_render(tns_t *tns)
 		}
 		if ((i + 1) % tns->cols == 0) {
 			x = tns->x;
-			y += thumb_dim;
+			y += tns->dim;
 		} else {
-			x += thumb_dim;
+			x += tns->dim;
 		}
 	}
 	tns->dirty = false;
@@ -574,6 +574,8 @@ bool tns_zoom(tns_t *tns, int d)
 	tns->zl = MAX(tns->zl, 0);
 	tns->zl = MIN(tns->zl, ARRLEN(thumb_size)-1);
 
+	tns->dim = thumb_size[tns->zl] + 10;
+
 	if (tns->zl != oldzl) {
 		for (i = 0; i < tns->cnt; i++)
 			tns_unload(tns, i);
@@ -591,8 +593,8 @@ int tns_translate(tns_t *tns, int x, int y)
 	if (x < tns->x || y < tns->y)
 		return -1;
 
-	n = tns->first + (y - tns->y) / (thumb_size[tns->zl] + 10) * tns->cols +
-	    (x - tns->x) / (thumb_size[tns->zl] + 10);
+	n = tns->first + (y - tns->y) / tns->dim * tns->cols +
+	    (x - tns->x) / tns->dim;
 	if (n >= tns->cnt)
 		n = -1;
 

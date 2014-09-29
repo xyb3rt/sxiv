@@ -48,6 +48,7 @@ typedef struct {
 	int cols;
 	int rows;
 	int zl;
+	int dim;
 
 	bool dirty;
 } tns_t;
