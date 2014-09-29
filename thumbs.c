@@ -226,7 +226,8 @@ Imlib_Image tns_scale_down(Imlib_Image im, int dim)
 
 	if (z < 1.0) {
 		imlib_context_set_anti_alias(1);
-		im = imlib_create_cropped_scaled_image(0, 0, w, h, z * w, z * h);
+		im = imlib_create_cropped_scaled_image(0, 0, w, h,
+		                                       MAX(z * w, 1), MAX(z * h, 1));
 		if (im == NULL)
 			die("could not allocate memory");
 		imlib_free_image_and_decache();
