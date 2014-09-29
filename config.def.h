@@ -51,6 +51,12 @@ static const bool ANTI_ALIAS = true;
 static const bool ALPHA_LAYER = false;
 
 #endif
+#ifdef _THUMBS_CONFIG
+
+/* thumbnail sizes in pixels (width == height): */
+static const int thumb_sizes[] = { 32, 64, 96, 128, 160 };
+
+#endif
 #ifdef _MAPPINGS_CONFIG
 
 /* keyboard mappings for image and thumbnail mode: */

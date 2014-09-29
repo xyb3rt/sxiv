@@ -17,6 +17,7 @@
  */
 
 #define _POSIX_C_SOURCE 200112L
+#define _THUMBS_CONFIG
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -36,7 +37,6 @@ void exif_auto_orientate(const fileinfo_t*);
 #endif
 
 static char *cache_dir;
-static const int thumb_size[] = { 32, 64, 96, 128, 160 };
 
 char* tns_cache_filepath(const char *filepath)
 {
@@ -330,11 +330,11 @@ bool tns_load(tns_t *tns, int n, bool force)
 		imlib_context_set_image(im);
 		exif_auto_orientate(file);
 #endif
-		im = tns_scale_down(im, thumb_size[ARRLEN(thumb_size)-1]);
+		im = tns_scale_down(im, thumb_sizes[ARRLEN(thumb_sizes)-1]);
 		tns_cache_write(im, file->path, true);
 	}
 
-	t->im = tns_scale_down(im, thumb_size[tns->zl]);
+	t->im = tns_scale_down(im, thumb_sizes[tns->zl]);
 	imlib_context_set_image(t->im);
 	t->w = imlib_image_get_width();
 	t->h = imlib_image_get_height();
@@ -434,8 +434,8 @@ void tns_render(tns_t *tns)
 	for (i = tns->first; i < tns->end; i++) {
 		t = &tns->thumbs[i];
 		if (t->im != NULL) {
-			t->x = x + (thumb_size[tns->zl] - t->w) / 2;
-			t->y = y + (thumb_size[tns->zl] - t->h) / 2;
+			t->x = x + (thumb_sizes[tns->zl] - t->w) / 2;
+			t->y = y + (thumb_sizes[tns->zl] - t->h) / 2;
 			imlib_context_set_image(t->im);
 			imlib_render_image_on_drawable_at_size(t->x, t->y, t->w, t->h);
 			if (tns->files[i].marked)
@@ -572,9 +572,9 @@ bool tns_zoom(tns_t *tns, int d)
 	oldzl = tns->zl;
 	tns->zl += -(d < 0) + (d > 0);
 	tns->zl = MAX(tns->zl, 0);
-	tns->zl = MIN(tns->zl, ARRLEN(thumb_size)-1);
+	tns->zl = MIN(tns->zl, ARRLEN(thumb_sizes)-1);
 
-	tns->dim = thumb_size[tns->zl] + 10;
+	tns->dim = thumb_sizes[tns->zl] + 10;
 
 	if (tns->zl != oldzl) {
 		for (i = 0; i < tns->cnt; i++)
