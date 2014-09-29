@@ -419,8 +419,8 @@ void tns_render(tns_t *tns)
 			cnt -= r % tns->cols;
 	}
 	r = cnt % tns->cols ? 1 : 0;
-	tns->x = x = (win->w - MIN(cnt, tns->cols) * tns->dim) / 2 + 5;
-	tns->y = y = (win->h - (cnt / tns->cols + r) * tns->dim) / 2 + 5;
+	tns->x = x = (win->w - MIN(cnt, tns->cols) * tns->dim) / 2 + tns->bw + 3;
+	tns->y = y = (win->h - (cnt / tns->cols + r) * tns->dim) / 2 + tns->bw + 3;
 	tns->loadnext = tns->cnt;
 	tns->end = tns->first + cnt;
 
@@ -465,13 +465,13 @@ void tns_mark(tns_t *tns, int n, bool mark)
 		unsigned long col = win->fullscreen ? win->fscol : win->bgcol;
 		int x = t->x + t->w, y = t->y + t->h;
 
-		win_draw_rect(win, x - 1, y + 1, 1, 2, true, 1, col);
-		win_draw_rect(win, x + 1, y - 1, 2, 1, true, 1, col);
+		win_draw_rect(win, x - 1, y + 1, 1, tns->bw, true, 1, col);
+		win_draw_rect(win, x + 1, y - 1, tns->bw, 1, true, 1, col);
 
 		if (mark)
 			col = win->selcol;
 
-		win_draw_rect(win, x, y, 4, 4, true, 1, col);
+		win_draw_rect(win, x, y, tns->bw + 2, tns->bw + 2, true, 1, col);
 
 		if (!mark && n == *tns->sel)
 			tns_highlight(tns, n, true);
@@ -487,13 +487,15 @@ void tns_highlight(tns_t *tns, int n, bool hl)
 		win_t *win = tns->win;
 		thumb_t *t = &tns->thumbs[n];
 		unsigned long col;
+		int oxy = (tns->bw + 1) / 2 + 1, owh = tns->bw + 2;
 
 		if (hl)
 			col = win->selcol;
 		else
 			col = win->fullscreen ? win->fscol : win->bgcol;
 
-		win_draw_rect(win, t->x - 2, t->y - 2, t->w + 4, t->h + 4, false, 2, col);
+		win_draw_rect(win, t->x - oxy, t->y - oxy, t->w + owh, t->h + owh,
+		              false, tns->bw, col);
 
 		if (tns->files[n].marked)
 			tns_mark(tns, n, true);
@@ -574,7 +576,8 @@ bool tns_zoom(tns_t *tns, int d)
 	tns->zl = MAX(tns->zl, 0);
 	tns->zl = MIN(tns->zl, ARRLEN(thumb_sizes)-1);
 
-	tns->dim = thumb_sizes[tns->zl] + 10;
+	tns->bw = ((thumb_sizes[tns->zl] - 1) >> 5) + 1;
+	tns->dim = thumb_sizes[tns->zl] + 2 * tns->bw + 6;
 
 	if (tns->zl != oldzl) {
 		for (i = 0; i < tns->cnt; i++)
