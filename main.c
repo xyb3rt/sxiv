@@ -176,19 +176,16 @@ void remove_file(int n, bool manual)
 		free((void*) files[n].path);
 	free((void*) files[n].name);
 
-	if (n + 1 < filecnt)
+	if (n + 1 < filecnt) {
 		memmove(files + n, files + n + 1, (filecnt - n - 1) * sizeof(fileinfo_t));
-	if (n + 1 < tns.cnt) {
-		memmove(tns.thumbs + n, tns.thumbs + n + 1, (tns.cnt - n - 1) *
+		memmove(tns.thumbs + n, tns.thumbs + n + 1, (filecnt - n - 1) *
 		        sizeof(thumb_t));
-		memset(tns.thumbs + tns.cnt - 1, 0, sizeof(thumb_t));
+		memset(tns.thumbs + filecnt - 1, 0, sizeof(thumb_t));
 	}
 
 	filecnt--;
-	if (n < tns.cnt)
-		tns.cnt--;
-	if (mode == MODE_THUMB && tns.cnt > 0 && fileidx >= tns.cnt)
-		fileidx = tns.cnt - 1;
+	if (fileidx >= filecnt)
+		fileidx = filecnt - 1;
 	if (n < alternate)
 		alternate--;
 }
@@ -777,7 +774,7 @@ int main(int argc, char **argv)
 	parse_options(argc, argv);
 
 	if (options->clean_cache) {
-		tns_init(&tns, NULL, 0, NULL, NULL);
+		tns_init(&tns, NULL, NULL, NULL, NULL);
 		tns_clean_cache(&tns);
 		exit(EXIT_SUCCESS);
 	}
@@ -869,7 +866,7 @@ int main(int argc, char **argv)
 
 	if (options->thumb_mode) {
 		mode = MODE_THUMB;
-		tns_init(&tns, files, filecnt, &fileidx, &win);
+		tns_init(&tns, files, &filecnt, &fileidx, &win);
 		while (!tns_load(&tns, 0, false))
 			remove_file(0, false);
 	} else {

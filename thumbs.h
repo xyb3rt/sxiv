@@ -36,11 +36,11 @@ typedef struct {
 typedef struct {
 	const fileinfo_t *files;
 	thumb_t *thumbs;
-	int cnt;
+	const int *cnt;
+	int *sel;
 	int loadnext;
 	int first, end;
 	int r_first, r_end;
-	int *sel;
 
 	win_t *win;
 	int x;
@@ -56,7 +56,7 @@ typedef struct {
 
 void tns_clean_cache(tns_t*);
 
-void tns_init(tns_t*, const fileinfo_t*, int, int*, win_t*);
+void tns_init(tns_t*, const fileinfo_t*, const int*, int*, win_t*);
 void tns_free(tns_t*);
 
 bool tns_load(tns_t*, int, bool);

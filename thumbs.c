@@ -152,7 +152,8 @@ void tns_clean_cache(tns_t *tns)
 }
 
 
-void tns_init(tns_t *tns, const fileinfo_t *files, int cnt, int *sel, win_t *win)
+void tns_init(tns_t *tns, const fileinfo_t *files, const int *cnt, int *sel,
+              win_t *win)
 {
 	int len;
 	const char *homedir, *dsuffix = "";
@@ -160,9 +161,9 @@ void tns_init(tns_t *tns, const fileinfo_t *files, int cnt, int *sel, win_t *win
 	if (tns == NULL)
 		return;
 
-	if (cnt > 0) {
-		tns->thumbs = (thumb_t*) s_malloc(cnt * sizeof(thumb_t));
-		memset(tns->thumbs, 0, cnt * sizeof(thumb_t));
+	if (*cnt > 0) {
+		tns->thumbs = (thumb_t*) s_malloc(*cnt * sizeof(thumb_t));
+		memset(tns->thumbs, 0, *cnt * sizeof(thumb_t));
 	} else {
 		tns->thumbs = NULL;
 	}
@@ -198,7 +199,7 @@ void tns_free(tns_t *tns)
 		return;
 
 	if (tns->thumbs != NULL) {
-		for (i = 0; i < tns->cnt; i++) {
+		for (i = 0; i < *tns->cnt; i++) {
 			if (tns->thumbs[i].im != NULL) {
 				imlib_context_set_image(tns->thumbs[i].im);
 				imlib_free_image();
@@ -247,7 +248,7 @@ bool tns_load(tns_t *tns, int n, bool force)
 
 	if (tns == NULL || tns->thumbs == NULL)
 		return false;
-	if (n < 0 || n >= tns->cnt)
+	if (n < 0 || n >= *tns->cnt)
 		return false;
 	file = &tns->files[n];
 	if (file->name == NULL || file->path == NULL)
@@ -351,7 +352,7 @@ void tns_unload(tns_t *tns, int n)
 
 	if (tns == NULL || tns->thumbs == NULL)
 		return;
-	if (n < 0 || n >= tns->cnt)
+	if (n < 0 || n >= *tns->cnt)
 		return;
 
 	t = &tns->thumbs[n];
@@ -409,13 +410,13 @@ void tns_render(tns_t *tns)
 	tns->cols = MAX(1, win->w / tns->dim);
 	tns->rows = MAX(1, win->h / tns->dim);
 
-	if (tns->cnt < tns->cols * tns->rows) {
+	if (*tns->cnt < tns->cols * tns->rows) {
 		tns->first = 0;
-		cnt = tns->cnt;
+		cnt = *tns->cnt;
 	} else {
 		tns_check_view(tns, false);
 		cnt = tns->cols * tns->rows;
-		if ((r = tns->first + cnt - tns->cnt) >= tns->cols)
+		if ((r = tns->first + cnt - *tns->cnt) >= tns->cols)
 			tns->first -= r - r % tns->cols;
 		if (r > 0)
 			cnt -= r % tns->cols;
@@ -423,7 +424,7 @@ void tns_render(tns_t *tns)
 	r = cnt % tns->cols ? 1 : 0;
 	tns->x = x = (win->w - MIN(cnt, tns->cols) * tns->dim) / 2 + tns->bw + 3;
 	tns->y = y = (win->h - (cnt / tns->cols + r) * tns->dim) / 2 + tns->bw + 3;
-	tns->loadnext = tns->cnt;
+	tns->loadnext = *tns->cnt;
 	tns->end = tns->first + cnt;
 
 	for (i = tns->r_first; i < tns->r_end; i++) {
@@ -461,7 +462,7 @@ void tns_mark(tns_t *tns, int n, bool mark)
 	if (tns == NULL || tns->thumbs == NULL || tns->win == NULL)
 		return;
 
-	if (n >= 0 && n < tns->cnt && tns->thumbs[n].im != NULL) {
+	if (n >= 0 && n < *tns->cnt && tns->thumbs[n].im != NULL) {
 		win_t *win = tns->win;
 		thumb_t *t = &tns->thumbs[n];
 		unsigned long col = win->fullscreen ? win->fscol : win->bgcol;
@@ -485,7 +486,7 @@ void tns_highlight(tns_t *tns, int n, bool hl)
 	if (tns == NULL || tns->thumbs == NULL || tns->win == NULL)
 		return;
 
-	if (n >= 0 && n < tns->cnt && tns->thumbs[n].im != NULL) {
+	if (n >= 0 && n < *tns->cnt && tns->thumbs[n].im != NULL) {
 		win_t *win = tns->win;
 		thumb_t *t = &tns->thumbs[n];
 		unsigned long col;
@@ -519,15 +520,15 @@ bool tns_move_selection(tns_t *tns, direction_t dir, int cnt)
 			*tns->sel = MAX(*tns->sel - cnt * tns->cols, *tns->sel % tns->cols);
 			break;
 		case DIR_DOWN:
-			max = tns->cols * ((tns->cnt - 1) / tns->cols) +
-			      MIN((tns->cnt - 1) % tns->cols, *tns->sel % tns->cols);
+			max = tns->cols * ((*tns->cnt - 1) / tns->cols) +
+			      MIN((*tns->cnt - 1) % tns->cols, *tns->sel % tns->cols);
 			*tns->sel = MIN(*tns->sel + cnt * tns->cols, max);
 			break;
 		case DIR_LEFT:
 			*tns->sel = MAX(*tns->sel - cnt, 0);
 			break;
 		case DIR_RIGHT:
-			*tns->sel = MIN(*tns->sel + cnt, tns->cnt - 1);
+			*tns->sel = MIN(*tns->sel + cnt, *tns->cnt - 1);
 			break;
 	}
 
@@ -551,9 +552,9 @@ bool tns_scroll(tns_t *tns, direction_t dir, bool screen)
 	d = tns->cols * (screen ? tns->rows : 1);
 
 	if (dir == DIR_DOWN) {
-		max = tns->cnt - tns->cols * tns->rows;
-		if (tns->cnt % tns->cols != 0)
-			max += tns->cols - tns->cnt % tns->cols;
+		max = *tns->cnt - tns->cols * tns->rows;
+		if (*tns->cnt % tns->cols != 0)
+			max += tns->cols - *tns->cnt % tns->cols;
 		tns->first = MIN(tns->first + d, max);
 	} else if (dir == DIR_UP) {
 		tns->first = MAX(tns->first - d, 0);
@@ -582,7 +583,7 @@ bool tns_zoom(tns_t *tns, int d)
 	tns->dim = thumb_sizes[tns->zl] + 2 * tns->bw + 6;
 
 	if (tns->zl != oldzl) {
-		for (i = 0; i < tns->cnt; i++)
+		for (i = 0; i < *tns->cnt; i++)
 			tns_unload(tns, i);
 		tns->dirty = true;
 	}
@@ -600,7 +601,7 @@ int tns_translate(tns_t *tns, int x, int y)
 
 	n = tns->first + (y - tns->y) / tns->dim * tns->cols +
 	    (x - tns->x) / tns->dim;
-	if (n >= tns->cnt)
+	if (n >= *tns->cnt)
 		n = -1;
 
 	return n;

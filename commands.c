@@ -77,7 +77,7 @@ bool cg_switch_mode(arg_t a)
 {
 	if (mode == MODE_IMAGE) {
 		if (tns.thumbs == NULL)
-			tns_init(&tns, files, filecnt, &fileidx, &win);
+			tns_init(&tns, files, &filecnt, &fileidx, &win);
 		img_close(&img, false);
 		reset_timeout(reset_cursor);
 		if (img.ss.on) {
@@ -140,17 +140,12 @@ bool cg_reload_image(arg_t a)
 
 bool cg_remove_image(arg_t a)
 {
-	if (mode == MODE_IMAGE) {
-		remove_file(fileidx, true);
-		load_image(fileidx >= filecnt ? filecnt - 1 : fileidx);
-		return true;
-	} else if (fileidx < tns.cnt) {
-		remove_file(fileidx, true);
+	remove_file(fileidx, true);
+	if (mode == MODE_IMAGE)
+		load_image(fileidx);
+	else
 		tns.dirty = true;
-		return true;
-	} else {
-		return false;
-	}
+	return true;
 }
 
 bool cg_first(arg_t a)
@@ -245,12 +240,12 @@ bool cg_navigate_marked(arg_t a)
 {
 	long n = (long) a;
 	int d, i;
-	int cnt = mode == MODE_IMAGE ? filecnt : tns.cnt, new = fileidx;
+	int new = fileidx;
 	
 	if (prefix > 0)
 		n *= prefix;
 	d = n > 0 ? 1 : -1;
-	for (i = fileidx + d; n != 0 && i >= 0 && i < cnt; i += d) {
+	for (i = fileidx + d; n != 0 && i >= 0 && i < filecnt; i += d) {
 		if (files[i].marked) {
 			n -= d;
 			new = i;
@@ -471,7 +466,7 @@ bool ct_move_sel(arg_t a)
 bool ct_reload_all(arg_t a)
 {
 	tns_free(&tns);
-	tns_init(&tns, files, filecnt, &fileidx, &win);
+	tns_init(&tns, files, &filecnt, &fileidx, &win);
 	tns.dirty = true;
 	return true;
 }
