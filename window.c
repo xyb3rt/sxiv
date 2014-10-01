@@ -168,7 +168,12 @@ void win_init(win_t *win)
 	win->selcol    = win_alloc_color(win, SEL_COLOR);
 	win->bar.bgcol = win_alloc_color(win, BAR_BG_COLOR);
 	win->bar.fgcol = win_alloc_color(win, BAR_FG_COLOR);
-	win->bar.h     = options->hide_bar ? 0 : barheight;
+
+	win->bar.l.size = BAR_L_LEN;
+	win->bar.r.size = BAR_R_LEN;
+	win->bar.l.buf = s_malloc(win->bar.l.size);
+	win->bar.r.buf = s_malloc(win->bar.r.size);
+	win->bar.h = options->hide_bar ? 0 : barheight;
 
 	INIT_ATOM_(WM_DELETE_WINDOW);
 	INIT_ATOM_(_NET_WM_NAME);
@@ -416,8 +421,11 @@ void win_draw_bar(win_t *win)
 	char rest[3];
 	const char *dots = "...";
 	win_env_t *e;
+	win_bar_t *l, *r;
 
 	if (win == NULL || win->xwin == None)
+		return;
+	if ((l = &win->bar.l)->buf == NULL || (r = &win->bar.r)->buf == NULL)
 		return;
 
 	e = &win->env;
@@ -430,35 +438,35 @@ void win_draw_bar(win_t *win)
 	XSetForeground(e->dpy, gc, win->bar.fgcol);
 	XSetBackground(e->dpy, gc, win->bar.bgcol);
 
-	if ((len = strlen(win->bar.r)) > 0) {
-		if ((tw = win_textwidth(win->bar.r, len, true)) > w)
+	if ((len = strlen(r->buf)) > 0) {
+		if ((tw = win_textwidth(r->buf, len, true)) > w)
 			return;
 		x = win->w - tw + H_TEXT_PAD;
 		w -= tw;
 		if (font.set)
-			XmbDrawString(e->dpy, win->buf.pm, font.set, gc, x, y, win->bar.r, len);
+			XmbDrawString(e->dpy, win->buf.pm, font.set, gc, x, y, r->buf, len);
 		else
-			XDrawString(e->dpy, win->buf.pm, gc, x, y, win->bar.r, len);
+			XDrawString(e->dpy, win->buf.pm, gc, x, y, r->buf, len);
 	}
-	if ((len = strlen(win->bar.l)) > 0) {
+	if ((len = strlen(l->buf)) > 0) {
 		olen = len;
-		while (len > 0 && (tw = win_textwidth(win->bar.l, len, true)) > w)
+		while (len > 0 && (tw = win_textwidth(l->buf, len, true)) > w)
 			len--;
 		if (len > 0) {
 			if (len != olen) {
 				w = strlen(dots);
 				if (len <= w)
 					return;
-				memcpy(rest, win->bar.l + len - w, w);
-				memcpy(win->bar.l + len - w, dots, w);
+				memcpy(rest, l->buf + len - w, w);
+				memcpy(l->buf + len - w, dots, w);
 			}
 			x = H_TEXT_PAD;
 			if (font.set)
-				XmbDrawString(e->dpy, win->buf.pm, font.set, gc, x, y, win->bar.l, len);
+				XmbDrawString(e->dpy, win->buf.pm, font.set, gc, x, y, l->buf, len);
 			else
-				XDrawString(e->dpy, win->buf.pm, gc, x, y, win->bar.l, len);
+				XDrawString(e->dpy, win->buf.pm, gc, x, y, l->buf, len);
 			if (len != olen)
-			  memcpy(win->bar.l + len - w, rest, w);
+			  memcpy(l->buf + len - w, rest, w);
 		}
 	}
 }

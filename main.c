@@ -21,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdarg.h>
 #include <string.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -256,7 +257,7 @@ void open_info(void)
 		kill(pid, SIGTERM);
 		info.fd = -1;
 	}
-	win.bar.l[0] = '\0';
+	win.bar.l.buf[0] = '\0';
 
 	if (pipe(pfd) < 0)
 		return;
@@ -290,20 +291,20 @@ void read_info(void)
 		for (i = 0; i < n; i++) {
 			if (buf[i] == '\n') {
 				if (info.lastsep == 0) {
-					win.bar.l[info.i++] = ' ';
+					win.bar.l.buf[info.i++] = ' ';
 					info.lastsep = 1;
 				}
 			} else {
-				win.bar.l[info.i++] = buf[i];
+				win.bar.l.buf[info.i++] = buf[i];
 				info.lastsep = 0;
 			}
-			if (info.i + 1 == sizeof(win.bar.l))
+			if (info.i + 1 == win.bar.l.size)
 				goto end;
 		}
 	}
 end:
 	info.i -= info.lastsep;
-	win.bar.l[info.i] = '\0';
+	win.bar.l.buf[info.i] = '\0';
 	win_draw(&win);
 	close(info.fd);
 	info.fd = -1;
@@ -343,15 +344,24 @@ void load_image(int new)
 		reset_timeout(animate);
 }
 
+void bar_put(win_bar_t *bar, const char *fmt, ...)
+{
+	size_t len = bar->size - (bar->p - bar->buf), n;
+	va_list ap;
+
+	va_start(ap, fmt);
+	n = vsnprintf(bar->p, len, fmt, ap);
+	bar->p += MIN(len, n);
+	va_end(ap);
+}
+
 void update_info(void)
 {
-	unsigned int i, fn, fw, n;
-	unsigned int llen = sizeof(win.bar.l), rlen = sizeof(win.bar.r);
-	char *lt = win.bar.l, *rt = win.bar.r, title[TITLE_LEN];
+	unsigned int i, fn, fw;
+	char title[TITLE_LEN];
 	const char * mark;
 	bool ow_info;
-
-	for (fw = 0, i = filecnt; i > 0; fw++, i /= 10);
+	win_bar_t *l = &win.bar.l, *r = &win.bar.r;
 
 	/* update window title */
 	if (mode == MODE_THUMB) {
@@ -364,39 +374,41 @@ void update_info(void)
 	/* update bar contents */
 	if (win.bar.h == 0)
 		return;
+	for (fw = 0, i = filecnt; i > 0; fw++, i /= 10);
 	mark = files[fileidx].marked ? "* " : "";
+	l->p = l->buf;
+	r->p = r->buf;
 	if (mode == MODE_THUMB) {
 		if (tns.loadnext < tns.end) {
-			snprintf(lt, llen, "Loading... %0*d", fw, tns.loadnext);
+			bar_put(l, "Loading... %0*d", fw, MAX(tns.loadnext, 1));
 			ow_info = false;
 		} else {
 			ow_info = true;
 		}
-		n = snprintf(rt, rlen, "%s%0*d/%d", mark, fw, fileidx + 1, filecnt);
+		bar_put(r, "%s%0*d/%d", mark, fw, fileidx + 1, filecnt);
 	} else {
-		n = snprintf(rt, rlen, "%s", mark);
+		bar_put(r, "%s", mark);
 		if (img.ss.on)
-			n += snprintf(rt + n, rlen - n, "%ds | ", img.ss.delay);
+			bar_put(r, "%ds | ", img.ss.delay);
 		if (img.gamma != 0)
-			n += snprintf(rt + n, rlen - n, "G%+d | ", img.gamma);
-		n += snprintf(rt + n, rlen - n, "%3d%% | ", (int) (img.zoom * 100.0));
+			bar_put(r, "G%+d | ", img.gamma);
+		bar_put(r, "%3d%% | ", (int) (img.zoom * 100.0));
 		if (img.multi.cnt > 0) {
 			for (fn = 0, i = img.multi.cnt; i > 0; fn++, i /= 10);
-			n += snprintf(rt + n, rlen - n, "%0*d/%d | ",
-			              fn, img.multi.sel + 1, img.multi.cnt);
+			bar_put(r, "%0*d/%d | ", fn, img.multi.sel + 1, img.multi.cnt);
 		}
-		n += snprintf(rt + n, rlen - n, "%0*d/%d", fw, fileidx + 1, filecnt);
+		bar_put(r, "%0*d/%d", fw, fileidx + 1, filecnt);
 		ow_info = info.cmd == NULL;
 	}
 	if (ow_info) {
 		fn = strlen(files[fileidx].name);
-		if (fn < llen &&
+		if (fn < l->size &&
 		    win_textwidth(files[fileidx].name, fn, true) +
-		    win_textwidth(rt, n, true) < win.w)
+		    win_textwidth(r->buf, r->p - r->buf, true) < win.w)
 		{
-			strncpy(lt, files[fileidx].name, llen);
+			strncpy(l->buf, files[fileidx].name, l->size);
 		} else {
-			strncpy(lt, files[fileidx].base, llen);
+			strncpy(l->buf, files[fileidx].base, l->size);
 		}
 	}
 }
@@ -469,7 +481,7 @@ void run_key_handler(const char *key, unsigned int mask)
 	int i, j, retval, status;
 	int fcnt = mode == MODE_THUMB && markcnt > 0 ? markcnt : 1;
 	bool changed = false;
-	char **args, kstr[32], oldbar[sizeof(win.bar.l)];
+	char **args, kstr[32], oldbar[BAR_L_LEN];
 	struct stat *oldst, newst;
 	struct { int fn; struct stat st; } *finfo;
 
@@ -504,8 +516,8 @@ void run_key_handler(const char *key, unsigned int mask)
 	         mask & Mod1Mask    ? "M-" : "",
 	         mask & ShiftMask   ? "S-" : "", key);
 
-	memcpy(oldbar, win.bar.l, sizeof(win.bar.l));
-	strncpy(win.bar.l, "Running key handler...", sizeof(win.bar.l));
+	memcpy(oldbar, win.bar.l.buf, sizeof(oldbar));
+	strncpy(win.bar.l.buf, "Running key handler...", win.bar.l.size);
 	win_draw(&win);
 	win_set_cursor(&win, CURSOR_WATCH);
 
@@ -540,7 +552,7 @@ end:
 			img_close(&img, true);
 			load_image(fileidx);
 		} else if (info.cmd != NULL) {
-			memcpy(win.bar.l, oldbar, sizeof(win.bar.l));
+			memcpy(win.bar.l.buf, oldbar, win.bar.l.size);
 		}
 	}
 	reset_cursor();

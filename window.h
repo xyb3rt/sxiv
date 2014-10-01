@@ -50,6 +50,12 @@ typedef struct {
 } win_env_t;
 
 typedef struct {
+	size_t size;
+	char *p;
+	char *buf;
+} win_bar_t;
+
+typedef struct {
 	Window xwin;
 	win_env_t env;
 
@@ -73,8 +79,8 @@ typedef struct {
 
 	struct {
 		unsigned int h;
-		char l[BAR_L_LEN];
-		char r[BAR_R_LEN];
+		win_bar_t l;
+		win_bar_t r;
 		unsigned long bgcol;
 		unsigned long fgcol;
 	} bar;
