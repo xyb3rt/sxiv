@@ -177,12 +177,13 @@ void remove_file(int n, bool manual)
 	free((void*) files[n].name);
 
 	if (n + 1 < filecnt) {
-		memmove(files + n, files + n + 1, (filecnt - n - 1) * sizeof(fileinfo_t));
-		memmove(tns.thumbs + n, tns.thumbs + n + 1, (filecnt - n - 1) *
-		        sizeof(thumb_t));
-		memset(tns.thumbs + filecnt - 1, 0, sizeof(thumb_t));
+		if (tns.thumbs != NULL) {
+			memmove(tns.thumbs + n, tns.thumbs + n + 1, (filecnt - n - 1) *
+			        sizeof(*tns.thumbs));
+			memset(tns.thumbs + filecnt - 1, 0, sizeof(*tns.thumbs));
+		}
+		memmove(files + n, files + n + 1, (filecnt - n - 1) * sizeof(*files));
 	}
-
 	filecnt--;
 	if (fileidx >= filecnt)
 		fileidx = filecnt - 1;
