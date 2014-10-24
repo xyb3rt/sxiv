@@ -162,6 +162,13 @@ on GitHub or get a copy using git with the following command:
 
 **Stable releases**
 
+**[v1.3](https://github.com/muennich/sxiv/archive/v1.3.tar.gz)**
+*(October 24, 2014)*
+
+  * Extract thumbnails from EXIF tags (requires libexif)
+  * Zoomable thumbnails, supported sizes defined in config.h
+  * Fixed build error with giflib version >= 5.1.0
+
 **[v1.2](https://github.com/muennich/sxiv/archive/v1.2.tar.gz)**
 *(April 24, 2014)*
 
