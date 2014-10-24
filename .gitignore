@@ -1,3 +1,4 @@
+.depend
 config.h
 *.o
 sxiv

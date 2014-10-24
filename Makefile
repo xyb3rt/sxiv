@@ -1,4 +1,4 @@
-VERSION = git-20141001
+VERSION = git-20141024
 
 PREFIX    = /usr/local
 MANPREFIX = $(PREFIX)/share/man
@@ -15,6 +15,14 @@ OBJ = $(SRC:.c=.o)
 all: sxiv
 
 $(OBJ): Makefile config.h
+
+depend: .depend
+
+.depend: $(SRC)
+	rm -f ./.depend
+	$(CC) $(CFLAGS) -MM $^ >./.depend
+
+include .depend
 
 .c.o:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -DVERSION=\"$(VERSION)\" -c -o $@ $<
