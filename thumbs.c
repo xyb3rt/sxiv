@@ -323,7 +323,8 @@ bool tns_load(tns_t *tns, int n, bool force)
 		if (im == NULL && (access(file->path, R_OK) < 0 ||
 		    (im = imlib_load_image(file->path)) == NULL))
 		{
-			warn("could not open image: %s", file->name);
+			if (file->warn)
+				warn("could not open image: %s", file->name);
 			return false;
 		}
 	}

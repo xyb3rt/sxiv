@@ -113,7 +113,7 @@ void cleanup(void)
 	}
 }
 
-void check_add_file(char *filename)
+void check_add_file(char *filename, bool given)
 {
 	const char *bn;
 
@@ -121,7 +121,8 @@ void check_add_file(char *filename)
 		return;
 
 	if (access(filename, R_OK) < 0) {
-		warn("could not open file: %s", filename);
+		if (given)
+			warn("could not open file: %s", filename);
 		return;
 	}
 
@@ -148,7 +149,7 @@ void check_add_file(char *filename)
 	}
 #endif
 
-	files[fileidx].loaded = false;
+	files[fileidx].warn = given;
 	files[fileidx].name = s_strdup(filename);
 	if (files[fileidx].path == NULL)
 		files[fileidx].path = files[fileidx].name;
@@ -332,7 +333,7 @@ void load_image(int new)
 		else if (new > 0 && new < fileidx)
 			new--;
 	}
-	files[new].loaded = true;
+	files[new].warn = false;
 	fileidx = current = new;
 
 	info.open = false;
@@ -810,7 +811,7 @@ int main(int argc, char **argv)
 		while ((len = get_line(&filename, &n, stdin)) > 0) {
 			if (filename[len-1] == '\n')
 				filename[len-1] = '\0';
-			check_add_file(filename);
+			check_add_file(filename, true);
 		}
 		free(filename);
 	}
@@ -823,7 +824,7 @@ int main(int argc, char **argv)
 			continue;
 		}
 		if (!S_ISDIR(fstats.st_mode)) {
-			check_add_file(filename);
+			check_add_file(filename, true);
 		} else {
 			if (!options->recursive) {
 				warn("ignoring directory: %s", filename);
@@ -835,7 +836,7 @@ int main(int argc, char **argv)
 			}
 			start = fileidx;
 			while ((filename = r_readdir(&dir)) != NULL) {
-				check_add_file(filename);
+				check_add_file(filename, false);
 				free((void*) filename);
 			}
 			r_closedir(&dir);

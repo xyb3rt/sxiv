@@ -292,7 +292,7 @@ bool img_load_gif(img_t *img, const fileinfo_t *file)
 	DGifCloseFile(gif);
 #endif
 
-	if (err && !file->loaded)
+	if (err && file->warn)
 		warn("corrupted gif file: %s", file->name);
 
 	if (img->multi.cnt > 1) {
@@ -321,7 +321,8 @@ bool img_load(img_t *img, const fileinfo_t *file)
 	if (access(file->path, R_OK) < 0 ||
 	    (img->im = imlib_load_image(file->path)) == NULL)
 	{
-		warn("could not open image: %s", file->name);
+		if (file->warn)
+			warn("could not open image: %s", file->name);
 		return false;
 	}
 
