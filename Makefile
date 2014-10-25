@@ -18,11 +18,11 @@ $(OBJ): Makefile config.h
 
 depend: .depend
 
-.depend: $(SRC)
+.depend: $(SRC) config.h
 	rm -f ./.depend
 	$(CC) $(CFLAGS) -MM $^ >./.depend
 
-include .depend
+-include .depend
 
 .c.o:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -DVERSION=\"$(VERSION)\" -c -o $@ $<
