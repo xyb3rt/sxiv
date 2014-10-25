@@ -19,7 +19,7 @@ $(OBJ) .depend: config.h
 
 depend: .depend
 
-.depend: $(SRC)
+.depend: $(SRC) config.h
 	rm -f ./.depend
 	$(CC) $(CFLAGS) -MM $^ >./.depend
 
