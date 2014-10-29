@@ -161,7 +161,7 @@ void tns_init(tns_t *tns, const fileinfo_t *files, const int *cnt, int *sel,
 	if (tns == NULL)
 		return;
 
-	if (*cnt > 0) {
+	if (cnt != NULL && *cnt > 0) {
 		tns->thumbs = (thumb_t*) s_malloc(*cnt * sizeof(thumb_t));
 		memset(tns->thumbs, 0, *cnt * sizeof(thumb_t));
 	} else {
