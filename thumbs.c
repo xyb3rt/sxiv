@@ -240,6 +240,7 @@ Imlib_Image tns_scale_down(Imlib_Image im, int dim)
 bool tns_load(tns_t *tns, int n, bool force)
 {
 	int w, h;
+	int maxwh = thumb_sizes[ARRLEN(thumb_sizes)-1];
 	bool cache_hit = false;
 	float zw, zh;
 	thumb_t *t;
@@ -261,11 +262,11 @@ bool tns_load(tns_t *tns, int n, bool force)
 		imlib_free_image();
 	}
 
-	if (!force && (im = tns_cache_load(file->path, &force)) != NULL) {
-		cache_hit = true;
-	} else {
+	if (!force) {
+		if ((im = tns_cache_load(file->path, &force)) != NULL) {
+			cache_hit = true;
 #if HAVE_LIBEXIF
-		if (!force) {
+		} else {
 			int pw = 0, ph = 0, x = 0, y = 0;
 			bool err;
 			ExifData *ed;
@@ -318,15 +319,23 @@ bool tns_load(tns_t *tns, int n, bool force)
 				}
 				exif_data_unref(ed);
 			}
-		}
 #endif
-		if (im == NULL && (access(file->path, R_OK) < 0 ||
-		    (im = imlib_load_image(file->path)) == NULL))
-		{
-			if (file->warn)
-				warn("could not open image: %s", file->name);
-			return false;
 		}
+	}
+	if (im != NULL) {
+		imlib_context_set_image(im);
+		if (imlib_image_get_width() < maxwh && imlib_image_get_height() < maxwh) {
+			imlib_free_image_and_decache();
+			im = NULL;
+			cache_hit = false;
+		}
+	}
+	if (im == NULL && (access(file->path, R_OK) < 0 ||
+	    (im = imlib_load_image(file->path)) == NULL))
+	{
+		if (file->warn)
+			warn("could not open image: %s", file->name);
+		return false;
 	}
 
 	if (!cache_hit) {
@@ -334,7 +343,7 @@ bool tns_load(tns_t *tns, int n, bool force)
 		imlib_context_set_image(im);
 		exif_auto_orientate(file);
 #endif
-		im = tns_scale_down(im, thumb_sizes[ARRLEN(thumb_sizes)-1]);
+		im = tns_scale_down(im, maxwh);
 		tns_cache_write(im, file->path, true);
 	}
 
