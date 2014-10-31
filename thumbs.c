@@ -276,10 +276,10 @@ bool tns_load(tns_t *tns, int n, bool force)
 			char tmppath[] = "/tmp/sxiv-XXXXXX";
 			Imlib_Image tmpim;
 
-			if ((ed = exif_data_new_from_file(file->path)) != NULL &&
-					ed->data != NULL && ed->size > 0)
-			{
-				if ((tmpfd = mkstemp(tmppath)) >= 0) {
+			if ((ed = exif_data_new_from_file(file->path)) != NULL) {
+				if (ed->data != NULL && ed->size > 0 &&
+				    (tmpfd = mkstemp(tmppath)) >= 0)
+				{
 					err = write(tmpfd, ed->data, ed->size) != ed->size;
 					close(tmpfd);
 
