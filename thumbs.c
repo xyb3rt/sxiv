@@ -242,6 +242,7 @@ bool tns_load(tns_t *tns, int n, bool force)
 	int w, h;
 	int maxwh = thumb_sizes[ARRLEN(thumb_sizes)-1];
 	bool cache_hit = false;
+	char *cfile;
 	float zw, zh;
 	thumb_t *t;
 	Imlib_Image im = NULL;
@@ -264,7 +265,19 @@ bool tns_load(tns_t *tns, int n, bool force)
 
 	if (!force) {
 		if ((im = tns_cache_load(file->path, &force)) != NULL) {
-			cache_hit = true;
+			imlib_context_set_image(im);
+			if (imlib_image_get_width() < maxwh &&
+			    imlib_image_get_height() < maxwh)
+			{
+				if ((cfile = tns_cache_filepath(file->path)) != NULL) {
+					unlink(cfile);
+					free(cfile);
+				}
+				imlib_free_image_and_decache();
+				im = NULL;
+			} else {
+				cache_hit = true;
+			}
 #if HAVE_LIBEXIF
 		} else {
 			int pw = 0, ph = 0, x = 0, y = 0;
@@ -311,8 +324,10 @@ bool tns_load(tns_t *tns, int n, bool force)
 								h = ph;
 							}
 						}
-						if ((im = imlib_create_cropped_image(x, y, w, h)) == NULL)
-							die("could not allocate memory");
+						if (w >= maxwh || h >= maxwh) {
+							if ((im = imlib_create_cropped_image(x, y, w, h)) == NULL)
+								die("could not allocate memory");
+						}
 						imlib_free_image_and_decache();
 					}
 					unlink(tmppath);
@@ -322,14 +337,7 @@ bool tns_load(tns_t *tns, int n, bool force)
 #endif
 		}
 	}
-	if (im != NULL) {
-		imlib_context_set_image(im);
-		if (imlib_image_get_width() < maxwh && imlib_image_get_height() < maxwh) {
-			imlib_free_image_and_decache();
-			im = NULL;
-			cache_hit = false;
-		}
-	}
+
 	if (im == NULL && (access(file->path, R_OK) < 0 ||
 	    (im = imlib_load_image(file->path)) == NULL))
 	{
@@ -344,7 +352,9 @@ bool tns_load(tns_t *tns, int n, bool force)
 		exif_auto_orientate(file);
 #endif
 		im = tns_scale_down(im, maxwh);
-		tns_cache_write(im, file->path, true);
+		imlib_context_set_image(im);
+		if (imlib_image_get_width() == maxwh || imlib_image_get_height() == maxwh)
+			tns_cache_write(im, file->path, true);
 	}
 
 	t->im = tns_scale_down(im, thumb_sizes[tns->zl]);
