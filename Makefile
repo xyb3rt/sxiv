@@ -1,32 +1,26 @@
-VERSION = git-20141102
+VERSION   := git-20141102
 
-PREFIX    = /usr/local
-MANPREFIX = $(PREFIX)/share/man
+PREFIX    := /usr/local
+MANPREFIX := $(PREFIX)/share/man
 
-CC       = gcc
-CFLAGS   = -std=c99 -Wall -pedantic -O2
-CPPFLAGS = -I$(PREFIX)/include -D_XOPEN_SOURCE=500 -DHAVE_LIBEXIF -DHAVE_GIFLIB
-LDFLAGS  = -L$(PREFIX)/lib
-LIBS     = -lX11 -lImlib2 -lexif -lgif
+CC        ?= gcc
+CFLAGS    += -std=c99 -Wall -pedantic
+CPPFLAGS  += -I$(PREFIX)/include -D_XOPEN_SOURCE=500 -DHAVE_LIBEXIF -DHAVE_GIFLIB
+LDFLAGS   += -L$(PREFIX)/lib
+LIBS      := -lX11 -lImlib2 -lexif -lgif
 
-SRC = commands.c image.c main.c options.c thumbs.c util.c window.c
-OBJ = $(SRC:.c=.o)
+SRC := commands.c image.c main.c options.c thumbs.c util.c window.c
+DEP := $(SRC:.c=.d)
+OBJ := $(SRC:.c=.o)
 
-all: sxiv
+all: config.h sxiv
 
 $(OBJ): Makefile
-$(OBJ) .depend: config.h
 
-depend: .depend
+-include $(DEP)
 
-.depend: $(SRC)
-	rm -f ./.depend
-	$(CC) $(CFLAGS) -MM $^ >./.depend
-
--include .depend
-
-.c.o:
-	$(CC) $(CFLAGS) $(CPPFLAGS) -DVERSION=\"$(VERSION)\" -c -o $@ $<
+%.o: %.c
+	$(CC) $(CFLAGS) $(CPPFLAGS) -DVERSION=\"$(VERSION)\" -MMD -c -o $@ $<
 
 config.h:
 	cp config.def.h $@
@@ -35,7 +29,7 @@ sxiv:	$(OBJ)
 	$(CC) $(LDFLAGS) -o $@ $(OBJ) $(LIBS)
 
 clean:
-	rm -f $(OBJ) sxiv
+	rm -f $(OBJ) $(DEP) sxiv
 
 install: all
 	mkdir -p $(DESTDIR)$(PREFIX)/bin
