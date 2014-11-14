@@ -1,4 +1,4 @@
-VERSION   := git-20141102
+VERSION   := git-20141114
 
 PREFIX    := /usr/local
 MANPREFIX := $(PREFIX)/share/man
@@ -20,7 +20,7 @@ $(OBJ): Makefile
 -include $(DEP)
 
 %.o: %.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) -DVERSION=\"$(VERSION)\" -MMD -c -o $@ $<
+	$(CC) $(CFLAGS) $(CPPFLAGS) -DVERSION=\"$(VERSION)\" -MMD -MP -c -o $@ $<
 
 config.h:
 	cp config.def.h $@
