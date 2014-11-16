@@ -162,6 +162,12 @@ on GitHub or get a copy using git with the following command:
 
 **Stable releases**
 
+**[v1.3.1](https://github.com/muennich/sxiv/archive/v1.3.1.tar.gz)**
+*(November 16, 2014)*
+
+  * Fixed build error, caused by delayed config.h creation
+  * Fixed segfault when run with -c
+
 **[v1.3](https://github.com/muennich/sxiv/archive/v1.3.tar.gz)**
 *(October 24, 2014)*
 
