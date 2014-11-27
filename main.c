@@ -262,19 +262,21 @@ void open_info(void)
 
 	if (pipe(pfd) < 0)
 		return;
-	pid = fork();
-	if (pid > 0) {
-		close(pfd[1]);
-		fcntl(pfd[0], F_SETFL, O_NONBLOCK);
-		info.fd = pfd[0];
-		info.i = info.lastsep = 0;
-		info.open = true;
-	} else if (pid == 0) {
+	if ((pid = fork()) == 0) {
 		close(pfd[0]);
 		dup2(pfd[1], 1);
 		execl(info.cmd, info.cmd, files[fileidx].name, NULL);
 		warn("could not exec: %s", info.cmd);
 		exit(EXIT_FAILURE);
+	}
+	close(pfd[1]);
+	if (pid < 0) {
+		close(pfd[0]);
+	} else {
+		fcntl(pfd[0], F_SETFL, O_NONBLOCK);
+		info.fd = pfd[0];
+		info.i = info.lastsep = 0;
+		info.open = true;
 	}
 }
 
