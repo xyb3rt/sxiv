@@ -600,6 +600,7 @@ bool tns_zoom(tns_t *tns, int d)
 	tns->zl = MIN(tns->zl, ARRLEN(thumb_sizes)-1);
 
 	tns->bw = ((thumb_sizes[tns->zl] - 1) >> 5) + 1;
+	tns->bw = MIN(tns->bw, 4);
 	tns->dim = thumb_sizes[tns->zl] + 2 * tns->bw + 6;
 
 	if (tns->zl != oldzl) {
