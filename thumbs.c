@@ -279,7 +279,7 @@ bool tns_load(tns_t *tns, int n, bool force)
 				cache_hit = true;
 			}
 #if HAVE_LIBEXIF
-		} else {
+		} else if (!force) {
 			int pw = 0, ph = 0, x = 0, y = 0;
 			bool err;
 			ExifData *ed;
