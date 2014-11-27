@@ -2,8 +2,9 @@
 
 # Example for $XDG_CONFIG_HOME/sxiv/exec/key-handler
 # Called by sxiv(1) after the external prefix key (C-x by default) is pressed.
-# The next key combo is passed as its first argument, followed by the paths of
-# all marked images or the path of the current image, if no image is marked.
+# The next key combo is passed as its first argument. The paths of all marked
+# images--or of the current image, if no image is marked--are passed via stdin,
+# one file path per line.
 # sxiv(1) blocks until this script terminates. It then checks which images
 # have been modified and reloads them.
 
@@ -11,12 +12,13 @@
 # where C/M/S indicate Ctrl/Meta(Alt)/Shift modifier states and KEY is the X
 # keysym as listed in /usr/include/X11/keysymdef.h without the "XK_" prefix.
 
-readonly KEY="$1"; shift
+readonly KEY="$1";
 readonly TAGFILE="$HOME/.config/sxiv/tags"
+readonly TMPFILE="/tmp/sxiv.$$"
 
 rotate() {
-	degree="$1"; shift
-	for file in "$@"; do
+	degree="$1"
+	while read file; do
 		case "$(file -b -i "$file")" in
 		image/jpeg*) jpegtran -rotate "$degree" -copy all -outfile "$file" "$file" ;;
 		*)           mogrify  -rotate "$degree" "$file" ;;
@@ -28,25 +30,27 @@ tag_add() {
 	>>"$TAGFILE"
 	tags=$(dmenu <"$TAGFILE" | tr '\n' ',')
 	[ -z "$tags" ] && return
-	iptckwed -a "$tags" "$@"
+	iptckwed -i -a "$tags"
 	echo -n "$tags" | tr ',' '\n' | sort - "$TAGFILE" | uniq >"$TAGFILE.new"
 	mv -f "$TAGFILE"{.new,}
 }
 
 tag_del() {
-	tags=$(iptckwed -ql "$@" | cut -f 2 | tr ',' '\n' | sort | uniq | dmenu | tr '\n' ',')
+	cat >"$TMPFILE"
+	tags=$(iptckwed -iql <"$TMPFILE" | cut -f 2 | tr ',' '\n' | sort | uniq | dmenu | tr '\n' ',')
 	[ -z "$tags" ] && return
-	iptckwed -r "$tags" "$@"
+	iptckwed -i -r "$tags" <"$TMPFILE"
+	rm -f "$TMPFILE"
 }
 
 case "$KEY" in
-"C-c")      echo -n "$@" | xsel -i ;;
-"C-e")      for file in "$@"; do urxvt -bg "#444" -fg "#eee" -sl 0 -title "$file" -e sh -c "exiv2 pr -q -pa '$file' | less" & done ;;
-"C-g")      gimp "$@" & ;;
-"C-comma")  rotate 270 "$@" ;;
-"C-period") rotate  90 "$@" ;;
-"C-slash")  rotate 180 "$@" ;;
-"C-t")      tag_add "$@" ;;
-"M-T")      tag_del "$@" ;;
+"C-c")      tr '\n' ' ' | xsel -i ;;
+"C-e")      while read file; do urxvt -bg "#444" -fg "#eee" -sl 0 -title "$file" -e sh -c "exiv2 pr -q -pa '$file' | less" & done ;;
+"C-g")      tr '\n' '\0' | xargs -0 gimp & ;;
+"C-comma")  rotate 270 ;;
+"C-period") rotate  90 ;;
+"C-slash")  rotate 180 ;;
+"C-t")      tag_add ;;
+"M-T")      tag_del ;;
 esac
 

@@ -481,12 +481,13 @@ void clear_resize(void)
 void run_key_handler(const char *key, unsigned int mask)
 {
 	pid_t pid;
-	int i, j, retval, status;
-	int fcnt = mode == MODE_THUMB && markcnt > 0 ? markcnt : 1;
+	FILE *pfs;
+	bool marked = mode == MODE_THUMB && markcnt > 0;
 	bool changed = false;
-	char **args, kstr[32], oldbar[BAR_L_LEN];
-	struct stat *oldst, newst;
-	struct { int fn; struct stat st; } *finfo;
+	int f, i, pfd[2], retval, status;
+	int fcnt = marked ? markcnt : 1;
+	char kstr[32], oldbar[BAR_L_LEN];
+	struct stat *oldst, st;
 
 	if (keyhandler.cmd == NULL) {
 		if (!keyhandler.warned) {
@@ -498,55 +499,66 @@ void run_key_handler(const char *key, unsigned int mask)
 	if (key == NULL)
 		return;
 
-	finfo = s_malloc(fcnt * sizeof(*finfo));
-	args = s_malloc((fcnt + 3) * sizeof(*args));
-	args[0] = keyhandler.cmd;
-	args[1] = kstr;
-	args[fcnt+2] = NULL;
-	if (mode == MODE_IMAGE || markcnt == 0) {
-		finfo[0].fn = fileidx;
-		stat(files[fileidx].path, &finfo[0].st);
-		args[2] = (char*) files[fileidx].path;
-	} else for (i = j = 0; i < filecnt; i++) {
-		if (files[i].marked) {
-			finfo[j].fn = i;
-			stat(files[i].path, &finfo[j++].st);
-			args[j+1] = (char*) files[i].path;
-		}
+	if (pipe(pfd) < 0) {
+		warn("could not create pipe for key handler");
+		return;
 	}
-	snprintf(kstr, sizeof(kstr), "%s%s%s%s",
-	         mask & ControlMask ? "C-" : "",
-	         mask & Mod1Mask    ? "M-" : "",
-	         mask & ShiftMask   ? "S-" : "", key);
+	if ((pfs = fdopen(pfd[1], "w")) == NULL) {
+		close(pfd[0]), close(pfd[1]);
+		warn("could not open pipe for key handler");
+		return;
+	}
+	oldst = s_malloc(fcnt * sizeof(*oldst));
 
 	memcpy(oldbar, win.bar.l.buf, sizeof(oldbar));
 	strncpy(win.bar.l.buf, "Running key handler...", win.bar.l.size);
 	win_draw(&win);
 	win_set_cursor(&win, CURSOR_WATCH);
 
+	snprintf(kstr, sizeof(kstr), "%s%s%s%s",
+	         mask & ControlMask ? "C-" : "",
+	         mask & Mod1Mask    ? "M-" : "",
+	         mask & ShiftMask   ? "S-" : "", key);
+
 	if ((pid = fork()) == 0) {
-		execv(keyhandler.cmd, args);
+		close(pfd[1]);
+		dup2(pfd[0], 0);
+		execl(keyhandler.cmd, keyhandler.cmd, kstr, NULL);
 		warn("could not exec key handler");
 		exit(EXIT_FAILURE);
-	} else if (pid < 0) {
+	}
+	close(pfd[0]);
+	if (pid < 0) {
+		fclose(pfs);
 		warn("could not fork key handler");
 		goto end;
 	}
+
+	for (f = i = 0; f < fcnt; i++) {
+		if ((marked && files[i].marked) || (!marked && i == fileidx)) {
+			stat(files[i].path, &oldst[f]);
+			fprintf(pfs, "%s\n", files[i].name);
+			f++;
+		}
+	}
+	fclose(pfs);
 	waitpid(pid, &status, 0);
 	retval = WEXITSTATUS(status);
 	if (WIFEXITED(status) == 0 || retval != 0)
 		warn("key handler exited with non-zero return value: %d", retval);
 
-	for (i = 0; i < fcnt; i++) {
-		oldst = &finfo[i].st;
-		if (stat(files[finfo[i].fn].path, &newst) != 0 ||
-				memcmp(&oldst->st_mtime, &newst.st_mtime, sizeof(newst.st_mtime)) != 0)
-		{
-			if (tns.thumbs != NULL) {
-				tns_unload(&tns, finfo[i].fn);
-				tns.loadnext = MIN(tns.loadnext, finfo[i].fn);
+	for (f = i = 0; f < fcnt; i++) {
+		if ((marked && files[i].marked) || (!marked && i == fileidx)) {
+			if (stat(files[i].path, &st) != 0 ||
+				  memcmp(&oldst[f].st_mtime, &st.st_mtime, sizeof(st.st_mtime)) != 0)
+			{
+				if (tns.thumbs != NULL) {
+					tns_unload(&tns, i);
+					tns.loadnext = MIN(tns.loadnext, i);
+				}
+				changed = true;
 			}
-			changed = true;
+			f++;
 		}
 	}
 end:
@@ -558,10 +570,9 @@ end:
 			memcpy(win.bar.l.buf, oldbar, win.bar.l.size);
 		}
 	}
+	free(oldst);
 	reset_cursor();
 	redraw();
-	free(finfo);
-	free(args);
 }
 
 #define MODMASK(mask) ((mask) & (ShiftMask|ControlMask|Mod1Mask))
