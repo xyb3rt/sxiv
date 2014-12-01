@@ -798,6 +798,8 @@ int main(int argc, char **argv)
 	struct stat fstats;
 	r_dir_t dir;
 
+	signal(SIGPIPE, SIG_IGN);
+
 	parse_options(argc, argv);
 
 	if (options->clean_cache) {
