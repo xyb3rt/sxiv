@@ -1,13 +1,24 @@
-VERSION   := git-20141201
+VERSION   := git-20141208
 
 PREFIX    := /usr/local
 MANPREFIX := $(PREFIX)/share/man
 
 CC        ?= gcc
 CFLAGS    += -std=c99 -Wall -pedantic
-CPPFLAGS  += -I$(PREFIX)/include -D_XOPEN_SOURCE=500 -DHAVE_LIBEXIF -DHAVE_GIFLIB
+CPPFLAGS  += -I$(PREFIX)/include -D_XOPEN_SOURCE=500
 LDFLAGS   += -L$(PREFIX)/lib
-LIBS      := -lX11 -lImlib2 -lexif -lgif
+LIBS      := -lX11 -lImlib2
+
+# optional dependencies:
+# giflib: gif animations
+	CPPFLAGS += -DHAVE_GIFLIB
+	LIBS     += -lgif
+# libexif: jpeg auto-orientation, exif thumbnails
+	CPPFLAGS += -DHAVE_LIBEXIF
+	LIBS     += -lexif
+
+
+.PHONY: clean install uninstall
 
 SRC := commands.c image.c main.c options.c thumbs.c util.c window.c
 DEP := $(SRC:.c=.d)
