@@ -55,10 +55,6 @@ extern int markcnt;
 extern int prefix;
 extern bool extprefix;
 
-const int ss_delays[] = {
-	1, 2, 3, 5, 10, 15, 20, 30, 60, 120, 180, 300, 600
-};
-
 bool cg_quit(arg_t a)
 {
 	unsigned int i;
