@@ -341,7 +341,7 @@ bool tns_load(tns_t *tns, int n, bool force)
 	if (im == NULL && (access(file->path, R_OK) < 0 ||
 	    (im = imlib_load_image(file->path)) == NULL))
 	{
-		if (file->warn)
+		if (file->flags & FF_WARN)
 			warn("could not open image: %s", file->name);
 		return false;
 	}
@@ -461,7 +461,7 @@ void tns_render(tns_t *tns)
 			t->y = y + (thumb_sizes[tns->zl] - t->h) / 2;
 			imlib_context_set_image(t->im);
 			imlib_render_image_on_drawable_at_size(t->x, t->y, t->w, t->h);
-			if (tns->files[i].marked)
+			if (tns->files[i].flags & FF_MARK)
 				tns_mark(tns, i, true);
 		} else {
 			tns->loadnext = MIN(tns->loadnext, i);
@@ -520,7 +520,7 @@ void tns_highlight(tns_t *tns, int n, bool hl)
 		win_draw_rect(win, t->x - oxy, t->y - oxy, t->w + owh, t->h + owh,
 		              false, tns->bw, col);
 
-		if (tns->files[n].marked)
+		if (tns->files[n].flags & FF_MARK)
 			tns_mark(tns, n, true);
 	}
 }

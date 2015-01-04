@@ -61,7 +61,7 @@ bool cg_quit(arg_t a)
 
 	if (options->to_stdout && markcnt > 0) {
 		for (i = 0; i < filecnt; i++) {
-			if (files[i].marked)
+			if (files[i].flags & FF_MARK)
 				printf("%s\n", files[i].name);
 		}
 	}
@@ -200,10 +200,10 @@ bool cg_zoom(arg_t a)
 
 bool cg_toggle_image_mark(arg_t a)
 {
-	files[fileidx].marked = !files[fileidx].marked;
-	markcnt += files[fileidx].marked ? 1 : -1;
+	files[fileidx].flags ^= FF_MARK;
+	markcnt += files[fileidx].flags & FF_MARK ? 1 : -1;
 	if (mode == MODE_THUMB)
-		tns_mark(&tns, fileidx, files[fileidx].marked);
+		tns_mark(&tns, fileidx, !!(files[fileidx].flags & FF_MARK));
 	return true;
 }
 
@@ -212,8 +212,8 @@ bool cg_reverse_marks(arg_t a)
 	int i;
 
 	for (i = 0; i < filecnt; i++) {
-		files[i].marked = !files[i].marked;
-		markcnt += files[i].marked ? 1 : -1;
+		files[i].flags ^= FF_MARK;
+		markcnt += files[i].flags & FF_MARK ? 1 : -1;
 	}
 	if (mode == MODE_THUMB)
 		tns.dirty = true;
@@ -225,7 +225,7 @@ bool cg_unmark_all(arg_t a)
 	int i;
 
 	for (i = 0; i < filecnt; i++)
-		files[i].marked = false;
+		files[i].flags &= ~FF_MARK;
 	markcnt = 0;
 	if (mode == MODE_THUMB)
 		tns.dirty = true;
@@ -242,7 +242,7 @@ bool cg_navigate_marked(arg_t a)
 		n *= prefix;
 	d = n > 0 ? 1 : -1;
 	for (i = fileidx + d; n != 0 && i >= 0 && i < filecnt; i += d) {
-		if (files[i].marked) {
+		if (files[i].flags & FF_MARK) {
 			n -= d;
 			new = i;
 		}

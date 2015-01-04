@@ -64,12 +64,16 @@ typedef enum {
 	CURSOR_WATCH
 } cursor_t;
 
+typedef enum {
+	FF_WARN = 1,
+	FF_MARK = 2
+} fileflags_t;
+
 typedef struct {
 	const char *name; /* as given by user */
 	const char *path; /* always absolute */
 	const char *base;
-	bool warn;
-	bool marked;
+	fileflags_t flags;
 } fileinfo_t;
 
 /* timeouts in milliseconds: */

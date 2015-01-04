@@ -128,7 +128,8 @@ void check_add_file(char *filename, bool given)
 
 	if (fileidx == filecnt) {
 		filecnt *= 2;
-		files = (fileinfo_t*) s_realloc(files, filecnt * sizeof(fileinfo_t));
+		files = s_realloc(files, filecnt * sizeof(*files));
+		memset(&files[filecnt/2], 0, filecnt/2 * sizeof(*files));
 	}
 
 #if defined _BSD_SOURCE || defined _XOPEN_SOURCE && \
@@ -149,7 +150,6 @@ void check_add_file(char *filename, bool given)
 	}
 #endif
 
-	files[fileidx].warn = given;
 	files[fileidx].name = s_strdup(filename);
 	if (files[fileidx].path == NULL)
 		files[fileidx].path = files[fileidx].name;
@@ -157,6 +157,8 @@ void check_add_file(char *filename, bool given)
 		files[fileidx].base = ++bn;
 	else
 		files[fileidx].base = files[fileidx].name;
+	if (given)
+		files[fileidx].flags |= FF_WARN;
 	fileidx++;
 }
 
@@ -171,7 +173,7 @@ void remove_file(int n, bool manual)
 		cleanup();
 		exit(manual ? EXIT_SUCCESS : EXIT_FAILURE);
 	}
-	if (files[n].marked)
+	if (files[n].flags & FF_MARK)
 		markcnt--;
 
 	if (files[n].path != files[n].name)
@@ -335,7 +337,7 @@ void load_image(int new)
 		else if (new > 0 && new < fileidx)
 			new--;
 	}
-	files[new].warn = false;
+	files[new].flags &= ~FF_WARN;
 	fileidx = current = new;
 
 	info.open = false;
@@ -378,7 +380,7 @@ void update_info(void)
 	if (win.bar.h == 0)
 		return;
 	for (fw = 0, i = filecnt; i > 0; fw++, i /= 10);
-	mark = files[fileidx].marked ? "* " : "";
+	mark = files[fileidx].flags & FF_MARK ? "* " : "";
 	l->p = l->buf;
 	r->p = r->buf;
 	if (mode == MODE_THUMB) {
@@ -535,7 +537,7 @@ void run_key_handler(const char *key, unsigned int mask)
 	}
 
 	for (f = i = 0; f < fcnt; i++) {
-		if ((marked && files[i].marked) || (!marked && i == fileidx)) {
+		if ((marked && (files[i].flags & FF_MARK)) || (!marked && i == fileidx)) {
 			stat(files[i].path, &oldst[f]);
 			fprintf(pfs, "%s\n", files[i].name);
 			f++;
@@ -548,7 +550,7 @@ void run_key_handler(const char *key, unsigned int mask)
 		warn("key handler exited with non-zero return value: %d", retval);
 
 	for (f = i = 0; f < fcnt; i++) {
-		if ((marked && files[i].marked) || (!marked && i == fileidx)) {
+		if ((marked && (files[i].flags & FF_MARK)) || (!marked && i == fileidx)) {
 			if (stat(files[i].path, &st) != 0 ||
 				  memcmp(&oldst[f].st_mtime, &st.st_mtime, sizeof(st.st_mtime)) != 0)
 			{
@@ -670,9 +672,9 @@ void on_buttonpress(XButtonEvent *bev)
 				break;
 			case Button3:
 				if ((sel = tns_translate(&tns, bev->x, bev->y)) >= 0) {
-					files[sel].marked = !files[sel].marked;
-					markcnt += files[sel].marked ? 1 : -1;
-					tns_mark(&tns, sel, files[sel].marked);
+					files[sel].flags ^= FF_MARK;
+					markcnt += files[sel].flags & FF_MARK ? 1 : -1;
+					tns_mark(&tns, sel, !!(files[sel].flags & FF_MARK));
 					redraw();
 				}
 				break;
@@ -818,7 +820,8 @@ int main(int argc, char **argv)
 	else
 		filecnt = options->filecnt;
 
-	files = (fileinfo_t*) s_malloc(filecnt * sizeof(fileinfo_t));
+	files = s_malloc(filecnt * sizeof(*files));
+	memset(files, 0, filecnt * sizeof(*files));
 	fileidx = 0;
 
 	if (options->from_stdin) {
