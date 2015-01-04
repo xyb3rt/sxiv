@@ -65,8 +65,9 @@ typedef enum {
 } cursor_t;
 
 typedef enum {
-	FF_WARN = 1,
-	FF_MARK = 2
+	FF_WARN    = 1,
+	FF_MARK    = 2,
+	FF_TN_INIT = 4
 } fileflags_t;
 
 typedef struct {

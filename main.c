@@ -385,7 +385,10 @@ void update_info(void)
 	r->p = r->buf;
 	if (mode == MODE_THUMB) {
 		if (tns.loadnext < tns.end) {
-			bar_put(l, "Loading... %0*d", fw, MAX(tns.loadnext, 1));
+			bar_put(l, "Loading... %0*d", fw, tns.loadnext + 1);
+			ow_info = false;
+		} else if (tns.initnext < filecnt) {
+			bar_put(l, "Caching... %0*d", fw, tns.initnext + 1);
 			ow_info = false;
 		} else {
 			ow_info = true;
@@ -453,7 +456,7 @@ void reset_cursor(void)
 			}
 		}
 	} else {
-		if (tns.loadnext < tns.end)
+		if (tns.loadnext < tns.end || tns.initnext < filecnt)
 			cursor = CURSOR_WATCH;
 		else
 			cursor = CURSOR_ARROW;
@@ -694,26 +697,29 @@ void run(void)
 	int xfd;
 	fd_set fds;
 	struct timeval timeout;
-	bool discard, load_thumb, to_set;
+	bool discard, init_thumb, load_thumb, to_set;
 	XEvent ev, nextev;
 
 	while (true) {
 		to_set = check_timeouts(&timeout);
+		init_thumb = mode == MODE_THUMB && tns.initnext < filecnt;
 		load_thumb = mode == MODE_THUMB && tns.loadnext < tns.end;
 
-		if ((load_thumb || to_set || info.fd != -1) &&
+		if ((init_thumb || load_thumb || to_set || info.fd != -1) &&
 		    XPending(win.env.dpy) == 0)
 		{
 			if (load_thumb) {
 				set_timeout(redraw, TO_REDRAW_THUMBS, false);
-				if (!tns_load(&tns, tns.loadnext, false)) {
+				if (!tns_load(&tns, tns.loadnext, false, false)) {
 					remove_file(tns.loadnext, false);
 					tns.dirty = true;
 				}
-				while (tns.loadnext < tns.end && tns.thumbs[tns.loadnext].im != NULL)
-					tns.loadnext++;
 				if (tns.loadnext >= tns.end)
 					redraw();
+			} else if (init_thumb) {
+				set_timeout(redraw, TO_REDRAW_THUMBS, false);
+				if (!tns_load(&tns, tns.initnext, false, true))
+					remove_file(tns.initnext, false);
 			} else {
 				xfd = ConnectionNumber(win.env.dpy);
 				FD_ZERO(&fds);
@@ -899,8 +905,8 @@ int main(int argc, char **argv)
 	if (options->thumb_mode) {
 		mode = MODE_THUMB;
 		tns_init(&tns, files, &filecnt, &fileidx, &win);
-		while (!tns_load(&tns, 0, false))
-			remove_file(0, false);
+		while (!tns_load(&tns, fileidx, false, false))
+			remove_file(fileidx, false);
 	} else {
 		mode = MODE_IMAGE;
 		tns.thumbs = NULL;
