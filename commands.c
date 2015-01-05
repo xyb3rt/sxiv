@@ -260,6 +260,17 @@ bool cg_navigate_marked(arg_t a)
 	}
 }
 
+bool cg_change_gamma(arg_t a)
+{
+	if (img_change_gamma(&img, (long) a * (prefix > 0 ? prefix : 1))) {
+		if (mode == MODE_THUMB)
+			tns.dirty = true;
+		return true;
+	} else {
+		return false;
+	}
+}
+
 bool ci_navigate(arg_t a)
 {
 	long n = (long) a;
@@ -417,11 +428,6 @@ bool ci_flip(arg_t a)
 
 	img_flip(&img, dir);
 	return true;
-}
-
-bool ci_change_gamma(arg_t a)
-{
-	return img_change_gamma(&img, (long) a);
 }
 
 bool ci_toggle_antialias(arg_t a)
