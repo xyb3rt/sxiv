@@ -108,6 +108,8 @@ of small previews is displayed, making it easy to choose an image to open.
     Ctrl-m       Remove all image marks
     N            Go [count] marked images forward
     P            Go [count] marked images backward
+    {,}          Decrease/increase gamma correction by [count] steps
+    Ctrl-g       Reset gamma correction
 
 *Thumbnail mode:*
 
@@ -133,8 +135,6 @@ of small previews is displayed, making it easy to choose an image to open.
     <,>          Rotate image (counter-)clockwise by 90 degrees
     ?            Rotate image by 180 degrees
     |,_          Flip image horizontally/vertically
-    {,}          Decrease/increase gamma
-    Ctrl-g       Reset gamma
     a            Toggle anti-aliasing
     A            Toggle visibility of alpha-channel, i.e. transparency
     s            Toggle slideshow or set delay to [count] seconds
