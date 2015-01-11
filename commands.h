@@ -23,7 +23,7 @@
 
 #include "types.h"
 
-typedef void* arg_t;
+typedef int arg_t;
 typedef bool (*cmd_f)(arg_t);
 
 #define G_CMD(c) g_##c,
