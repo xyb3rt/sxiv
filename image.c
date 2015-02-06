@@ -452,7 +452,7 @@ void img_render(img_t *img)
 	 *   - full image drawn on part of window
 	 */
 	if (img->x <= 0) {
-		sx = -img->x / img->zoom;
+		sx = -img->x / img->zoom + 0.5;
 		sw = win->w / img->zoom;
 		dx = 0;
 		dw = win->w;
@@ -463,7 +463,7 @@ void img_render(img_t *img)
 		dw = img->w * img->zoom;
 	}
 	if (img->y <= 0) {
-		sy = -img->y / img->zoom;
+		sy = -img->y / img->zoom + 0.5;
 		sh = win->h / img->zoom;
 		dy = 0;
 		dh = win->h;
