@@ -361,9 +361,9 @@ located in
 .IR $XDG_CONFIG_HOME/sxiv/exec/key-handler .
 The handler is invoked by pressing
 .BR Ctrl-x .
-The next key combo is passed as its first argument. The paths of all marked
-images--or of the current image, if no image is marked--are passed via stdin,
-one file path per line.
+The next key combo is passed as its first argument. Passed via stdin are the
+images to act upon, one path per line: all marked images, if in thumbnail mode
+and at least one image has been marked, otherwise the current image.
 sxiv(1) will block until the handler terminates. It then checks which images
 have been modified and reloads them.
 
