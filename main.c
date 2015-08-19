@@ -491,7 +491,7 @@ void run_key_handler(const char *key, unsigned int mask)
 	bool changed = false;
 	int f, i, pfd[2], retval, status;
 	int fcnt = marked ? markcnt : 1;
-	char kstr[32], oldbar[BAR_L_LEN];
+	char kstr[32];
 	struct stat *oldst, st;
 
 	if (keyhandler.cmd == NULL) {
@@ -515,7 +515,6 @@ void run_key_handler(const char *key, unsigned int mask)
 	}
 	oldst = s_malloc(fcnt * sizeof(*oldst));
 
-	memcpy(oldbar, win.bar.l.buf, sizeof(oldbar));
 	strncpy(win.bar.l.buf, "Running key handler...", win.bar.l.size);
 	win_draw(&win);
 	win_set_cursor(&win, CURSOR_WATCH);
@@ -572,7 +571,8 @@ end:
 			img_close(&img, true);
 			load_image(fileidx);
 		} else if (info.cmd != NULL) {
-			memcpy(win.bar.l.buf, oldbar, win.bar.l.size);
+			info.open = false;
+			open_info();
 		}
 	}
 	free(oldst);
