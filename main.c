@@ -122,7 +122,7 @@ void check_add_file(char *filename, bool given)
 
 	if (fileidx == filecnt) {
 		filecnt *= 2;
-		files = s_realloc(files, filecnt * sizeof(*files));
+		files = erealloc(files, filecnt * sizeof(*files));
 		memset(&files[filecnt/2], 0, filecnt/2 * sizeof(*files));
 	}
 
@@ -131,7 +131,7 @@ void check_add_file(char *filename, bool given)
 		return;
 	}
 
-	files[fileidx].name = s_strdup(filename);
+	files[fileidx].name = estrdup(filename);
 	if ((bn = strrchr(files[fileidx].name , '/')) != NULL && bn[1] != '\0')
 		files[fileidx].base = ++bn;
 	else
@@ -493,7 +493,7 @@ void run_key_handler(const char *key, unsigned int mask)
 		warn("could not open pipe for key handler");
 		return;
 	}
-	oldst = s_malloc(fcnt * sizeof(*oldst));
+	oldst = emalloc(fcnt * sizeof(*oldst));
 
 	strncpy(win.bar.l.buf, "Running key handler...", win.bar.l.size);
 	win_draw(&win);
@@ -800,7 +800,7 @@ int main(int argc, char **argv)
 	else
 		filecnt = options->filecnt;
 
-	files = s_malloc(filecnt * sizeof(*files));
+	files = emalloc(filecnt * sizeof(*files));
 	memset(files, 0, filecnt * sizeof(*files));
 	fileidx = 0;
 
@@ -865,7 +865,7 @@ int main(int argc, char **argv)
 
 		for (i = 0; i < ARRLEN(cmd); i++) {
 			n = strlen(homedir) + strlen(dsuffix) + strlen(name[i]) + 12;
-			*cmd[i] = (char*) s_malloc(n);
+			*cmd[i] = (char*) emalloc(n);
 			snprintf(*cmd[i], n, "%s%s/sxiv/exec/%s", homedir, dsuffix, name[i]);
 			if (access(*cmd[i], X_OK) != 0) {
 				free(*cmd[i]);

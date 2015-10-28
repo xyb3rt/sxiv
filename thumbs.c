@@ -48,7 +48,7 @@ char* tns_cache_filepath(const char *filepath)
 	if (strncmp(filepath, cache_dir, strlen(cache_dir)) != 0) {
 		/* don't cache images inside the cache directory! */
 		len = strlen(cache_dir) + strlen(filepath) + 2;
-		cfile = (char*) s_malloc(len);
+		cfile = (char*) emalloc(len);
 		snprintf(cfile, len, "%s/%s", cache_dir, filepath + 1);
 	}
 	return cfile;
@@ -155,7 +155,7 @@ void tns_init(tns_t *tns, fileinfo_t *files, const int *cnt, int *sel,
 	const char *homedir, *dsuffix = "";
 
 	if (cnt != NULL && *cnt > 0) {
-		tns->thumbs = (thumb_t*) s_malloc(*cnt * sizeof(thumb_t));
+		tns->thumbs = (thumb_t*) emalloc(*cnt * sizeof(thumb_t));
 		memset(tns->thumbs, 0, *cnt * sizeof(thumb_t));
 	} else {
 		tns->thumbs = NULL;
@@ -178,7 +178,7 @@ void tns_init(tns_t *tns, fileinfo_t *files, const int *cnt, int *sel,
 	if (homedir != NULL) {
 		free(cache_dir);
 		len = strlen(homedir) + strlen(dsuffix) + 6;
-		cache_dir = (char*) s_malloc(len);
+		cache_dir = (char*) emalloc(len);
 		snprintf(cache_dir, len, "%s%s/sxiv", homedir, dsuffix);
 	} else {
 		warn("could not locate thumbnail cache directory");

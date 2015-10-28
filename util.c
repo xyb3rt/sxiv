@@ -28,7 +28,7 @@
 
 void cleanup(void);
 
-void* s_malloc(size_t size)
+void* emalloc(size_t size)
 {
 	void *ptr;
 	
@@ -38,7 +38,7 @@ void* s_malloc(size_t size)
 	return ptr;
 }
 
-void* s_realloc(void *ptr, size_t size)
+void* erealloc(void *ptr, size_t size)
 {
 	ptr = realloc(ptr, size);
 	if (ptr == NULL)
@@ -46,16 +46,15 @@ void* s_realloc(void *ptr, size_t size)
 	return ptr;
 }
 
-char* s_strdup(const char *s)
+char* estrdup(const char *s)
 {
-	char *d = NULL;
+	char *d;
+	size_t n = strlen(s) + 1;
 
-	if (s != NULL) {
-		d = malloc(strlen(s) + 1);
-		if (d == NULL)
-			die("could not allocate memory");
-		strcpy(d, s);
-	}
+	d = malloc(n);
+	if (d == NULL)
+		die("could not allocate memory");
+	memcpy(d, s, n);
 	return d;
 }
 
@@ -112,7 +111,7 @@ int r_opendir(r_dir_t *rdir, const char *dirname)
 	}
 
 	rdir->stcap = 512;
-	rdir->stack = (char**) s_malloc(rdir->stcap * sizeof(char*));
+	rdir->stack = (char**) emalloc(rdir->stcap * sizeof(char*));
 	rdir->stlen = 0;
 
 	rdir->name = (char*) dirname;
@@ -158,7 +157,7 @@ char* r_readdir(r_dir_t *rdir)
 				continue;
 
 			len = strlen(rdir->name) + strlen(dentry->d_name) + 2;
-			filename = (char*) s_malloc(len);
+			filename = (char*) emalloc(len);
 			snprintf(filename, len, "%s%s%s", rdir->name,
 			         rdir->name[strlen(rdir->name)-1] == '/' ? "" : "/",
 			         dentry->d_name);
@@ -169,8 +168,8 @@ char* r_readdir(r_dir_t *rdir)
 				/* put subdirectory on the stack */
 				if (rdir->stlen == rdir->stcap) {
 					rdir->stcap *= 2;
-					rdir->stack = (char**) s_realloc(rdir->stack,
-					                                 rdir->stcap * sizeof(char*));
+					rdir->stack = (char**) erealloc(rdir->stack,
+					                                rdir->stcap * sizeof(char*));
 				}
 				rdir->stack[rdir->stlen++] = filename;
 				continue;
@@ -207,7 +206,7 @@ int r_mkdir(const char *path)
 	if (stat(path, &stats) == 0)
 		return S_ISDIR(stats.st_mode) ? 0 : -1;
 
-	d = dir = (char*) s_malloc(strlen(path) + 1);
+	d = dir = (char*) emalloc(strlen(path) + 1);
 	strcpy(dir, path);
 
 	while (d != NULL && err == 0) {

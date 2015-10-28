@@ -61,9 +61,9 @@ typedef struct {
 	int stlen;
 } r_dir_t;
 
-void* s_malloc(size_t);
-void* s_realloc(void*, size_t);
-char* s_strdup(const char*);
+void* emalloc(size_t);
+void* erealloc(void*, size_t);
+char* estrdup(const char*);
 
 void warn(const char*, ...);
 void die(const char*, ...);

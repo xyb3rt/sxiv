@@ -165,8 +165,8 @@ void win_init(win_t *win)
 
 	win->bar.l.size = BAR_L_LEN;
 	win->bar.r.size = BAR_R_LEN;
-	win->bar.l.buf = s_malloc(win->bar.l.size);
-	win->bar.r.buf = s_malloc(win->bar.r.size);
+	win->bar.l.buf = emalloc(win->bar.l.size);
+	win->bar.r.buf = emalloc(win->bar.r.size);
 	win->bar.h = options->hide_bar ? 0 : barheight;
 
 	INIT_ATOM_(WM_DELETE_WINDOW);
@@ -257,7 +257,7 @@ void win_open(win_t *win)
 	gc = XCreateGC(e->dpy, win->xwin, 0, None);
 
 	n = icons[ARRLEN(icons)-1].size;
-	icon_data = s_malloc((n * n + 2) * sizeof(*icon_data));
+	icon_data = emalloc((n * n + 2) * sizeof(*icon_data));
 
 	for (i = 0; i < ARRLEN(icons); i++) {
 		n = 0;
