@@ -825,8 +825,9 @@ int main(int argc, char **argv)
 	fileidx = 0;
 
 	if (options->from_stdin) {
+		n = 0;
 		filename = NULL;
-		while ((len = get_line(&filename, &n, stdin)) > 0) {
+		while ((len = getline(&filename, &n, stdin)) > 0) {
 			if (filename[len-1] == '\n')
 				filename[len-1] = '\0';
 			check_add_file(filename, true);
@@ -883,9 +884,9 @@ int main(int argc, char **argv)
 		const char *name[] = { "image-info", "key-handler" };
 
 		for (i = 0; i < ARRLEN(cmd); i++) {
-			len = strlen(homedir) + strlen(dsuffix) + strlen(name[i]) + 12;
-			*cmd[i] = (char*) s_malloc(len);
-			snprintf(*cmd[i], len, "%s%s/sxiv/exec/%s", homedir, dsuffix, name[i]);
+			n = strlen(homedir) + strlen(dsuffix) + strlen(name[i]) + 12;
+			*cmd[i] = (char*) s_malloc(n);
+			snprintf(*cmd[i], n, "%s%s/sxiv/exec/%s", homedir, dsuffix, name[i]);
 			if (access(*cmd[i], X_OK) != 0) {
 				free(*cmd[i]);
 				*cmd[i] = NULL;

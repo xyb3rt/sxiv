@@ -68,8 +68,6 @@ char* s_strdup(const char*);
 void warn(const char*, ...);
 void die(const char*, ...);
 
-ssize_t get_line(char**, size_t*, FILE*);
-
 void size_readable(float*, const char**);
 
 char* absolute_path(const char*);

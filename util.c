@@ -96,36 +96,6 @@ void die(const char* fmt, ...)
 	exit(EXIT_FAILURE);
 }
 
-ssize_t get_line(char **buf, size_t *n, FILE *stream)
-{
-	size_t len;
-	char *s;
-
-	if (*buf == NULL || *n == 0) {
-		*n = BUF_SIZE;
-		*buf = (char*) s_malloc(*n);
-	}
-	s = *buf;
-
-	while (true) {
-		if (fgets(s, *n - (s - *buf), stream) == NULL)
-			return -1;
-		len = strlen(s);
-		if (feof(stream))
-			break;
-		if (len > 0 && s[len-1] == '\n')
-			break;
-		if (len + 1 == *n - (s - *buf)) {
-			*buf = (char*) s_realloc(*buf, 2 * *n);
-			s = *buf + *n - 1;
-			*n *= 2;
-		} else {
-			s += len;
-		}
-	}
-	return s - *buf + len;
-}
-
 void size_readable(float *size, const char **unit)
 {
 	const char *units[] = { "", "K", "M", "G" };
