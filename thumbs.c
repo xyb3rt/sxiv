@@ -92,7 +92,8 @@ void tns_cache_write(Imlib_Image im, const char *filepath, bool force)
 		{
 			if ((dirend = strrchr(cfile, '/')) != NULL) {
 				*dirend = '\0';
-				err = r_mkdir(cfile);
+				if ((err = r_mkdir(cfile)) == -1)
+					error(0, errno, "%s", cfile);
 				*dirend = '/';
 			}
 			if (err == 0) {

@@ -181,37 +181,23 @@ char* r_readdir(r_dir_t *rdir)
 	return NULL;
 }
 
-int r_mkdir(const char *path)
+int r_mkdir(char *path)
 {
-	char *dir, *d;
-	struct stat stats;
-	int err = 0;
+	char c, *s = path;
+	struct stat st;
 
-	if (*path == '\0')
-		return -1;
-
-	if (stat(path, &stats) == 0)
-		return S_ISDIR(stats.st_mode) ? 0 : -1;
-
-	d = dir = (char*) emalloc(strlen(path) + 1);
-	strcpy(dir, path);
-
-	while (d != NULL && err == 0) {
-		d = strchr(d + 1, '/');
-		if (d != NULL)
-			*d = '\0';
-		if (access(dir, F_OK) < 0 && errno == ENOENT) {
-			if (mkdir(dir, 0755) < 0) {
-				error(0, errno, "%s", dir);
-				err = -1;
-			}
-		} else if (stat(dir, &stats) < 0 || !S_ISDIR(stats.st_mode)) {
-			err = -1;
+	while (*s != '\0') {
+		if (*s == '/') {
+			s++;
+			continue;
 		}
-		if (d != NULL)
-			*d = '/';
+		for (; *s != '\0' && *s != '/'; s++);
+		c = *s;
+		*s = '\0';
+		if (mkdir(path, 0755) == -1)
+			if (errno != EEXIST || stat(path, &st) == -1 || !S_ISDIR(st.st_mode))
+				return -1;
+		*s = c;
 	}
-	free(dir);
-
-	return err;
+	return 0;
 }
