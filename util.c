@@ -16,8 +16,6 @@
  * along with sxiv.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define _POSIX_C_SOURCE 200112L
-
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>

@@ -16,9 +16,6 @@
  * along with sxiv.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define _POSIX_C_SOURCE 200112L
-#define _MAPPINGS_CONFIG
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -41,6 +38,8 @@
 #include "thumbs.h"
 #include "util.h"
 #include "window.h"
+
+#define _MAPPINGS_CONFIG
 #include "config.h"
 
 enum {
