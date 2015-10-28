@@ -80,7 +80,7 @@ void win_init_font(Display *dpy, const char *fontstr)
 		if ((font.xfont = XLoadQueryFont(dpy, fontstr)) == NULL &&
 		    (font.xfont = XLoadQueryFont(dpy, "fixed")) == NULL)
 		{
-			die("could not load font: %s", fontstr);
+			error(EXIT_FAILURE, 0, "Error loading font '%s'", fontstr);
 		}
 		font.ascent  = font.xfont->ascent;
 		font.descent = font.xfont->descent;
@@ -97,7 +97,7 @@ unsigned long win_alloc_color(win_t *win, const char *name)
 	                     DefaultColormap(win->env.dpy, win->env.scr),
 	                     name, &col, &col) == 0)
 	{
-		die("could not allocate color: %s", name);
+		error(EXIT_FAILURE, 0, "Error allocating color '%s'", name);
 	}
 	return col.pixel;
 }
@@ -143,7 +143,7 @@ void win_init(win_t *win)
 
 	e = &win->env;
 	if ((e->dpy = XOpenDisplay(NULL)) == NULL)
-		die("could not open display");
+		error(EXIT_FAILURE, 0, "Error opening X display");
 
 	e->scr = DefaultScreen(e->dpy);
 	e->scrw = DisplayWidth(e->dpy, e->scr);
@@ -153,7 +153,7 @@ void win_init(win_t *win)
 	e->depth = DefaultDepth(e->dpy, e->scr);
 
 	if (setlocale(LC_CTYPE, "") == NULL || XSupportsLocale() == 0)
-		warn("no locale support");
+		error(0, 0, "No locale support");
 
 	win_init_font(e->dpy, BAR_FONT);
 
@@ -236,7 +236,7 @@ void win_open(win_t *win)
 	                          win->x, win->y, win->w, win->h, 0,
 	                          e->depth, InputOutput, e->vis, 0, NULL);
 	if (win->xwin == None)
-		die("could not create window");
+		error(EXIT_FAILURE, 0, "Error creating X window");
 	
 	XSelectInput(e->dpy, win->xwin,
 	             ButtonReleaseMask | ButtonPressMask | KeyPressMask |
@@ -249,7 +249,7 @@ void win_open(win_t *win)
 	if (XAllocNamedColor(e->dpy, DefaultColormap(e->dpy, e->scr), "black",
 	                     &col, &col) == 0)
 	{
-		die("could not allocate color: black");
+		error(EXIT_FAILURE, 0, "Error allocating color 'black'");
 	}
 	none = XCreateBitmapFromData(e->dpy, win->xwin, none_data, 8, 8);
 	cnone = XCreatePixmapCursor(e->dpy, none, none, &col, &col, 0, 0);
@@ -306,7 +306,7 @@ void win_open(win_t *win)
 		win_toggle_fullscreen(win);
 }
 
-void win_close(win_t *win)
+CLEANUP void win_close(win_t *win)
 {
 	XFreeCursor(win->env.dpy, carrow);
 	XFreeCursor(win->env.dpy, cnone);
@@ -341,7 +341,7 @@ void win_toggle_fullscreen(win_t *win)
 
 	if (!fs_support) {
 		if (!fs_warned) {
-			warn("window manager does not support fullscreen");
+			error(0, 0, "No fullscreen support");
 			fs_warned = True;
 		}
 		return;

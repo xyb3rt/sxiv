@@ -90,7 +90,7 @@ extern Atom atoms[ATOM_COUNT];
 
 void win_init(win_t*);
 void win_open(win_t*);
-void win_close(win_t*);
+CLEANUP void win_close(win_t*);
 
 bool win_configure(win_t*, XConfigureEvent*);
 

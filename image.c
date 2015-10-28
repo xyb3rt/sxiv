@@ -16,6 +16,7 @@
  * along with sxiv.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <errno.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
@@ -149,7 +150,7 @@ bool img_load_gif(img_t *img, const fileinfo_t *file)
 	gif = DGifOpenFileName(file->path);
 #endif
 	if (gif == NULL) {
-		warn("could not open gif file: %s", file->name);
+		error(0, 0, "%s: Error opening gif image", file->name);
 		return false;
 	}
 	bg = gif->SBackGroundColor;
@@ -274,7 +275,7 @@ bool img_load_gif(img_t *img, const fileinfo_t *file)
 #endif
 
 	if (err && (file->flags & FF_WARN))
-		warn("corrupted gif file: %s", file->name);
+		error(0, 0, "%s: Corrupted gif file", file->name);
 
 	if (img->multi.cnt > 1) {
 		imlib_context_set_image(img->im);
@@ -300,7 +301,7 @@ bool img_load(img_t *img, const fileinfo_t *file)
 	    (img->im = imlib_load_image(file->path)) == NULL)
 	{
 		if (file->flags & FF_WARN)
-			warn("could not open image: %s", file->name);
+			error(0, 0, "%s: Error opening image", file->name);
 		return false;
 	}
 
@@ -325,7 +326,7 @@ bool img_load(img_t *img, const fileinfo_t *file)
 	return true;
 }
 
-void img_close(img_t *img, bool decache)
+CLEANUP void img_close(img_t *img, bool decache)
 {
 	int i;
 
@@ -464,7 +465,7 @@ void img_render(img_t *img)
 
 	if (imlib_image_has_alpha()) {
 		if ((bg = imlib_create_image(dw, dh)) == NULL)
-			die("could not allocate memory");
+			error(EXIT_FAILURE, ENOMEM, NULL);
 		imlib_context_set_image(bg);
 		imlib_image_set_has_alpha(0);
 

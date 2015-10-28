@@ -61,12 +61,13 @@ typedef struct {
 	int stlen;
 } r_dir_t;
 
+extern const char *progname;
+
 void* emalloc(size_t);
 void* erealloc(void*, size_t);
 char* estrdup(const char*);
 
-void warn(const char*, ...);
-void die(const char*, ...);
+void error(int, int, const char*, ...);
 
 void size_readable(float*, const char**);
 

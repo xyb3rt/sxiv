@@ -30,7 +30,6 @@
 #define _IMAGE_CONFIG
 #include "config.h"
 
-void cleanup(void);
 void remove_file(int, bool);
 void load_image(int);
 void open_info(void);
@@ -64,7 +63,6 @@ bool cg_quit(arg_t _)
 				printf("%s\n", files[i].name);
 		}
 	}
-	cleanup();
 	exit(EXIT_SUCCESS);
 }
 

@@ -21,6 +21,8 @@
 
 #include <stdbool.h>
 
+#define CLEANUP
+
 typedef enum {
 	BO_BIG_ENDIAN,
 	BO_LITTLE_ENDIAN

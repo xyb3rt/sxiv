@@ -26,7 +26,7 @@
 #include "options.h"
 #include "util.h"
 
-void cleanup(void);
+const char *progname;
 
 void* emalloc(size_t size)
 {
@@ -34,7 +34,7 @@ void* emalloc(size_t size)
 	
 	ptr = malloc(size);
 	if (ptr == NULL)
-		die("could not allocate memory");
+		error(EXIT_FAILURE, errno, NULL);
 	return ptr;
 }
 
@@ -42,7 +42,7 @@ void* erealloc(void *ptr, size_t size)
 {
 	ptr = realloc(ptr, size);
 	if (ptr == NULL)
-		die("could not allocate memory");
+		error(EXIT_FAILURE, errno, NULL);
 	return ptr;
 }
 
@@ -53,40 +53,27 @@ char* estrdup(const char *s)
 
 	d = malloc(n);
 	if (d == NULL)
-		die("could not allocate memory");
+		error(EXIT_FAILURE, errno, NULL);
 	memcpy(d, s, n);
 	return d;
 }
 
-void warn(const char* fmt, ...)
+void error(int eval, int err, const char* fmt, ...)
 {
-	va_list args;
+	va_list ap;
 
-	if (fmt == NULL || options->quiet)
-		return;
+	fflush(stdout);
+	fprintf(stderr, "%s: ", progname);
+	va_start(ap, fmt);
+	if (fmt != NULL)
+		vfprintf(stderr, fmt, ap);
+	va_end(ap);
+	if (err != 0)
+		fprintf(stderr, "%s%s", fmt != NULL ? ": " : "", strerror(err));
+	fputc('\n', stderr);
 
-	va_start(args, fmt);
-	fprintf(stderr, "sxiv: warning: ");
-	vfprintf(stderr, fmt, args);
-	fprintf(stderr, "\n");
-	va_end(args);
-}
-
-void die(const char* fmt, ...)
-{
-	va_list args;
-
-	if (fmt == NULL)
-		return;
-
-	va_start(args, fmt);
-	fprintf(stderr, "sxiv: error: ");
-	vfprintf(stderr, fmt, args);
-	fprintf(stderr, "\n");
-	va_end(args);
-
-	cleanup();
-	exit(EXIT_FAILURE);
+	if (eval != 0)
+		exit(eval);
 }
 
 void size_readable(float *size, const char **unit)
@@ -185,7 +172,7 @@ char* r_readdir(r_dir_t *rdir)
 			rdir->name = rdir->stack[--rdir->stlen];
 			rdir->d = 1;
 			if ((rdir->dir = opendir(rdir->name)) == NULL)
-				warn("could not open directory: %s", rdir->name);
+				error(0, errno, "%s", rdir->name);
 			continue;
 		}
 		/* no more entries */
@@ -215,7 +202,7 @@ int r_mkdir(const char *path)
 			*d = '\0';
 		if (access(dir, F_OK) < 0 && errno == ENOENT) {
 			if (mkdir(dir, 0755) < 0) {
-				warn("could not create directory: %s", dir);
+				error(0, errno, "%s", dir);
 				err = -1;
 			}
 		} else if (stat(dir, &stats) < 0 || !S_ISDIR(stats.st_mode)) {

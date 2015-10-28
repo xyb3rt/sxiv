@@ -16,6 +16,7 @@
  * along with sxiv.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -122,7 +123,7 @@ void tns_clean_cache(tns_t *tns)
 	r_dir_t dir;
 
 	if (r_opendir(&dir, cache_dir) < 0) {
-		warn("could not open thumbnail cache directory: %s", cache_dir);
+		error(0, errno, "%s", cache_dir);
 		return;
 	}
 
@@ -140,7 +141,7 @@ void tns_clean_cache(tns_t *tns)
 		}
 		if (delete) {
 			if (unlink(cfile) < 0)
-				warn("could not delete cache file: %s", cfile);
+				error(0, errno, "%s", cfile);
 		}
 		free(cfile);
 	}
@@ -181,11 +182,11 @@ void tns_init(tns_t *tns, fileinfo_t *files, const int *cnt, int *sel,
 		cache_dir = (char*) emalloc(len);
 		snprintf(cache_dir, len, "%s%s/sxiv", homedir, dsuffix);
 	} else {
-		warn("could not locate thumbnail cache directory");
+		error(0, 0, "Cache directory not found");
 	}
 }
 
-void tns_free(tns_t *tns)
+CLEANUP void tns_free(tns_t *tns)
 {
 	int i;
 
@@ -222,7 +223,7 @@ Imlib_Image tns_scale_down(Imlib_Image im, int dim)
 		im = imlib_create_cropped_scaled_image(0, 0, w, h,
 		                                       MAX(z * w, 1), MAX(z * h, 1));
 		if (im == NULL)
-			die("could not allocate memory");
+			error(EXIT_FAILURE, ENOMEM, NULL);
 		imlib_free_image_and_decache();
 	}
 	return im;
@@ -316,7 +317,7 @@ bool tns_load(tns_t *tns, int n, bool force, bool cache_only)
 						}
 						if (w >= maxwh || h >= maxwh) {
 							if ((im = imlib_create_cropped_image(x, y, w, h)) == NULL)
-								die("could not allocate memory");
+								error(EXIT_FAILURE, ENOMEM, NULL);
 						}
 						imlib_free_image_and_decache();
 					}
@@ -332,7 +333,7 @@ bool tns_load(tns_t *tns, int n, bool force, bool cache_only)
 	    (im = imlib_load_image(file->path)) == NULL))
 	{
 		if (file->flags & FF_WARN)
-			warn("could not open image: %s", file->name);
+			error(0, 0, "%s: Error opening image", file->name);
 		return false;
 	}
 	imlib_context_set_image(im);

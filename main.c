@@ -43,11 +43,6 @@
 #include "config.h"
 
 typedef struct {
-	const char *name;
-	char *cmd;
-} exec_t;
-
-typedef struct {
 	struct timeval when;
 	bool active;
 	timeout_f handler;
@@ -75,15 +70,20 @@ bool extprefix;
 
 bool resized = false;
 
+typedef struct {
+	int err;
+	char *cmd;
+} extcmd_t;
+
 struct {
-  char *cmd;
+  extcmd_t f;
   int fd;
   unsigned int i, lastsep;
   bool open;
 } info;
 
 struct {
-	char *cmd;
+	extcmd_t f;
 	bool warned;
 } keyhandler;
 
@@ -97,26 +97,24 @@ timeout_t timeouts[] = {
 
 void cleanup(void)
 {
-	static bool in = false;
-
-	if (!in) {
-		in = true;
-		img_close(&img, false);
-		tns_free(&tns);
-		win_close(&win);
-	}
+	img_close(&img, false);
+	tns_free(&tns);
+	win_close(&win);
 }
 
 void check_add_file(char *filename, bool given)
 {
+	char *path;
 	const char *bn;
 
 	if (*filename == '\0')
 		return;
 
-	if (access(filename, R_OK) < 0) {
+	if (access(filename, R_OK) < 0 ||
+	    (path = realpath(filename, NULL)) == NULL)
+	{
 		if (given)
-			warn("could not open file: %s", filename);
+			error(0, errno, "%s", filename);
 		return;
 	}
 
@@ -126,12 +124,8 @@ void check_add_file(char *filename, bool given)
 		memset(&files[filecnt/2], 0, filecnt/2 * sizeof(*files));
 	}
 
-	if ((files[fileidx].path = realpath(filename, NULL)) == NULL) {
-		warn("could not get real path of file: %s\n", filename);
-		return;
-	}
-
 	files[fileidx].name = estrdup(filename);
+	files[fileidx].path = path;
 	if ((bn = strrchr(files[fileidx].name , '/')) != NULL && bn[1] != '\0')
 		files[fileidx].base = ++bn;
 	else
@@ -149,7 +143,6 @@ void remove_file(int n, bool manual)
 	if (filecnt == 1) {
 		if (!manual)
 			fprintf(stderr, "sxiv: no more files to display, aborting\n");
-		cleanup();
 		exit(manual ? EXIT_SUCCESS : EXIT_FAILURE);
 	}
 	if (files[n].flags & FF_MARK)
@@ -232,7 +225,7 @@ void open_info(void)
 	static pid_t pid;
 	int pfd[2];
 
-	if (info.cmd == NULL || info.open || win.bar.h == 0)
+	if (info.f.err != 0 || info.open || win.bar.h == 0)
 		return;
 	if (info.fd != -1) {
 		close(info.fd);
@@ -246,9 +239,8 @@ void open_info(void)
 	if ((pid = fork()) == 0) {
 		close(pfd[0]);
 		dup2(pfd[1], 1);
-		execl(info.cmd, info.cmd, files[fileidx].name, NULL);
-		warn("could not exec: %s", info.cmd);
-		exit(EXIT_FAILURE);
+		execl(info.f.cmd, info.f.cmd, files[fileidx].name, NULL);
+		error(EXIT_FAILURE, errno, "exec: %s", info.f.cmd);
 	}
 	close(pfd[1]);
 	if (pid < 0) {
@@ -386,7 +378,7 @@ void update_info(void)
 			bar_put(r, "%0*d/%d | ", fn, img.multi.sel + 1, img.multi.cnt);
 		}
 		bar_put(r, "%0*d/%d", fw, fileidx + 1, filecnt);
-		ow_info = info.cmd == NULL;
+		ow_info = info.f.err != 0;
 	}
 	if (ow_info) {
 		fn = strlen(files[fileidx].name);
@@ -469,14 +461,14 @@ void run_key_handler(const char *key, unsigned int mask)
 	FILE *pfs;
 	bool marked = mode == MODE_THUMB && markcnt > 0;
 	bool changed = false;
-	int f, i, pfd[2], retval, status;
+	int f, i, pfd[2], status;
 	int fcnt = marked ? markcnt : 1;
 	char kstr[32];
 	struct stat *oldst, st;
 
-	if (keyhandler.cmd == NULL) {
+	if (keyhandler.f.err != 0) {
 		if (!keyhandler.warned) {
-			warn("key handler not installed");
+			error(0, keyhandler.f.err, "%s", keyhandler.f.cmd);
 			keyhandler.warned = true;
 		}
 		return;
@@ -485,12 +477,12 @@ void run_key_handler(const char *key, unsigned int mask)
 		return;
 
 	if (pipe(pfd) < 0) {
-		warn("could not create pipe for key handler");
+		error(0, errno, "pipe");
 		return;
 	}
 	if ((pfs = fdopen(pfd[1], "w")) == NULL) {
+		error(0, errno, "open pipe");
 		close(pfd[0]), close(pfd[1]);
-		warn("could not open pipe for key handler");
 		return;
 	}
 	oldst = emalloc(fcnt * sizeof(*oldst));
@@ -507,14 +499,13 @@ void run_key_handler(const char *key, unsigned int mask)
 	if ((pid = fork()) == 0) {
 		close(pfd[1]);
 		dup2(pfd[0], 0);
-		execl(keyhandler.cmd, keyhandler.cmd, kstr, NULL);
-		warn("could not exec key handler");
-		exit(EXIT_FAILURE);
+		execl(keyhandler.f.cmd, keyhandler.f.cmd, kstr, NULL);
+		error(EXIT_FAILURE, errno, "exec: %s", keyhandler.f.cmd);
 	}
 	close(pfd[0]);
 	if (pid < 0) {
+		error(0, errno, "fork");
 		fclose(pfs);
-		warn("could not fork key handler");
 		goto end;
 	}
 
@@ -527,9 +518,8 @@ void run_key_handler(const char *key, unsigned int mask)
 	}
 	fclose(pfs);
 	waitpid(pid, &status, 0);
-	retval = WEXITSTATUS(status);
-	if (WIFEXITED(status) == 0 || retval != 0)
-		warn("key handler exited with non-zero return value: %d", retval);
+	if (!WIFEXITED(status) || WEXITSTATUS(status) != 0)
+		error(0, 0, "%s: Exited abnormally", keyhandler.f.cmd);
 
 	for (f = i = 0; f < fcnt; i++) {
 		if ((marked && (files[i].flags & FF_MARK)) || (!marked && i == fileidx)) {
@@ -550,7 +540,7 @@ end:
 		if (changed) {
 			img_close(&img, true);
 			load_image(fileidx);
-		} else if (info.cmd != NULL) {
+		} else if (info.f.err == 0) {
 			info.open = false;
 			open_info();
 		}
@@ -819,18 +809,18 @@ int main(int argc, char **argv)
 		filename = options->filenames[i];
 
 		if (stat(filename, &fstats) < 0) {
-			warn("could not stat file: %s", filename);
+			error(0, errno, "%s", filename);
 			continue;
 		}
 		if (!S_ISDIR(fstats.st_mode)) {
 			check_add_file(filename, true);
 		} else {
 			if (!options->recursive) {
-				warn("ignoring directory: %s", filename);
+				error(0, 0, "%s: Is a directory", filename);
 				continue;
 			}
 			if (r_opendir(&dir, filename) < 0) {
-				warn("could not open directory: %s", filename);
+				error(0, errno, "%s", filename);
 				continue;
 			}
 			start = fileidx;
@@ -844,10 +834,8 @@ int main(int argc, char **argv)
 		}
 	}
 
-	if (fileidx == 0) {
-		fprintf(stderr, "sxiv: no valid image file given, aborting\n");
-		exit(EXIT_FAILURE);
-	}
+	if (fileidx == 0)
+		error(EXIT_FAILURE, 0, "No valid image file given, aborting");
 
 	filecnt = fileidx;
 	fileidx = options->startnum < filecnt ? options->startnum : 0;
@@ -860,20 +848,18 @@ int main(int argc, char **argv)
 		dsuffix = "/.config";
 	}
 	if (homedir != NULL) {
-		char **cmd[] = { &info.cmd, &keyhandler.cmd };
+		extcmd_t *cmd[] = { &info.f, &keyhandler.f };
 		const char *name[] = { "image-info", "key-handler" };
 
 		for (i = 0; i < ARRLEN(cmd); i++) {
 			n = strlen(homedir) + strlen(dsuffix) + strlen(name[i]) + 12;
-			*cmd[i] = (char*) emalloc(n);
-			snprintf(*cmd[i], n, "%s%s/sxiv/exec/%s", homedir, dsuffix, name[i]);
-			if (access(*cmd[i], X_OK) != 0) {
-				free(*cmd[i]);
-				*cmd[i] = NULL;
-			}
+			cmd[i]->cmd = (char*) emalloc(n);
+			snprintf(cmd[i]->cmd, n, "%s%s/sxiv/exec/%s", homedir, dsuffix, name[i]);
+			if (access(cmd[i]->cmd, X_OK) != 0)
+				cmd[i]->err = errno;
 		}
 	} else {
-		warn("could not locate exec directory");
+		error(0, 0, "Exec directory not found");
 	}
 	info.fd = -1;
 
@@ -890,10 +876,11 @@ int main(int argc, char **argv)
 	win_open(&win);
 	win_set_cursor(&win, CURSOR_WATCH);
 
+	atexit(cleanup);
+
 	set_timeout(redraw, 25, false);
 
 	run();
-	cleanup();
 
 	return 0;
 }
