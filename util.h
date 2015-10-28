@@ -70,8 +70,6 @@ void die(const char*, ...);
 
 void size_readable(float*, const char**);
 
-char* absolute_path(const char*);
-
 int r_opendir(r_dir_t*, const char*);
 int r_closedir(r_dir_t*);
 char* r_readdir(r_dir_t*);

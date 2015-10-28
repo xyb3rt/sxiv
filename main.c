@@ -131,27 +131,12 @@ void check_add_file(char *filename, bool given)
 		memset(&files[filecnt/2], 0, filecnt/2 * sizeof(*files));
 	}
 
-#if defined _BSD_SOURCE || defined _XOPEN_SOURCE && \
-    ((_XOPEN_SOURCE - 0) >= 500 || defined _XOPEN_SOURCE_EXTENDED)
-
 	if ((files[fileidx].path = realpath(filename, NULL)) == NULL) {
 		warn("could not get real path of file: %s\n", filename);
 		return;
 	}
-#else
-	if (*filename != '/') {
-		if ((files[fileidx].path = absolute_path(filename)) == NULL) {
-			warn("could not get absolute path of file: %s\n", filename);
-			return;
-		}
-	} else {
-		files[fileidx].path = NULL;
-	}
-#endif
 
 	files[fileidx].name = s_strdup(filename);
-	if (files[fileidx].path == NULL)
-		files[fileidx].path = files[fileidx].name;
 	if ((bn = strrchr(files[fileidx].name , '/')) != NULL && bn[1] != '\0')
 		files[fileidx].base = ++bn;
 	else
