@@ -26,12 +26,6 @@
 #include "options.h"
 #include "util.h"
 
-enum {
-	BUF_SIZE  = 1024,
-	DNAME_CNT = 512,
-	FNAME_LEN = 1024
-};
-
 void cleanup(void);
 
 void* s_malloc(size_t size)
@@ -117,7 +111,7 @@ int r_opendir(r_dir_t *rdir, const char *dirname)
 		return -1;
 	}
 
-	rdir->stcap = DNAME_CNT;
+	rdir->stcap = 512;
 	rdir->stack = (char**) s_malloc(rdir->stcap * sizeof(char*));
 	rdir->stlen = 0;
 

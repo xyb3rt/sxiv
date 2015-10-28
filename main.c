@@ -42,11 +42,6 @@
 #define _MAPPINGS_CONFIG
 #include "config.h"
 
-enum {
-	FILENAME_CNT = 1024,
-	TITLE_LEN    = 256
-};
-
 typedef struct {
 	const char *name;
 	char *cmd;
@@ -348,7 +343,7 @@ void bar_put(win_bar_t *bar, const char *fmt, ...)
 void update_info(void)
 {
 	unsigned int i, fn, fw;
-	char title[TITLE_LEN];
+	char title[256];
 	const char * mark;
 	bool ow_info;
 	win_bar_t *l = &win.bar.l, *r = &win.bar.r;
@@ -801,7 +796,7 @@ int main(int argc, char **argv)
 	}
 
 	if (options->recursive || options->from_stdin)
-		filecnt = FILENAME_CNT;
+		filecnt = 1024;
 	else
 		filecnt = options->filecnt;
 
