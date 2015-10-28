@@ -43,7 +43,7 @@ char* tns_cache_filepath(const char *filepath)
 	size_t len;
 	char *cfile = NULL;
 
-	if (cache_dir == NULL || filepath == NULL || *filepath != '/')
+	if (*filepath != '/')
 		return NULL;
 	
 	if (strncmp(filepath, cache_dir, strlen(cache_dir)) != 0) {
@@ -61,8 +61,6 @@ Imlib_Image tns_cache_load(const char *filepath, bool *outdated)
 	struct stat cstats, fstats;
 	Imlib_Image im = NULL;
 
-	if (filepath == NULL)
-		return NULL;
 	if (stat(filepath, &fstats) < 0)
 		return NULL;
 
@@ -85,8 +83,6 @@ void tns_cache_write(Imlib_Image im, const char *filepath, bool force)
 	struct utimbuf times;
 	Imlib_Load_Error err = 0;
 
-	if (im == NULL || filepath == NULL)
-		return;
 	if (stat(filepath, &fstats) < 0)
 		return;
 
@@ -126,9 +122,6 @@ void tns_clean_cache(tns_t *tns)
 	char *cfile, *filename, *tpos;
 	r_dir_t dir;
 
-	if (cache_dir == NULL)
-		return;
-	
 	if (r_opendir(&dir, cache_dir) < 0) {
 		warn("could not open thumbnail cache directory: %s", cache_dir);
 		return;
@@ -161,9 +154,6 @@ void tns_init(tns_t *tns, fileinfo_t *files, const int *cnt, int *sel,
 {
 	int len;
 	const char *homedir, *dsuffix = "";
-
-	if (tns == NULL)
-		return;
 
 	if (cnt != NULL && *cnt > 0) {
 		tns->thumbs = (thumb_t*) s_malloc(*cnt * sizeof(thumb_t));
@@ -199,9 +189,6 @@ void tns_init(tns_t *tns, fileinfo_t *files, const int *cnt, int *sel,
 void tns_free(tns_t *tns)
 {
 	int i;
-
-	if (tns == NULL)
-		return;
 
 	if (tns->thumbs != NULL) {
 		for (i = 0; i < *tns->cnt; i++) {
@@ -253,8 +240,6 @@ bool tns_load(tns_t *tns, int n, bool force, bool cache_only)
 	fileinfo_t *file;
 	Imlib_Image im = NULL;
 
-	if (tns == NULL || tns->thumbs == NULL)
-		return false;
 	if (n < 0 || n >= *tns->cnt)
 		return false;
 	file = &tns->files[n];
@@ -386,8 +371,6 @@ void tns_unload(tns_t *tns, int n)
 {
 	thumb_t *t;
 
-	if (tns == NULL || tns->thumbs == NULL)
-		return;
 	if (n < 0 || n >= *tns->cnt)
 		return;
 
@@ -434,8 +417,6 @@ void tns_render(tns_t *tns)
 	win_t *win;
 	int i, cnt, r, x, y;
 
-	if (tns == NULL || tns->thumbs == NULL || tns->win == NULL)
-		return;
 	if (!tns->dirty)
 		return;
 
@@ -495,9 +476,6 @@ void tns_render(tns_t *tns)
 
 void tns_mark(tns_t *tns, int n, bool mark)
 {
-	if (tns == NULL || tns->thumbs == NULL || tns->win == NULL)
-		return;
-
 	if (n >= 0 && n < *tns->cnt && tns->thumbs[n].im != NULL) {
 		win_t *win = tns->win;
 		thumb_t *t = &tns->thumbs[n];
@@ -519,9 +497,6 @@ void tns_mark(tns_t *tns, int n, bool mark)
 
 void tns_highlight(tns_t *tns, int n, bool hl)
 {
-	if (tns == NULL || tns->thumbs == NULL || tns->win == NULL)
-		return;
-
 	if (n >= 0 && n < *tns->cnt && tns->thumbs[n].im != NULL) {
 		win_t *win = tns->win;
 		thumb_t *t = &tns->thumbs[n];
@@ -544,9 +519,6 @@ void tns_highlight(tns_t *tns, int n, bool hl)
 bool tns_move_selection(tns_t *tns, direction_t dir, int cnt)
 {
 	int old, max;
-
-	if (tns == NULL || tns->thumbs == NULL)
-		return false;
 
 	old = *tns->sel;
 	cnt = cnt > 1 ? cnt : 1;
@@ -581,9 +553,6 @@ bool tns_scroll(tns_t *tns, direction_t dir, bool screen)
 {
 	int d, max, old;
 
-	if (tns == NULL)
-		return false;
-
 	old = tns->first;
 	d = tns->cols * (screen ? tns->rows : 1);
 
@@ -607,9 +576,6 @@ bool tns_zoom(tns_t *tns, int d)
 {
 	int i, oldzl;
 
-	if (tns == NULL || tns->thumbs == NULL)
-		return false;
-
 	oldzl = tns->zl;
 	tns->zl += -(d < 0) + (d > 0);
 	tns->zl = MAX(tns->zl, 0);
@@ -631,8 +597,6 @@ int tns_translate(tns_t *tns, int x, int y)
 {
 	int n;
 
-	if (tns == NULL || tns->thumbs == NULL)
-		return -1;
 	if (x < tns->x || y < tns->y)
 		return -1;
 

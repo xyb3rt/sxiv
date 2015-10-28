@@ -94,8 +94,6 @@ unsigned long win_alloc_color(win_t *win, const char *name)
 {
 	XColor col;
 
-	if (win == NULL)
-		return 0UL;
 	if (XAllocNamedColor(win->env.dpy,
 	                     DefaultColormap(win->env.dpy, win->env.scr),
 	                     name, &col, &col) == 0)
@@ -141,9 +139,6 @@ void win_check_wm_support(Display *dpy, Window root)
 void win_init(win_t *win)
 {
 	win_env_t *e;
-
-	if (win == NULL)
-		return;
 
 	memset(win, 0, sizeof(win_t));
 
@@ -198,9 +193,6 @@ void win_open(win_t *win)
 	int gmask;
 	XSizeHints sizehints;
 	Bool fullscreen = options->fullscreen && fs_support;
-
-	if (win == NULL)
-		return;
 
 	e = &win->env;
 
@@ -317,9 +309,6 @@ void win_open(win_t *win)
 
 void win_close(win_t *win)
 {
-	if (win == NULL || win->xwin == None)
-		return;
-
 	XFreeCursor(win->env.dpy, carrow);
 	XFreeCursor(win->env.dpy, cnone);
 	XFreeCursor(win->env.dpy, chand);
@@ -334,9 +323,6 @@ void win_close(win_t *win)
 bool win_configure(win_t *win, XConfigureEvent *c)
 {
 	bool changed;
-
-	if (win == NULL || c == NULL)
-		return false;
 
 	changed = win->w != c->width || win->h + win->bar.h != c->height;
 
@@ -353,9 +339,6 @@ void win_toggle_fullscreen(win_t *win)
 {
 	XEvent ev;
 	XClientMessageEvent *cm;
-
-	if (win == NULL || win->xwin == None)
-		return;
 
 	if (!fs_support) {
 		if (!fs_warned) {
@@ -383,9 +366,6 @@ void win_toggle_fullscreen(win_t *win)
 
 void win_toggle_bar(win_t *win)
 {
-	if (win == NULL || win->xwin == None)
-		return;
-
 	if (win->bar.h != 0) {
 		win->h += win->bar.h;
 		win->bar.h = 0;
@@ -398,9 +378,6 @@ void win_toggle_bar(win_t *win)
 void win_clear(win_t *win)
 {
 	win_env_t *e;
-
-	if (win == NULL || win->xwin == None)
-		return;
 
 	e = &win->env;
 
@@ -423,8 +400,6 @@ void win_draw_bar(win_t *win)
 	win_env_t *e;
 	win_bar_t *l, *r;
 
-	if (win == NULL || win->xwin == None)
-		return;
 	if ((l = &win->bar.l)->buf == NULL || (r = &win->bar.r)->buf == NULL)
 		return;
 
@@ -473,9 +448,6 @@ void win_draw_bar(win_t *win)
 
 void win_draw(win_t *win)
 {
-	if (win == NULL || win->xwin == None)
-		return;
-
 	if (win->bar.h > 0)
 		win_draw_bar(win);
 
@@ -488,9 +460,6 @@ void win_draw_rect(win_t *win, int x, int y, int w, int h, bool fill, int lw,
                    unsigned long col)
 {
 	XGCValues gcval;
-
-	if (win == NULL || win->buf.pm == None)
-		return;
 
 	gcval.line_width = lw;
 	gcval.foreground = col;
@@ -517,9 +486,6 @@ int win_textwidth(const char *text, unsigned int len, bool with_padding)
 
 void win_set_title(win_t *win, const char *title)
 {
-	if (win == NULL || win->xwin == None)
-		return;
-
 	if (title == NULL)
 		title = "sxiv";
 
@@ -536,9 +502,6 @@ void win_set_title(win_t *win, const char *title)
 
 void win_set_cursor(win_t *win, cursor_t cursor)
 {
-	if (win == NULL || win->xwin == None)
-		return;
-
 	switch (cursor) {
 		case CURSOR_NONE:
 			XDefineCursor(win->env.dpy, win->xwin, cnone);

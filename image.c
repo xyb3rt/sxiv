@@ -51,9 +51,6 @@ void img_init(img_t *img, win_t *win)
 	zoom_min = zoom_levels[0] / 100.0;
 	zoom_max = zoom_levels[ARRLEN(zoom_levels) - 1] / 100.0;
 
-	if (img == NULL || win == NULL)
-		return;
-
 	imlib_context_set_display(win->env.dpy);
 	imlib_context_set_visual(win->env.vis);
 	imlib_context_set_colormap(win->env.cmap);
@@ -300,9 +297,6 @@ bool img_load(img_t *img, const fileinfo_t *file)
 {
 	const char *fmt;
 
-	if (img == NULL || file == NULL || file->name == NULL || file->path == NULL)
-		return false;
-
 	if (access(file->path, R_OK) < 0 ||
 	    (img->im = imlib_load_image(file->path)) == NULL)
 	{
@@ -336,9 +330,6 @@ void img_close(img_t *img, bool decache)
 {
 	int i;
 
-	if (img == NULL)
-		return;
-
 	if (img->multi.cnt > 0) {
 		for (i = 0; i < img->multi.cnt; i++) {
 			imlib_context_set_image(img->multi.frames[i].im);
@@ -361,9 +352,6 @@ void img_check_pan(img_t *img, bool moved)
 	win_t *win;
 	int ox, oy;
 	float w, h;
-
-	if (img == NULL || img->im == NULL || img->win == NULL)
-		return;
 
 	win = img->win;
 	w = img->w * img->zoom;
@@ -392,8 +380,6 @@ bool img_fit(img_t *img)
 {
 	float z, zmax, zw, zh;
 
-	if (img == NULL || img->im == NULL || img->win == NULL)
-		return false;
 	if (img->scalemode == SCALE_ZOOM)
 		return false;
 
@@ -432,9 +418,6 @@ void img_render(img_t *img)
 	int dx, dy, dw, dh;
 	Imlib_Image bg;
 	unsigned long c;
-
-	if (img == NULL || img->im == NULL || img->win == NULL)
-		return;
 
 	win = img->win;
 	img_fit(img);
@@ -521,9 +504,6 @@ bool img_fit_win(img_t *img, scalemode_t sm)
 {
 	float oz;
 
-	if (img == NULL || img->im == NULL || img->win == NULL)
-		return false;
-
 	oz = img->zoom;
 	img->scalemode = sm;
 
@@ -539,9 +519,6 @@ bool img_fit_win(img_t *img, scalemode_t sm)
 
 bool img_zoom(img_t *img, float z)
 {
-	if (img == NULL || img->im == NULL || img->win == NULL)
-		return false;
-
 	z = MAX(z, zoom_min);
 	z = MIN(z, zoom_max);
 
@@ -564,9 +541,6 @@ bool img_zoom_in(img_t *img)
 	int i;
 	float z;
 
-	if (img == NULL || img->im == NULL)
-		return false;
-
 	for (i = 1; i < ARRLEN(zoom_levels); i++) {
 		z = zoom_levels[i] / 100.0;
 		if (zoomdiff(z, img->zoom) > 0)
@@ -580,9 +554,6 @@ bool img_zoom_out(img_t *img)
 	int i;
 	float z;
 
-	if (img == NULL || img->im == NULL)
-		return false;
-
 	for (i = ARRLEN(zoom_levels) - 2; i >= 0; i--) {
 		z = zoom_levels[i] / 100.0;
 		if (zoomdiff(z, img->zoom) < 0)
@@ -594,9 +565,6 @@ bool img_zoom_out(img_t *img)
 bool img_move(img_t *img, float dx, float dy)
 {
 	float ox, oy;
-
-	if (img == NULL || img->im == NULL)
-		return false;
 
 	ox = img->x;
 	oy = img->y;
@@ -622,9 +590,6 @@ bool img_pan(img_t *img, direction_t dir, int d)
 	 */
 	float x, y;
 
-	if (img == NULL || img->im == NULL || img->win == NULL)
-		return false;
-
 	if (d > 0) {
 		x = y = MAX(1, (float) d * img->zoom);
 	} else {
@@ -648,9 +613,6 @@ bool img_pan(img_t *img, direction_t dir, int d)
 bool img_pan_edge(img_t *img, direction_t dir)
 {
 	int ox, oy;
-
-	if (img == NULL || img->im == NULL || img->win == NULL)
-		return false;
 
 	ox = img->x;
 	oy = img->y;
@@ -677,9 +639,6 @@ bool img_pan_edge(img_t *img, direction_t dir)
 void img_rotate(img_t *img, degree_t d)
 {
 	int i, ox, oy, tmp;
-
-	if (img == NULL || img->im == NULL || img->win == NULL)
-		return;
 
 	imlib_context_set_image(img->im);
 	imlib_image_orientate(d);
@@ -716,7 +675,7 @@ void img_flip(img_t *img, flipdir_t d)
 
 	d = (d & (FLIP_HORIZONTAL | FLIP_VERTICAL)) - 1;
 
-	if (img == NULL || img->im == NULL || d < 0 || d >= ARRLEN(imlib_flip_op))
+	if (d < 0 || d >= ARRLEN(imlib_flip_op))
 		return;
 
 	imlib_context_set_image(img->im);
@@ -733,9 +692,6 @@ void img_flip(img_t *img, flipdir_t d)
 
 void img_toggle_antialias(img_t *img)
 {
-	if (img == NULL || img->im == NULL)
-		return;
-
 	img->aa = !img->aa;
 	imlib_context_set_image(img->im);
 	imlib_context_set_anti_alias(img->aa);
@@ -750,9 +706,6 @@ bool img_change_gamma(img_t *img, int d)
 	 */
 	int gamma;
 	double range;
-
-	if (img == NULL)
-		return false;
 
 	if (d == 0)
 		gamma = 0;
@@ -775,8 +728,6 @@ bool img_change_gamma(img_t *img, int d)
 
 bool img_frame_goto(img_t *img, int n)
 {
-	if (img == NULL || img->im == NULL)
-		return false;
 	if (n < 0 || n >= img->multi.cnt || n == img->multi.sel)
 		return false;
 
@@ -794,7 +745,7 @@ bool img_frame_goto(img_t *img, int n)
 
 bool img_frame_navigate(img_t *img, int d)
 {
-	if (img == NULL|| img->im == NULL || img->multi.cnt == 0 || d == 0)
+	if (img->multi.cnt == 0 || d == 0)
 		return false;
 
 	d += img->multi.sel;
@@ -808,7 +759,7 @@ bool img_frame_navigate(img_t *img, int d)
 
 bool img_frame_animate(img_t *img)
 {
-	if (img == NULL || img->im == NULL || img->multi.cnt == 0)
+	if (img->multi.cnt == 0)
 		return false;
 
 	if (img->multi.sel + 1 >= img->multi.cnt)

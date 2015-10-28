@@ -103,9 +103,6 @@ ssize_t get_line(char **buf, size_t *n, FILE *stream)
 	size_t len;
 	char *s;
 
-	if (stream == NULL || feof(stream) || ferror(stream))
-		return -1;
-
 	if (*buf == NULL || *n == 0) {
 		*n = BUF_SIZE;
 		*buf = (char*) s_malloc(*n);
@@ -148,7 +145,7 @@ char* absolute_path(const char *filename)
 	char *dir, *dirname = NULL, *path = NULL, *s;
 	char *cwd = NULL, *twd = NULL;
 
-	if (filename == NULL || *filename == '\0' || *filename == '/')
+	if (*filename == '\0' || *filename == '/')
 		return NULL;
 
 	len = FNAME_LEN;
@@ -211,7 +208,7 @@ end:
 
 int r_opendir(r_dir_t *rdir, const char *dirname)
 {
-	if (rdir == NULL || dirname == NULL || *dirname == '\0')
+	if (*dirname == '\0')
 		return -1;
 
 	if ((rdir->dir = opendir(dirname)) == NULL) {
@@ -234,9 +231,6 @@ int r_closedir(r_dir_t *rdir)
 {
 	int ret = 0;
 
-	if (rdir == NULL)
-		return -1;
-	
 	if (rdir->stack != NULL) {
 		while (rdir->stlen > 0)
 			free(rdir->stack[--rdir->stlen]);
@@ -263,9 +257,6 @@ char* r_readdir(r_dir_t *rdir)
 	char *filename;
 	struct dirent *dentry;
 	struct stat fstats;
-
-	if (rdir == NULL || rdir->dir == NULL || rdir->name == NULL)
-		return NULL;
 
 	while (true) {
 		if (rdir->dir != NULL && (dentry = readdir(rdir->dir)) != NULL) {
@@ -316,7 +307,7 @@ int r_mkdir(const char *path)
 	struct stat stats;
 	int err = 0;
 
-	if (path == NULL || *path == '\0')
+	if (*path == '\0')
 		return -1;
 
 	if (stat(path, &stats) == 0)

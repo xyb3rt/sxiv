@@ -117,7 +117,7 @@ void check_add_file(char *filename, bool given)
 {
 	const char *bn;
 
-	if (filename == NULL || *filename == '\0')
+	if (*filename == '\0')
 		return;
 
 	if (access(filename, R_OK) < 0) {
@@ -323,7 +323,8 @@ void load_image(int new)
 	if (new < 0 || new >= filecnt)
 		return;
 
-	win_set_cursor(&win, CURSOR_WATCH);
+	if (win.xwin != None)
+		win_set_cursor(&win, CURSOR_WATCH);
 	reset_timeout(slideshow);
 
 	if (new != current)
@@ -590,9 +591,6 @@ void on_keypress(XKeyEvent *kev)
 	char key;
 	bool dirty = false;
 
-	if (kev == NULL)
-		return;
-
 	if (kev->state & ShiftMask) {
 		kev->state &= ~ShiftMask;
 		XLookupString(kev, &key, 1, &shksym, NULL);
@@ -632,9 +630,6 @@ void on_buttonpress(XButtonEvent *bev)
 	int i, sel;
 	bool dirty = false;
 	static Time firstclick;
-
-	if (bev == NULL)
-		return;
 
 	if (mode == MODE_IMAGE) {
 		win_set_cursor(&win, CURSOR_ARROW);
