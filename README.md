@@ -162,6 +162,13 @@ on GitHub or get a copy using git with the following command:
 
 **Stable releases**
 
+**[v1.3.2](https://github.com/muennich/sxiv/archive/v1.3.2.tar.gz)**
+*(December 20, 2015)*
+
+  * external key handler gets file paths on stdin, not as arguments
+  * Cache out-of-view thumbnails in the background
+  * Apply gamma correction to thumbnails
+
 **[v1.3.1](https://github.com/muennich/sxiv/archive/v1.3.1.tar.gz)**
 *(November 16, 2014)*
 
