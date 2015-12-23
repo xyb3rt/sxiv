@@ -7,13 +7,11 @@
 
 s=" | " # field separator
 
-filename=$(basename "$1")
-filesize=$(du -Hh "$1" | cut -f 1)
+filename=$(basename -- "$1")
+filesize=$(du -Hh -- "$1" | cut -f 1)
 
-geometry=$(identify -format '%wx%h' "$1[0]")
-
-tags=$(exiv2 -q -P v -g "Iptc.Application2.Keywords" "$1" | tr '\n' ',')
-tags=${tags%,}
+geometry=$(identify -format '%wx%h' ":$1[0]")
+tags=$(identify -format '%[IPTC:2:25]' ":$1" | tr ';' ',')
 
 echo "${filesize}${s}${geometry}${tags:+$s}${tags}${s}${filename}"
 
