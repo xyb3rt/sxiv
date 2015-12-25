@@ -14,4 +14,3 @@ geometry=$(identify -format '%wx%h' ":$1[0]")
 tags=$(identify -format '%[IPTC:2:25]' ":$1" | tr ';' ',')
 
 echo "${filesize}${s}${geometry}${tags:+$s}${tags}${s}${filename}"
-
