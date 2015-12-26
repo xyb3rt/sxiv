@@ -122,7 +122,7 @@ of small previews is displayed, making it easy to choose an image to open.
     n,Space      Go [count] images forward
     p,Backspace  Go [count] images backward
     [,]          Go [count] * 10 images backward/forward
-    Ctrl-n,p     Go to the next/previous frame of a multi-frame image
+    Ctrl-n,p     Go [count] frames of a multi-frame image forward/backward
     Ctrl-Space   Play/stop animations of multi-frame images
     h,j,k,l      Scroll image 1/5 of window width/height or [count] pixels
                  left/down/up/right (also with arrow keys)

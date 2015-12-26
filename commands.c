@@ -289,6 +289,8 @@ bool ci_alternate(arg_t _)
 
 bool ci_navigate_frame(arg_t d)
 {
+	if (prefix > 0)
+		d *= prefix;
 	return !img.multi.animate && img_frame_navigate(&img, d);
 }
 
