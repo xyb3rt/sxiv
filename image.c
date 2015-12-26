@@ -227,7 +227,7 @@ bool img_load_gif(img_t *img, const fileinfo_t *file)
 						r = cmap->Colors[rows[i-y][j-x]].Red;
 						g = cmap->Colors[rows[i-y][j-x]].Green;
 						b = cmap->Colors[rows[i-y][j-x]].Blue;
-						*ptr = 0xff << 24 | r << 16 | g << 8 | b;
+						*ptr = 0xffu << 24 | r << 16 | g << 8 | b;
 					}
 					ptr++;
 				}
