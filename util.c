@@ -62,6 +62,9 @@ void error(int eval, int err, const char* fmt, ...)
 {
 	va_list ap;
 
+	if (eval == 0 && options->quiet)
+		return;
+
 	fflush(stdout);
 	fprintf(stderr, "%s: ", progname);
 	va_start(ap, fmt);
