@@ -81,6 +81,7 @@ of small previews is displayed, making it easy to choose an image to open.
     -o           Write list of marked files to stdout when quitting
     -q           Be quiet, disable warnings
     -r           Search given directories recursively for images
+    -R           Randomize images in slideshow mode
     -S DELAY     Enable slideshow and set slideshow delay to DELAY seconds
     -s MODE      Set scale mode to MODE ([d]own, [f]it, [w]idth, [h]eight)
     -t           Start in thumbnail mode

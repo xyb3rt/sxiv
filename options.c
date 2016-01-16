@@ -53,6 +53,7 @@ void parse_options(int argc, char **argv)
 	_options.from_stdin = false;
 	_options.to_stdout = false;
 	_options.recursive = false;
+	_options.randomize = false;
 	_options.startnum = 0;
 
 	_options.scalemode = SCALE_DOWN;
@@ -70,7 +71,7 @@ void parse_options(int argc, char **argv)
 	_options.thumb_mode = false;
 	_options.clean_cache = false;
 
-	while ((opt = getopt(argc, argv, "abcfG:g:hin:N:oqrS:s:tvZz:")) != -1) {
+	while ((opt = getopt(argc, argv, "abcfG:g:hin:N:oqrRS:s:tvZz:")) != -1) {
 		switch (opt) {
 			case '?':
 				print_usage();
@@ -119,6 +120,9 @@ void parse_options(int argc, char **argv)
 				break;
 			case 'r':
 				_options.recursive = true;
+				break;
+			case 'R':
+				_options.randomize = true;
 				break;
 			case 'S':
 				n = strtol(optarg, &end, 0);
