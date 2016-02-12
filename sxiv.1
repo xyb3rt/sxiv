@@ -92,7 +92,8 @@ The same as `\-z 100'.
 .TP
 .BI "\-z " ZOOM
 Set zoom level to ZOOM percent.
-.SH GENERAL KEYBOARD COMMANDS
+.SH KEYBOARD COMMANDS
+.SS General
 The following keyboard commands are available in both image and thumbnail mode:
 .TP
 .BR 0 \- 9
@@ -177,7 +178,7 @@ steps.
 .TP
 .B Ctrl-g
 Reset gamma correction.
-.SH THUMBNAIL KEYBOARD COMMANDS
+.SS Thumbnail mode
 The following keyboard commands are only available in thumbnail mode:
 .TP
 .BR h ", " Left
@@ -202,9 +203,10 @@ times.
 .TP
 .B R
 Reload all thumbnails.
-.SH IMAGE KEYBOARD COMMANDS
+.SS Image mode
 The following keyboard commands are only available in image mode:
-.SS Navigate image list
+.TP
+Navigate image list:
 .TP
 .BR n ", " Space
 Go
@@ -225,7 +227,8 @@ Go
 Go
 .I count
 * 10 images forward.
-.SS Handle multi-frame images
+.TP
+Handle multi-frame images:
 .TP
 .B Ctrl-n
 Go
@@ -239,7 +242,8 @@ frames of a multi-frame image backward.
 .TP
 .B Ctrl-Space
 Play/stop animations of multi-frame images.
-.SS Panning
+.TP
+Panning:
 .TP
 .BR h ", " Left
 Scroll image 1/5 of window width or
@@ -272,7 +276,8 @@ Scroll to top image edge.
 .TP
 .B L
 Scroll to right image edge.
-.SS Zooming
+.TP
+Zooming:
 .TP
 .B =
 Set zoom level to 100%, or
@@ -289,7 +294,8 @@ Fit image to window width.
 .TP
 .B E
 Fit image to window height.
-.SS Rotation
+.TP
+Rotation:
 .TP
 .B <
 Rotate image counter-clockwise by 90 degrees.
@@ -299,14 +305,16 @@ Rotate image clockwise by 90 degrees.
 .TP
 .B ?
 Rotate image by 180 degrees.
-.SS Flipping
+.TP
+Flipping:
 .TP
 .B |
 Flip image horizontally.
 .TP
 .B _
 Flip image vertically.
-.SS Miscellaneous
+.TP
+Miscellaneous:
 .TP
 .B a
 Toggle anti-aliasing.
@@ -320,14 +328,16 @@ Toggle slideshow mode and/or set the delay between images to
 seconds.
 .SH MOUSE COMMANDS
 The following mouse mappings are available in image mode:
-.SS Navigate image list
+.TP
+Navigate image list:
 .TP
 .B Button1
 Go to next image.
 .TP
 .B Button3
 Go to the previous image.
-.SS Panning
+.TP
+Panning:
 .TP
 .B Button2
 Drag the image with the mouse while keeping this button pressed down.
@@ -343,7 +353,8 @@ Scroll image left.
 .TP
 .B Shift+ScrollDown
 Scroll image right.
-.SS Zooming
+.TP
+Zooming:
 .TP
 .B Ctrl+ScrollUp
 Zoom in.
