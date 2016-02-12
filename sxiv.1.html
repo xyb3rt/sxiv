@@ -1,0 +1,1117 @@
+<!-- Creator     : groff version 1.22.3 -->
+<!-- CreationDate: Fri Feb 12 20:14:43 2016 -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta name="generator" content="groff -Thtml, see www.gnu.org">
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<meta name="Content-Style" content="text/css">
+<style type="text/css">
+       p       { margin-top: 0; margin-bottom: 0; vertical-align: top }
+       pre     { margin-top: 0; margin-bottom: 0; vertical-align: top }
+       table   { margin-top: 0; margin-bottom: 0; vertical-align: top }
+       h1      { text-align: center }
+</style>
+<title>SXIV</title>
+
+</head>
+<body>
+
+<h1 align="center">SXIV</h1>
+
+<a href="#NAME">NAME</a><br>
+<a href="#SYNOPSIS">SYNOPSIS</a><br>
+<a href="#DESCRIPTION">DESCRIPTION</a><br>
+<a href="#OPTIONS">OPTIONS</a><br>
+<a href="#KEYBOARD COMMANDS">KEYBOARD COMMANDS</a><br>
+<a href="#MOUSE COMMANDS">MOUSE COMMANDS</a><br>
+<a href="#STATUS BAR">STATUS BAR</a><br>
+<a href="#EXTERNAL KEY HANDLER">EXTERNAL KEY HANDLER</a><br>
+<a href="#THUMBNAIL CACHING">THUMBNAIL CACHING</a><br>
+<a href="#AUTHOR">AUTHOR</a><br>
+<a href="#CONTRIBUTORS">CONTRIBUTORS</a><br>
+<a href="#HOMEPAGE">HOMEPAGE</a><br>
+<a href="#SEE ALSO">SEE ALSO</a><br>
+
+<hr>
+
+
+<h2>NAME
+<a name="NAME"></a>
+</h2>
+
+
+<p style="margin-left:11%; margin-top: 1em">sxiv &minus;
+Simple X Image Viewer</p>
+
+<h2>SYNOPSIS
+<a name="SYNOPSIS"></a>
+</h2>
+
+
+<p style="margin-left:11%; margin-top: 1em"><b>sxiv</b>
+[<b>&minus;abcfhioqrtvZ</b>] [<b>&minus;G</b> <i>GAMMA</i>]
+[<b>&minus;g</b> <i>GEOMETRY</i>] [<b>&minus;N</b>
+<i>NAME</i>] [<b>&minus;n</b> <i>NUM</i>] [<b>&minus;S</b>
+<i>DELAY</i>] [<b>&minus;s</b> <i>MODE</i>] [<b>&minus;z</b>
+<i>ZOOM</i>] <i>FILE</i>...</p>
+
+<h2>DESCRIPTION
+<a name="DESCRIPTION"></a>
+</h2>
+
+
+<p style="margin-left:11%; margin-top: 1em">sxiv is a
+simple image viewer for X. It only has the most basic
+features required for fast image viewing.</p>
+
+<p style="margin-left:11%; margin-top: 1em">sxiv has two
+modes of operation: image and thumbnail mode. The default is
+image mode, in which only the current image is shown. In
+thumbnail mode a grid of small previews is displayed, making
+it easy to choose an image to open.</p>
+
+<p style="margin-left:11%; margin-top: 1em">Please note,
+that the fullscreen mode requires an EWMH/NetWM compliant
+window manager.</p>
+
+<h2>OPTIONS
+<a name="OPTIONS"></a>
+</h2>
+
+
+<table width="100%" border="0" rules="none" frame="void"
+       cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="3%">
+
+
+<p style="margin-top: 1em"><b>&minus;a</b></p></td>
+<td width="8%"></td>
+<td width="78%">
+
+
+<p style="margin-top: 1em">Play animations of multi-frame
+images.</p> </td></tr>
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="3%">
+
+
+<p><b>&minus;b</b></p></td>
+<td width="8%"></td>
+<td width="78%">
+
+
+<p>Do not show info bar on bottom of window.</p></td></tr>
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="3%">
+
+
+<p><b>&minus;c</b></p></td>
+<td width="8%"></td>
+<td width="78%">
+
+
+<p>Remove all orphaned cache files from the thumbnail cache
+directory and exit.</p></td></tr>
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="3%">
+
+
+<p><b>&minus;f</b></p></td>
+<td width="8%"></td>
+<td width="78%">
+
+
+<p>Start in fullscreen mode.</p></td></tr>
+</table>
+
+<p style="margin-left:11%;"><b>&minus;G</b>
+<i>GAMMA</i></p>
+
+<p style="margin-left:22%;">Set image gamma to GAMMA
+(-32..32).</p>
+
+<p style="margin-left:11%;"><b>&minus;g</b>
+<i>GEOMETRY</i></p>
+
+<p style="margin-left:22%;">Set window position and size.
+See section GEOMETRY SPECIFICATIONS of X(7) for more
+information on GEOMETRY argument.</p>
+
+<p style="margin-left:11%;"><b>&minus;N</b> <i>NAME</i></p>
+
+<p style="margin-left:22%;">Set the resource name of
+sxiv&rsquo;s X window to NAME.</p>
+
+<table width="100%" border="0" rules="none" frame="void"
+       cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="9%">
+
+
+<p><b>&minus;n</b> <i>NUM</i></p></td>
+<td width="2%"></td>
+<td width="78%">
+
+
+<p>Start at picture number NUM.</p></td></tr>
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="9%">
+
+
+<p><b>&minus;h</b></p></td>
+<td width="2%"></td>
+<td width="78%">
+
+
+<p>Print brief usage information to standard output and
+exit.</p> </td></tr>
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="9%">
+
+
+<p><b>&minus;i</b></p></td>
+<td width="2%"></td>
+<td width="78%">
+
+
+<p>Read names of files to open from standard input.</p></td></tr>
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="9%">
+
+
+<p><b>&minus;o</b></p></td>
+<td width="2%"></td>
+<td width="78%">
+
+
+<p>Write list of all marked files to standard output when
+quitting. In combination with <b>&minus;i</b> sxiv can be
+used as a visual filter/pipe.</p></td></tr>
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="9%">
+
+
+<p><b>&minus;q</b></p></td>
+<td width="2%"></td>
+<td width="78%">
+
+
+<p>Be quiet, disable warnings to standard error stream.</p></td></tr>
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="9%">
+
+
+<p><b>&minus;r</b></p></td>
+<td width="2%"></td>
+<td width="78%">
+
+
+<p>Search the given directories recursively for images to
+view.</p> </td></tr>
+</table>
+
+<p style="margin-left:11%;"><b>&minus;S</b>
+<i>DELAY</i></p>
+
+<p style="margin-left:22%;">Start in slideshow mode. Set
+the delay between images to DELAY seconds.</p>
+
+<p style="margin-left:11%;"><b>&minus;s</b> <i>MODE</i></p>
+
+<p style="margin-left:22%;">Set scale mode according to
+MODE character. Supported modes are: [d]own, [f]it, [w]idth,
+[h]eight.</p>
+
+<table width="100%" border="0" rules="none" frame="void"
+       cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="3%">
+
+
+<p><b>&minus;t</b></p></td>
+<td width="8%"></td>
+<td width="78%">
+
+
+<p>Start in thumbnail mode.</p></td></tr>
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="3%">
+
+
+<p><b>&minus;v</b></p></td>
+<td width="8%"></td>
+<td width="78%">
+
+
+<p>Print version information to standard output and
+exit.</p> </td></tr>
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="3%">
+
+
+<p><b>&minus;Z</b></p></td>
+<td width="8%"></td>
+<td width="78%">
+
+
+<p>The same as &lsquo;&minus;z 100&rsquo;.</p></td></tr>
+</table>
+
+<p style="margin-left:11%;"><b>&minus;z</b> <i>ZOOM</i></p>
+
+<p style="margin-left:22%;">Set zoom level to ZOOM
+percent.</p>
+
+<h2>KEYBOARD COMMANDS
+<a name="KEYBOARD COMMANDS"></a>
+</h2>
+
+
+<p style="margin-left:11%; margin-top: 1em"><b>General</b>
+<br>
+The following keyboard commands are available in both image
+and thumbnail mode:</p>
+
+<table width="100%" border="0" rules="none" frame="void"
+       cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="9%">
+
+
+<p><b>0</b>&minus;<b>9</b></p></td>
+<td width="2%"></td>
+<td width="78%">
+
+
+<p>Prefix the next command with a number (denoted via
+<i>count</i>).</p> </td></tr>
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="9%">
+
+
+<p><b>q</b></p></td>
+<td width="2%"></td>
+<td width="78%">
+
+
+<p>Quit sxiv.</p></td></tr>
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="9%">
+
+
+<p><b>Return</b></p></td>
+<td width="2%"></td>
+<td width="78%">
+
+
+<p>Switch to thumbnail mode / open selected image in image
+mode.</p> </td></tr>
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="9%">
+
+
+<p><b>f</b></p></td>
+<td width="2%"></td>
+<td width="78%">
+
+
+<p>Toggle fullscreen mode.</p></td></tr>
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="9%">
+
+
+<p><b>b</b></p></td>
+<td width="2%"></td>
+<td width="78%">
+
+
+<p>Toggle visibility of info bar on bottom of window.</p></td></tr>
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="9%">
+
+
+<p><b>Ctrl-x</b></p></td>
+<td width="2%"></td>
+<td width="78%">
+
+
+<p>Send the next key to the external key-handler. See
+section EXTERNAL KEY HANDLER for more information.</p></td></tr>
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="9%">
+
+
+<p><b>g</b></p></td>
+<td width="2%"></td>
+<td width="78%">
+
+
+<p>Go to the first image.</p></td></tr>
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="9%">
+
+
+<p><b>G</b></p></td>
+<td width="2%"></td>
+<td width="78%">
+
+
+<p>Go to the last image, or image number <i>count</i>.</p></td></tr>
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="9%">
+
+
+<p><b>r</b></p></td>
+<td width="2%"></td>
+<td width="78%">
+
+
+<p>Reload image.</p></td></tr>
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="9%">
+
+
+<p><b>D</b></p></td>
+<td width="2%"></td>
+<td width="78%">
+
+
+<p>Remove current image from file list and go to next
+image.</p> </td></tr>
+</table>
+
+<p style="margin-left:11%;"><b>Ctrl-h</b>,
+<b>Ctrl-Left</b></p>
+
+<p style="margin-left:22%;">Scroll left one screen
+width.</p>
+
+<p style="margin-left:11%;"><b>Ctrl-j</b>,
+<b>Ctrl-Down</b></p>
+
+<p style="margin-left:22%;">Scroll down one screen
+height.</p>
+
+<p style="margin-left:11%;"><b>Ctrl-k</b>,
+<b>Ctrl-Up</b></p>
+
+<p style="margin-left:22%;">Scroll up one screen
+height.</p>
+
+<p style="margin-left:11%;"><b>Ctrl-l</b>,
+<b>Ctrl-Right</b></p>
+
+<p style="margin-left:22%;">Scroll right one screen
+width.</p>
+
+<table width="100%" border="0" rules="none" frame="void"
+       cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="9%">
+
+
+<p><b>+</b></p></td>
+<td width="2%"></td>
+<td width="63%">
+
+
+<p>Zoom in.</p></td>
+<td width="15%">
+</td></tr>
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="9%">
+
+
+<p><b>&minus;</b></p></td>
+<td width="2%"></td>
+<td width="63%">
+
+
+<p>Zoom out.</p></td>
+<td width="15%">
+</td></tr>
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="9%">
+
+
+<p><b>m</b></p></td>
+<td width="2%"></td>
+<td width="63%">
+
+
+<p>Mark/unmark the current image.</p></td>
+<td width="15%">
+</td></tr>
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="9%">
+
+
+<p><b>M</b></p></td>
+<td width="2%"></td>
+<td width="63%">
+
+
+<p>Reverse all image marks.</p></td>
+<td width="15%">
+</td></tr>
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="9%">
+
+
+<p><b>Ctrl-m</b></p></td>
+<td width="2%"></td>
+<td width="63%">
+
+
+<p>Remove all image marks.</p></td>
+<td width="15%">
+</td></tr>
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="9%">
+
+
+<p><b>N</b></p></td>
+<td width="2%"></td>
+<td width="63%">
+
+
+<p>Go <i>count</i> marked images forward.</p></td>
+<td width="15%">
+</td></tr>
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="9%">
+
+
+<p><b>P</b></p></td>
+<td width="2%"></td>
+<td width="63%">
+
+
+<p>Go <i>count</i> marked images backward.</p></td>
+<td width="15%">
+</td></tr>
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="9%">
+
+
+<p><b>{</b></p></td>
+<td width="2%"></td>
+<td width="63%">
+
+
+<p>Decrease gamma correction by <i>count</i> steps.</p></td>
+<td width="15%">
+</td></tr>
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="9%">
+
+
+<p><b>}</b></p></td>
+<td width="2%"></td>
+<td width="63%">
+
+
+<p>Increase gamma correction by <i>count</i> steps.</p></td>
+<td width="15%">
+</td></tr>
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="9%">
+
+
+<p><b>Ctrl-g</b></p></td>
+<td width="2%"></td>
+<td width="63%">
+
+
+<p>Reset gamma correction.</p></td>
+<td width="15%">
+</td></tr>
+</table>
+
+<p style="margin-left:11%; margin-top: 1em"><b>Thumbnail
+mode</b> <br>
+The following keyboard commands are only available in
+thumbnail mode: <b><br>
+h</b>, <b>Left</b></p>
+
+<p style="margin-left:22%;">Move selection left
+<i>count</i> times.</p>
+
+<p style="margin-left:11%;"><b>j</b>, <b>Down</b></p>
+
+<p style="margin-left:22%;">Move selection down
+<i>count</i> times.</p>
+
+<table width="100%" border="0" rules="none" frame="void"
+       cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="7%">
+
+
+<p><b>k</b>, <b>Up</b></p></td>
+<td width="4%"></td>
+<td width="46%">
+
+
+<p>Move selection up <i>count</i> times.</p></td>
+<td width="32%">
+</td></tr>
+</table>
+
+<p style="margin-left:11%;"><b>l</b>, <b>Right</b></p>
+
+<p style="margin-left:22%;">Move selection right
+<i>count</i> times.</p>
+
+<table width="100%" border="0" rules="none" frame="void"
+       cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="1%">
+
+
+<p><b>R</b></p></td>
+<td width="10%"></td>
+<td width="33%">
+
+
+<p>Reload all thumbnails.</p></td>
+<td width="45%">
+</td></tr>
+</table>
+
+<p style="margin-left:11%; margin-top: 1em"><b>Image
+mode</b> <br>
+The following keyboard commands are only available in image
+mode: <br>
+Navigate image list: <b><br>
+n</b>, <b>Space</b></p>
+
+<p style="margin-left:22%;">Go <i>count</i> images
+forward.</p>
+
+<p style="margin-left:11%;"><b>p</b>, <b>Backspace</b></p>
+
+<p style="margin-left:22%;">Go <i>count</i> images
+backward.</p>
+
+<table width="100%" border="0" rules="none" frame="void"
+       cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="1%">
+
+
+<p><b>[</b></p></td>
+<td width="10%"></td>
+<td width="46%">
+
+
+<p>Go <i>count</i> * 10 images backward.</p></td>
+<td width="32%">
+</td></tr>
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="1%">
+
+
+<p><b>]</b></p></td>
+<td width="10%"></td>
+<td width="46%">
+
+
+<p>Go <i>count</i> * 10 images forward.</p></td>
+<td width="32%">
+</td></tr>
+</table>
+
+<p style="margin-left:11%;">Handle multi-frame images:</p>
+
+<table width="100%" border="0" rules="none" frame="void"
+       cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="9%">
+
+
+<p><b>Ctrl-n</b></p></td>
+<td width="2%"></td>
+<td width="73%">
+
+
+<p>Go <i>count</i> frames of a multi-frame image
+forward.</p> </td>
+<td width="5%">
+</td></tr>
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="9%">
+
+
+<p><b>Ctrl-p</b></p></td>
+<td width="2%"></td>
+<td width="73%">
+
+
+<p>Go <i>count</i> frames of a multi-frame image
+backward.</p> </td>
+<td width="5%">
+</td></tr>
+</table>
+
+<p style="margin-left:11%;"><b>Ctrl-Space</b></p>
+
+<p style="margin-left:22%;">Play/stop animations of
+multi-frame images.</p>
+
+<p style="margin-left:11%;">Panning: <b><br>
+h</b>, <b>Left</b></p>
+
+<p style="margin-left:22%;">Scroll image 1/5 of window
+width or <i>count</i> pixel left.</p>
+
+<p style="margin-left:11%;"><b>j</b>, <b>Down</b></p>
+
+<p style="margin-left:22%;">Scroll image 1/5 of window
+height or <i>count</i> pixel down.</p>
+
+<table width="100%" border="0" rules="none" frame="void"
+       cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="7%">
+
+
+<p><b>k</b>, <b>Up</b></p></td>
+<td width="4%"></td>
+<td width="78%">
+
+
+<p>Scroll image 1/5 of window height or <i>count</i> pixel
+up.</p> </td></tr>
+</table>
+
+<p style="margin-left:11%;"><b>l</b>, <b>Right</b></p>
+
+<p style="margin-left:22%;">Scroll image 1/5 of window
+width or <i>count</i> pixel right.</p>
+
+<table width="100%" border="0" rules="none" frame="void"
+       cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="1%">
+
+
+<p><b>H</b></p></td>
+<td width="10%"></td>
+<td width="43%">
+
+
+<p>Scroll to left image edge.</p></td>
+<td width="35%">
+</td></tr>
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="1%">
+
+
+<p><b>J</b></p></td>
+<td width="10%"></td>
+<td width="43%">
+
+
+<p>Scroll to bottom image edge.</p></td>
+<td width="35%">
+</td></tr>
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="1%">
+
+
+<p><b>K</b></p></td>
+<td width="10%"></td>
+<td width="43%">
+
+
+<p>Scroll to top image edge.</p></td>
+<td width="35%">
+</td></tr>
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="1%">
+
+
+<p><b>L</b></p></td>
+<td width="10%"></td>
+<td width="43%">
+
+
+<p>Scroll to right image edge.</p></td>
+<td width="35%">
+</td></tr>
+</table>
+
+<p style="margin-left:11%;">Zooming:</p>
+
+<table width="100%" border="0" rules="none" frame="void"
+       cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="1%">
+
+
+<p><b>=</b></p></td>
+<td width="10%"></td>
+<td width="78%">
+
+
+<p>Set zoom level to 100%, or <i>count</i>%.</p></td></tr>
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="1%">
+
+
+<p><b>w</b></p></td>
+<td width="10%"></td>
+<td width="78%">
+
+
+<p>Set zoom level to 100%, but fit large images into
+window.</p> </td></tr>
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="1%">
+
+
+<p><b>W</b></p></td>
+<td width="10%"></td>
+<td width="78%">
+
+
+<p>Fit image to window.</p></td></tr>
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="1%">
+
+
+<p><b>e</b></p></td>
+<td width="10%"></td>
+<td width="78%">
+
+
+<p>Fit image to window width.</p></td></tr>
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="1%">
+
+
+<p><b>E</b></p></td>
+<td width="10%"></td>
+<td width="78%">
+
+
+<p>Fit image to window height.</p></td></tr>
+</table>
+
+<p style="margin-left:11%;">Rotation:</p>
+
+<table width="100%" border="0" rules="none" frame="void"
+       cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="1%">
+
+
+<p><b>&lt;</b></p></td>
+<td width="10%"></td>
+<td width="69%">
+
+
+<p>Rotate image counter-clockwise by 90 degrees.</p></td>
+<td width="9%">
+</td></tr>
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="1%">
+
+
+<p><b>&gt;</b></p></td>
+<td width="10%"></td>
+<td width="69%">
+
+
+<p>Rotate image clockwise by 90 degrees.</p></td>
+<td width="9%">
+</td></tr>
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="1%">
+
+
+<p><b>?</b></p></td>
+<td width="10%"></td>
+<td width="69%">
+
+
+<p>Rotate image by 180 degrees.</p></td>
+<td width="9%">
+</td></tr>
+</table>
+
+<p style="margin-left:11%;">Flipping:</p>
+
+<table width="100%" border="0" rules="none" frame="void"
+       cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="1%">
+
+
+<p><b>|</b></p></td>
+<td width="10%"></td>
+<td width="36%">
+
+
+<p>Flip image horizontally.</p></td>
+<td width="42%">
+</td></tr>
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="1%">
+
+
+<p><b>_</b></p></td>
+<td width="10%"></td>
+<td width="36%">
+
+
+<p>Flip image vertically.</p></td>
+<td width="42%">
+</td></tr>
+</table>
+
+<p style="margin-left:11%;">Miscellaneous:</p>
+
+<table width="100%" border="0" rules="none" frame="void"
+       cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="1%">
+
+
+<p><b>a</b></p></td>
+<td width="10%"></td>
+<td width="78%">
+
+
+<p>Toggle anti-aliasing.</p></td></tr>
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="1%">
+
+
+<p><b>A</b></p></td>
+<td width="10%"></td>
+<td width="78%">
+
+
+<p>Toggle visibility of alpha-channel, i.e. image
+transparency.</p> </td></tr>
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="1%">
+
+
+<p><b>s</b></p></td>
+<td width="10%"></td>
+<td width="78%">
+
+
+<p>Toggle slideshow mode and/or set the delay between
+images to <i>count</i> seconds.</p></td></tr>
+</table>
+
+<h2>MOUSE COMMANDS
+<a name="MOUSE COMMANDS"></a>
+</h2>
+
+
+<p style="margin-left:11%; margin-top: 1em">The following
+mouse mappings are available in image mode: <br>
+Navigate image list: <b><br>
+Button1</b></p>
+
+<p style="margin-left:22%;">Go to next image.</p>
+
+<p style="margin-left:11%;"><b>Button3</b></p>
+
+<p style="margin-left:22%;">Go to the previous image.</p>
+
+<p style="margin-left:11%;">Panning: <b><br>
+Button2</b></p>
+
+<p style="margin-left:22%;">Drag the image with the mouse
+while keeping this button pressed down.</p>
+
+<p style="margin-left:11%;"><b>ScrollUp</b></p>
+
+<p style="margin-left:22%;">Scroll image up.</p>
+
+<p style="margin-left:11%;"><b>ScrollDown</b></p>
+
+<p style="margin-left:22%;">Scroll image down.</p>
+
+<p style="margin-left:11%;"><b>Shift+ScrollUp</b></p>
+
+<p style="margin-left:22%;">Scroll image left.</p>
+
+<p style="margin-left:11%;"><b>Shift+ScrollDown</b></p>
+
+<p style="margin-left:22%;">Scroll image right.</p>
+
+<p style="margin-left:11%;">Zooming: <b><br>
+Ctrl+ScrollUp</b></p>
+
+<p style="margin-left:22%;">Zoom in.</p>
+
+<p style="margin-left:11%;"><b>Ctrl+ScrollDown</b></p>
+
+<p style="margin-left:22%;">Zoom out.</p>
+
+<h2>STATUS BAR
+<a name="STATUS BAR"></a>
+</h2>
+
+
+<p style="margin-left:11%; margin-top: 1em">The information
+displayed on the left side of the status bar can be replaced
+with the output of a user-provided script, which is called
+by sxiv whenever an image gets loaded. The path of this
+script is <i>$XDG_CONFIG_HOME/sxiv/exec/image-info</i> and
+the first argument to this script is the path of the loaded
+image.</p>
+
+<p style="margin-left:11%; margin-top: 1em">There is also
+an example script installed together with sxiv as
+<i>PREFIX/share/sxiv/exec/image-info</i>.</p>
+
+<h2>EXTERNAL KEY HANDLER
+<a name="EXTERNAL KEY HANDLER"></a>
+</h2>
+
+
+<p style="margin-left:11%; margin-top: 1em">Additional
+external keyboard commands can be defined using a handler
+program located in
+<i>$XDG_CONFIG_HOME/sxiv/exec/key-handler</i>. The handler
+is invoked by pressing <b>Ctrl-x</b>. The next key combo is
+passed as its first argument. Passed via stdin are the
+images to act upon, one path per line: all marked images, if
+in thumbnail mode and at least one image has been marked,
+otherwise the current image. sxiv(1) will block until the
+handler terminates. It then checks which images have been
+modified and reloads them.</p>
+
+<p style="margin-left:11%; margin-top: 1em">The key combo
+argument has the following form:
+&quot;[C-][M-][S-]KEY&quot;, where C/M/S indicate
+Ctrl/Meta(Alt)/Shift modifier states and KEY is the X keysym
+as listed in /usr/include/X11/keysymdef.h without the
+&quot;XK_&quot; prefix.</p>
+
+<p style="margin-left:11%; margin-top: 1em">There is also
+an example script installed together with sxiv as
+<i>PREFIX/share/sxiv/exec/key-handler</i>.</p>
+
+<h2>THUMBNAIL CACHING
+<a name="THUMBNAIL CACHING"></a>
+</h2>
+
+
+<p style="margin-left:11%; margin-top: 1em">sxiv stores all
+thumbnails under <i>$XDG_CACHE_HOME/sxiv/</i>.</p>
+
+<p style="margin-left:11%; margin-top: 1em">Use the command
+line option <i>&minus;c</i> to remove all orphaned cache
+files. Additionally, run the following command afterwards
+inside the cache directory to remove empty
+subdirectories:</p>
+
+<p style="margin-left:22%; margin-top: 1em">find .
+&minus;depth &minus;type d &minus;empty ! &minus;name
+&rsquo;.&rsquo; &minus;exec rmdir {} \;</p>
+
+<h2>AUTHOR
+<a name="AUTHOR"></a>
+</h2>
+
+
+<pre style="margin-left:11%; margin-top: 1em">Bert Muennich   &lt;ber.t at posteo.de&gt;</pre>
+
+
+<h2>CONTRIBUTORS
+<a name="CONTRIBUTORS"></a>
+</h2>
+
+
+<pre style="margin-left:11%; margin-top: 1em">Bastien Dejean  &lt;nihilhill at gmail.com&gt;
+Dave Reisner    &lt;d at falconindy.com&gt;
+Fung SzeTat     &lt;sthorde at gmail.com&gt;</pre>
+
+
+<h2>HOMEPAGE
+<a name="HOMEPAGE"></a>
+</h2>
+
+
+<pre style="margin-left:11%; margin-top: 1em">https://github.com/muennich/sxiv</pre>
+
+
+<h2>SEE ALSO
+<a name="SEE ALSO"></a>
+</h2>
+
+
+<p style="margin-left:11%; margin-top: 1em"><b>feh</b>(1),
+<b>qiv</b>(1)</p>
+<hr>
+</body>
+</html>
