@@ -53,7 +53,7 @@ typedef struct {
 	bool checkpan;
 	bool dirty;
 	bool aa;
-	bool alpha;
+	alphamode_t alpha;
 
 	Imlib_Color_Modifier cmod;
 	int gamma;

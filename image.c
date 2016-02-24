@@ -469,7 +469,7 @@ void img_render(img_t *img)
 		imlib_context_set_image(bg);
 		imlib_image_set_has_alpha(0);
 
-		if (img->alpha) {
+		if (img->alpha == ALPHA_CHECKERBOARD) {
 			int i, c, r;
 			DATA32 col[2] = { 0xFF666666, 0xFF999999 };
 			DATA32 * data = imlib_image_get_data();
@@ -484,8 +484,11 @@ void img_render(img_t *img)
 				}
 			}
 			imlib_image_put_back_data(data);
-		} else {
-			c = win->fullscreen ? win->fscol : win->bgcol;
+		} else { // ALPHA_NONE || ALPHA_SOLID
+			if(img->alpha == ALPHA_SOLID)
+				c = win->alphacol;
+			else
+				c = win->fullscreen ? win->fscol : win->bgcol;
 			imlib_context_set_color(c >> 16 & 0xFF, c >> 8 & 0xFF, c & 0xFF, 0xFF);
 			imlib_image_fill_rectangle(0, 0, dw, dh);
 		}

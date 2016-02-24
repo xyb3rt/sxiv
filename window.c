@@ -162,6 +162,7 @@ void win_init(win_t *win)
 	win->selcol    = win_alloc_color(win, SEL_COLOR);
 	win->bar.bgcol = win_alloc_color(win, BAR_BG_COLOR);
 	win->bar.fgcol = win_alloc_color(win, BAR_FG_COLOR);
+        win->alphacol  = win_alloc_color(win, ALPHA_COLOR);
 
 	win->bar.l.size = BAR_L_LEN;
 	win->bar.r.size = BAR_R_LEN;

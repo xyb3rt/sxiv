@@ -60,6 +60,13 @@ typedef enum {
 } scalemode_t;
 
 typedef enum {
+	ALPHA_NONE,
+	ALPHA_CHECKERBOARD,
+	ALPHA_SOLID,
+	ALPHA_NUMOPTIONS
+} alphamode_t;
+
+typedef enum {
 	CURSOR_ARROW,
 	CURSOR_NONE,
 	CURSOR_HAND,
