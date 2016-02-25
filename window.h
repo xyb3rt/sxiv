@@ -62,6 +62,7 @@ typedef struct {
 	unsigned long bgcol;
 	unsigned long fscol;
 	unsigned long selcol;
+        unsigned long alphacol;
 
 	int x;
 	int y;

@@ -19,6 +19,7 @@ static const char * const WIN_FS_COLOR = "#000000";
 static const char * const SEL_COLOR    = "#EEEEEE";
 static const char * const BAR_BG_COLOR = "#222222";
 static const char * const BAR_FG_COLOR = "#EEEEEE";
+static const char * const ALPHA_COLOR  = "#FFFFFF";
 
 #endif
 #ifdef _IMAGE_CONFIG
@@ -45,10 +46,11 @@ static const int    GAMMA_RANGE = 32;
  */
 static const bool ANTI_ALIAS = true;
 
-/* if true, use a checkerboard background for alpha layer,
+/* use no background (ALPHA_NONE), checkerboard (ALPHA_CHECKERBOARD),
+ * or solid color (ALPHA_SOLID) for alpha layer.
  * toggled with 'A' key binding
  */
-static const bool ALPHA_LAYER = false;
+static const alphamode_t ALPHA_LAYER = ALPHA_NONE;
 
 #endif
 #ifdef _THUMBS_CONFIG

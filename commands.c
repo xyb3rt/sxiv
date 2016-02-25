@@ -420,7 +420,7 @@ bool ci_toggle_antialias(arg_t _)
 
 bool ci_toggle_alpha(arg_t _)
 {
-	img.alpha = !img.alpha;
+	img.alpha = (img.alpha + 1) % ALPHA_NUMOPTIONS;
 	img.dirty = true;
 	return true;
 }
