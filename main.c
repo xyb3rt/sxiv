@@ -224,6 +224,7 @@ void open_info(void)
 {
 	static pid_t pid;
 	int pfd[2];
+	char w[12], h[12];
 
 	if (info.f.err != 0 || info.open || win.bar.h == 0)
 		return;
@@ -239,7 +240,9 @@ void open_info(void)
 	if ((pid = fork()) == 0) {
 		close(pfd[0]);
 		dup2(pfd[1], 1);
-		execl(info.f.cmd, info.f.cmd, files[fileidx].name, NULL);
+		snprintf(w, sizeof(w), "%d", img.w);
+		snprintf(h, sizeof(h), "%d", img.h);
+		execl(info.f.cmd, info.f.cmd, files[fileidx].name, w, h, NULL);
 		error(EXIT_FAILURE, errno, "exec: %s", info.f.cmd);
 	}
 	close(pfd[1]);
