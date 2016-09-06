@@ -76,4 +76,11 @@ int r_closedir(r_dir_t*);
 char* r_readdir(r_dir_t*);
 int r_mkdir(char*);
 
+/*
+ * stdin2tmp: copy stdin to a temporary file.
+ * Argument `name' must be acceptable to mkstemp(3).
+ * The resulting temporary file is unlinked during cleanup().
+ */
+int stdin2tmp(char *);
+
 #endif /* UTIL_H */

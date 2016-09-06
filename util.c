@@ -204,3 +204,26 @@ int r_mkdir(char *path)
 	}
 	return 0;
 }
+
+int stdin2tmp(char *name)
+{
+	int tmp;
+	char buf[BUFSIZ];
+	int ret = 0;
+
+	if ((tmp = mkstemp(name)) == -1) {
+		perror("mkstemp error");
+		return -1;
+	}
+
+	while (fread(buf, sizeof(char), BUFSIZ, stdin) > 0) {
+		if ((write(tmp, buf, BUFSIZ)) == -1) {
+			perror("fwrite error");
+			ret = -1;
+		}
+	}
+
+	close(tmp);
+	return ret;
+}
+
