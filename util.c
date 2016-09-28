@@ -134,7 +134,7 @@ int r_closedir(r_dir_t *rdir)
 	return ret;
 }
 
-char* r_readdir(r_dir_t *rdir)
+char* r_readdir(r_dir_t *rdir, bool recurse)
 {
 	size_t len;
 	char *filename;
@@ -167,7 +167,7 @@ char* r_readdir(r_dir_t *rdir)
 			return filename;
 		}
 		
-		if (rdir->stlen > 0) {
+		if (recurse && rdir->stlen > 0) {
 			/* open next subdirectory */
 			closedir(rdir->dir);
 			if (rdir->d != 0)
