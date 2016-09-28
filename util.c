@@ -89,7 +89,7 @@ void size_readable(float *size, const char **unit)
 	*unit = units[MIN(i, ARRLEN(units) - 1)];
 }
 
-int r_opendir(r_dir_t *rdir, const char *dirname)
+int r_opendir(r_dir_t *rdir, const char *dirname, bool recursive)
 {
 	if (*dirname == '\0')
 		return -1;
@@ -106,6 +106,7 @@ int r_opendir(r_dir_t *rdir, const char *dirname)
 
 	rdir->name = (char*) dirname;
 	rdir->d = 0;
+	rdir->recursive = recursive;
 
 	return 0;
 }
@@ -167,7 +168,7 @@ char* r_readdir(r_dir_t *rdir)
 			return filename;
 		}
 		
-		if (rdir->stlen > 0) {
+		if (rdir->recursive && rdir->stlen > 0) {
 			/* open next subdirectory */
 			closedir(rdir->dir);
 			if (rdir->d != 0)

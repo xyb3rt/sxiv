@@ -818,11 +818,7 @@ int main(int argc, char **argv)
 		if (!S_ISDIR(fstats.st_mode)) {
 			check_add_file(filename, true);
 		} else {
-			if (!options->recursive) {
-				error(0, 0, "%s: Is a directory", filename);
-				continue;
-			}
-			if (r_opendir(&dir, filename) < 0) {
+			if (r_opendir(&dir, filename, options->recursive) < 0) {
 				error(0, errno, "%s", filename);
 				continue;
 			}
