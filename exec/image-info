@@ -10,6 +10,8 @@
 
 s=" | " # field separator
 
+exec 2>/dev/null
+
 filename=$(basename -- "$1")
 filesize=$(du -Hh -- "$1" | cut -f 1)
 
