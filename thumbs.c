@@ -239,6 +239,7 @@ bool tns_load(tns_t *tns, int n, bool force, bool cache_only)
 	float zw, zh;
 	thumb_t *t;
 	fileinfo_t *file;
+	struct stat st;
 	Imlib_Image im = NULL;
 
 	if (n < 0 || n >= *tns->cnt)
@@ -330,12 +331,15 @@ bool tns_load(tns_t *tns, int n, bool force, bool cache_only)
 		}
 	}
 
-	if (im == NULL && (access(file->path, R_OK) < 0 ||
-	    (im = imlib_load_image(file->path)) == NULL))
-	{
-		if (file->flags & FF_WARN)
-			error(0, 0, "%s: Error opening image", file->name);
-		return false;
+	if (im == NULL) {
+		if (access(file->path, R_OK) == -1 ||
+		    stat(file->path, &st) == -1 || !S_ISREG(st.st_mode) ||
+		    (im = imlib_load_image(file->path)) == NULL)
+		{
+			if (file->flags & FF_WARN)
+				error(0, 0, "%s: Error opening image", file->name);
+			return false;
+		}
 	}
 	imlib_context_set_image(im);
 

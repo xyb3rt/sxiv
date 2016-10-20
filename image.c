@@ -19,6 +19,7 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
 
@@ -296,8 +297,10 @@ bool img_load_gif(img_t *img, const fileinfo_t *file)
 bool img_load(img_t *img, const fileinfo_t *file)
 {
 	const char *fmt;
+	struct stat st;
 
-	if (access(file->path, R_OK) < 0 ||
+	if (access(file->path, R_OK) == -1 ||
+	    stat(file->path, &st) == -1 || !S_ISREG(st.st_mode) ||
 	    (img->im = imlib_load_image(file->path)) == NULL)
 	{
 		if (file->flags & FF_WARN)
