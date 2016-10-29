@@ -41,6 +41,7 @@ typedef struct {
 	/* window: */
 	bool fullscreen;
 	bool hide_bar;
+	long embed;
 	char *geometry;
 	char *res_name;
 

@@ -71,6 +71,7 @@ typedef struct {
 	unsigned int bw;
 
 	bool fullscreen;
+	long embed;
 
 	struct {
 		int w;

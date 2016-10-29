@@ -133,6 +133,7 @@ void win_init(win_t *win)
 	win->bar.l.buf = emalloc(win->bar.l.size);
 	win->bar.r.buf = emalloc(win->bar.r.size);
 	win->bar.h = options->hide_bar ? 0 : barheight;
+	win->embed = options->embed;
 
 	INIT_ATOM_(WM_DELETE_WINDOW);
 	INIT_ATOM_(_NET_WM_NAME);
@@ -197,7 +198,10 @@ void win_open(win_t *win)
 		win->y = 0;
 	}
 
-	win->xwin = XCreateWindow(e->dpy, RootWindow(e->dpy, e->scr),
+	if (!(win->embed)) {
+		win->embed = RootWindow(e->dpy, e->scr);
+	}
+	win->xwin = XCreateWindow(e->dpy, win->embed,
 	                          win->x, win->y, win->w, win->h, 0,
 	                          e->depth, InputOutput, e->vis, 0, NULL);
 	if (win->xwin == None)
