@@ -133,7 +133,6 @@ void win_init(win_t *win)
 	win->bar.l.buf = emalloc(win->bar.l.size);
 	win->bar.r.buf = emalloc(win->bar.r.size);
 	win->bar.h = options->hide_bar ? 0 : barheight;
-	win->embed = options->embed;
 
 	INIT_ATOM_(WM_DELETE_WINDOW);
 	INIT_ATOM_(_NET_WM_NAME);
@@ -149,6 +148,7 @@ void win_init(win_t *win)
 void win_open(win_t *win)
 {
 	int c, i, j, n;
+	long parent;
 	win_env_t *e;
 	XClassHint classhint;
 	unsigned long *icon_data;
@@ -160,6 +160,7 @@ void win_open(win_t *win)
 	Bool fullscreen = options->fullscreen && fs_support;
 
 	e = &win->env;
+	parent = options->embed != 0 ? options->embed : RootWindow(e->dpy, e->scr);
 
 	sizehints.flags = PWinGravity;
 	sizehints.win_gravity = NorthWestGravity;
@@ -198,10 +199,7 @@ void win_open(win_t *win)
 		win->y = 0;
 	}
 
-	if (!(win->embed)) {
-		win->embed = RootWindow(e->dpy, e->scr);
-	}
-	win->xwin = XCreateWindow(e->dpy, win->embed,
+	win->xwin = XCreateWindow(e->dpy, parent,
 	                          win->x, win->y, win->w, win->h, 0,
 	                          e->depth, InputOutput, e->vis, 0, NULL);
 	if (win->xwin == None)

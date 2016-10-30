@@ -32,8 +32,8 @@ const options_t *options = (const options_t*) &_options;
 
 void print_usage(void)
 {
-	printf("usage: sxiv [-abcfhioqrtvZ] [-G GAMMA] [-g GEOMETRY] [-n NUM] "
-	       "[-N NAME] [-S DELAY] [-s MODE] [-z ZOOM] [-w WID] FILES...\n");
+	printf("usage: sxiv [-abcfhioqrtvZ] [-e WID] [-G GAMMA] [-g GEOMETRY] "
+	       "[-N NAME] [-n NUM] [-S DELAY] [-s MODE] [-z ZOOM] FILES...\n");
 }
 
 void print_version(void)
@@ -71,7 +71,7 @@ void parse_options(int argc, char **argv)
 	_options.thumb_mode = false;
 	_options.clean_cache = false;
 
-	while ((opt = getopt(argc, argv, "abcfG:g:hin:N:oqrS:s:tvw:Zz:")) != -1) {
+	while ((opt = getopt(argc, argv, "abce:fG:g:hin:N:oqrS:s:tvZz:")) != -1) {
 		switch (opt) {
 			case '?':
 				print_usage();
@@ -84,6 +84,12 @@ void parse_options(int argc, char **argv)
 				break;
 			case 'c':
 				_options.clean_cache = true;
+				break;
+			case 'e':
+				n = strtol(optarg, &end, 0);
+				if (*end != '\0')
+					error(EXIT_FAILURE, 0, "Invalid argument for option -e: %s", optarg);
+				_options.embed = n;
 				break;
 			case 'f':
 				_options.fullscreen = true;
@@ -139,12 +145,6 @@ void parse_options(int argc, char **argv)
 			case 'v':
 				print_version();
 				exit(EXIT_SUCCESS);
-			case 'w':
-				n = strtol(optarg, &end, 0);
-				if (*end != '\0')
-					error(EXIT_FAILURE, 0, "Invalid argument for option -w: %s", optarg);
-				_options.embed = n;
-				break;
 			case 'Z':
 				_options.scalemode = SCALE_ZOOM;
 				_options.zoom = 1.0;
