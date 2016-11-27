@@ -68,6 +68,7 @@ void img_init(img_t *img, win_t *win)
 	img->alpha = ALPHA_LAYER;
 	img->multi.cap = img->multi.cnt = 0;
 	img->multi.animate = options->animate;
+	img->multi.framedelay = options->framerate > 0 ? 1000 / options->framerate : 0;
 	img->multi.length = 0;
 
 	img->cmod = imlib_create_color_modifier();
@@ -263,6 +264,7 @@ bool img_load_gif(img_t *img, const fileinfo_t *file)
 				                             img->multi.cap * sizeof(img_frame_t));
 			}
 			img->multi.frames[img->multi.cnt].im = im;
+			delay = img->multi.framedelay > 0 ? img->multi.framedelay : delay;
 			img->multi.frames[img->multi.cnt].delay = delay > 0 ? delay : DEF_GIF_DELAY;
 			img->multi.length += img->multi.frames[img->multi.cnt].delay;
 			img->multi.cnt++;
