@@ -42,7 +42,7 @@
 </h2>
 
 
-<p style="margin-left:11%; margin-top: 1em">sxiv &minus;
+<p style="margin-left:11%; margin-top: 1em">sxiv -
 Simple X Image Viewer</p>
 
 <h2>SYNOPSIS
@@ -51,11 +51,12 @@ Simple X Image Viewer</p>
 
 
 <p style="margin-left:11%; margin-top: 1em"><b>sxiv</b>
-[<b>&minus;abcfhioqrtvZ</b>] [<b>&minus;e</b> <i>WID</i>]
-[<b>&minus;G</b> <i>GAMMA</i>] [<b>&minus;g</b>
-<i>GEOMETRY</i>] [<b>&minus;N</b> <i>NAME</i>]
-[<b>&minus;n</b> <i>NUM</i>] [<b>&minus;S</b> <i>DELAY</i>]
-[<b>&minus;s</b> <i>MODE</i>] [<b>&minus;z</b> <i>ZOOM</i>]
+[<b>-abcfhioqrtvZ</b>] [<b>-A</b>
+<i>FRAMERATE</i>] [<b>-e</b> <i>WID</i>]
+[<b>-G</b> <i>GAMMA</i>] [<b>-g</b>
+<i>GEOMETRY</i>] [<b>-N</b> <i>NAME</i>]
+[<b>-n</b> <i>NUM</i>] [<b>-S</b> <i>DELAY</i>]
+[<b>-s</b> <i>MODE</i>] [<b>-z</b> <i>ZOOM</i>]
 <i>FILE</i>...</p>
 
 <h2>DESCRIPTION
@@ -82,6 +83,13 @@ window manager.</p>
 </h2>
 
 
+
+<p style="margin-left:11%; margin-top: 1em"><b>-A</b>
+<i>FRAMERATE</i></p>
+
+<p style="margin-left:22%;">Play animations with a constant
+frame rate set to <i>FRAMERATE</i>.</p>
+
 <table width="100%" border="0" rules="none" frame="void"
        cellspacing="0" cellpadding="0">
 <tr valign="top" align="left">
@@ -89,19 +97,18 @@ window manager.</p>
 <td width="9%">
 
 
-<p style="margin-top: 1em"><b>&minus;a</b></p></td>
+<p><b>-a</b></p></td>
 <td width="2%"></td>
 <td width="78%">
 
 
-<p style="margin-top: 1em">Play animations of multi-frame
-images.</p> </td></tr>
+<p>Play animations of multi-frame images.</p></td></tr>
 <tr valign="top" align="left">
 <td width="11%"></td>
 <td width="9%">
 
 
-<p><b>&minus;b</b></p></td>
+<p><b>-b</b></p></td>
 <td width="2%"></td>
 <td width="78%">
 
@@ -112,7 +119,7 @@ images.</p> </td></tr>
 <td width="9%">
 
 
-<p><b>&minus;c</b></p></td>
+<p><b>-c</b></p></td>
 <td width="2%"></td>
 <td width="78%">
 
@@ -124,7 +131,7 @@ directory and exit.</p></td></tr>
 <td width="9%">
 
 
-<p><b>&minus;e</b> <i>WID</i></p></td>
+<p><b>-e</b> <i>WID</i></p></td>
 <td width="2%"></td>
 <td width="78%">
 
@@ -136,7 +143,7 @@ directory and exit.</p></td></tr>
 <td width="9%">
 
 
-<p><b>&minus;f</b></p></td>
+<p><b>-f</b></p></td>
 <td width="2%"></td>
 <td width="78%">
 
@@ -144,20 +151,20 @@ directory and exit.</p></td></tr>
 <p>Start in fullscreen mode.</p></td></tr>
 </table>
 
-<p style="margin-left:11%;"><b>&minus;G</b>
+<p style="margin-left:11%;"><b>-G</b>
 <i>GAMMA</i></p>
 
 <p style="margin-left:22%;">Set image gamma to GAMMA
 (-32..32).</p>
 
-<p style="margin-left:11%;"><b>&minus;g</b>
+<p style="margin-left:11%;"><b>-g</b>
 <i>GEOMETRY</i></p>
 
 <p style="margin-left:22%;">Set window position and size.
 See section GEOMETRY SPECIFICATIONS of X(7) for more
 information on GEOMETRY argument.</p>
 
-<p style="margin-left:11%;"><b>&minus;N</b> <i>NAME</i></p>
+<p style="margin-left:11%;"><b>-N</b> <i>NAME</i></p>
 
 <p style="margin-left:22%;">Set the resource name of
 sxiv&rsquo;s X window to NAME.</p>
@@ -169,7 +176,7 @@ sxiv&rsquo;s X window to NAME.</p>
 <td width="9%">
 
 
-<p><b>&minus;n</b> <i>NUM</i></p></td>
+<p><b>-n</b> <i>NUM</i></p></td>
 <td width="2%"></td>
 <td width="78%">
 
@@ -180,7 +187,7 @@ sxiv&rsquo;s X window to NAME.</p>
 <td width="9%">
 
 
-<p><b>&minus;h</b></p></td>
+<p><b>-h</b></p></td>
 <td width="2%"></td>
 <td width="78%">
 
@@ -192,7 +199,7 @@ exit.</p> </td></tr>
 <td width="9%">
 
 
-<p><b>&minus;i</b></p></td>
+<p><b>-i</b></p></td>
 <td width="2%"></td>
 <td width="78%">
 
@@ -203,20 +210,20 @@ exit.</p> </td></tr>
 <td width="9%">
 
 
-<p><b>&minus;o</b></p></td>
+<p><b>-o</b></p></td>
 <td width="2%"></td>
 <td width="78%">
 
 
 <p>Write list of all marked files to standard output when
-quitting. In combination with <b>&minus;i</b> sxiv can be
+quitting. In combination with <b>-i</b> sxiv can be
 used as a visual filter/pipe.</p></td></tr>
 <tr valign="top" align="left">
 <td width="11%"></td>
 <td width="9%">
 
 
-<p><b>&minus;q</b></p></td>
+<p><b>-q</b></p></td>
 <td width="2%"></td>
 <td width="78%">
 
@@ -227,7 +234,7 @@ used as a visual filter/pipe.</p></td></tr>
 <td width="9%">
 
 
-<p><b>&minus;r</b></p></td>
+<p><b>-r</b></p></td>
 <td width="2%"></td>
 <td width="78%">
 
@@ -236,13 +243,13 @@ used as a visual filter/pipe.</p></td></tr>
 view.</p> </td></tr>
 </table>
 
-<p style="margin-left:11%;"><b>&minus;S</b>
+<p style="margin-left:11%;"><b>-S</b>
 <i>DELAY</i></p>
 
 <p style="margin-left:22%;">Start in slideshow mode. Set
 the delay between images to DELAY seconds.</p>
 
-<p style="margin-left:11%;"><b>&minus;s</b> <i>MODE</i></p>
+<p style="margin-left:11%;"><b>-s</b> <i>MODE</i></p>
 
 <p style="margin-left:22%;">Set scale mode according to
 MODE character. Supported modes are: [d]own, [f]it, [w]idth,
@@ -255,7 +262,7 @@ MODE character. Supported modes are: [d]own, [f]it, [w]idth,
 <td width="3%">
 
 
-<p><b>&minus;t</b></p></td>
+<p><b>-t</b></p></td>
 <td width="8%"></td>
 <td width="78%">
 
@@ -266,7 +273,7 @@ MODE character. Supported modes are: [d]own, [f]it, [w]idth,
 <td width="3%">
 
 
-<p><b>&minus;v</b></p></td>
+<p><b>-v</b></p></td>
 <td width="8%"></td>
 <td width="78%">
 
@@ -278,15 +285,15 @@ exit.</p> </td></tr>
 <td width="3%">
 
 
-<p><b>&minus;Z</b></p></td>
+<p><b>-Z</b></p></td>
 <td width="8%"></td>
 <td width="78%">
 
 
-<p>The same as &lsquo;&minus;z 100&rsquo;.</p></td></tr>
+<p>The same as &lsquo;-z 100&rsquo;.</p></td></tr>
 </table>
 
-<p style="margin-left:11%;"><b>&minus;z</b> <i>ZOOM</i></p>
+<p style="margin-left:11%;"><b>-z</b> <i>ZOOM</i></p>
 
 <p style="margin-left:22%;">Set zoom level to ZOOM
 percent.</p>
@@ -308,7 +315,7 @@ and thumbnail mode:</p>
 <td width="9%">
 
 
-<p><b>0</b>&minus;<b>9</b></p></td>
+<p><b>0</b>-<b>9</b></p></td>
 <td width="2%"></td>
 <td width="78%">
 
@@ -463,7 +470,7 @@ width.</p>
 <td width="9%">
 
 
-<p><b>&minus;</b></p></td>
+<p><b>-</b></p></td>
 <td width="2%"></td>
 <td width="63%">
 
@@ -1083,14 +1090,14 @@ an example script installed together with sxiv as
 thumbnails under <i>$XDG_CACHE_HOME/sxiv/</i>.</p>
 
 <p style="margin-left:11%; margin-top: 1em">Use the command
-line option <i>&minus;c</i> to remove all orphaned cache
+line option <i>-c</i> to remove all orphaned cache
 files. Additionally, run the following command afterwards
 inside the cache directory to remove empty
 subdirectories:</p>
 
 <p style="margin-left:22%; margin-top: 1em">find .
-&minus;depth &minus;type d &minus;empty ! &minus;name
-&rsquo;.&rsquo; &minus;exec rmdir {} \;</p>
+-depth -type d -empty ! -name
+&rsquo;.&rsquo; -exec rmdir {} \;</p>
 
 <h2>AUTHOR
 <a name="AUTHOR"></a>
