@@ -35,6 +35,7 @@ typedef struct {
 	int cnt;
 	int sel;
 	bool animate;
+	int framedelay;
 	int length;
 } multi_img_t;
 

@@ -32,8 +32,9 @@ const options_t *options = (const options_t*) &_options;
 
 void print_usage(void)
 {
-	printf("usage: sxiv [-abcfhioqrtvZ] [-e WID] [-G GAMMA] [-g GEOMETRY] "
-	       "[-N NAME] [-n NUM] [-S DELAY] [-s MODE] [-z ZOOM] FILES...\n");
+	printf("usage: sxiv [-abcfhioqrtvZ] [-A FRAMERATE] [-e WID] [-G GAMMA] "
+	       "[-g GEOMETRY] [-N NAME] [-n NUM] [-S DELAY] [-s MODE] [-z ZOOM] "
+	       "FILES...\n");
 }
 
 void print_version(void)
@@ -60,6 +61,7 @@ void parse_options(int argc, char **argv)
 	_options.animate = false;
 	_options.gamma = 0;
 	_options.slideshow = 0;
+	_options.framerate = 0;
 
 	_options.fullscreen = false;
 	_options.embed = 0;
@@ -71,11 +73,17 @@ void parse_options(int argc, char **argv)
 	_options.thumb_mode = false;
 	_options.clean_cache = false;
 
-	while ((opt = getopt(argc, argv, "abce:fG:g:hin:N:oqrS:s:tvZz:")) != -1) {
+	while ((opt = getopt(argc, argv, "A:abce:fG:g:hin:N:oqrS:s:tvZz:")) != -1) {
 		switch (opt) {
 			case '?':
 				print_usage();
 				exit(EXIT_FAILURE);
+			case 'A':
+				n = strtol(optarg, &end, 0);
+				if (*end != '\0' || n <= 0)
+					error(EXIT_FAILURE, 0, "Invalid argument for option -A: %s", optarg);
+				_options.framerate = n;
+				/* fall through */
 			case 'a':
 				_options.animate = true;
 				break;
