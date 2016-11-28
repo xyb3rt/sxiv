@@ -81,7 +81,7 @@ Be quiet, disable warnings to standard error stream.
 Search the given directories recursively for images to view.
 .TP
 .BI "\-S " DELAY
-Start in slideshow mode. Set the delay between images to DELAY seconds.
+Start in slideshow mode. Set the delay between images to DELAY (float, e.g. 1, 3.1, 0.01) seconds.
 .TP
 .BI "\-s " MODE
 Set scale mode according to MODE character. Supported modes are: [d]own, 
@@ -330,7 +330,7 @@ Toggle visibility of alpha-channel, i.e. image transparency.
 .TP
 .B s
 Toggle slideshow mode and/or set the delay between images to
-.I count
+.I count (integer prefix only)
 seconds.
 .SH MOUSE COMMANDS
 The following mouse mappings are available in image mode:

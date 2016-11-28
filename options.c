@@ -44,6 +44,7 @@ void print_version(void)
 void parse_options(int argc, char **argv)
 {
 	int n, opt;
+	float f;
 	char *end, *s;
 	const char *scalemodes = "dfwh";
 
@@ -59,7 +60,7 @@ void parse_options(int argc, char **argv)
 	_options.zoom = 1.0;
 	_options.animate = false;
 	_options.gamma = 0;
-	_options.slideshow = 0;
+	_options.slideshow = 0.0;
 
 	_options.fullscreen = false;
 	_options.embed = 0;
@@ -128,10 +129,10 @@ void parse_options(int argc, char **argv)
 				_options.recursive = true;
 				break;
 			case 'S':
-				n = strtol(optarg, &end, 0);
-				if (*end != '\0' || n <= 0)
+				f = (float) strtof(optarg, &end);
+				if (*end != '\0' || f <= 0.0)
 					error(EXIT_FAILURE, 0, "Invalid argument for option -S: %s", optarg);
-				_options.slideshow = n;
+				_options.slideshow = (float) f;
 				break;
 			case 's':
 				s = strchr(scalemodes, optarg[0]);

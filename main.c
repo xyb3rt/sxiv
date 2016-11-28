@@ -372,7 +372,7 @@ void update_info(void)
 	} else {
 		bar_put(r, "%s", mark);
 		if (img.ss.on)
-			bar_put(r, "%ds | ", img.ss.delay);
+			bar_put(r, "%2.1fs | ", img.ss.delay);
 		if (img.gamma != 0)
 			bar_put(r, "G%+d | ", img.gamma);
 		bar_put(r, "%3d%% | ", (int) (img.zoom * 100.0));

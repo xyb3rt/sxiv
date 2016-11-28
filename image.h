@@ -60,7 +60,7 @@ typedef struct {
 
 	struct {
 		bool on;
-		int delay;
+		float delay;
 	} ss;
 
 	multi_img_t multi;
