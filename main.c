@@ -371,8 +371,12 @@ void update_info(void)
 		bar_put(r, "%s%0*d/%d", mark, fw, fileidx + 1, filecnt);
 	} else {
 		bar_put(r, "%s", mark);
-		if (img.ss.on)
-			bar_put(r, "%ds | ", img.ss.delay);
+		if (img.ss.on) {
+			if (img.ss.delay % 10 != 0)
+				bar_put(r, "%2.1fs | ", (float)img.ss.delay / 10);
+			else
+				bar_put(r, "%ds | ", img.ss.delay / 10);
+		}
 		if (img.gamma != 0)
 			bar_put(r, "G%+d | ", img.gamma);
 		bar_put(r, "%3d%% | ", (int) (img.zoom * 100.0));
@@ -403,7 +407,7 @@ void redraw(void)
 	if (mode == MODE_IMAGE) {
 		img_render(&img);
 		if (img.ss.on) {
-			t = img.ss.delay * 1000;
+			t = img.ss.delay * 100;
 			if (img.multi.cnt > 0 && img.multi.animate)
 				t = MAX(t, img.multi.length);
 			set_timeout(slideshow, t, false);

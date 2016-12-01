@@ -136,7 +136,7 @@ void parse_options(int argc, char **argv)
 				_options.recursive = true;
 				break;
 			case 'S':
-				n = strtol(optarg, &end, 0);
+				n = strtof(optarg, &end) * 10;
 				if (*end != '\0' || n <= 0)
 					error(EXIT_FAILURE, 0, "Invalid argument for option -S: %s", optarg);
 				_options.slideshow = n;

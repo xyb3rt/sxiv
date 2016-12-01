@@ -1,4 +1,4 @@
-VERSION   := git-20161129
+VERSION   := git-20161201
 
 PREFIX    := /usr/local
 MANPREFIX := $(PREFIX)/share/man
