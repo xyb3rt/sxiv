@@ -11,12 +11,15 @@ LIBS      := -lImlib2 -lX11 -lXft
 
 # optional dependencies:
 # giflib: gif animations
+ifeq ($(WITH_GIFLIB), 1)
 	CPPFLAGS += -DHAVE_GIFLIB
 	LIBS     += -lgif
+endif
 # libexif: jpeg auto-orientation, exif thumbnails
+ifeq ($(WITH_LIBEXIF), 1)
 	CPPFLAGS += -DHAVE_LIBEXIF
 	LIBS     += -lexif
-
+endif
 
 .PHONY: clean install uninstall
 
