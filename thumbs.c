@@ -232,11 +232,9 @@ Imlib_Image tns_scale_down(Imlib_Image im, int dim)
 
 bool tns_load(tns_t *tns, int n, bool force, bool cache_only)
 {
-	int w, h;
 	int maxwh = thumb_sizes[ARRLEN(thumb_sizes)-1];
 	bool cache_hit = false;
 	char *cfile;
-	float zw, zh;
 	thumb_t *t;
 	fileinfo_t *file;
 	struct stat st;
@@ -273,8 +271,9 @@ bool tns_load(tns_t *tns, int n, bool force, bool cache_only)
 			}
 #if HAVE_LIBEXIF
 		} else if (!force) {
-			int pw = 0, ph = 0, x = 0, y = 0;
+			int pw = 0, ph = 0, w, h, x = 0, y = 0;
 			bool err;
+			float zw, zh;
 			ExifData *ed;
 			ExifEntry *entry;
 			ExifContent *ifd;
