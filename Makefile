@@ -24,6 +24,13 @@ endif
 .PHONY: clean install uninstall
 
 SRC := commands.c image.c main.c options.c thumbs.c util.c window.c
+# conditionally compile in autoreload-backend; usage: `make AUTORELOAD=nop`
+ifeq ($(AUTORELOAD),nop)
+	SRC += autoreload_nop.c
+else
+	SRC += autoreload_inotify.c
+endif
+
 DEP := $(SRC:.c=.d)
 OBJ := $(SRC:.c=.o)
 
