@@ -100,7 +100,8 @@ timeout_t timeouts[] = {
 void cleanup(void)
 {
 	img_close(&img, false);
-	arl_cleanup();
+	if (! options->no_autoreload)
+		arl_cleanup();
 	tns_free(&tns);
 	win_close(&win);
 }
@@ -320,7 +321,8 @@ void load_image(int new)
 
 	info.open = false;
 	open_info();
-	arl_setup();
+	if (! options->no_autoreload)
+		arl_setup();
 
 	if (img.multi.cnt > 0 && img.multi.animate)
 		set_timeout(animate, img.multi.frames[img.multi.sel].delay, true);
@@ -719,7 +721,7 @@ void run(void)
 				select(xfd + 1, &fds, 0, 0, to_set ? &timeout : NULL);
 				if (info.fd != -1 && FD_ISSET(info.fd, &fds))
 					read_info();
-				if (autoreload.fd != -1 && FD_ISSET(autoreload.fd, &fds))
+				if (! options->no_autoreload && autoreload.fd != -1 && FD_ISSET(autoreload.fd, &fds))
 					arl_handle();
 			}
 			continue;
@@ -864,7 +866,8 @@ int main(int argc, char **argv)
 
 	win_init(&win);
 	img_init(&img, &win);
-	arl_init();
+	if (! options->no_autoreload)
+		arl_init();
 
 	if ((homedir = getenv("XDG_CONFIG_HOME")) == NULL || homedir[0] == '\0') {
 		homedir = getenv("HOME");

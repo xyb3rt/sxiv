@@ -32,7 +32,7 @@ const options_t *options = (const options_t*) &_options;
 
 void print_usage(void)
 {
-	printf("usage: sxiv [-abcfhioqrtvZ] [-A FRAMERATE] [-e WID] [-G GAMMA] "
+	printf("usage: sxiv [-abcfhioqrRtvZ] [-A FRAMERATE] [-e WID] [-G GAMMA] "
 	       "[-g GEOMETRY] [-N NAME] [-n NUM] [-S DELAY] [-s MODE] [-z ZOOM] "
 	       "FILES...\n");
 }
@@ -72,8 +72,9 @@ void parse_options(int argc, char **argv)
 	_options.quiet = false;
 	_options.thumb_mode = false;
 	_options.clean_cache = false;
+	_options.no_autoreload = false;
 
-	while ((opt = getopt(argc, argv, "A:abce:fG:g:hin:N:oqrS:s:tvZz:")) != -1) {
+	while ((opt = getopt(argc, argv, "A:abce:fG:g:hin:N:oqrRS:s:tvZz:")) != -1) {
 		switch (opt) {
 			case '?':
 				print_usage();
@@ -134,6 +135,9 @@ void parse_options(int argc, char **argv)
 				break;
 			case 'r':
 				_options.recursive = true;
+				break;
+			case 'R':
+				_options.no_autoreload = true;
 				break;
 			case 'S':
 				n = strtof(optarg, &end) * 10;
