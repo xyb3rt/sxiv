@@ -18,7 +18,7 @@ readonly TMPFILE="/tmp/sxiv.$$"
 
 rotate() {
 	degree="$1"
-	tr '\n' \0' | xargs -0 realpath | sort | uniq | while read file; do
+	tr '\n' '\0' | xargs -0 realpath | sort | uniq | while read file; do
 		case "$(file -b -i "$file")" in
 		image/jpeg*) jpegtran -rotate "$degree" -copy all -outfile "$file" "$file" ;;
 		*)           mogrify  -rotate "$degree" "$file" ;;
