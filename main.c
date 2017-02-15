@@ -548,7 +548,7 @@ void run_key_handler(const char *key, unsigned int mask)
 			f++;
 		}
 	}
-	/* drop user input events that occured while running the key handler */
+	/* drop user input events that occurred while running the key handler */
 	while (XCheckIfEvent(win.env.dpy, &dump, is_input_ev, NULL));
 
 end:
