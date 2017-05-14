@@ -1,4 +1,4 @@
-/* Copyright 2011 Bert Muennich
+/* Copyright 2017 Max Voit
  *
  * This file is part of sxiv.
  *
@@ -16,48 +16,28 @@
  * along with sxiv.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OPTIONS_H
-#define OPTIONS_H
+#ifndef AUTORELOAD_H
+#define AUTORELOAD_H
 
 #include "types.h"
-#include "image.h"
+
+void arl_cleanup(void);
+void arl_handle(void);
+void arl_init(void);
+void arl_setup(void);
+void arl_setup_dir(void);
 
 typedef struct {
-	/* file list: */
-	char **filenames;
-	bool from_stdin;
-	bool to_stdout;
-	bool recursive;
-	int filecnt;
-	int startnum;
+	int fd;
+	int wd;
+	bool watching_dir;
+} autoreload_t;
 
-	/* image: */
-	scalemode_t scalemode;
-	float zoom;
-	bool animate;
-	int gamma;
-	int slideshow;
-	int framerate;
+extern autoreload_t autoreload;
+extern int fileidx;
+extern fileinfo_t *files;
 
-	/* window: */
-	bool fullscreen;
-	bool hide_bar;
-	long embed;
-	char *geometry;
-	char *res_name;
+void load_image(int);
+void redraw(void);
 
-	/* misc flags: */
-	bool quiet;
-	bool thumb_mode;
-	bool clean_cache;
-	bool no_autoreload;
-} options_t;
-
-extern const options_t *options;
-
-void print_usage(void);
-void print_version(void);
-
-void parse_options(int, char**);
-
-#endif /* OPTIONS_H */
+#endif /* AUTORELOAD_H */
