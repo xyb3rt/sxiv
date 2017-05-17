@@ -27,8 +27,8 @@
 
 CLEANUP void arl_cleanup(arl_t *arl)
 {
-	if (arl->fd != -1 && arl->wd != -1)
-		inotify_rm_watch(arl->fd, arl->wd);
+	if (arl->fd != -1)
+		close(arl->fd);
 }
 
 static void arl_setup_dir(arl_t *arl, const char *filepath)
