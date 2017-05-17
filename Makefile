@@ -21,9 +21,13 @@ ifndef NO_LIBEXIF
 	LIBS     += -lexif
 endif
 
+# select autoreload backend
+# overwritten with `make AUTORELOAD=nop`
+AUTORELOAD := inotify
+
 .PHONY: clean install uninstall
 
-SRC := commands.c image.c main.c options.c thumbs.c util.c window.c
+SRC := autoreload_$(AUTORELOAD).c commands.c image.c main.c options.c thumbs.c util.c window.c
 DEP := $(SRC:.c=.d)
 OBJ := $(SRC:.c=.o)
 
