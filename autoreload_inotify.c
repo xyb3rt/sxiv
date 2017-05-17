@@ -21,39 +21,60 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/inotify.h>
-#include <libgen.h>
 
 #include "util.h"
 #include "autoreload.h"
+
+void arl_init(arl_t *arl)
+{
+	arl->fd = inotify_init1(IN_CLOEXEC | IN_NONBLOCK);
+	arl->wd_dir = arl->wd_file = -1;
+	if (arl->fd == -1)
+		error(0, 0, "Could not initialize inotify, no automatic image reloading");
+}
 
 CLEANUP void arl_cleanup(arl_t *arl)
 {
 	if (arl->fd != -1)
 		close(arl->fd);
+	free(arl->filename);
 }
 
-static void arl_setup_dir(arl_t *arl, const char *filepath)
+static void rm_watch(int fd, int *wd)
 {
-	char *dntmp, *dn;
+	if (*wd != -1) {
+		inotify_rm_watch(fd, *wd);
+		*wd = -1;
+	}
+}
+
+static void add_watch(int fd, int *wd, const char *path, uint32_t mask)
+{
+	*wd = inotify_add_watch(fd, path, mask);
+	if (*wd == -1)
+		error(0, errno, "inotify: %s", path);
+}
+
+void arl_setup(arl_t *arl, const char *filepath)
+{
+	char *base = strrchr(filepath, '/');
 
 	if (arl->fd == -1)
 		return;
 
-	/* get dirname */
-	dntmp = (char*) strdup(filepath);
-	dn = (char*) dirname(dntmp);
+	rm_watch(arl->fd, &arl->wd_dir);
+	rm_watch(arl->fd, &arl->wd_file);
 
-	/* this is not one-shot as other stuff may be created too
-	 * note: we won't handle deletion of the directory itself,
-	 * this is a design decision
-	 */
-	arl->wd = inotify_add_watch(arl->fd, dn, IN_CREATE);
-	if (arl->wd == -1)
-		error(0, 0, "%s: Error watching directory", dn);
-	else
-		arl->watching_dir = true;
+	add_watch(arl->fd, &arl->wd_file, filepath, IN_CLOSE_WRITE | IN_DELETE_SELF);
 
-	free(dntmp);
+	free(arl->filename);
+	arl->filename = estrdup(filepath);
+
+	if (base != NULL) {
+		arl->filename[++base - filepath] = '\0';
+		add_watch(arl->fd, &arl->wd_dir, arl->filename, IN_CREATE | IN_MOVED_TO);
+		strcpy(arl->filename, base);
+	}
 }
 
 union {
@@ -61,7 +82,7 @@ union {
 	struct inotify_event e;
 } buf;
 
-bool arl_handle(arl_t *arl, const char *filepath)
+bool arl_handle(arl_t *arl)
 {
 	bool reload = false;
 	char *ptr;
@@ -77,59 +98,16 @@ bool arl_handle(arl_t *arl, const char *filepath)
 		}
 		for (ptr = buf.d; ptr < buf.d + len; ptr += sizeof(*event) + event->len) {
 			event = (const struct inotify_event*) ptr;
-
-			/* events from watching the file itself */
 			if (event->mask & IN_CLOSE_WRITE) {
 				reload = true;
-			}
-			if (event->mask & IN_DELETE_SELF)
-				arl_setup_dir(arl, filepath);
-
-			/* events from watching the file's directory */
-			if (event->mask & IN_CREATE) {
-				char *fntmp = strdup(filepath);
-				char *fn = basename(fntmp);
-
-				if (STREQ(event->name, fn)) {
-					/* this is the file we're looking for */
-
-					/* cleanup, this has not been one-shot */
-					if (arl->watching_dir) {
-						inotify_rm_watch(arl->fd, arl->wd);
-						arl->watching_dir = false;
-					}
+			} else if (event->mask & IN_DELETE_SELF) {
+				rm_watch(arl->fd, &arl->wd_file);
+			} else if (event->mask & (IN_CREATE | IN_MOVED_TO)) {
+				if (STREQ(event->name, arl->filename))
 					reload = true;
-				}
-				free(fntmp);
 			}
 		}
 	}
 	return reload;
-}
-
-void arl_init(arl_t *arl)
-{
-	/* this needs to be done only once */
-	arl->fd = inotify_init1(IN_CLOEXEC | IN_NONBLOCK);
-	arl->watching_dir = false;
-	if (arl->fd == -1)
-		error(0, 0, "Could not initialize inotify, no automatic image reloading");
-}
-
-void arl_setup(arl_t *arl, const char *filepath)
-{
-	if (arl->fd == -1)
-		return;
-
-	/* may have switched from a deleted to another image */
-	if (arl->watching_dir) {
-		inotify_rm_watch(arl->fd, arl->wd);
-		arl->watching_dir = false;
-	}
-
-	arl->wd = inotify_add_watch(arl->fd, filepath,
-		                          IN_ONESHOT | IN_CLOSE_WRITE | IN_DELETE_SELF);
-	if (arl->wd == -1)
-		error(0, 0, "%s: Error watching file", filepath);
 }
 

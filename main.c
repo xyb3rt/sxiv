@@ -723,7 +723,7 @@ void run(void)
 				if (info.fd != -1 && FD_ISSET(info.fd, &fds))
 					read_info();
 				if (arl.fd != -1 && FD_ISSET(arl.fd, &fds)) {
-					if (arl_handle(&arl, files[fileidx].path)) {
+					if (arl_handle(&arl)) {
 						/* when too fast, imlib2 can't load the image */
 						nanosleep(&ten_ms, NULL);
 						load_image(fileidx);

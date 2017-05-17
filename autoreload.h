@@ -23,13 +23,14 @@
 
 typedef struct {
 	int fd;
-	int wd;
-	bool watching_dir;
+	int wd_dir;
+	int wd_file;
+	char *filename;
 } arl_t;
 
-void arl_cleanup(arl_t*);
-bool arl_handle(arl_t*, const char*);
 void arl_init(arl_t*);
-void arl_setup(arl_t*, const char*);
+void arl_cleanup(arl_t*);
+void arl_setup(arl_t*, const char* /* result of realpath(3) */);
+bool arl_handle(arl_t*);
 
 #endif /* AUTORELOAD_H */
