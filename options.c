@@ -51,10 +51,11 @@ void parse_options(int argc, char **argv)
 	progname = strrchr(argv[0], '/');
 	progname = progname ? progname + 1 : argv[0];
 
-	_options.from_stdin = false;
+	_options.names_from_stdin = false;
 	_options.to_stdout = false;
 	_options.recursive = false;
 	_options.startnum = 0;
+	strcpy(_options.tmpfile, tmpfile_template);
 
 	_options.scalemode = SCALE_DOWN;
 	_options.zoom = 1.0;
@@ -115,7 +116,7 @@ void parse_options(int argc, char **argv)
 				print_usage();
 				exit(EXIT_SUCCESS);
 			case 'i':
-				_options.from_stdin = true;
+				_options.names_from_stdin = true;
 				break;
 			case 'n':
 				n = strtol(optarg, &end, 0);
@@ -170,9 +171,20 @@ void parse_options(int argc, char **argv)
 	_options.filenames = argv + optind;
 	_options.filecnt = argc - optind;
 
-	if (_options.filecnt == 1 && STREQ(_options.filenames[0], "-")) {
-		_options.filenames++;
-		_options.filecnt--;
-		_options.from_stdin = true;
+	if (_options.filecnt == 0) {
+		if (stdin2tmp(_options.tmpfile) != -1) {
+			_options.filenames[0] = _options.tmpfile;
+			_options.filecnt++;
+		}
+	} else {
+		for (int i = _options.filecnt - 1; i >= 0; i--) {
+			if (STREQ(_options.filenames[i], "-")) {
+				if (stdin2tmp(_options.tmpfile) != -1) {
+					_options.filenames[i] = _options.tmpfile;
+				}
+				break;
+
+			}
+		}
 	}
 }

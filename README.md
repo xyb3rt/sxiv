@@ -19,6 +19,7 @@ Features
 * Basic support for multi-frame images
 * Load all frames from GIF files and play GIF animations
 * Display image information in status bar
+* Load images directly from stdin
 
 
 Screenshots

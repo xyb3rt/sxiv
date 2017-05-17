@@ -22,14 +22,18 @@
 #include "types.h"
 #include "image.h"
 
+#define tmpfile_template "/tmp/sxiv_stdinXXXXXX"
+#define tmpfile_len 21
+
 typedef struct {
 	/* file list: */
 	char **filenames;
-	bool from_stdin;
+	bool names_from_stdin;
 	bool to_stdout;
 	bool recursive;
 	int filecnt;
 	int startnum;
+	char tmpfile[tmpfile_len];
 
 	/* image: */
 	scalemode_t scalemode;

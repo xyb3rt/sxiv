@@ -103,6 +103,11 @@ void cleanup(void)
 	img_close(&img, false);
 	arl_cleanup(&arl);
 	tns_free(&tns);
+
+	if (!STREQ(options->tmpfile, tmpfile_template)) {
+		unlink(options->tmpfile);
+	}
+
 	win_close(&win);
 }
 
@@ -815,12 +820,12 @@ int main(int argc, char **argv)
 		exit(EXIT_SUCCESS);
 	}
 
-	if (options->filecnt == 0 && !options->from_stdin) {
+	if (options->filecnt == 0 && !options->names_from_stdin) {
 		print_usage();
 		exit(EXIT_FAILURE);
 	}
 
-	if (options->recursive || options->from_stdin)
+	if (options->recursive || options->names_from_stdin)
 		filecnt = 1024;
 	else
 		filecnt = options->filecnt;
@@ -829,7 +834,7 @@ int main(int argc, char **argv)
 	memset(files, 0, filecnt * sizeof(*files));
 	fileidx = 0;
 
-	if (options->from_stdin) {
+	if (options->names_from_stdin) {
 		n = 0;
 		filename = NULL;
 		while ((len = getline(&filename, &n, stdin)) > 0) {
@@ -842,6 +847,10 @@ int main(int argc, char **argv)
 
 	for (i = 0; i < options->filecnt; i++) {
 		filename = options->filenames[i];
+
+		if (STREQ(filename, "-")) {
+			continue;
+		}
 
 		if (stat(filename, &fstats) < 0) {
 			error(0, errno, "%s", filename);
