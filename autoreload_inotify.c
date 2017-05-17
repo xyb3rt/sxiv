@@ -27,9 +27,8 @@
 
 CLEANUP void arl_cleanup(arl_t *arl)
 {
-	if (arl->fd != -1 && arl->wd != -1)
-	{
-		if(inotify_rm_watch(arl->fd, arl->wd))
+	if (arl->fd != -1 && arl->wd != -1) {
+		if (inotify_rm_watch(arl->fd, arl->wd))
 			error(0, 0, "Failed to remove inotify watch.");
 	}
 }
@@ -38,8 +37,7 @@ static void arl_setup_dir(arl_t *arl, const char *filepath)
 {
 	char *dntmp, *dn;
 
-	if (arl->fd == -1)
-	{
+	if (arl->fd == -1) {
 		error(0, 0, "Uninitialized, could not add inotify watch on directory.");
 		return;
 	}
@@ -49,9 +47,10 @@ static void arl_setup_dir(arl_t *arl, const char *filepath)
 	dn = (char*) dirname(dntmp);
 
 	/* this is not one-shot as other stuff may be created too
-	   note: we won't handle deletion of the directory itself,
-	     this is a design decision								*/
-	arl->wd = inotify_add_watch(arl->fd, dn,IN_CREATE);
+	 * note: we won't handle deletion of the directory itself,
+	 * this is a design decision
+	 */
+	arl->wd = inotify_add_watch(arl->fd, dn, IN_CREATE);
 	if (arl->wd == -1)
 		error(0, 0, "Failed to add inotify watch on directory '%s'.", dn);
 	else
@@ -63,52 +62,40 @@ static void arl_setup_dir(arl_t *arl, const char *filepath)
 bool arl_handle(arl_t *arl, const char *filepath)
 {
 	bool reload = false;
-	ssize_t len;
 	char buf[4096] __attribute__ ((aligned(__alignof__(struct inotify_event))));
-	const struct inotify_event *event;
 	char *ptr;
-	char *fntmp, *fn;
+	const struct inotify_event *event;
 
-	len = read(arl->fd, buf, sizeof buf);
-	if (len == -1)
-	{
+	ssize_t len = read(arl->fd, buf, sizeof(buf));
+
+	if (len == -1) {
 		error(0, 0, "Failed to read inotify events.");
 		return false;
 	}
-
-	for (ptr = buf; ptr < buf + len;
-			ptr += sizeof(struct inotify_event) + event->len)
-	{
-
-		event = (const struct inotify_event *) ptr;
+	for (ptr = buf; ptr < buf + len; ptr += sizeof(*event) + event->len) {
+		event = (const struct inotify_event*) ptr;
 
 		/* events from watching the file itself */
-		if (event->mask & IN_CLOSE_WRITE)
-		{
+		if (event->mask & IN_CLOSE_WRITE) {
 			reload = true;
 		}
-
 		if (event->mask & IN_DELETE_SELF)
 			arl_setup_dir(arl, filepath);
 
 		/* events from watching the file's directory */
-		if (event->mask & IN_CREATE)
-		{
-			fntmp = strdup(filepath);
-			fn = basename(fntmp);
+		if (event->mask & IN_CREATE) {
+			char *fntmp = strdup(filepath);
+			char *fn = basename(fntmp);
 
-			if (0 == strcmp(event->name, fn))
-			{
+			if (STREQ(event->name, fn)) {
 				/* this is the file we're looking for */
 
 				/* cleanup, this has not been one-shot */
-				if (arl->watching_dir)
-				{
-					if(inotify_rm_watch(arl->fd, arl->wd))
+				if (arl->watching_dir) {
+					if (inotify_rm_watch(arl->fd, arl->wd))
 						error(0, 0, "Failed to remove inotify watch.");
 					arl->watching_dir = false;
 				}
-
 				reload = true;
 			}
 			free(fntmp);
@@ -128,22 +115,20 @@ void arl_init(arl_t *arl)
 
 void arl_setup(arl_t *arl, const char *filepath)
 {
-	if (arl->fd == -1)
-	{
+	if (arl->fd == -1) {
 		error(0, 0, "Uninitialized, could not add inotify watch.");
 		return;
 	}
 
 	/* may have switched from a deleted to another image */
-	if (arl->watching_dir)
-	{
+	if (arl->watching_dir) {
 		if (inotify_rm_watch(arl->fd, arl->wd))
 			error(0, 0, "Failed to remove inotify watch.");
 		arl->watching_dir = false;
 	}
 
 	arl->wd = inotify_add_watch(arl->fd, filepath,
-		IN_ONESHOT | IN_CLOSE_WRITE | IN_DELETE_SELF);
+		                          IN_ONESHOT | IN_CLOSE_WRITE | IN_DELETE_SELF);
 	if (arl->wd == -1)
 		error(0, 0, "Failed to add inotify watch on file '%s'.", filepath);
 }
