@@ -21,6 +21,10 @@
 
 #include <stdbool.h>
 
+/*
+ * Annotation for functions called in cleanup().
+ * These functions are not allowed to call error(!0, ...) or exit().
+ */
 #define CLEANUP
 
 typedef enum {
