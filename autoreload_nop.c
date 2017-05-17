@@ -18,14 +18,26 @@
 
 #include "autoreload.h"
 
-void arl_cleanup(void) { }
+void arl_cleanup(arl_t *arl)
+{
+	(void) arl;
+}
 
-void arl_handle(void) { }
+bool arl_handle(arl_t *arl, const char *filepath)
+{ 
+	(void) arl;
+	(void) filepath;
+	return false;
+}
 
-void arl_init(void) { }
+void arl_init(arl_t *arl)
+{
+	(void) arl;
+}
 
-void arl_setup(void) { }
-
-void arl_setup_dir(void) { }
-
+void arl_setup(arl_t *arl, const char *filepath)
+{
+	(void) arl;
+	(void) filepath;
+}
 

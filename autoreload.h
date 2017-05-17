@@ -21,23 +21,15 @@
 
 #include "types.h"
 
-void arl_cleanup(void);
-void arl_handle(void);
-void arl_init(void);
-void arl_setup(void);
-void arl_setup_dir(void);
-
 typedef struct {
 	int fd;
 	int wd;
 	bool watching_dir;
-} autoreload_t;
+} arl_t;
 
-extern autoreload_t autoreload;
-extern int fileidx;
-extern fileinfo_t *files;
-
-void load_image(int);
-void redraw(void);
+void arl_cleanup(arl_t*);
+bool arl_handle(arl_t*, const char*);
+void arl_init(arl_t*);
+void arl_setup(arl_t*, const char*);
 
 #endif /* AUTORELOAD_H */
