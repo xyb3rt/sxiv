@@ -56,22 +56,26 @@ static void arl_setup_dir(arl_t *arl, const char *filepath)
 	free(dntmp);
 }
 
+union {
+	char d[4096]; /* aligned buffer */
+	struct inotify_event e;
+} buf;
+
 bool arl_handle(arl_t *arl, const char *filepath)
 {
 	bool reload = false;
-	char buf[4096] __attribute__ ((aligned(__alignof__(struct inotify_event))));
 	char *ptr;
 	const struct inotify_event *event;
 
 	for (;;) {
-		ssize_t len = read(arl->fd, buf, sizeof(buf));
+		ssize_t len = read(arl->fd, buf.d, sizeof(buf.d));
 
 		if (len == -1) {
 			if (errno == EINTR)
 				continue;
 			break;
 		}
-		for (ptr = buf; ptr < buf + len; ptr += sizeof(*event) + event->len) {
+		for (ptr = buf.d; ptr < buf.d + len; ptr += sizeof(*event) + event->len) {
 			event = (const struct inotify_event*) ptr;
 
 			/* events from watching the file itself */
