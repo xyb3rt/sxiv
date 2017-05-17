@@ -16,6 +16,7 @@
  * along with sxiv.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <errno.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -62,37 +63,41 @@ bool arl_handle(arl_t *arl, const char *filepath)
 	char *ptr;
 	const struct inotify_event *event;
 
-	ssize_t len = read(arl->fd, buf, sizeof(buf));
+	for (;;) {
+		ssize_t len = read(arl->fd, buf, sizeof(buf));
 
-	if (len == -1)
-		return false;
-
-	for (ptr = buf; ptr < buf + len; ptr += sizeof(*event) + event->len) {
-		event = (const struct inotify_event*) ptr;
-
-		/* events from watching the file itself */
-		if (event->mask & IN_CLOSE_WRITE) {
-			reload = true;
+		if (len == -1) {
+			if (errno == EINTR)
+				continue;
+			break;
 		}
-		if (event->mask & IN_DELETE_SELF)
-			arl_setup_dir(arl, filepath);
+		for (ptr = buf; ptr < buf + len; ptr += sizeof(*event) + event->len) {
+			event = (const struct inotify_event*) ptr;
 
-		/* events from watching the file's directory */
-		if (event->mask & IN_CREATE) {
-			char *fntmp = strdup(filepath);
-			char *fn = basename(fntmp);
-
-			if (STREQ(event->name, fn)) {
-				/* this is the file we're looking for */
-
-				/* cleanup, this has not been one-shot */
-				if (arl->watching_dir) {
-					inotify_rm_watch(arl->fd, arl->wd);
-					arl->watching_dir = false;
-				}
+			/* events from watching the file itself */
+			if (event->mask & IN_CLOSE_WRITE) {
 				reload = true;
 			}
-			free(fntmp);
+			if (event->mask & IN_DELETE_SELF)
+				arl_setup_dir(arl, filepath);
+
+			/* events from watching the file's directory */
+			if (event->mask & IN_CREATE) {
+				char *fntmp = strdup(filepath);
+				char *fn = basename(fntmp);
+
+				if (STREQ(event->name, fn)) {
+					/* this is the file we're looking for */
+
+					/* cleanup, this has not been one-shot */
+					if (arl->watching_dir) {
+						inotify_rm_watch(arl->fd, arl->wd);
+						arl->watching_dir = false;
+					}
+					reload = true;
+				}
+				free(fntmp);
+			}
 		}
 	}
 	return reload;
@@ -101,7 +106,7 @@ bool arl_handle(arl_t *arl, const char *filepath)
 void arl_init(arl_t *arl)
 {
 	/* this needs to be done only once */
-	arl->fd = inotify_init();
+	arl->fd = inotify_init1(IN_CLOEXEC | IN_NONBLOCK);
 	arl->watching_dir = false;
 	if (arl->fd == -1)
 		error(0, 0, "Could not initialize inotify, no automatic image reloading");
