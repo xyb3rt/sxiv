@@ -27,20 +27,16 @@
 
 CLEANUP void arl_cleanup(arl_t *arl)
 {
-	if (arl->fd != -1 && arl->wd != -1) {
-		if (inotify_rm_watch(arl->fd, arl->wd))
-			error(0, 0, "Failed to remove inotify watch.");
-	}
+	if (arl->fd != -1 && arl->wd != -1)
+		inotify_rm_watch(arl->fd, arl->wd);
 }
 
 static void arl_setup_dir(arl_t *arl, const char *filepath)
 {
 	char *dntmp, *dn;
 
-	if (arl->fd == -1) {
-		error(0, 0, "Uninitialized, could not add inotify watch on directory.");
+	if (arl->fd == -1)
 		return;
-	}
 
 	/* get dirname */
 	dntmp = (char*) strdup(filepath);
@@ -52,7 +48,7 @@ static void arl_setup_dir(arl_t *arl, const char *filepath)
 	 */
 	arl->wd = inotify_add_watch(arl->fd, dn, IN_CREATE);
 	if (arl->wd == -1)
-		error(0, 0, "Failed to add inotify watch on directory '%s'.", dn);
+		error(0, 0, "%s: Error watching directory", dn);
 	else
 		arl->watching_dir = true;
 
@@ -68,10 +64,9 @@ bool arl_handle(arl_t *arl, const char *filepath)
 
 	ssize_t len = read(arl->fd, buf, sizeof(buf));
 
-	if (len == -1) {
-		error(0, 0, "Failed to read inotify events.");
+	if (len == -1)
 		return false;
-	}
+
 	for (ptr = buf; ptr < buf + len; ptr += sizeof(*event) + event->len) {
 		event = (const struct inotify_event*) ptr;
 
@@ -92,8 +87,7 @@ bool arl_handle(arl_t *arl, const char *filepath)
 
 				/* cleanup, this has not been one-shot */
 				if (arl->watching_dir) {
-					if (inotify_rm_watch(arl->fd, arl->wd))
-						error(0, 0, "Failed to remove inotify watch.");
+					inotify_rm_watch(arl->fd, arl->wd);
 					arl->watching_dir = false;
 				}
 				reload = true;
@@ -110,26 +104,23 @@ void arl_init(arl_t *arl)
 	arl->fd = inotify_init();
 	arl->watching_dir = false;
 	if (arl->fd == -1)
-		error(0, 0, "Could not initialize inotify.");
+		error(0, 0, "Could not initialize inotify, no automatic image reloading");
 }
 
 void arl_setup(arl_t *arl, const char *filepath)
 {
-	if (arl->fd == -1) {
-		error(0, 0, "Uninitialized, could not add inotify watch.");
+	if (arl->fd == -1)
 		return;
-	}
 
 	/* may have switched from a deleted to another image */
 	if (arl->watching_dir) {
-		if (inotify_rm_watch(arl->fd, arl->wd))
-			error(0, 0, "Failed to remove inotify watch.");
+		inotify_rm_watch(arl->fd, arl->wd);
 		arl->watching_dir = false;
 	}
 
 	arl->wd = inotify_add_watch(arl->fd, filepath,
 		                          IN_ONESHOT | IN_CLOSE_WRITE | IN_DELETE_SELF);
 	if (arl->wd == -1)
-		error(0, 0, "Failed to add inotify watch on file '%s'.", filepath);
+		error(0, 0, "%s: Error watching file", filepath);
 }
 
