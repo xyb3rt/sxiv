@@ -30,7 +30,7 @@
 #define _IMAGE_CONFIG
 #include "config.h"
 
-void remove_file(int, bool);
+void remove_file(int, bool, bool);
 void load_image(int);
 void open_info(void);
 void redraw(void);
@@ -124,16 +124,16 @@ bool cg_reload_image(arg_t _)
 	} else {
 		win_set_cursor(&win, CURSOR_WATCH);
 		if (!tns_load(&tns, fileidx, true, false)) {
-			remove_file(fileidx, false);
+			remove_file(fileidx, false, false);
 			tns.dirty = true;
 		}
 	}
 	return true;
 }
 
-bool cg_remove_image(arg_t _)
+bool cg_remove_image(arg_t del)
 {
-	remove_file(fileidx, true);
+	remove_file(fileidx, true, del);
 	if (mode == MODE_IMAGE)
 		load_image(fileidx);
 	else

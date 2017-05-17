@@ -139,10 +139,14 @@ void check_add_file(char *filename, bool given)
 	fileidx++;
 }
 
-void remove_file(int n, bool manual)
+void remove_file(int n, bool manual, bool delete)
 {
 	if (n < 0 || n >= filecnt)
 		return;
+
+        if (delete) {
+            unlink(files[n].path);
+        }
 
 	if (filecnt == 1) {
 		if (!manual)
@@ -310,7 +314,7 @@ void load_image(int new)
 
 	img_close(&img, false);
 	while (!img_load(&img, &files[new])) {
-		remove_file(new, false);
+		remove_file(new, false, false);
 		if (new >= filecnt)
 			new = filecnt - 1;
 		else if (new > 0 && new < fileidx)
@@ -698,7 +702,7 @@ void run(void)
 			if (load_thumb) {
 				set_timeout(redraw, TO_REDRAW_THUMBS, false);
 				if (!tns_load(&tns, tns.loadnext, false, false)) {
-					remove_file(tns.loadnext, false);
+					remove_file(tns.loadnext, false, false);
 					tns.dirty = true;
 				}
 				if (tns.loadnext >= tns.end)
@@ -706,7 +710,7 @@ void run(void)
 			} else if (init_thumb) {
 				set_timeout(redraw, TO_REDRAW_THUMBS, false);
 				if (!tns_load(&tns, tns.initnext, false, true))
-					remove_file(tns.initnext, false);
+					remove_file(tns.initnext, false, false);
 			} else {
 				xfd = ConnectionNumber(win.env.dpy);
 				FD_ZERO(&fds);
@@ -899,7 +903,7 @@ int main(int argc, char **argv)
 		mode = MODE_THUMB;
 		tns_init(&tns, files, &filecnt, &fileidx, &win);
 		while (!tns_load(&tns, fileidx, false, false))
-			remove_file(fileidx, false);
+			remove_file(fileidx, false, false);
 	} else {
 		mode = MODE_IMAGE;
 		tns.thumbs = NULL;
