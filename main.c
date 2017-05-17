@@ -476,10 +476,8 @@ void run_key_handler(const char *key, unsigned int mask)
 {
 	pid_t pid;
 	FILE *pfs;
-	bool marked = mode == MODE_THUMB && markcnt > 0;
 	bool changed = false;
 	int f, i, pfd[2], status;
-	int fcnt = marked ? markcnt : 1;
 	char kstr[32];
 	struct stat *oldst, st;
 	XEvent dump;
@@ -503,7 +501,7 @@ void run_key_handler(const char *key, unsigned int mask)
 		close(pfd[0]), close(pfd[1]);
 		return;
 	}
-	oldst = emalloc(fcnt * sizeof(*oldst));
+	oldst = emalloc(markcnt * sizeof(*oldst));
 
 	strncpy(win.bar.l.buf, "Running key handler...", win.bar.l.size);
 	win_draw(&win);
@@ -517,7 +515,7 @@ void run_key_handler(const char *key, unsigned int mask)
 	if ((pid = fork()) == 0) {
 		close(pfd[1]);
 		dup2(pfd[0], 0);
-		execl(keyhandler.f.cmd, keyhandler.f.cmd, kstr, NULL);
+		execl(keyhandler.f.cmd, keyhandler.f.cmd, kstr, files[fileidx].path, NULL);
 		error(EXIT_FAILURE, errno, "exec: %s", keyhandler.f.cmd);
 	}
 	close(pfd[0]);
@@ -527,8 +525,8 @@ void run_key_handler(const char *key, unsigned int mask)
 		goto end;
 	}
 
-	for (f = i = 0; f < fcnt; i++) {
-		if ((marked && (files[i].flags & FF_MARK)) || (!marked && i == fileidx)) {
+	for (f = i = 0; f < markcnt; i++) {
+		if (files[i].flags & FF_MARK) {
 			stat(files[i].path, &oldst[f]);
 			fprintf(pfs, "%s\n", files[i].name);
 			f++;
@@ -539,8 +537,8 @@ void run_key_handler(const char *key, unsigned int mask)
 	if (!WIFEXITED(status) || WEXITSTATUS(status) != 0)
 		error(0, 0, "%s: Exited abnormally", keyhandler.f.cmd);
 
-	for (f = i = 0; f < fcnt; i++) {
-		if ((marked && (files[i].flags & FF_MARK)) || (!marked && i == fileidx)) {
+	for (f = i = 0; f < markcnt; i++) {
+		if (files[i].flags & FF_MARK || i == fileidx) {
 			if (stat(files[i].path, &st) != 0 ||
 				  memcmp(&oldst[f].st_mtime, &st.st_mtime, sizeof(st.st_mtime)) != 0)
 			{
@@ -550,7 +548,9 @@ void run_key_handler(const char *key, unsigned int mask)
 				}
 				changed = true;
 			}
-			f++;
+			if (files[i].flags & FF_MARK) {
+				f++;
+			}
 		}
 	}
 	/* drop user input events that occurred while running the key handler */
