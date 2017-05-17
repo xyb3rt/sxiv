@@ -739,7 +739,7 @@ void run(void)
 				break;
 			case ClientMessage:
 				if ((Atom) ev.xclient.data.l[0] == atoms[ATOM_WM_DELETE_WINDOW])
-					return;
+					cmds[g_quit].func(0);
 				break;
 			case ConfigureNotify:
 				if (win_configure(&win, &ev.xconfigure)) {
