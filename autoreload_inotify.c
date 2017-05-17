@@ -1,4 +1,4 @@
-/* Copyright 2017 Max Voit
+/* Copyright 2017 Max Voit, Bert Muennich
  *
  * This file is part of sxiv.
  *
