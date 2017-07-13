@@ -3,7 +3,7 @@
 sxiv \- Simple X Image Viewer
 .SH SYNOPSIS
 .B sxiv
-.RB [ \-abcfhioqrtvZ ]
+.RB [ \-abcfhiopqrtvZ ]
 .RB [ \-A
 .IR FRAMERATE ]
 .RB [ \-e
@@ -79,6 +79,9 @@ Write list of all marked files to standard output when quitting. In combination
 with
 .B \-i
 sxiv can be used as a visual filter/pipe.
+.TP
+.B \-p
+Enable private mode, in which sxiv does not write any cache or temporary files.
 .TP
 .B \-q
 Be quiet, disable warnings to standard error stream.

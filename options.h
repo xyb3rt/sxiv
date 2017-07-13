@@ -50,6 +50,7 @@ typedef struct {
 	bool quiet;
 	bool thumb_mode;
 	bool clean_cache;
+	bool private_mode;
 } options_t;
 
 extern const options_t *options;
