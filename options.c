@@ -32,7 +32,7 @@ const options_t *options = (const options_t*) &_options;
 
 void print_usage(void)
 {
-	printf("usage: sxiv [-abcfhioqrtvUZ] [-A FRAMERATE] [-e WID] [-G GAMMA] "
+	printf("usage: sxiv [-abcfhiopqrtvZ] [-A FRAMERATE] [-e WID] [-G GAMMA] "
 	       "[-g GEOMETRY] [-N NAME] [-n NUM] [-S DELAY] [-s MODE] [-z ZOOM] "
 	       "FILES...\n");
 }
@@ -74,7 +74,7 @@ void parse_options(int argc, char **argv)
 	_options.clean_cache = false;
 	_options.allow_cache_write = true;
 
-	while ((opt = getopt(argc, argv, "A:abce:fG:g:hin:N:oqrS:s:tvUZz:")) != -1) {
+	while ((opt = getopt(argc, argv, "A:abce:fG:g:hin:N:opqrS:s:tvZz:")) != -1) {
 		switch (opt) {
 			case '?':
 				print_usage();
@@ -130,6 +130,9 @@ void parse_options(int argc, char **argv)
 			case 'o':
 				_options.to_stdout = true;
 				break;
+			case 'p':
+				_options.allow_cache_write = false;
+				break;
 			case 'q':
 				_options.quiet = true;
 				break;
@@ -154,9 +157,6 @@ void parse_options(int argc, char **argv)
 			case 'v':
 				print_version();
 				exit(EXIT_SUCCESS);
-			case 'U':
-				_options.allow_cache_write = false;
-				break;
 			case 'Z':
 				_options.scalemode = SCALE_ZOOM;
 				_options.zoom = 1.0;
