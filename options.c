@@ -33,8 +33,8 @@ const options_t *options = (const options_t*) &_options;
 void print_usage(void)
 {
 	printf("usage: sxiv [-abcfhioqrtvZ] [-A FRAMERATE] [-e WID] [-G GAMMA] "
-	       "[-g GEOMETRY] [-N NAME] [-n NUM] [-S DELAY] [-s MODE] [-z ZOOM] "
-	       "[-p NUM] FILES...\n");
+	       "[-g GEOMETRY] [-N NAME] [-n NUM] [-p NUM] [-S DELAY] [-s MODE] "
+	       "[-z ZOOM] FILES...\n");
 }
 
 void print_version(void)
