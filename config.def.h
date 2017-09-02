@@ -40,6 +40,9 @@ enum { SLIDESHOW_DELAY = 5 };
 static const double GAMMA_MAX   = 10.0;
 static const int    GAMMA_RANGE = 32;
 
+/* default pan fraction value, scroll the image by 1/PAN_FRACTION */
+static const int PAN_FRACTION = 5;
+
 /* if false, pixelate images at zoom level != 100%,
  * toggled with 'a' key binding
  */

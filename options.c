@@ -33,8 +33,8 @@ const options_t *options = (const options_t*) &_options;
 void print_usage(void)
 {
 	printf("usage: sxiv [-abcfhioqrtvZ] [-A FRAMERATE] [-e WID] [-G GAMMA] "
-	       "[-g GEOMETRY] [-N NAME] [-n NUM] [-S DELAY] [-s MODE] [-z ZOOM] "
-	       "FILES...\n");
+	       "[-g GEOMETRY] [-N NAME] [-n NUM] [-p NUM] [-S DELAY] [-s MODE] "
+	       "[-z ZOOM] FILES...\n");
 }
 
 void print_version(void)
@@ -73,7 +73,7 @@ void parse_options(int argc, char **argv)
 	_options.thumb_mode = false;
 	_options.clean_cache = false;
 
-	while ((opt = getopt(argc, argv, "A:abce:fG:g:hin:N:oqrS:s:tvZz:")) != -1) {
+	while ((opt = getopt(argc, argv, "A:abce:fG:g:hin:N:op:qrS:s:tvZz:")) != -1) {
 		switch (opt) {
 			case '?':
 				print_usage();
@@ -128,6 +128,12 @@ void parse_options(int argc, char **argv)
 				break;
 			case 'o':
 				_options.to_stdout = true;
+				break;
+			case 'p':
+				n = strtol(optarg, &end, 0);
+				if (*end != '\0' || n <= 0)
+					error(EXIT_FAILURE, 0, "Invalid argument for option -p: %s", optarg);
+				_options.pan_fraction = n;
 				break;
 			case 'q':
 				_options.quiet = true;
