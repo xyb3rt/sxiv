@@ -44,7 +44,8 @@ tag_del() {
 }
 
 case "$KEY" in
-"C-c")      tr '\n' ' ' | xsel -i ;;
+"y")        tr '\n' ' ' | xclip -i ;;
+"C-c")      while read file; do xclip -selection clipboard -target image/png "$file"; done ;;
 "C-e")      while read file; do urxvt -bg "#444" -fg "#eee" -sl 0 -title "$file" -e sh -c "exiv2 pr -q -pa '$file' | less" & done ;;
 "C-g")      tr '\n' '\0' | xargs -0 gimp & ;;
 "C-comma")  rotate 270 ;;
