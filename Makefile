@@ -1,31 +1,9 @@
-VERSION   := git-20170517
-
-PREFIX    := /usr/local
-MANPREFIX := $(PREFIX)/share/man
-
-CC        ?= gcc
-CFLAGS    += -std=c99 -Wall -pedantic
-CPPFLAGS  += -I/usr/include/freetype2 -D_XOPEN_SOURCE=700
-LDFLAGS   += 
-LIBS      := -lImlib2 -lX11 -lXft
-
-# optional dependencies:
-# giflib: gif animations
-ifndef NO_GIFLIB
-	CPPFLAGS += -DHAVE_GIFLIB
-	LIBS     += -lgif
-endif
-# libexif: jpeg auto-orientation, exif thumbnails
-ifndef NO_LIBEXIF
-	CPPFLAGS += -DHAVE_LIBEXIF
-	LIBS     += -lexif
-endif
-
-# select autoreload backend
-# overwritten with `make AUTORELOAD=nop`
-AUTORELOAD := inotify
+VERSION := git-20170906
 
 .PHONY: clean install uninstall
+.SUFFIXES:
+
+include config.mk
 
 SRC := autoreload_$(AUTORELOAD).c commands.c image.c main.c options.c thumbs.c util.c window.c
 DEP := $(SRC:.c=.d)
