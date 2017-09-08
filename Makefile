@@ -1,9 +1,21 @@
-VERSION := git-20170906
+VERSION := git-20170908
 
-.PHONY: clean install uninstall
+.PHONY: all clean install uninstall
 .SUFFIXES:
 
 include config.mk
+
+CPPFLAGS += -DVERSION=\"$(VERSION)\" -DHAVE_GIFLIB=$(HAVE_GIFLIB) -DHAVE_LIBEXIF=$(HAVE_LIBEXIF)
+DEPFLAGS := -MMD -MP
+
+LDLIBS := -lImlib2 -lX11 -lXft
+
+ifneq ($(HAVE_GIFLIB),0)
+	LDLIBS += -lgif
+endif
+ifneq ($(HAVE_LIBEXIF),0)
+	LDLIBS += -lexif
+endif
 
 SRC := autoreload_$(AUTORELOAD).c commands.c image.c main.c options.c thumbs.c util.c window.c
 DEP := $(SRC:.c=.d)
@@ -16,13 +28,13 @@ $(OBJ): Makefile
 -include $(DEP)
 
 %.o: %.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) -DVERSION=\"$(VERSION)\" -MMD -MP -c -o $@ $<
+	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEPFLAGS) -c -o $@ $<
 
 config.h:
 	cp config.def.h $@
 
 sxiv:	$(OBJ)
-	$(CC) $(LDFLAGS) -o $@ $(OBJ) $(LIBS)
+	$(CC) $(LDFLAGS) -o $@ $(OBJ) $(LDLIBS)
 
 clean:
 	rm -f $(OBJ) $(DEP) sxiv
