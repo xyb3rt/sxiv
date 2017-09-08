@@ -21,6 +21,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <fcntl.h>
+#include <limits.h>
 #include <unistd.h>
 #include <errno.h>
 #include <signal.h>
@@ -804,6 +805,8 @@ int main(int argc, char **argv)
 	const char *homedir, *dsuffix = "";
 	struct stat fstats;
 	r_dir_t dir;
+	extcmd_t *cmd[] = { &info.f, &keyhandler.f };
+	const char *name[] = { "image-info", "key-handler" };
 
 	signal(SIGPIPE, SIG_IGN);
 
@@ -879,19 +882,44 @@ int main(int argc, char **argv)
 		homedir = getenv("HOME");
 		dsuffix = "/.config";
 	}
-	if (homedir != NULL) {
-		extcmd_t *cmd[] = { &info.f, &keyhandler.f };
-		const char *name[] = { "image-info", "key-handler" };
 
-		for (i = 0; i < ARRLEN(cmd); i++) {
+	for (i = 0; i < ARRLEN(cmd); i++) {
+		if (homedir != NULL) {
 			n = strlen(homedir) + strlen(dsuffix) + strlen(name[i]) + 12;
 			cmd[i]->cmd = (char*) emalloc(n);
 			snprintf(cmd[i]->cmd, n, "%s%s/sxiv/exec/%s", homedir, dsuffix, name[i]);
-			if (access(cmd[i]->cmd, X_OK) != 0)
-				cmd[i]->err = errno;
+
+			if (stat(cmd[i]->cmd, &fstats) < 0)
+				goto not_in_homedir;
+
+		} else {
+not_in_homedir:
+			if (cmd[i]->cmd) {
+				cmd[i]->cmd = erealloc(cmd[i]->cmd, PATH_MAX * sizeof(char));
+				memset(cmd[i]->cmd, 0, PATH_MAX);
+			}
+			else
+				cmd[i]->cmd = (char*) emalloc(PATH_MAX * sizeof(char));
+
+			if (readlink("/proc/self/exe", cmd[i]->cmd, PATH_MAX-1) < 0)
+				error(EXIT_FAILURE, errno, NULL);
+
+			/* cut off the /bin/sxiv */
+			int j, sep;
+			for (j = strlen(cmd[i]->cmd), sep = 0; j >= 0; j--) {
+				if (cmd[i]->cmd[j] != '/') continue;
+
+				cmd[i]->cmd[j] = '\0';
+				if (++sep == 2)
+					break;
+			}
+			if ((n = strlen(name[i])) + j + 17 > PATH_MAX)
+				error(EXIT_FAILURE, 0, "%s: file path too long", cmd[i]->cmd);
+			strncat(cmd[i]->cmd, "/share/sxiv/exec/", 17);
+			strncat(cmd[i]->cmd, name[i], n);
 		}
-	} else {
-		error(0, 0, "Exec directory not found");
+		if (access(cmd[i]->cmd, X_OK) != 0)
+			cmd[i]->err = errno;
 	}
 	info.fd = -1;
 
