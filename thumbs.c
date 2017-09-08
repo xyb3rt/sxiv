@@ -25,6 +25,7 @@
 #include <unistd.h>
 #include <utime.h>
 
+#include "options.h"
 #include "thumbs.h"
 #include "util.h"
 
@@ -82,6 +83,9 @@ void tns_cache_write(Imlib_Image im, const char *filepath, bool force)
 	struct stat cstats, fstats;
 	struct utimbuf times;
 	Imlib_Load_Error err = 0;
+
+	if (!options->allow_cache_write)
+		return;
 
 	if (stat(filepath, &fstats) < 0)
 		return;
