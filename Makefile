@@ -1,7 +1,6 @@
 VERSION := git-20170908
 
-.PHONY: all clean install uninstall
-.SUFFIXES:
+all: sxiv
 
 include config.mk
 
@@ -23,11 +22,7 @@ SRC := autoreload_$(AUTORELOAD).c commands.c image.c main.c options.c thumbs.c u
 DEP := $(SRC:.c=.d)
 OBJ := $(SRC:.c=.o)
 
-all: config.h sxiv
-
-$(OBJ): Makefile
-
--include $(DEP)
+$(OBJ): config.h Makefile
 
 %.o: %.c
 	@echo "CC $<"
@@ -66,5 +61,9 @@ uninstall:
 	@echo "REMOVE share/sxiv/"
 	rm -rf $(DESTDIR)$(PREFIX)/share/sxiv
 
+.PHONY: all clean install uninstall
+.SUFFIXES:
 $(V).SILENT:
+
+-include $(DEP)
 
