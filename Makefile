@@ -34,7 +34,7 @@ config.h:
 
 sxiv:	$(OBJ)
 	@echo "LINK $@"
-	$(CC) $(LDFLAGS) -o $@ $(OBJ) $(LDLIBS)
+	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 clean:
 	rm -f $(OBJ) $(DEP) sxiv
