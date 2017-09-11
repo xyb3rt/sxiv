@@ -25,7 +25,7 @@ OBJ := $(SRC:.c=.o)
 $(OBJ): config.h Makefile
 
 %.o: %.c
-	@echo "CC $<"
+	@echo "CC $@"
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEPFLAGS) -c -o $@ $<
 
 config.h:
