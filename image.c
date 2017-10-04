@@ -567,15 +567,15 @@ bool img_zoom_out(img_t *img)
 	return false;
 }
 
-bool img_move(img_t *img, float dx, float dy)
+bool img_pos(img_t *img, float x, float y)
 {
 	float ox, oy;
 
 	ox = img->x;
 	oy = img->y;
 
-	img->x += dx;
-	img->y += dy;
+	img->x = x;
+	img->y = y;
 
 	img_check_pan(img, true);
 
@@ -585,6 +585,11 @@ bool img_move(img_t *img, float dx, float dy)
 	} else {
 		return false;
 	}
+}
+
+bool img_move(img_t *img, float dx, float dy)
+{
+	return img_pos(img, img->x + dx, img->y + dy);
 }
 
 bool img_pan(img_t *img, direction_t dir, int d)

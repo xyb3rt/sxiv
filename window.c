@@ -37,7 +37,7 @@ enum {
 
 static Cursor carrow;
 static Cursor cnone;
-static Cursor chand;
+static Cursor cdrag;
 static Cursor cwatch;
 static GC gc;
 
@@ -210,7 +210,7 @@ void win_open(win_t *win)
 	             PointerMotionMask | StructureNotifyMask);
 
 	carrow = XCreateFontCursor(e->dpy, XC_left_ptr);
-	chand = XCreateFontCursor(e->dpy, XC_fleur);
+	cdrag = XCreateFontCursor(e->dpy, XC_dotbox);
 	cwatch = XCreateFontCursor(e->dpy, XC_watch);
 
 	if (XAllocNamedColor(e->dpy, DefaultColormap(e->dpy, e->scr), "black",
@@ -277,7 +277,7 @@ CLEANUP void win_close(win_t *win)
 {
 	XFreeCursor(win->env.dpy, carrow);
 	XFreeCursor(win->env.dpy, cnone);
-	XFreeCursor(win->env.dpy, chand);
+	XFreeCursor(win->env.dpy, cdrag);
 	XFreeCursor(win->env.dpy, cwatch);
 
 	XFreeGC(win->env.dpy, gc);
@@ -465,8 +465,8 @@ void win_set_cursor(win_t *win, cursor_t cursor)
 		case CURSOR_NONE:
 			XDefineCursor(win->env.dpy, win->xwin, cnone);
 			break;
-		case CURSOR_HAND:
-			XDefineCursor(win->env.dpy, win->xwin, chand);
+		case CURSOR_DRAG:
+			XDefineCursor(win->env.dpy, win->xwin, cdrag);
 			break;
 		case CURSOR_WATCH:
 			XDefineCursor(win->env.dpy, win->xwin, cwatch);

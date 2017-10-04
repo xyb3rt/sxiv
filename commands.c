@@ -320,72 +320,41 @@ bool ci_scroll_to_edge(arg_t dir)
 	return img_pan_edge(&img, dir);
 }
 
-/* Xlib helper function for i_drag() */
-Bool is_motionnotify(Display *d, XEvent *e, XPointer a)
-{
-	return e != NULL && e->type == MotionNotify;
-}
-
-#define WARP(x,y) \
-	XWarpPointer(win.env.dpy, None, win.xwin, 0, 0, 0, 0, x, y); \
-	ox = x, oy = y; \
-	break
-
 bool ci_drag(arg_t _)
 {
-	int dx = 0, dy = 0, i, ox, oy, x, y;
+	int i, x, y;
+	float px, py;
 	unsigned int ui;
-	bool dragging = true, next = false;
 	XEvent e;
 	Window w;
 
-	if (!XQueryPointer(win.env.dpy, win.xwin, &w, &w, &i, &i, &ox, &oy, &ui))
+	if ((int)(img.w * img.zoom) < win.w && (int)(img.h * img.zoom) < win.h)
+		return false;
+	if (!XQueryPointer(win.env.dpy, win.xwin, &w, &w, &i, &i, &x, &y, &ui))
 		return false;
 	
-	win_set_cursor(&win, CURSOR_HAND);
+	win_set_cursor(&win, CURSOR_DRAG);
 
-	while (dragging) {
-		if (!next)
-			XMaskEvent(win.env.dpy,
-			           ButtonPressMask | ButtonReleaseMask | PointerMotionMask, &e);
-		switch (e.type) {
-			case ButtonPress:
-			case ButtonRelease:
-				dragging = false;
-				break;
-			case MotionNotify:
-				x = e.xmotion.x;
-				y = e.xmotion.y;
+	for (;;) {
+		px = MIN(MAX(0.0, x - win.w*0.1), win.w*0.8) / (win.w*0.8)
+		   * (win.w - img.w * img.zoom);
+		py = MIN(MAX(0.0, y - win.h*0.1), win.h*0.8) / (win.h*0.8)
+		   * (win.h - img.h * img.zoom);
 
-				/* wrap the mouse around */
-				if (x <= 0) {
-					WARP(win.w - 2, y);
-				} else if (x >= win.w - 1) {
-					WARP(1, y);
-				} else if (y <= 0) {
-					WARP(x, win.h - 2);
-				} else if (y >= win.h - 1) {
-					WARP(x, 1);
-				}
-				dx += x - ox;
-				dy += y - oy;
-				ox = x;
-				oy = y;
-				break;
+		if (img_pos(&img, px, py)) {
+			img_render(&img);
+			win_draw(&win);
 		}
-		if (dragging)
-			next = XCheckIfEvent(win.env.dpy, &e, is_motionnotify, None);
-		if ((!dragging || !next) && (dx != 0 || dy != 0)) {
-			if (img_move(&img, dx, dy)) {
-				img_render(&img);
-				win_draw(&win);
-			}
-			dx = dy = 0;
-		}
+		XMaskEvent(win.env.dpy,
+		           ButtonPressMask | ButtonReleaseMask | PointerMotionMask, &e);
+		if (e.type == ButtonPress || e.type == ButtonRelease)
+			break;
+		while (XCheckTypedEvent(win.env.dpy, MotionNotify, &e));
+		x = e.xmotion.x;
+		y = e.xmotion.y;
 	}
 	win_set_cursor(&win, CURSOR_ARROW);
 	set_timeout(reset_cursor, TO_CURSOR_HIDE, true);
-	reset_timeout(redraw);
 
 	return true;
 }

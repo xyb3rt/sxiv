@@ -741,6 +741,7 @@ void run(void)
 				XPeekEvent(win.env.dpy, &nextev);
 				switch (ev.type) {
 					case ConfigureNotify:
+					case MotionNotify:
 						discard = ev.type == nextev.type;
 						break;
 					case KeyPress:
