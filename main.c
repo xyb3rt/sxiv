@@ -98,6 +98,10 @@ timeout_t timeouts[] = {
 	{ { 0, 0 }, false, clear_resize },
 };
 
+cursor_t imgcursor[3] = {
+	CURSOR_ARROW, CURSOR_ARROW, CURSOR_ARROW
+};
+
 void cleanup(void)
 {
 	img_close(&img, false);
@@ -405,6 +409,14 @@ void update_info(void)
 	}
 }
 
+int ptr_third_x(void)
+{
+	int x, y;
+
+	win_cursor_pos(&win, &x, &y);
+	return MAX(0, MIN(2, (x / (win.w * 0.33))));
+}
+
 void redraw(void)
 {
 	int t;
@@ -428,14 +440,18 @@ void redraw(void)
 
 void reset_cursor(void)
 {
-	int i;
+	int c, i;
 	cursor_t cursor = CURSOR_NONE;
 
 	if (mode == MODE_IMAGE) {
 		for (i = 0; i < ARRLEN(timeouts); i++) {
 			if (timeouts[i].handler == reset_cursor) {
-				if (timeouts[i].active)
-					cursor = CURSOR_ARROW;
+				if (timeouts[i].active) {
+					c = ptr_third_x();
+					c = MAX(fileidx > 0 ? 0 : 1, c);
+					c = MIN(fileidx + 1 < filecnt ? 2 : 1, c);
+					cursor = imgcursor[c];
+				}
 				break;
 			}
 		}
@@ -871,6 +887,14 @@ int main(int argc, char **argv)
 
 	filecnt = fileidx;
 	fileidx = options->startnum < filecnt ? options->startnum : 0;
+
+	for (i = 0; i < ARRLEN(buttons); i++) {
+		if (buttons[i].cmd == i_cursor_navigate) {
+			imgcursor[0] = CURSOR_LEFT;
+			imgcursor[2] = CURSOR_RIGHT;
+			break;
+		}
+	}
 
 	win_init(&win);
 	img_init(&img, &win);

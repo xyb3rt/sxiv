@@ -1,4 +1,4 @@
-VERSION := git-20171005
+VERSION := git-20171006
 
 all: sxiv
 

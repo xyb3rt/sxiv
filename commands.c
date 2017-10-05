@@ -33,6 +33,7 @@
 void remove_file(int, bool);
 void load_image(int);
 void open_info(void);
+int ptr_third_x(void);
 void redraw(void);
 void reset_cursor(void);
 void animate(void);
@@ -279,6 +280,11 @@ bool ci_navigate(arg_t n)
 	} else {
 		return false;
 	}
+}
+
+bool ci_cursor_navigate(arg_t _)
+{
+	return ci_navigate(ptr_third_x() - 1);
 }
 
 bool ci_alternate(arg_t _)
