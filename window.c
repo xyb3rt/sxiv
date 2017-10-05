@@ -470,3 +470,14 @@ void win_set_cursor(win_t *win, cursor_t cursor)
 		XFlush(win->env.dpy);
 	}
 }
+
+void win_cursor_pos(win_t *win, int *x, int *y)
+{
+	int i;
+	unsigned int ui;
+	Window w;
+
+	if (!XQueryPointer(win->env.dpy, win->xwin, &w, &w, &i, &i, x, y, &ui))
+		*x = *y = 0;
+}
+

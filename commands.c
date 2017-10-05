@@ -322,18 +322,16 @@ bool ci_scroll_to_edge(arg_t dir)
 
 bool ci_drag(arg_t _)
 {
-	int i, x, y;
+	int x, y;
 	float px, py;
-	unsigned int ui;
 	XEvent e;
-	Window w;
 
-	if ((int)(img.w * img.zoom) < win.w && (int)(img.h * img.zoom) < win.h)
-		return false;
-	if (!XQueryPointer(win.env.dpy, win.xwin, &w, &w, &i, &i, &x, &y, &ui))
+	if ((int)(img.w * img.zoom) <= win.w && (int)(img.h * img.zoom) <= win.h)
 		return false;
 	
 	win_set_cursor(&win, CURSOR_DRAG);
+
+	win_cursor_pos(&win, &x, &y);
 
 	for (;;) {
 		px = MIN(MAX(0.0, x - win.w*0.1), win.w*0.8) / (win.w*0.8)

@@ -106,5 +106,6 @@ int win_textwidth(const win_env_t*, const char*, unsigned int, bool);
 
 void win_set_title(win_t*, const char*);
 void win_set_cursor(win_t*, cursor_t);
+void win_cursor_pos(win_t*, int*, int*);
 
 #endif /* WINDOW_H */
