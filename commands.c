@@ -351,8 +351,8 @@ bool ci_drag(arg_t _)
 		x = e.xmotion.x;
 		y = e.xmotion.y;
 	}
-	win_set_cursor(&win, CURSOR_ARROW);
 	set_timeout(reset_cursor, TO_CURSOR_HIDE, true);
+	reset_cursor();
 
 	return true;
 }
