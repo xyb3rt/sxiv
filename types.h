@@ -65,9 +65,11 @@ typedef enum {
 
 typedef enum {
 	CURSOR_ARROW,
-	CURSOR_NONE,
 	CURSOR_DRAG,
-	CURSOR_WATCH
+	CURSOR_WATCH,
+	CURSOR_NONE,
+
+	CURSOR_COUNT
 } cursor_t;
 
 typedef enum {

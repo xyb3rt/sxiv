@@ -35,10 +35,13 @@ enum {
 	V_TEXT_PAD = 1
 };
 
-static Cursor carrow;
-static Cursor cnone;
-static Cursor cdrag;
-static Cursor cwatch;
+static struct {
+	int name;
+	Cursor icon;
+} cursors[CURSOR_COUNT] = {
+	{ XC_left_ptr }, { XC_dotbox }, { XC_watch }
+};
+
 static GC gc;
 
 static XftFont *font;
@@ -153,6 +156,7 @@ void win_open(win_t *win)
 	XClassHint classhint;
 	unsigned long *icon_data;
 	XColor col;
+	Cursor *cnone = &cursors[CURSOR_NONE].icon;
 	char none_data[] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 	Pixmap none;
 	int gmask;
@@ -209,17 +213,17 @@ void win_open(win_t *win)
 	             ButtonReleaseMask | ButtonPressMask | KeyPressMask |
 	             PointerMotionMask | StructureNotifyMask);
 
-	carrow = XCreateFontCursor(e->dpy, XC_left_ptr);
-	cdrag = XCreateFontCursor(e->dpy, XC_dotbox);
-	cwatch = XCreateFontCursor(e->dpy, XC_watch);
-
+	for (i = 0; i < ARRLEN(cursors); i++) {
+		if (i != CURSOR_NONE)
+			cursors[i].icon = XCreateFontCursor(e->dpy, cursors[i].name);
+	}
 	if (XAllocNamedColor(e->dpy, DefaultColormap(e->dpy, e->scr), "black",
 	                     &col, &col) == 0)
 	{
 		error(EXIT_FAILURE, 0, "Error allocating color 'black'");
 	}
 	none = XCreateBitmapFromData(e->dpy, win->xwin, none_data, 8, 8);
-	cnone = XCreatePixmapCursor(e->dpy, none, none, &col, &col, 0, 0);
+	*cnone = XCreatePixmapCursor(e->dpy, none, none, &col, &col, 0, 0);
 
 	gc = XCreateGC(e->dpy, win->xwin, 0, None);
 
@@ -275,10 +279,10 @@ void win_open(win_t *win)
 
 CLEANUP void win_close(win_t *win)
 {
-	XFreeCursor(win->env.dpy, carrow);
-	XFreeCursor(win->env.dpy, cnone);
-	XFreeCursor(win->env.dpy, cdrag);
-	XFreeCursor(win->env.dpy, cwatch);
+	int i;
+
+	for (i = 0; i < ARRLEN(cursors); i++)
+		XFreeCursor(win->env.dpy, cursors[i].icon);
 
 	XFreeGC(win->env.dpy, gc);
 
@@ -461,21 +465,8 @@ void win_set_title(win_t *win, const char *title)
 
 void win_set_cursor(win_t *win, cursor_t cursor)
 {
-	switch (cursor) {
-		case CURSOR_NONE:
-			XDefineCursor(win->env.dpy, win->xwin, cnone);
-			break;
-		case CURSOR_DRAG:
-			XDefineCursor(win->env.dpy, win->xwin, cdrag);
-			break;
-		case CURSOR_WATCH:
-			XDefineCursor(win->env.dpy, win->xwin, cwatch);
-			break;
-		case CURSOR_ARROW:
-		default:
-			XDefineCursor(win->env.dpy, win->xwin, carrow);
-			break;
+	if (cursor >= 0 && cursor < ARRLEN(cursors)) {
+		XDefineCursor(win->env.dpy, win->xwin, cursors[cursor].icon);
+		XFlush(win->env.dpy);
 	}
-
-	XFlush(win->env.dpy);
 }
