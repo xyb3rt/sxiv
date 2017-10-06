@@ -1,5 +1,5 @@
 <!-- Creator     : groff version 1.22.3 -->
-<!-- CreationDate: Thu Dec  1 21:42:45 2016 -->
+<!-- CreationDate: Fri Oct  6 10:18:14 2017 -->
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
 "http://www.w3.org/TR/html4/loose.dtd">
 <html>
@@ -51,7 +51,7 @@ Simple X Image Viewer</p>
 
 
 <p style="margin-left:11%; margin-top: 1em"><b>sxiv</b>
-[<b>-abcfhioqrtvZ</b>] [<b>-A</b>
+[<b>-abcfhiopqrtvZ</b>] [<b>-A</b>
 <i>FRAMERATE</i>] [<b>-e</b> <i>WID</i>]
 [<b>-G</b> <i>GAMMA</i>] [<b>-g</b>
 <i>GEOMETRY</i>] [<b>-N</b> <i>NAME</i>]
@@ -218,6 +218,18 @@ exit.</p> </td></tr>
 <p>Write list of all marked files to standard output when
 quitting. In combination with <b>-i</b> sxiv can be
 used as a visual filter/pipe.</p></td></tr>
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="9%">
+
+
+<p><b>-p</b></p></td>
+<td width="2%"></td>
+<td width="78%">
+
+
+<p>Enable private mode, in which sxiv does not write any
+cache or temporary files.</p></td></tr>
 <tr valign="top" align="left">
 <td width="11%"></td>
 <td width="9%">
@@ -997,43 +1009,30 @@ images to <i>count</i> seconds.</p></td></tr>
 
 <p style="margin-left:11%; margin-top: 1em">The following
 mouse mappings are available in image mode: <br>
-Navigate image list: <b><br>
-Button1</b></p>
+General: <b><br>
+Button3</b></p>
 
-<p style="margin-left:22%;">Go to next image.</p>
+<p style="margin-left:22%;">Navigate image list:</p>
 
-<p style="margin-left:11%;"><b>Button3</b></p>
+<p style="margin-left:11%;"><b>Button1</b></p>
 
-<p style="margin-left:22%;">Go to the previous image.</p>
+<p style="margin-left:22%;">Go to the next image if the
+mouse cursor is in the right part of the window or to the
+previous image if it is in the left part.</p>
 
 <p style="margin-left:11%;">Panning: <b><br>
 Button2</b></p>
 
-<p style="margin-left:22%;">Drag the image with the mouse
-while keeping this button pressed down.</p>
-
-<p style="margin-left:11%;"><b>ScrollUp</b></p>
-
-<p style="margin-left:22%;">Scroll image up.</p>
-
-<p style="margin-left:11%;"><b>ScrollDown</b></p>
-
-<p style="margin-left:22%;">Scroll image down.</p>
-
-<p style="margin-left:11%;"><b>Shift+ScrollUp</b></p>
-
-<p style="margin-left:22%;">Scroll image left.</p>
-
-<p style="margin-left:11%;"><b>Shift+ScrollDown</b></p>
-
-<p style="margin-left:22%;">Scroll image right.</p>
+<p style="margin-left:22%;">Pan the image according to the
+mouse cursor position in the window while keeping this
+button pressed down.</p>
 
 <p style="margin-left:11%;">Zooming: <b><br>
-Ctrl+ScrollUp</b></p>
+ScrollUp</b></p>
 
 <p style="margin-left:22%;">Zoom in.</p>
 
-<p style="margin-left:11%;"><b>Ctrl+ScrollDown</b></p>
+<p style="margin-left:11%;"><b>ScrollDown</b></p>
 
 <p style="margin-left:22%;">Zoom out.</p>
 
@@ -1115,7 +1114,8 @@ subdirectories:</p>
 
 <pre style="margin-left:11%; margin-top: 1em">Bastien Dejean  &lt;nihilhill at gmail.com&gt;
 Dave Reisner    &lt;d at falconindy.com&gt;
-Fung SzeTat     &lt;sthorde at gmail.com&gt;</pre>
+Fung SzeTat     &lt;sthorde at gmail.com&gt;
+Max Voit        &lt;mvdev at with-eyes.net&gt;</pre>
 
 
 <h2>HOMEPAGE
