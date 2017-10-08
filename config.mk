@@ -4,6 +4,7 @@ MANPREFIX := $(PREFIX)/share/man
 CC        ?= gcc
 CFLAGS    += -std=c99 -Wall -pedantic
 CPPFLAGS  += -I/usr/include/freetype2 -D_XOPEN_SOURCE=700
+DEPFLAGS  := -MMD -MP
 LDFLAGS   += 
 
 # autoreload backend: inotify/nop
