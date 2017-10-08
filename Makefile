@@ -4,8 +4,6 @@ all: sxiv
 
 include config.mk
 
-VPATH := $(SRCDIR)
-
 CPPFLAGS += -I. -DVERSION=\"$(VERSION)\" -DHAVE_GIFLIB=$(HAVE_GIFLIB) -DHAVE_LIBEXIF=$(HAVE_LIBEXIF)
 DEPFLAGS := -MMD -MP
 
@@ -28,9 +26,9 @@ $(OBJ): config.h Makefile
 	@echo "CC $@"
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEPFLAGS) -c -o $@ $<
 
-config.h:
+config.h: | config.def.h
 	@echo "GEN $@"
-	cp $(SRCDIR)/config.def.h $@
+	cp $| $@
 
 sxiv:	$(OBJ)
 	@echo "LINK $@"
