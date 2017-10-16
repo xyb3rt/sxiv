@@ -91,5 +91,5 @@ uninstall:
 	@echo "REMOVE share/sxiv/"
 	rm -rf $(DESTDIR)$(PREFIX)/share/sxiv
 
--include $(DEP)
+-include $(DEPS)
 
