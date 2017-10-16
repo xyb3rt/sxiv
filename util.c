@@ -16,15 +16,14 @@
  * along with sxiv.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "sxiv.h"
+
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <errno.h>
-
-#include "options.h"
-#include "util.h"
 
 const char *progname;
 

@@ -16,19 +16,16 @@
  * along with sxiv.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "sxiv.h"
+#define _IMAGE_CONFIG
+#include "config.h"
+
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
-
-#include "image.h"
-#include "options.h"
-#include "util.h"
-
-#define _IMAGE_CONFIG
-#include "config.h"
 
 #if HAVE_LIBEXIF
 #include <libexif/exif-data.h>

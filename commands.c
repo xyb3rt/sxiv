@@ -16,19 +16,14 @@
  * along with sxiv.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "sxiv.h"
+#define _IMAGE_CONFIG
+#include "config.h"
+
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <sys/wait.h>
-
-#include "commands.h"
-#include "image.h"
-#include "options.h"
-#include "thumbs.h"
-#include "util.h"
-
-#define _IMAGE_CONFIG
-#include "config.h"
 
 void remove_file(int, bool);
 void load_image(int);

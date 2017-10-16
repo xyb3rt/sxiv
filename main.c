@@ -16,9 +16,11 @@
  * along with sxiv.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "sxiv.h"
+#define _MAPPINGS_CONFIG
+#include "config.h"
+
 #include <stdlib.h>
-#include <stdio.h>
-#include <stdarg.h>
 #include <string.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -26,23 +28,10 @@
 #include <signal.h>
 #include <sys/select.h>
 #include <sys/stat.h>
-#include <sys/time.h>
 #include <sys/wait.h>
 #include <time.h>
 #include <X11/keysym.h>
 #include <X11/XF86keysym.h>
-
-#include "types.h"
-#include "commands.h"
-#include "image.h"
-#include "options.h"
-#include "thumbs.h"
-#include "util.h"
-#include "window.h"
-#include "autoreload.h"
-
-#define _MAPPINGS_CONFIG
-#include "config.h"
 
 typedef struct {
 	struct timeval when;

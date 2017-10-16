@@ -16,21 +16,17 @@
  * along with sxiv.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "sxiv.h"
+#define _THUMBS_CONFIG
+#include "config.h"
+
 #include <errno.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <utime.h>
-
-#include "options.h"
-#include "thumbs.h"
-#include "util.h"
-
-#define _THUMBS_CONFIG
-#include "config.h"
 
 #if HAVE_LIBEXIF
 #include <libexif/exif-data.h>

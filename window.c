@@ -16,19 +16,16 @@
  * along with sxiv.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "sxiv.h"
+#define _WINDOW_CONFIG
+#include "config.h"
+#include "icon/data.h"
+
 #include <stdlib.h>
 #include <string.h>
 #include <locale.h>
 #include <X11/cursorfont.h>
 #include <X11/Xatom.h>
-
-#include "options.h"
-#include "util.h"
-#include "window.h"
-#include "icon/data.h"
-
-#define _WINDOW_CONFIG
-#include "config.h"
 
 enum {
 	H_TEXT_PAD = 5,

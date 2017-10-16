@@ -16,14 +16,13 @@
  * along with sxiv.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "sxiv.h"
+
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <sys/inotify.h>
-
-#include "util.h"
-#include "autoreload.h"
 
 void arl_init(arl_t *arl)
 {

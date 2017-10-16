@@ -16,19 +16,16 @@
  * along with sxiv.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
-#include <unistd.h>
-
-#include "options.h"
-#include "util.h"
-
+#include "sxiv.h"
 #define _IMAGE_CONFIG
 #include "config.h"
 
-options_t _options;
-const options_t *options = (const options_t*) &_options;
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
+opt_t _options;
+const opt_t *options = (const opt_t*) &_options;
 
 void print_usage(void)
 {
