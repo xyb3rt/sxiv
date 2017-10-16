@@ -530,8 +530,15 @@ bool img_zoom(img_t *img, float z)
 	img->scalemode = SCALE_ZOOM;
 
 	if (zoomdiff(z, img->zoom) != 0) {
-		img->x = img->win->w / 2 - (img->win->w / 2 - img->x) * z / img->zoom;
-		img->y = img->win->h / 2 - (img->win->h / 2 - img->y) * z / img->zoom;
+		int x, y;
+
+		win_cursor_pos(img->win, &x, &y);
+		if (x < 0 || x >= img->win->w || y < 0 || y >= img->win->h) {
+			x = img->win->w / 2;
+			y = img->win->h / 2;
+		}
+		img->x = x - (x - img->x) * z / img->zoom;
+		img->y = y - (y - img->y) * z / img->zoom;
 		img->zoom = z;
 		img->checkpan = true;
 		img->dirty = true;

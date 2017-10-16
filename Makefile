@@ -1,6 +1,6 @@
 # Works best with GNU make 3.80 or later
 
-VERSION = git-20171012
+VERSION = git-20171016
 
 srcdir = .
 
