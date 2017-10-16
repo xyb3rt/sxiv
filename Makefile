@@ -33,8 +33,6 @@ LIB_GIF_1 = -lgif
 LDLIBS = -lImlib2 -lX11 -lXft \
   $(LIB_EXIF_$(HAVE_LIBEXIF)) $(LIB_GIF_$(HAVE_GIFLIB))
 
--include config.mk
-
 SRCS = autoreload_$(AUTORELOAD).c commands.c image.c main.c options.c \
   thumbs.c util.c window.c
 OBJS = $(SRCS:.c=.o)
