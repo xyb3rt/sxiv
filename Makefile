@@ -7,9 +7,9 @@ srcdir = .
 PREFIX = /usr/local
 MANPREFIX = $(PREFIX)/share/man
 
-CC ?= gcc
+CC ?= cc
 CFLAGS += -std=c99 -Wall -pedantic
-CPPFLAGS += -I/usr/include/freetype2 -D_XOPEN_SOURCE=700
+CPPFLAGS += -I/usr/include/freetype2
 DEPFLAGS = -MMD -MP
 LDFLAGS += 
 
@@ -22,7 +22,7 @@ HAVE_GIFLIB = 1
 # enable features requiring libexif (-lexif)
 HAVE_LIBEXIF = 1
 
-REQ_CPPFLAGS = -I. -DVERSION=\"$(VERSION)\" \
+REQ_CPPFLAGS = -I. -D_XOPEN_SOURCE=700 -DVERSION=\"$(VERSION)\" \
   -DHAVE_GIFLIB=$(HAVE_GIFLIB) -DHAVE_LIBEXIF=$(HAVE_LIBEXIF)
 ALL_CPPFLAGS = $(REQ_CPPFLAGS) $(CPPFLAGS)
 
@@ -49,7 +49,7 @@ $(V).SILENT:
 
 sxiv:	$(OBJS)
 	@echo "LINK $@"
-	$(CC) $(LDFLAGS) -o $@ $(OBJS) $(LDLIBS)
+	$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $(OBJS) $(LDLIBS)
 
 $(OBJS): config.h $(srcdir)/Makefile
 
