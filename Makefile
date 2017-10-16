@@ -1,5 +1,3 @@
-# Works best with GNU make 3.80 or later
-
 VERSION = git-20171016
 
 srcdir = .
@@ -49,15 +47,15 @@ sxiv:	$(OBJS)
 	@echo "LINK $@"
 	$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $(OBJS) $(LDLIBS)
 
-$(OBJS): config.h $(srcdir)/Makefile
+$(OBJS): $(srcdir)/Makefile $(srcdir)/sxiv.h config.h
 
 .c.o:
 	@echo "CC $@"
-	$(CC) $(ALL_CPPFLAGS) $(DEPFLAGS) $(CFLAGS) -c -o $@ $<
+	$(CC) $(ALL_CPPFLAGS) $(CFLAGS) -c -o $@ $<
 
 %.o: $(srcdir)/%.c
 	@echo "CC $@"
-	$(CC) $(ALL_CPPFLAGS) $(DEPFLAGS) $(CFLAGS) -c -o $@ $(srcdir)/$(@:.o=.c)
+	$(CC) $(ALL_CPPFLAGS) $(CFLAGS) -c -o $@ $(srcdir)/$(@:.o=.c)
 
 config.h:
 	@echo "GEN $@"
@@ -88,6 +86,4 @@ uninstall:
 	rm -f $(DESTDIR)$(MANPREFIX)/man1/sxiv.1
 	@echo "REMOVE share/sxiv/"
 	rm -rf $(DESTDIR)$(PREFIX)/share/sxiv
-
--include $(DEPS)
 
