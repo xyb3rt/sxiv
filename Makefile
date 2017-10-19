@@ -1,6 +1,7 @@
-VERSION = git-20171016
+VERSION = git-20171019
 
 srcdir = .
+VPATH = $(srcdir)
 
 PREFIX = /usr/local
 MANPREFIX = $(PREFIX)/share/man
@@ -45,15 +46,12 @@ sxiv:	$(OBJS)
 	@echo "LINK $@"
 	$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $(OBJS) $(LDLIBS)
 
-$(OBJS): $(srcdir)/Makefile $(srcdir)/sxiv.h config.h
+$(OBJS): Makefile sxiv.h commands.lst config.h
+window.o: icon/data.h
 
 .c.o:
 	@echo "CC $@"
 	$(CC) $(ALL_CPPFLAGS) $(CFLAGS) -c -o $@ $<
-
-%.o: $(srcdir)/%.c
-	@echo "CC $@"
-	$(CC) $(ALL_CPPFLAGS) $(CFLAGS) -c -o $@ $(srcdir)/$(@:.o=.c)
 
 config.h:
 	@echo "GEN $@"
