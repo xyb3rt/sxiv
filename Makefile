@@ -8,7 +8,6 @@ MANPREFIX = $(PREFIX)/share/man
 CC ?= cc
 CFLAGS += -std=c99 -Wall -pedantic
 CPPFLAGS += -I/usr/include/freetype2
-DEPFLAGS = -MMD -MP
 LDFLAGS += 
 
 # autoreload backend: inotify/nop
@@ -34,7 +33,6 @@ LDLIBS = -lImlib2 -lX11 -lXft \
 SRCS = autoreload_$(AUTORELOAD).c commands.c image.c main.c options.c \
   thumbs.c util.c window.c
 OBJS = $(SRCS:.c=.o)
-DEPS = $(SRCS:.c=.d)
 
 all: sxiv
 
@@ -62,7 +60,7 @@ config.h:
 	cp $(srcdir)/config.def.h $@
 
 clean:
-	rm -f $(OBJS) $(DEPS) sxiv
+	rm -f $(OBJS) sxiv
 
 install: all
 	@echo "INSTALL bin/sxiv"
