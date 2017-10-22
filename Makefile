@@ -1,4 +1,4 @@
-VERSION = git-20171019
+VERSION = git-20171022
 
 srcdir = .
 VPATH = $(srcdir)
@@ -6,10 +6,9 @@ VPATH = $(srcdir)
 PREFIX = /usr/local
 MANPREFIX = $(PREFIX)/share/man
 
-CC ?= cc
-CFLAGS += -std=c99 -Wall -pedantic
-CPPFLAGS += -I/usr/include/freetype2
-LDFLAGS += 
+CC = cc
+DEF_CFLAGS = -std=c99 -Wall -pedantic
+DEF_CPPFLAGS = -I/usr/include/freetype2
 
 # autoreload backend: inotify/nop
 AUTORELOAD = inotify
@@ -20,9 +19,10 @@ HAVE_GIFLIB = 1
 # enable features requiring libexif (-lexif)
 HAVE_LIBEXIF = 1
 
+ALL_CFLAGS = $(DEF_CFLAGS) $(CFLAGS)
 REQ_CPPFLAGS = -I. -D_XOPEN_SOURCE=700 -DVERSION=\"$(VERSION)\" \
   -DHAVE_GIFLIB=$(HAVE_GIFLIB) -DHAVE_LIBEXIF=$(HAVE_LIBEXIF)
-ALL_CPPFLAGS = $(REQ_CPPFLAGS) $(CPPFLAGS)
+ALL_CPPFLAGS = $(REQ_CPPFLAGS) $(DEF_CPPFLAGS) $(CPPFLAGS)
 
 LIB_EXIF_0 =
 LIB_EXIF_1 = -lexif
@@ -42,16 +42,16 @@ all: sxiv
 .SUFFIXES: .c .o
 $(V).SILENT:
 
-sxiv:	$(OBJS)
+sxiv: $(OBJS)
 	@echo "LINK $@"
-	$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $(OBJS) $(LDLIBS)
+	$(CC) $(LDFLAGS) $(ALL_CFLAGS) -o $@ $(OBJS) $(LDLIBS)
 
 $(OBJS): Makefile sxiv.h commands.lst config.h
 window.o: icon/data.h
 
 .c.o:
 	@echo "CC $@"
-	$(CC) $(ALL_CPPFLAGS) $(CFLAGS) -c -o $@ $<
+	$(CC) $(ALL_CPPFLAGS) $(ALL_CFLAGS) -c -o $@ $<
 
 config.h:
 	@echo "GEN $@"
