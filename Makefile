@@ -1,4 +1,4 @@
-VERSION = git-20171022
+VERSION = git-20171023
 
 srcdir = .
 VPATH = $(srcdir)
@@ -58,7 +58,7 @@ config.h:
 	cp $(srcdir)/config.def.h $@
 
 clean:
-	rm -f $(OBJS) sxiv
+	rm -f *.o sxiv
 
 install: all
 	@echo "INSTALL bin/sxiv"
