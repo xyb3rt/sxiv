@@ -25,6 +25,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <errno.h>
+#include <locale.h>
 #include <signal.h>
 #include <sys/select.h>
 #include <sys/stat.h>
@@ -812,6 +813,8 @@ int main(int argc, char **argv)
 	r_dir_t dir;
 
 	signal(SIGPIPE, SIG_IGN);
+
+	setlocale(LC_COLLATE, "");
 
 	parse_options(argc, argv);
 
