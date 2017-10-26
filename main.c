@@ -159,8 +159,8 @@ void remove_file(int n, bool manual)
 		memmove(files + n, files + n + 1, (filecnt - n - 1) * sizeof(*files));
 	}
 	filecnt--;
-	if (fileidx >= filecnt)
-		fileidx = filecnt - 1;
+	if (n < fileidx)
+		fileidx--;
 	if (n < alternate)
 		alternate--;
 }
@@ -290,6 +290,7 @@ end:
 
 void load_image(int new)
 {
+	bool prev = new < fileidx;
 	static int current;
 
 	if (new < 0 || new >= filecnt)
@@ -307,7 +308,7 @@ void load_image(int new)
 		remove_file(new, false);
 		if (new >= filecnt)
 			new = filecnt - 1;
-		else if (new > 0 && new < fileidx)
+		else if (new > 0 && prev)
 			new--;
 	}
 	files[new].flags &= ~FF_WARN;
