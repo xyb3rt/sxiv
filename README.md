@@ -61,7 +61,8 @@ the following command:
 Usage
 -----
 
-Please see the [man page](http://muennich.github.com/sxiv/sxiv.1.html) for information on how to use sxiv.
+Please see the [man page](http://muennich.github.com/sxiv/sxiv.1.html) for
+information on how to use sxiv.
 
 
 Download & Changelog
@@ -73,6 +74,15 @@ on GitHub or get a copy using git with the following command:
     git clone https://github.com/muennich/sxiv.git
 
 **Stable releases**
+
+**[v24](https://github.com/muennich/sxiv/archive/v24.tar.gz)**
+*(October 27, 2017)*
+
+  * Automatically reload the current image whenever it changes
+  * Support embedding into other X windows with -e (e.g. tabbed)
+  * New option -p prevents sxiv from creating cache and temporary files
+  * Simpler mouse mappings, the most basic features are accessible with the
+    mouse only (navigate, zoom, pan)
 
 **[v1.3.2](https://github.com/muennich/sxiv/archive/v1.3.2.tar.gz)**
 *(December 20, 2015)*
