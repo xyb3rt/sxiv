@@ -223,8 +223,12 @@ Imlib_Image tns_scale_down(Imlib_Image im, int dim)
 		imlib_context_set_anti_alias(1);
 		im = imlib_create_cropped_scaled_image(0, 0, w, h,
 		                                       MAX(z * w, 1), MAX(z * h, 1));
-		if (im == NULL)
-			error(EXIT_FAILURE, ENOMEM, NULL);
+		if (im == NULL) {
+			// an error ocurred, create a 1x1 dummy image and continue
+			error(0, ENOMEM, NULL);
+			im = imlib_create_image(1,1);
+		}
+		
 		imlib_free_image_and_decache();
 	}
 	return im;
