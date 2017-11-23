@@ -32,6 +32,7 @@
 #include <libexif/exif-data.h>
 void exif_auto_orientate(const fileinfo_t*);
 #endif
+Imlib_Image img_open(const fileinfo_t*);
 
 static char *cache_dir;
 
@@ -237,7 +238,6 @@ bool tns_load(tns_t *tns, int n, bool force, bool cache_only)
 	char *cfile;
 	thumb_t *t;
 	fileinfo_t *file;
-	struct stat st;
 	Imlib_Image im = NULL;
 
 	if (n < 0 || n >= *tns->cnt)
@@ -331,14 +331,8 @@ bool tns_load(tns_t *tns, int n, bool force, bool cache_only)
 	}
 
 	if (im == NULL) {
-		if (access(file->path, R_OK) == -1 ||
-		    stat(file->path, &st) == -1 || !S_ISREG(st.st_mode) ||
-		    (im = imlib_load_image(file->path)) == NULL)
-		{
-			if (file->flags & FF_WARN)
-				error(0, 0, "%s: Error opening image", file->name);
+		if ((im = img_open(file)) == NULL)
 			return false;
-		}
 	}
 	imlib_context_set_image(im);
 
