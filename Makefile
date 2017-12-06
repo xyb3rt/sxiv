@@ -28,7 +28,7 @@ LIB_EXIF_0 =
 LIB_EXIF_1 = -lexif
 LIB_GIF_0 =
 LIB_GIF_1 = -lgif
-LDLIBS = -lImlib2 -lX11 -lXft \
+LDLIBS = -lImlib2 -lX11 -lXft -lfontconfig \
   $(LIB_EXIF_$(HAVE_LIBEXIF)) $(LIB_GIF_$(HAVE_GIFLIB))
 
 OBJS = autoreload_$(AUTORELOAD).o commands.o image.o main.o options.o \

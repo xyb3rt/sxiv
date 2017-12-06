@@ -360,9 +360,40 @@ void win_clear(win_t *win)
 	XFillRectangle(e->dpy, win->buf.pm, gc, 0, 0, win->buf.w, win->buf.h);
 }
 
+void win_draw_bar_text(win_t *win, XftDraw *d, XftColor *color, XftFont *font, int x, int y, char *text, int maxlen, int maximum_x)
+{
+	size_t len = 0;
+	int xshift = 0, newshift;
+	long codep;
+	char *p, *nextp;
+	FcCharSet* fccharset;
+	XftFont* fallback = NULL;
+
+	for (p = text; *p && (len < maxlen); p = nextp, len++) {
+		nextp = utf8codepoint(p, &codep);
+		if (!XftCharExists(win->env.dpy, font, codep)) {
+			fccharset = FcCharSetCreate();
+			FcCharSetAddChar(fccharset, codep);
+			fallback = XftFontOpen(win->env.dpy, win->env.scr,
+					FC_CHARSET, FcTypeCharSet, fccharset,
+					FC_SCALABLE, FcTypeBool, FcTrue,
+					NULL);
+			FcCharSetDestroy(fccharset);
+		}
+		newshift = win_textwidth(&win->env, p, (int) (nextp-p), false, (fallback ? fallback : font));
+		if (xshift + newshift <= maximum_x)
+			XftDrawStringUtf8(d, color, (fallback ? fallback : font), x + xshift, y, (XftChar8*)p, (int) (nextp-p));
+		xshift += newshift;
+		if (fallback) {
+			XftFontClose(win->env.dpy, fallback);
+			fallback = NULL;
+		}
+	}
+}
+
 void win_draw_bar(win_t *win)
 {
-	int len, olen, x, y, w, tw;
+	int len, olen, x, y, w, tw, maximum_x;
 	char rest[3];
 	const char *dots = "...";
 	win_env_t *e;
@@ -385,7 +416,7 @@ void win_draw_bar(win_t *win)
 	XSetBackground(e->dpy, gc, win->bar.bgcol.pixel);
 
 	if ((len = strlen(r->buf)) > 0) {
-		if ((tw = win_textwidth(e, r->buf, len, true)) > w)
+		if ((tw = win_textwidth(e, r->buf, len, true, font)) > w)
 			return;
 		x = win->w - tw + H_TEXT_PAD;
 		w -= tw;
@@ -393,9 +424,10 @@ void win_draw_bar(win_t *win)
 	}
 	if ((len = strlen(l->buf)) > 0) {
 		olen = len;
-		while (len > 0 && (tw = win_textwidth(e, l->buf, len, true)) > w)
+		while (len > 0 && (tw = win_textwidth(e, l->buf, len, true, font)) > w)
 			len--;
 		if (len > 0) {
+			maximum_x = w;
 			if (len != olen) {
 				w = strlen(dots);
 				if (len <= w)
@@ -404,7 +436,7 @@ void win_draw_bar(win_t *win)
 				memcpy(l->buf + len - w, dots, w);
 			}
 			x = H_TEXT_PAD;
-			XftDrawStringUtf8(d, &win->bar.fgcol, font, x, y, (XftChar8*)l->buf, len);
+			win_draw_bar_text(win, d, &win->bar.fgcol, font, x, y, l->buf, len, maximum_x);
 			if (len != olen)
 			  memcpy(l->buf + len - w, rest, w);
 		}
@@ -437,11 +469,14 @@ void win_draw_rect(win_t *win, int x, int y, int w, int h, bool fill, int lw,
 		XDrawRectangle(win->env.dpy, win->buf.pm, gc, x, y, w, h);
 }
 
-int win_textwidth(const win_env_t *e, const char *text, unsigned int len, bool with_padding)
+int win_textwidth(const win_env_t *e, const char *text, unsigned int len, bool with_padding, XftFont *fnt)
 {
 	XGlyphInfo ext;
 
-	XftTextExtentsUtf8(e->dpy, font, (XftChar8*)text, len, &ext);
+	if(!fnt)
+		fnt = font;
+
+	XftTextExtentsUtf8(e->dpy, fnt, (XftChar8*)text, len, &ext);
 	return ext.xOff + (with_padding ? 2 * H_TEXT_PAD : 0);
 }
 

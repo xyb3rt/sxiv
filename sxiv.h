@@ -362,6 +362,7 @@ int r_opendir(r_dir_t*, const char*, bool);
 int r_closedir(r_dir_t*);
 char* r_readdir(r_dir_t*);
 int r_mkdir(char*);
+void* utf8codepoint(const void * __restrict__ str, long * __restrict__ out_codepoint);
 
 
 /* window.c */
@@ -442,7 +443,7 @@ void win_toggle_bar(win_t*);
 void win_clear(win_t*);
 void win_draw(win_t*);
 void win_draw_rect(win_t*, int, int, int, int, bool, int, unsigned long);
-int win_textwidth(const win_env_t*, const char*, unsigned int, bool);
+int win_textwidth(const win_env_t*, const char*, unsigned int, bool, XftFont*);
 void win_set_title(win_t*, const char*);
 void win_set_cursor(win_t*, cursor_t);
 void win_cursor_pos(win_t*, int*, int*);

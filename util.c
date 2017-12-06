@@ -204,3 +204,32 @@ int r_mkdir(char *path)
 	}
 	return 0;
 }
+
+/* copied from sheredom's utf8.h (public domain) https://github.com/sheredom/utf8.h */
+
+void* utf8codepoint(const void* __restrict__ str, long* __restrict__ out_codepoint)
+{
+	 const char *s = (const char *)str;
+
+	 if (0xf0 == (0xf8 & s[0])) {
+		// 4 byte utf8 codepoint
+		*out_codepoint = ((0x07 & s[0]) << 18) | ((0x3f & s[1]) << 12) |
+				 ((0x3f & s[2]) << 6) | (0x3f & s[3]);
+		s += 4;
+	} else if (0xe0 == (0xf0 & s[0])) {
+		// 3 byte utf8 codepoint
+		*out_codepoint = ((0x0f & s[0]) << 12) | ((0x3f & s[1]) << 6) | (0x3f & s[2]);
+		s += 3;
+	} else if (0xc0 == (0xe0 & s[0])) {
+		// 2 byte utf8 codepoint
+		*out_codepoint = ((0x1f & s[0]) << 6) | (0x3f & s[1]);
+		s += 2;
+	} else {
+		// 1 byte utf8 codepoint otherwise
+		*out_codepoint = s[0];
+		s += 1;
+	}
+
+	return (void *)s;
+}
+
