@@ -340,7 +340,6 @@ void update_info(void)
 	unsigned int i, fn, fw;
 	char title[256];
 	const char * mark;
-	bool ow_info;
 	win_bar_t *l = &win.bar.l, *r = &win.bar.r;
 
 	/* update window title */
@@ -359,15 +358,12 @@ void update_info(void)
 	l->p = l->buf;
 	r->p = r->buf;
 	if (mode == MODE_THUMB) {
-		if (tns.loadnext < tns.end) {
+		if (tns.loadnext < tns.end)
 			bar_put(l, "Loading... %0*d", fw, tns.loadnext + 1);
-			ow_info = false;
-		} else if (tns.initnext < filecnt) {
+		else if (tns.initnext < filecnt)
 			bar_put(l, "Caching... %0*d", fw, tns.initnext + 1);
-			ow_info = false;
-		} else {
-			ow_info = true;
-		}
+		else
+			strncpy(l->buf, files[fileidx].name, l->size);
 		bar_put(r, "%s%0*d/%d", mark, fw, fileidx + 1, filecnt);
 	} else {
 		bar_put(r, "%s", mark);
@@ -385,18 +381,8 @@ void update_info(void)
 			bar_put(r, "%0*d/%d | ", fn, img.multi.sel + 1, img.multi.cnt);
 		}
 		bar_put(r, "%0*d/%d", fw, fileidx + 1, filecnt);
-		ow_info = info.f.err != 0;
-	}
-	if (ow_info) {
-		fn = strlen(files[fileidx].name);
-		if (fn < l->size &&
-		    win_textwidth(&win.env, files[fileidx].name, fn, true, NULL) +
-		    win_textwidth(&win.env, r->buf, r->p - r->buf, true, NULL) < win.w)
-		{
+		if (info.f.err)
 			strncpy(l->buf, files[fileidx].name, l->size);
-		} else {
-			strncpy(l->buf, files[fileidx].base, l->size);
-		}
 	}
 }
 
