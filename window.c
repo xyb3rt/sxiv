@@ -377,21 +377,28 @@ XftFont* win_get_font(const win_env_t *e, long ucs)
 	return fallback;
 }
 
-void win_draw_bar_text(win_t *win, XftDraw *d, int x, int y, char *text, int maxlen, int maximum_x)
+void win_draw_bar_text(win_t *win, XftDraw *d, int x, int y, char *text, int w)
 {
-	size_t len = 0;
-	int xshift = 0, newshift, ucs_len;
+	int xshift = 0, newshift, ucs_len, dots_width;
 	long ucs;
+	char *dots = "...";
 	char *p;
 	XftFont* curfont;
 
-	for (p = text; *p && (len < maxlen); p += ucs_len, len++) {
+	dots_width = win_textwidth(&win->env, dots, strlen(dots), false, NULL);
+
+	for (p = text; *p; p += ucs_len) {
 		ucs_len = utf8codepoint(p, &ucs);
 		curfont = win_get_font(&win->env, ucs);
 		newshift = win_textwidth(&win->env, p, ucs_len, false, curfont);
-		if (xshift + newshift <= maximum_x)
+		if (xshift + newshift < w - dots_width) {
 			XftDrawStringUtf8(d, &win->bar.fgcol, curfont, x + xshift, y, (XftChar8*)p, ucs_len);
-		xshift += newshift;
+			xshift += newshift;
+		} else {
+			p = dots;
+			ucs_len = 0;
+			dots_width = 0;
+		}
 		if (curfont != font)
 			XftFontClose(win->env.dpy, curfont);
 	}
@@ -399,9 +406,7 @@ void win_draw_bar_text(win_t *win, XftDraw *d, int x, int y, char *text, int max
 
 void win_draw_bar(win_t *win)
 {
-	int len, olen, x, y, w, tw, maximum_x;
-	char rest[3];
-	const char *dots = "...";
+	int len, x, y, w, tw;
 	win_env_t *e;
 	win_bar_t *l, *r;
 	XftDraw *d;
@@ -429,23 +434,8 @@ void win_draw_bar(win_t *win)
 		XftDrawStringUtf8(d, &win->bar.fgcol, font, x, y, (XftChar8*)r->buf, len);
 	}
 	if ((len = strlen(l->buf)) > 0) {
-		olen = len;
-		while (len > 0 && (tw = win_textwidth(e, l->buf, len, true, font)) > w)
-			len--;
-		if (len > 0) {
-			maximum_x = w;
-			if (len != olen) {
-				w = strlen(dots);
-				if (len <= w)
-					return;
-				memcpy(rest, l->buf + len - w, w);
-				memcpy(l->buf + len - w, dots, w);
-			}
-			x = H_TEXT_PAD;
-			win_draw_bar_text(win, d, x, y, l->buf, len, maximum_x);
-			if (len != olen)
-			  memcpy(l->buf + len - w, rest, w);
-		}
+		x = H_TEXT_PAD;
+		win_draw_bar_text(win, d, x, y, l->buf, w);
 	}
 	XftDrawDestroy(d);
 }
