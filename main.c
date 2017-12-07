@@ -103,7 +103,6 @@ void cleanup(void)
 void check_add_file(char *filename, bool given)
 {
 	char *path;
-	const char *bn;
 
 	if (*filename == '\0')
 		return;
@@ -124,10 +123,6 @@ void check_add_file(char *filename, bool given)
 
 	files[fileidx].name = estrdup(filename);
 	files[fileidx].path = path;
-	if ((bn = strrchr(files[fileidx].name , '/')) != NULL && bn[1] != '\0')
-		files[fileidx].base = ++bn;
-	else
-		files[fileidx].base = files[fileidx].name;
 	if (given)
 		files[fileidx].flags |= FF_WARN;
 	fileidx++;
