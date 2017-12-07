@@ -361,7 +361,6 @@ int r_opendir(r_dir_t*, const char*, bool);
 int r_closedir(r_dir_t*);
 char* r_readdir(r_dir_t*);
 int r_mkdir(char*);
-void* utf8codepoint(const void * __restrict__ str, long * __restrict__ out_codepoint);
 
 
 /* window.c */

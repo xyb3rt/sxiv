@@ -20,6 +20,7 @@
 #define _WINDOW_CONFIG
 #include "config.h"
 #include "icon/data.h"
+#include "utf8.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -131,8 +132,9 @@ void win_init(win_t *win)
 
 	win->bar.l.size = BAR_L_LEN;
 	win->bar.r.size = BAR_R_LEN;
-	win->bar.l.buf = emalloc(win->bar.l.size);
-	win->bar.r.buf = emalloc(win->bar.r.size);
+	/* 3 padding bytes needed by utf8_decode */
+	win->bar.l.buf = emalloc(win->bar.l.size + 3);
+	win->bar.r.buf = emalloc(win->bar.r.size + 3);
 	win->bar.h = options->hide_bar ? 0 : barheight;
 
 	INIT_ATOM_(WM_DELETE_WINDOW);
@@ -371,14 +373,14 @@ int win_textwidth(const win_env_t *e, const char *text, unsigned int len, bool w
 void win_draw_bar_text(win_t *win, XftDraw *d, XftColor *color, XftFont *font, int x, int y, char *text, int maxlen, int maximum_x)
 {
 	size_t len = 0;
-	int xshift = 0, newshift;
-	long codep;
+	int err, xshift = 0, newshift;
+	uint32_t codep;
 	char *p, *nextp;
 	FcCharSet* fccharset;
 	XftFont* fallback = NULL;
 
 	for (p = text; *p && (len < maxlen); p = nextp, len++) {
-		nextp = utf8codepoint(p, &codep);
+		nextp = utf8_decode(p, &codep, &err);
 		if (!XftCharExists(win->env.dpy, font, codep)) {
 			fccharset = FcCharSetCreate();
 			FcCharSetAddChar(fccharset, codep);
