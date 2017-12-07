@@ -360,6 +360,14 @@ void win_clear(win_t *win)
 	XFillRectangle(e->dpy, win->buf.pm, gc, 0, 0, win->buf.w, win->buf.h);
 }
 
+int win_textwidth(const win_env_t *e, const char *text, unsigned int len, bool with_padding, XftFont *fnt)
+{
+	XGlyphInfo ext;
+
+	XftTextExtentsUtf8(e->dpy, fnt, (XftChar8*)text, len, &ext);
+	return ext.xOff + (with_padding ? 2 * H_TEXT_PAD : 0);
+}
+
 void win_draw_bar_text(win_t *win, XftDraw *d, XftColor *color, XftFont *font, int x, int y, char *text, int maxlen, int maximum_x)
 {
 	size_t len = 0;
@@ -467,17 +475,6 @@ void win_draw_rect(win_t *win, int x, int y, int w, int h, bool fill, int lw,
 		XFillRectangle(win->env.dpy, win->buf.pm, gc, x, y, w, h);
 	else
 		XDrawRectangle(win->env.dpy, win->buf.pm, gc, x, y, w, h);
-}
-
-int win_textwidth(const win_env_t *e, const char *text, unsigned int len, bool with_padding, XftFont *fnt)
-{
-	XGlyphInfo ext;
-
-	if(!fnt)
-		fnt = font;
-
-	XftTextExtentsUtf8(e->dpy, fnt, (XftChar8*)text, len, &ext);
-	return ext.xOff + (with_padding ? 2 * H_TEXT_PAD : 0);
 }
 
 void win_set_title(win_t *win, const char *title)
