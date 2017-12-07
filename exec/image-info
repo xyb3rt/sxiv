@@ -8,7 +8,7 @@
 #   $2: image width
 #   $3: image height
 
-s=" | " # field separator
+s="  " # field separator
 
 exec 2>/dev/null
 

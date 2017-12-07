@@ -330,6 +330,8 @@ void bar_put(win_bar_t *bar, const char *fmt, ...)
 	va_end(ap);
 }
 
+#define BAR_SEP "  "
+
 void update_info(void)
 {
 	unsigned int i, fn, fw;
@@ -364,16 +366,16 @@ void update_info(void)
 		bar_put(r, "%s", mark);
 		if (img.ss.on) {
 			if (img.ss.delay % 10 != 0)
-				bar_put(r, "%2.1fs | ", (float)img.ss.delay / 10);
+				bar_put(r, "%2.1fs" BAR_SEP, (float)img.ss.delay / 10);
 			else
-				bar_put(r, "%ds | ", img.ss.delay / 10);
+				bar_put(r, "%ds" BAR_SEP, img.ss.delay / 10);
 		}
 		if (img.gamma != 0)
-			bar_put(r, "G%+d | ", img.gamma);
-		bar_put(r, "%3d%% | ", (int) (img.zoom * 100.0));
+			bar_put(r, "G%+d" BAR_SEP, img.gamma);
+		bar_put(r, "%3d%%" BAR_SEP, (int) (img.zoom * 100.0));
 		if (img.multi.cnt > 0) {
 			for (fn = 0, i = img.multi.cnt; i > 0; fn++, i /= 10);
-			bar_put(r, "%0*d/%d | ", fn, img.multi.sel + 1, img.multi.cnt);
+			bar_put(r, "%0*d/%d" BAR_SEP, fn, img.multi.sel + 1, img.multi.cnt);
 		}
 		bar_put(r, "%0*d/%d", fw, fileidx + 1, filecnt);
 		if (info.f.err)
