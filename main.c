@@ -390,8 +390,8 @@ void update_info(void)
 	if (ow_info) {
 		fn = strlen(files[fileidx].name);
 		if (fn < l->size &&
-		    win_textwidth(&win.env, files[fileidx].name, fn, true) +
-		    win_textwidth(&win.env, r->buf, r->p - r->buf, true) < win.w)
+		    win_textwidth(&win.env, files[fileidx].name, fn, true, NULL) +
+		    win_textwidth(&win.env, r->buf, r->p - r->buf, true, NULL) < win.w)
 		{
 			strncpy(l->buf, files[fileidx].name, l->size);
 		} else {
