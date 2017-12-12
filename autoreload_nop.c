@@ -20,7 +20,7 @@
 
 void arl_init(arl_t *arl)
 {
-	(void) arl;
+	arl->fd = -1;
 }
 
 void arl_cleanup(arl_t *arl)
