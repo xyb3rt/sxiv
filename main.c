@@ -566,22 +566,20 @@ end:
 void on_keypress(XKeyEvent *kev)
 {
 	int i;
-	unsigned int sh;
+	unsigned int sh = 0;
 	KeySym ksym, shksym;
-	char key;
+	char dummy, key;
 	bool dirty = false;
+
+	XLookupString(kev, &key, 1, &ksym, NULL);
 
 	if (kev->state & ShiftMask) {
 		kev->state &= ~ShiftMask;
-		XLookupString(kev, &key, 1, &shksym, NULL);
+		XLookupString(kev, &dummy, 1, &shksym, NULL);
 		kev->state |= ShiftMask;
-		XLookupString(kev, &key, 1, &ksym, NULL);
-		sh = ksym != shksym ? ShiftMask : 0;
-	} else {
-		XLookupString(kev, &key, 1, &ksym, NULL);
-		sh = 0;
+		if (ksym != shksym)
+			sh = ShiftMask;
 	}
-
 	if (IsModifierKey(ksym))
 		return;
 	if (ksym == XK_Escape && MODMASK(kev->state) == 0) {
