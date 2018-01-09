@@ -575,9 +575,12 @@ void on_keypress(XKeyEvent *kev)
 		kev->state &= ~ShiftMask;
 		XLookupString(kev, &key, 1, &shksym, NULL);
 		kev->state |= ShiftMask;
+		XLookupString(kev, &key, 1, &ksym, NULL);
+		sh = ksym != shksym ? ShiftMask : 0;
+	} else {
+		XLookupString(kev, &key, 1, &ksym, NULL);
+		sh = 0;
 	}
-	XLookupString(kev, &key, 1, &ksym, NULL);
-	sh = (kev->state & ShiftMask) && ksym != shksym ? ShiftMask : 0;
 
 	if (IsModifierKey(ksym))
 		return;
