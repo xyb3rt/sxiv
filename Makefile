@@ -1,4 +1,4 @@
-VERSION = git-20180109
+VERSION = git-20180122
 
 srcdir = .
 VPATH = $(srcdir)
