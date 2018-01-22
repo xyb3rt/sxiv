@@ -393,12 +393,11 @@ void img_check_pan(img_t *img, bool moved)
 
 bool img_fit(img_t *img)
 {
-	float z, zmax, zw, zh;
+	float z, zw, zh;
 
 	if (img->scalemode == SCALE_ZOOM)
 		return false;
 
-	zmax = img->scalemode == SCALE_DOWN ? 1.0 : zoom_max;
 	zw = (float) img->win->w / (float) img->w;
 	zh = (float) img->win->h / (float) img->h;
 
@@ -413,9 +412,7 @@ bool img_fit(img_t *img)
 			z = MIN(zw, zh);
 			break;
 	}
-
-	z = MAX(z, zoom_min);
-	z = MIN(z, zmax);
+	z = MIN(z, img->scalemode == SCALE_DOWN ? 1.0 : zoom_max);
 
 	if (zoomdiff(img, z) != 0) {
 		img->zoom = z;
@@ -563,7 +560,7 @@ bool img_zoom_in(img_t *img)
 	int i;
 	float z;
 
-	for (i = 1; i < ARRLEN(zoom_levels); i++) {
+	for (i = 0; i < ARRLEN(zoom_levels); i++) {
 		z = zoom_levels[i] / 100.0;
 		if (zoomdiff(img, z) > 0)
 			return img_zoom(img, z);
@@ -576,7 +573,7 @@ bool img_zoom_out(img_t *img)
 	int i;
 	float z;
 
-	for (i = ARRLEN(zoom_levels) - 2; i >= 0; i--) {
+	for (i = ARRLEN(zoom_levels) - 1; i >= 0; i--) {
 		z = zoom_levels[i] / 100.0;
 		if (zoomdiff(img, z) < 0)
 			return img_zoom(img, z);
