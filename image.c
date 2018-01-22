@@ -39,9 +39,9 @@ enum { DEF_GIF_DELAY = 75 };
 float zoom_min;
 float zoom_max;
 
-static int zoomdiff(float z1, float z2)
+static int zoomdiff(img_t *img, float z)
 {
-	return (int) (z1 * 1000.0 - z2 * 1000.0);
+	return (int) ((img->w * z - img->w * img->zoom) + (img->h * z - img->h * img->zoom));
 }
 
 void img_init(img_t *img, win_t *win)
@@ -417,7 +417,7 @@ bool img_fit(img_t *img)
 	z = MAX(z, zoom_min);
 	z = MIN(z, zmax);
 
-	if (zoomdiff(z, img->zoom) != 0) {
+	if (zoomdiff(img, z) != 0) {
 		img->zoom = z;
 		img->dirty = true;
 		return true;
@@ -539,7 +539,7 @@ bool img_zoom(img_t *img, float z)
 
 	img->scalemode = SCALE_ZOOM;
 
-	if (zoomdiff(z, img->zoom) != 0) {
+	if (zoomdiff(img, z) != 0) {
 		int x, y;
 
 		win_cursor_pos(img->win, &x, &y);
@@ -565,7 +565,7 @@ bool img_zoom_in(img_t *img)
 
 	for (i = 1; i < ARRLEN(zoom_levels); i++) {
 		z = zoom_levels[i] / 100.0;
-		if (zoomdiff(z, img->zoom) > 0)
+		if (zoomdiff(img, z) > 0)
 			return img_zoom(img, z);
 	}
 	return false;
@@ -578,7 +578,7 @@ bool img_zoom_out(img_t *img)
 
 	for (i = ARRLEN(zoom_levels) - 2; i >= 0; i--) {
 		z = zoom_levels[i] / 100.0;
-		if (zoomdiff(z, img->zoom) < 0)
+		if (zoomdiff(img, z) < 0)
 			return img_zoom(img, z);
 	}
 	return false;
