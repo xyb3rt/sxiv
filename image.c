@@ -366,8 +366,7 @@ CLEANUP void img_close(img_t *img, bool decache)
 void img_check_pan(img_t *img, bool moved)
 {
 	win_t *win;
-	int ox, oy;
-	float w, h;
+	float w, h, ox, oy;
 
 	win = img->win;
 	w = img->w * img->zoom;
@@ -640,7 +639,7 @@ bool img_pan(img_t *img, direction_t dir, int d)
 
 bool img_pan_edge(img_t *img, direction_t dir)
 {
-	int ox, oy;
+	float ox, oy;
 
 	ox = img->x;
 	oy = img->y;
@@ -666,7 +665,8 @@ bool img_pan_edge(img_t *img, direction_t dir)
 
 void img_rotate(img_t *img, degree_t d)
 {
-	int i, ox, oy, tmp;
+	int i, tmp;
+	float ox, oy;
 
 	imlib_context_set_image(img->im);
 	imlib_image_orientate(d);
