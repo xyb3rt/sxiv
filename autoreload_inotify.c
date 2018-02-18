@@ -85,7 +85,7 @@ bool arl_handle(arl_t *arl)
 {
 	bool reload = false;
 	char *ptr;
-	const struct inotify_event *event;
+	const struct inotify_event *e;
 
 	for (;;) {
 		ssize_t len = read(arl->fd, buf.d, sizeof(buf.d));
@@ -95,14 +95,14 @@ bool arl_handle(arl_t *arl)
 				continue;
 			break;
 		}
-		for (ptr = buf.d; ptr < buf.d + len; ptr += sizeof(*event) + event->len) {
-			event = (const struct inotify_event*) ptr;
-			if (event->mask & IN_CLOSE_WRITE) {
+		for (ptr = buf.d; ptr < buf.d + len; ptr += sizeof(*e) + e->len) {
+			e = (const struct inotify_event*) ptr;
+			if (e->wd == arl->wd_file && (e->mask & IN_CLOSE_WRITE)) {
 				reload = true;
-			} else if (event->mask & IN_DELETE_SELF) {
+			} else if (e->wd == arl->wd_file && (e->mask & IN_DELETE_SELF)) {
 				rm_watch(arl->fd, &arl->wd_file);
-			} else if (event->mask & (IN_CREATE | IN_MOVED_TO)) {
-				if (STREQ(event->name, arl->filename))
+			} else if (e->wd == arl->wd_dir && (e->mask & (IN_CREATE | IN_MOVED_TO))) {
+				if (STREQ(e->name, arl->filename))
 					reload = true;
 			}
 		}
