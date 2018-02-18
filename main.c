@@ -72,7 +72,7 @@ struct {
   extcmd_t f;
   int fd;
   unsigned int i, lastsep;
-  bool open;
+  pid_t pid;
 } info;
 
 struct {
@@ -213,24 +213,27 @@ bool check_timeouts(struct timeval *t)
 	return tmin > 0;
 }
 
+void close_info(void)
+{
+	if (info.fd != -1) {
+		kill(info.pid, SIGTERM);
+		close(info.fd);
+		info.fd = -1;
+		waitpid(info.pid, NULL, WNOHANG);
+	}
+}
+
 void open_info(void)
 {
-	static pid_t pid;
 	int pfd[2];
 	char w[12], h[12];
 
-	if (info.f.err != 0 || info.open || win.bar.h == 0)
+	if (info.f.err != 0 || info.fd >= 0 || win.bar.h == 0)
 		return;
-	if (info.fd != -1) {
-		close(info.fd);
-		kill(pid, SIGTERM);
-		info.fd = -1;
-	}
 	win.bar.l.buf[0] = '\0';
-
 	if (pipe(pfd) < 0)
 		return;
-	if ((pid = fork()) == 0) {
+	if ((info.pid = fork()) == 0) {
 		close(pfd[0]);
 		dup2(pfd[1], 1);
 		snprintf(w, sizeof(w), "%d", img.w);
@@ -239,13 +242,12 @@ void open_info(void)
 		error(EXIT_FAILURE, errno, "exec: %s", info.f.cmd);
 	}
 	close(pfd[1]);
-	if (pid < 0) {
+	if (info.pid < 0) {
 		close(pfd[0]);
 	} else {
 		fcntl(pfd[0], F_SETFL, O_NONBLOCK);
 		info.fd = pfd[0];
 		info.i = info.lastsep = 0;
-		info.open = true;
 	}
 }
 
@@ -278,9 +280,7 @@ end:
 	info.i -= info.lastsep;
 	win.bar.l.buf[info.i] = '\0';
 	win_draw(&win);
-	close(info.fd);
-	info.fd = -1;
-	while (waitpid(-1, NULL, WNOHANG) > 0);
+	close_info();
 }
 
 void load_image(int new)
@@ -309,7 +309,7 @@ void load_image(int new)
 	files[new].flags &= ~FF_WARN;
 	fileidx = current = new;
 
-	info.open = false;
+	close_info();
 	open_info();
 	arl_setup(&arl, files[fileidx].path);
 
@@ -495,6 +495,7 @@ void run_key_handler(const char *key, unsigned int mask)
 	}
 	oldst = emalloc(fcnt * sizeof(*oldst));
 
+	close_info();
 	strncpy(win.bar.l.buf, "Running key handler...", win.bar.l.size);
 	win_draw(&win);
 	win_set_cursor(&win, CURSOR_WATCH);
@@ -551,8 +552,7 @@ end:
 		if (changed) {
 			img_close(&img, true);
 			load_image(fileidx);
-		} else if (info.f.err == 0) {
-			info.open = false;
+		} else {
 			open_info();
 		}
 	}
