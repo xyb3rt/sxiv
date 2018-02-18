@@ -717,6 +717,7 @@ void run(void)
 					if (arl_handle(&arl)) {
 						/* when too fast, imlib2 can't load the image */
 						nanosleep(&ten_ms, NULL);
+						img_close(&img, true);
 						load_image(fileidx);
 						redraw();
 					}
