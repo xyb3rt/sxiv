@@ -134,7 +134,9 @@ void win_init(win_t *win)
 	win->bar.r.size = BAR_R_LEN;
 	/* 3 padding bytes needed by utf8_decode */
 	win->bar.l.buf = emalloc(win->bar.l.size + 3);
+	win->bar.l.buf[0] = '\0';
 	win->bar.r.buf = emalloc(win->bar.r.size + 3);
+	win->bar.r.buf[0] = '\0';
 	win->bar.h = options->hide_bar ? 0 : barheight;
 
 	INIT_ATOM_(WM_DELETE_WINDOW);
