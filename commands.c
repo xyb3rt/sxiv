@@ -46,6 +46,7 @@ extern fileinfo_t *files;
 extern int filecnt, fileidx;
 extern int alternate;
 extern int markcnt;
+extern int toggledidx;
 
 extern int prefix;
 extern bool extprefix;
@@ -196,6 +197,7 @@ bool cg_toggle_image_mark(arg_t _)
 	markcnt += files[fileidx].flags & FF_MARK ? 1 : -1;
 	if (mode == MODE_THUMB)
 		tns_mark(&tns, fileidx, !!(files[fileidx].flags & FF_MARK));
+	toggledidx = fileidx;
 	return true;
 }
 
@@ -209,6 +211,39 @@ bool cg_reverse_marks(arg_t _)
 	}
 	if (mode == MODE_THUMB)
 		tns.dirty = true;
+	return true;
+}
+
+bool cg_mark_range(arg_t _)
+{
+	int i, from, to;
+
+	if (toggledidx < 0)
+		return true;
+	if (toggledidx == fileidx)
+		return true;
+
+	from = toggledidx;
+	to = fileidx;
+	if (fileidx < toggledidx) {
+		from = fileidx;
+		to = toggledidx;
+	}
+	for (i = from; i <= to; i++) {
+		if (files[toggledidx].flags & FF_MARK) {
+			if (!(files[i].flags & FF_MARK)) {
+				files[i].flags |= FF_MARK;
+				markcnt += 1;
+			}
+		} else {
+			if (files[i].flags & FF_MARK) {
+				files[i].flags &= ~FF_MARK;
+				markcnt -= 1;
+			}
+		}
+		if (mode == MODE_THUMB)
+			tns_mark(&tns, i, !!(files[i].flags & FF_MARK));
+	}
 	return true;
 }
 
