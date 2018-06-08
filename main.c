@@ -57,6 +57,7 @@ fileinfo_t *files;
 int filecnt, fileidx;
 int alternate;
 int markcnt;
+int toggledidx = -1;
 
 int prefix;
 bool extprefix;
