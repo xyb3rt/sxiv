@@ -57,7 +57,7 @@ fileinfo_t *files;
 int filecnt, fileidx;
 int alternate;
 int markcnt;
-int toggledidx;
+int markidx;
 
 int prefix;
 bool extprefix;
@@ -159,8 +159,8 @@ void remove_file(int n, bool manual)
 		fileidx--;
 	if (n < alternate)
 		alternate--;
-	if (n < toggledidx)
-		toggledidx--;
+	if (n < markidx)
+		markidx--;
 }
 
 void set_timeout(timeout_f handler, int time, bool overwrite)

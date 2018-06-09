@@ -46,7 +46,7 @@ extern fileinfo_t *files;
 extern int filecnt, fileidx;
 extern int alternate;
 extern int markcnt;
-extern int toggledidx;
+extern int markidx;
 
 extern int prefix;
 extern bool extprefix;
@@ -197,7 +197,7 @@ bool cg_toggle_image_mark(arg_t _)
 	markcnt += files[fileidx].flags & FF_MARK ? 1 : -1;
 	if (mode == MODE_THUMB)
 		tns_mark(&tns, fileidx, !!(files[fileidx].flags & FF_MARK));
-	toggledidx = fileidx;
+	markidx = fileidx;
 	return true;
 }
 
@@ -218,14 +218,14 @@ bool cg_mark_range(arg_t _)
 {
 	int i, from, to;
 
-	from = toggledidx;
+	from = markidx;
 	to = fileidx;
-	if (fileidx < toggledidx) {
+	if (fileidx < markidx) {
 		from = fileidx;
-		to = toggledidx;
+		to = markidx;
 	}
 	for (i = from; i <= to; i++) {
-		if (files[toggledidx].flags & FF_MARK) {
+		if (files[markidx].flags & FF_MARK) {
 			if (!(files[i].flags & FF_MARK)) {
 				files[i].flags |= FF_MARK;
 				markcnt += 1;
