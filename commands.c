@@ -218,11 +218,6 @@ bool cg_mark_range(arg_t _)
 {
 	int i, from, to;
 
-	if (toggledidx < 0)
-		return true;
-	if (toggledidx == fileidx)
-		return true;
-
 	from = toggledidx;
 	to = fileidx;
 	if (fileidx < toggledidx) {
