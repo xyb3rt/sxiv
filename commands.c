@@ -27,6 +27,7 @@
 
 void remove_file(int, bool);
 void load_image(int);
+bool mark_image(int, bool);
 void close_info(void);
 void open_info(void);
 int ptr_third_x(void);
@@ -193,12 +194,8 @@ bool cg_zoom(arg_t d)
 
 bool cg_toggle_image_mark(arg_t _)
 {
-	files[fileidx].flags ^= FF_MARK;
-	markcnt += files[fileidx].flags & FF_MARK ? 1 : -1;
-	if (mode == MODE_THUMB)
-		tns_mark(&tns, fileidx, !!(files[fileidx].flags & FF_MARK));
 	markidx = fileidx;
-	return true;
+	return mark_image(fileidx, !(files[fileidx].flags & FF_MARK));
 }
 
 bool cg_reverse_marks(arg_t _)
@@ -217,18 +214,13 @@ bool cg_reverse_marks(arg_t _)
 bool cg_mark_range(arg_t _)
 {
 	int i, d = fileidx < markidx ? 1 : -1;
-	int flag = files[markidx].flags & FF_MARK;
-	int oldmarkcnt = markcnt;
+	bool dirty = false, on = !!(files[markidx].flags & FF_MARK);
 
 	for (i = fileidx; i != markidx; i += d) {
-		if ((files[i].flags & FF_MARK) ^ flag) {
-			files[i].flags = (files[i].flags & ~FF_MARK) | flag;
-			markcnt += flag ? 1 : -1;
-			if (mode == MODE_THUMB)
-				tns_mark(&tns, i, !!flag);
-		}
+		if (mark_image(i, on))
+			dirty = true;
 	}
-	return markcnt != oldmarkcnt;
+	return dirty;
 }
 
 bool cg_unmark_all(arg_t _)

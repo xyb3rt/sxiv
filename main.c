@@ -321,6 +321,18 @@ void load_image(int new)
 		reset_timeout(animate);
 }
 
+bool mark_image(int n, bool on)
+{
+	if (!!(files[n].flags & FF_MARK) != on) {
+		files[n].flags ^= FF_MARK;
+		markcnt += on ? 1 : -1;
+		if (mode == MODE_THUMB)
+			tns_mark(&tns, n, on);
+		return true;
+	}
+	return false;
+}
+
 void bar_put(win_bar_t *bar, const char *fmt, ...)
 {
 	size_t len = bar->size - (bar->p - bar->buf), n;
