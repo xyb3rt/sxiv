@@ -663,10 +663,19 @@ void on_buttonpress(XButtonEvent *bev)
 				break;
 			case Button3:
 				if ((sel = tns_translate(&tns, bev->x, bev->y)) >= 0) {
-					files[sel].flags ^= FF_MARK;
-					markcnt += files[sel].flags & FF_MARK ? 1 : -1;
-					tns_mark(&tns, sel, !!(files[sel].flags & FF_MARK));
-					redraw();
+					bool on = !(files[sel].flags & FF_MARK);
+					XEvent e;
+
+					for (;;) {
+						if (sel >= 0 && mark_image(sel, on))
+							redraw();
+						XMaskEvent(win.env.dpy,
+						           ButtonPressMask | ButtonReleaseMask | PointerMotionMask, &e);
+						if (e.type == ButtonPress || e.type == ButtonRelease)
+							break;
+						while (XCheckTypedEvent(win.env.dpy, MotionNotify, &e));
+						sel = tns_translate(&tns, e.xbutton.x, e.xbutton.y);
+					}
 				}
 				break;
 			case Button4:
