@@ -216,30 +216,19 @@ bool cg_reverse_marks(arg_t _)
 
 bool cg_mark_range(arg_t _)
 {
-	int i, from, to;
+	int i, d = fileidx < markidx ? 1 : -1;
+	int flag = files[markidx].flags & FF_MARK;
+	int oldmarkcnt = markcnt;
 
-	from = markidx;
-	to = fileidx;
-	if (fileidx < markidx) {
-		from = fileidx;
-		to = markidx;
-	}
-	for (i = from; i <= to; i++) {
-		if (files[markidx].flags & FF_MARK) {
-			if (!(files[i].flags & FF_MARK)) {
-				files[i].flags |= FF_MARK;
-				markcnt += 1;
-			}
-		} else {
-			if (files[i].flags & FF_MARK) {
-				files[i].flags &= ~FF_MARK;
-				markcnt -= 1;
-			}
+	for (i = fileidx; i != markidx; i += d) {
+		if ((files[i].flags & FF_MARK) ^ flag) {
+			files[i].flags = (files[i].flags & ~FF_MARK) | flag;
+			markcnt += flag ? 1 : -1;
+			if (mode == MODE_THUMB)
+				tns_mark(&tns, i, !!flag);
 		}
-		if (mode == MODE_THUMB)
-			tns_mark(&tns, i, !!(files[i].flags & FF_MARK));
 	}
-	return true;
+	return markcnt != oldmarkcnt;
 }
 
 bool cg_unmark_all(arg_t _)
