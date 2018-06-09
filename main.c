@@ -159,6 +159,8 @@ void remove_file(int n, bool manual)
 		fileidx--;
 	if (n < alternate)
 		alternate--;
+	if (n < toggledidx)
+		toggledidx--;
 }
 
 void set_timeout(timeout_f handler, int time, bool overwrite)
