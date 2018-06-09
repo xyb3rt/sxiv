@@ -194,7 +194,6 @@ bool cg_zoom(arg_t d)
 
 bool cg_toggle_image_mark(arg_t _)
 {
-	markidx = fileidx;
 	return mark_image(fileidx, !(files[fileidx].flags & FF_MARK));
 }
 
@@ -213,11 +212,11 @@ bool cg_reverse_marks(arg_t _)
 
 bool cg_mark_range(arg_t _)
 {
-	int i, d = fileidx < markidx ? 1 : -1;
+	int d = markidx < fileidx ? 1 : -1;
 	bool dirty = false, on = !!(files[markidx].flags & FF_MARK);
 
-	for (i = fileidx; i != markidx; i += d) {
-		if (mark_image(i, on))
+	while (markidx != fileidx) {
+		if (mark_image(markidx + d, on))
 			dirty = true;
 	}
 	return dirty;

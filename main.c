@@ -323,6 +323,7 @@ void load_image(int new)
 
 bool mark_image(int n, bool on)
 {
+	markidx = n;
 	if (!!(files[n].flags & FF_MARK) != on) {
 		files[n].flags ^= FF_MARK;
 		markcnt += on ? 1 : -1;
