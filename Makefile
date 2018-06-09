@@ -1,4 +1,4 @@
-VERSION = git-20180411
+VERSION = 24+
 
 srcdir = .
 VPATH = $(srcdir)
@@ -20,7 +20,7 @@ HAVE_GIFLIB = 1
 HAVE_LIBEXIF = 1
 
 ALL_CFLAGS = $(DEF_CFLAGS) $(CFLAGS)
-REQ_CPPFLAGS = -I. -D_XOPEN_SOURCE=700 -DVERSION=\"$(VERSION)\" \
+REQ_CPPFLAGS = -I. -D_XOPEN_SOURCE=700 \
   -DHAVE_GIFLIB=$(HAVE_GIFLIB) -DHAVE_LIBEXIF=$(HAVE_LIBEXIF)
 ALL_CPPFLAGS = $(REQ_CPPFLAGS) $(DEF_CPPFLAGS) $(CPPFLAGS)
 
@@ -46,6 +46,7 @@ sxiv: $(OBJS)
 	$(CC) $(LDFLAGS) $(ALL_CFLAGS) -o $@ $(OBJS) $(LDLIBS)
 
 $(OBJS): Makefile sxiv.h commands.lst config.h
+options.o: version.h
 window.o: icon/data.h
 
 .c.o:
@@ -55,6 +56,14 @@ window.o: icon/data.h
 config.h:
 	@echo "GEN $@"
 	cp $(srcdir)/config.def.h $@
+
+version.h: Makefile .git/index
+	@echo "GEN $@"
+	VERSION="$$(cd $(srcdir); git describe 2>/dev/null)"; \
+	[ -z "$$VERSION" ] && VERSION="$(VERSION)"; \
+	echo "#define VERSION \"$$VERSION\"" >$@
+
+.git/index:
 
 clean:
 	rm -f *.o sxiv

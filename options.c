@@ -19,6 +19,7 @@
 #include "sxiv.h"
 #define _IMAGE_CONFIG
 #include "config.h"
+#include "version.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -36,7 +37,7 @@ void print_usage(void)
 
 void print_version(void)
 {
-	printf("sxiv %s - Simple X Image Viewer\n", VERSION);
+	puts("sxiv " VERSION);
 }
 
 void parse_options(int argc, char **argv)
