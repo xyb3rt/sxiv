@@ -212,13 +212,11 @@ bool cg_reverse_marks(arg_t _)
 
 bool cg_mark_range(arg_t _)
 {
-	int d = markidx < fileidx ? 1 : -1;
+	int d = markidx < fileidx ? 1 : -1, end, i;
 	bool dirty = false, on = !!(files[markidx].flags & FF_MARK);
 
-	while (markidx != fileidx) {
-		if (mark_image(markidx + d, on))
-			dirty = true;
-	}
+	for (i = markidx + d, end = fileidx + d; i != end; i += d)
+		dirty |= mark_image(i, on);
 	return dirty;
 }
 
