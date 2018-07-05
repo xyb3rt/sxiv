@@ -889,7 +889,7 @@ int main(int argc, char **argv)
 				continue;
 			}
 			start = fileidx;
-			while ((filename = r_readdir(&dir)) != NULL) {
+			while ((filename = r_readdir(&dir, true)) != NULL) {
 				check_add_file(filename, false);
 				free((void*) filename);
 			}

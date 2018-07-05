@@ -131,7 +131,7 @@ void tns_clean_cache(tns_t *tns)
 
 	dirlen = strlen(cache_dir);
 
-	while ((cfile = r_readdir(&dir)) != NULL) {
+	while ((cfile = r_readdir(&dir, false)) != NULL) {
 		filename = cfile + dirlen;
 		delete = false;
 

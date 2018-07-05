@@ -134,7 +134,7 @@ int r_closedir(r_dir_t *rdir)
 	return ret;
 }
 
-char* r_readdir(r_dir_t *rdir)
+char* r_readdir(r_dir_t *rdir, bool skip_dotfiles)
 {
 	size_t len;
 	char *filename;
@@ -143,8 +143,14 @@ char* r_readdir(r_dir_t *rdir)
 
 	while (true) {
 		if (rdir->dir != NULL && (dentry = readdir(rdir->dir)) != NULL) {
-			if (dentry->d_name[0] == '.')
-				continue;
+			if (dentry->d_name[0] == '.') {
+				if (skip_dotfiles)
+					continue;
+				if (dentry->d_name[1] == '\0')
+					continue;
+				if (dentry->d_name[1] == '.' && dentry->d_name[2] == '\0')
+					continue;
+			}
 
 			len = strlen(rdir->name) + strlen(dentry->d_name) + 2;
 			filename = (char*) emalloc(len);
