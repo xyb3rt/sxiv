@@ -121,7 +121,7 @@ void tns_clean_cache(tns_t *tns)
 {
 	int dirlen;
 	bool delete;
-	char *cfile, *filename, *tpos;
+	char *cfile, *filename;
 	r_dir_t dir;
 
 	if (r_opendir(&dir, cache_dir, true) < 0) {
@@ -135,12 +135,8 @@ void tns_clean_cache(tns_t *tns)
 		filename = cfile + dirlen;
 		delete = false;
 
-		if ((tpos = strrchr(filename, '.')) != NULL) {
-			*tpos = '\0';
-			if (access(filename, F_OK) < 0)
-				delete = true;
-			*tpos = '.';
-		}
+		if (access(filename, F_OK) < 0)
+			delete = true;
 		if (delete) {
 			if (unlink(cfile) < 0)
 				error(0, errno, "%s", cfile);
