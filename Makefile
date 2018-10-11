@@ -1,14 +1,10 @@
-VERSION = 24+
+version = 24+
 
 srcdir = .
 VPATH = $(srcdir)
 
 PREFIX = /usr/local
 MANPREFIX = $(PREFIX)/share/man
-
-CC = cc
-DEF_CFLAGS = -std=c99 -Wall -pedantic
-DEF_CPPFLAGS = -I/usr/include/freetype2
 
 # autoreload backend: inotify/nop
 AUTORELOAD = inotify
@@ -19,19 +15,18 @@ HAVE_GIFLIB = 1
 # enable features requiring libexif (-lexif)
 HAVE_LIBEXIF = 1
 
-ALL_CFLAGS = $(DEF_CFLAGS) $(CFLAGS)
-REQ_CPPFLAGS = -I. -D_XOPEN_SOURCE=700 \
-  -DHAVE_GIFLIB=$(HAVE_GIFLIB) -DHAVE_LIBEXIF=$(HAVE_LIBEXIF)
-ALL_CPPFLAGS = $(REQ_CPPFLAGS) $(DEF_CPPFLAGS) $(CPPFLAGS)
+cflags = -std=c99 -Wall -pedantic $(CFLAGS)
+cppflags = -I. $(CPPFLAGS) -D_XOPEN_SOURCE=700 -DHAVE_GIFLIB=$(HAVE_GIFLIB) \
+  -DHAVE_LIBEXIF=$(HAVE_LIBEXIF) -I/usr/include/freetype2
 
-LIB_EXIF_0 =
-LIB_EXIF_1 = -lexif
-LIB_GIF_0 =
-LIB_GIF_1 = -lgif
-LDLIBS = -lImlib2 -lX11 -lXft -lfontconfig \
-  $(LIB_EXIF_$(HAVE_LIBEXIF)) $(LIB_GIF_$(HAVE_GIFLIB))
+lib_exif_0 =
+lib_exif_1 = -lexif
+lib_gif_0 =
+lib_gif_1 = -lgif
+ldlibs = $(LDLIBS) -lImlib2 -lX11 -lXft -lfontconfig \
+  $(lib_exif_$(HAVE_LIBEXIF)) $(lib_gif_$(HAVE_GIFLIB))
 
-OBJS = autoreload_$(AUTORELOAD).o commands.o image.o main.o options.o \
+objs = autoreload_$(AUTORELOAD).o commands.o image.o main.o options.o \
   thumbs.o util.o window.o
 
 all: sxiv
@@ -41,17 +36,17 @@ all: sxiv
 .SUFFIXES: .c .o
 $(V).SILENT:
 
-sxiv: $(OBJS)
+sxiv: $(objs)
 	@echo "LINK $@"
-	$(CC) $(LDFLAGS) $(ALL_CFLAGS) -o $@ $(OBJS) $(LDLIBS)
+	$(CC) $(LDFLAGS) -o $@ $(objs) $(ldlibs)
 
-$(OBJS): Makefile sxiv.h commands.lst config.h
+$(objs): Makefile sxiv.h commands.lst config.h
 options.o: version.h
 window.o: icon/data.h
 
 .c.o:
 	@echo "CC $@"
-	$(CC) $(ALL_CPPFLAGS) $(ALL_CFLAGS) -c -o $@ $<
+	$(CC) $(cflags) $(cppflags) -c -o $@ $<
 
 config.h:
 	@echo "GEN $@"
@@ -59,9 +54,8 @@ config.h:
 
 version.h: Makefile .git/index
 	@echo "GEN $@"
-	VERSION="$$(cd $(srcdir); git describe 2>/dev/null)"; \
-	[ -z "$$VERSION" ] && VERSION="$(VERSION)"; \
-	echo "#define VERSION \"$$VERSION\"" >$@
+	v="$$(cd $(srcdir); git describe 2>/dev/null)"; \
+	echo "#define VERSION \"$${v:-$(version)}\"" >$@
 
 .git/index:
 
@@ -75,7 +69,7 @@ install: all
 	chmod 755 $(DESTDIR)$(PREFIX)/bin/sxiv
 	@echo "INSTALL sxiv.1"
 	mkdir -p $(DESTDIR)$(MANPREFIX)/man1
-	sed "s!PREFIX!$(PREFIX)!g; s!VERSION!$(VERSION)!g" sxiv.1 \
+	sed "s!PREFIX!$(PREFIX)!g; s!VERSION!$(version)!g" sxiv.1 \
 		>$(DESTDIR)$(MANPREFIX)/man1/sxiv.1
 	chmod 644 $(DESTDIR)$(MANPREFIX)/man1/sxiv.1
 	@echo "INSTALL share/sxiv/"
