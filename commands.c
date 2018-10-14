@@ -270,15 +270,27 @@ bool cg_change_gamma(arg_t d)
 	}
 }
 
+/**
+ * @brief Navigate forwards/backwards to an image.
+ *
+ * @details alongside, the parameter n to indicate forwards/backwards movement,
+ * the function utilizes the following global variables: prefix, fileidx, and
+ * filecnt.
+ * @remarks The variable prefix indicates how much to move by.
+ * @remarks The variable fileidx indicates the 0-index location of the image
+ * before movement.
+ * @remarks The variable filecnt indicates the number of images accounted for in
+ * the sxiv instance.
+ *
+ * @param n When n == 1, forwards movement. When n == -1, backwards movement.
+ * @return Loads different image if n != fileidx. Else, does nothing.
+ */
 bool ci_navigate(arg_t n)
 {
 	if (prefix > 0)
 		n *= prefix;
 	n += fileidx;
-	if (n < 0)
-		n = 0;
-	if (n >= filecnt)
-		n = filecnt - 1;
+	n = (n % filecnt) + ( (n < 0) ? filecnt : 0);
 
 	if (n != fileidx) {
 		load_image(n);
