@@ -350,17 +350,8 @@ void bar_put(win_bar_t *bar, const char *fmt, ...)
 void update_info(void)
 {
 	unsigned int i, fn, fw;
-	char title[256];
 	const char * mark;
 	win_bar_t *l = &win.bar.l, *r = &win.bar.r;
-
-	/* update window title */
-	if (mode == MODE_THUMB) {
-		win_set_title(&win, "sxiv");
-	} else {
-		snprintf(title, sizeof(title), "sxiv - %s", files[fileidx].name);
-		win_set_title(&win, title);
-	}
 
 	/* update bar contents */
 	if (win.bar.h == 0)

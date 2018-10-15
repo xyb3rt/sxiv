@@ -464,9 +464,6 @@ void win_draw_rect(win_t *win, int x, int y, int w, int h, bool fill, int lw,
 
 void win_set_title(win_t *win, const char *title)
 {
-	if (title == NULL)
-		title = "sxiv";
-
 	XStoreName(win->env.dpy, win->xwin, title);
 	XSetIconName(win->env.dpy, win->xwin, title);
 
