@@ -43,6 +43,13 @@ tag_del() {
 	rm -f "$TMPFILE"
 }
 
+help() {
+  ( printf 'Keybindings inside C-x prefix:\n\n';
+    sed -n -e '/^case /,/^esac/{/^case /d;/^esac/d;p;}' "$0"
+  ) | xmessage -file -
+}
+
+
 case "$KEY" in
 "y")        tr '\n' ' ' | xclip -i ;;
 "C-c")      while read file; do xclip -selection clipboard -target image/png "$file"; done ;;
@@ -53,5 +60,6 @@ case "$KEY" in
 "C-slash")  rotate 180 ;;
 "C-t")      tag_add ;;
 "M-T")      tag_del ;;
+"C-h")      help ;;
 esac
 
