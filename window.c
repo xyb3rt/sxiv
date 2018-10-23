@@ -27,6 +27,7 @@
 #include <locale.h>
 #include <X11/cursorfont.h>
 #include <X11/Xatom.h>
+#include <X11/Xresource.h>
 
 enum {
 	H_TEXT_PAD = 5,
@@ -99,6 +100,35 @@ void win_check_wm_support(Display *dpy, Window root)
 	}
 }
 
+void get_xresource(Display *dpy, const char* rsc, const void* dst)
+{
+	char *type;
+	XrmValue ret;
+	XrmDatabase db;
+	char fullname[256];
+	char *resource_manager;
+
+	XrmInitialize();
+	resource_manager = XResourceManagerString(dpy);
+
+	if (resource_manager == NULL)
+		return;
+
+	db = XrmGetStringDatabase(resource_manager);
+
+	if (db == NULL)
+		return;
+
+	snprintf(fullname, sizeof(fullname), ".%s", rsc);
+	fullname[sizeof(fullname) - 1] = '\0';
+
+	XrmGetResource(db, fullname, "String", &type, &ret);
+
+	if (ret.addr != NULL || !strncmp("String", type, 64)) {
+		*( (char **) dst ) = ret.addr;
+	}
+}
+
 #define INIT_ATOM_(atom) \
 	atoms[ATOM_##atom] = XInternAtom(e->dpy, #atom, False);
 
@@ -121,6 +151,11 @@ void win_init(win_t *win)
 
 	if (setlocale(LC_CTYPE, "") == NULL || XSupportsLocale() == 0)
 		error(0, 0, "No locale support");
+
+	get_xresource(e->dpy, "background", &WIN_BG_COLOR);
+	get_xresource(e->dpy, "background", &BAR_FG_COLOR);
+	get_xresource(e->dpy, "foreground", &BAR_BG_COLOR);
+	get_xresource(e->dpy, "foreground", &SEL_COLOR);
 
 	win_init_font(e, BAR_FONT);
 
@@ -210,7 +245,7 @@ void win_open(win_t *win)
 	                          e->depth, InputOutput, e->vis, 0, NULL);
 	if (win->xwin == None)
 		error(EXIT_FAILURE, 0, "Error creating X window");
-	
+
 	XSelectInput(e->dpy, win->xwin,
 	             ButtonReleaseMask | ButtonPressMask | KeyPressMask |
 	             PointerMotionMask | StructureNotifyMask);
