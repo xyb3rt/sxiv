@@ -796,11 +796,6 @@ void run(void)
 	}
 }
 
-int fncmp(const void *a, const void *b)
-{
-	return strcoll(((fileinfo_t*) a)->name, ((fileinfo_t*) b)->name);
-}
-
 void sigchld(int sig)
 {
 	while (waitpid(-1, NULL, WNOHANG) > 0);
@@ -886,7 +881,8 @@ int main(int argc, char **argv)
 			}
 			r_closedir(&dir);
 			if (fileidx - start > 1)
-				qsort(files + start, fileidx - start, sizeof(fileinfo_t), fncmp);
+				qsort(files + start, fileidx - start,
+				      sizeof(fileinfo_t), options->filecmp);
 		}
 	}
 

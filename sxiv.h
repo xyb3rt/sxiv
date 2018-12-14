@@ -264,6 +264,7 @@ struct opt {
 	bool recursive;
 	int filecnt;
 	int startnum;
+	int (*filecmp)(const void*, const void*);
 
 	/* image: */
 	scalemode_t scalemode;

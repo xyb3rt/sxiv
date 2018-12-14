@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with sxiv.  If not, see <http://www.gnu.org/licenses/>.
  */
-
+#define _GNU_SOURCE
 #include "sxiv.h"
 #define _IMAGE_CONFIG
 #include "config.h"
@@ -40,6 +40,17 @@ void print_version(void)
 	puts("sxiv " VERSION);
 }
 
+static
+int alpha_fncmp(const void *a, const void *b)
+{
+	return strcoll(((fileinfo_t*) a)->name, ((fileinfo_t*) b)->name);
+}
+static
+int version_fncmp(const void*a, const void* b)
+{
+	return strverscmp(((fileinfo_t*) a)->name, ((fileinfo_t*) b)->name);
+}
+
 void parse_options(int argc, char **argv)
 {
 	int n, opt;
@@ -53,6 +64,7 @@ void parse_options(int argc, char **argv)
 	_options.to_stdout = false;
 	_options.recursive = false;
 	_options.startnum = 0;
+	_options.filecmp = alpha_fncmp;
 
 	_options.scalemode = SCALE_DOWN;
 	_options.zoom = 1.0;
@@ -72,7 +84,7 @@ void parse_options(int argc, char **argv)
 	_options.clean_cache = false;
 	_options.private_mode = false;
 
-	while ((opt = getopt(argc, argv, "A:abce:fG:g:hin:N:opqrS:s:tvZz:")) != -1) {
+	while ((opt = getopt(argc, argv, "A:abce:fG:g:hin:N:opqrS:s:tvVZz:")) != -1) {
 		switch (opt) {
 			case '?':
 				print_usage();
@@ -155,6 +167,9 @@ void parse_options(int argc, char **argv)
 			case 'v':
 				print_version();
 				exit(EXIT_SUCCESS);
+			case 'V':
+				_options.filecmp = version_fncmp;
+				break;
 			case 'Z':
 				_options.scalemode = SCALE_ZOOM;
 				_options.zoom = 1.0;
