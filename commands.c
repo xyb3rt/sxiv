@@ -136,7 +136,10 @@ bool cg_remove_image(arg_t _)
 {
 	remove_file(fileidx, true);
 	if (mode == MODE_IMAGE)
-		load_image(fileidx);
+		if (fileidx >= filecnt)
+			load_image(filecnt-1);
+		else
+			load_image(fileidx);
 	else
 		tns.dirty = true;
 	return true;
