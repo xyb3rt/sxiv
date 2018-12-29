@@ -155,11 +155,11 @@ void remove_file(int n, bool manual)
 		memmove(files + n, files + n + 1, (filecnt - n - 1) * sizeof(*files));
 	}
 	filecnt--;
-	if (n < fileidx)
+	if (fileidx > n || fileidx == filecnt)
 		fileidx--;
-	if (n < alternate)
+	if (alternate > n || alternate == filecnt)
 		alternate--;
-	if (n < markidx)
+	if (markidx > n || markidx == filecnt)
 		markidx--;
 }
 
