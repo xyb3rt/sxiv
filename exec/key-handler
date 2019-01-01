@@ -27,6 +27,7 @@ case "$1" in
 "C-c")      while read file; do xclip -selection clipboard -target image/png "$file"; done ;;
 "C-e")      while read file; do urxvt -bg "#444" -fg "#eee" -sl 0 -title "$file" -e sh -c "exiv2 pr -q -pa '$file' | less" & done ;;
 "C-g")      tr '\n' '\0' | xargs -0 gimp & ;;
+"C-r")      while read file; do rawtherapee "$file" & done ;;
 "C-comma")  rotate 270 ;;
 "C-period") rotate  90 ;;
 "C-slash")  rotate 180 ;;
