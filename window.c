@@ -29,6 +29,8 @@
 #include <X11/Xatom.h>
 #include <X11/Xresource.h>
 
+#define RES_CLASS "Sxiv"
+
 enum {
 	H_TEXT_PAD = 5,
 	V_TEXT_PAD = 1
@@ -100,12 +102,11 @@ void win_check_wm_support(Display *dpy, Window root)
 	}
 }
 
-void win_res(Display *dpy, const char *rsc, const char **dst)
+void win_res(Display *dpy, const char *name, const char **dst)
 {
 	char *type;
 	XrmValue ret;
 	XrmDatabase db;
-	char fullname[256];
 	char *res_man;
 
 	XrmInitialize();
@@ -116,12 +117,7 @@ void win_res(Display *dpy, const char *rsc, const char **dst)
 	if ((db = XrmGetStringDatabase(res_man)) == NULL)
 		return;
 
-	snprintf(fullname, sizeof(fullname), ".%s", rsc);
-	fullname[sizeof(fullname) - 1] = '\0';
-
-	XrmGetResource(db, fullname, "String", &type, &ret);
-
-	if (ret.addr != NULL && STREQ(type, "String"))
+	if (XrmGetResource(db, name, name, &type, &ret) && STREQ(type, "String"))
 		*dst = ret.addr;
 }
 
@@ -148,10 +144,10 @@ void win_init(win_t *win)
 	if (setlocale(LC_CTYPE, "") == NULL || XSupportsLocale() == 0)
 		error(0, 0, "No locale support");
 
-	win_res(e->dpy, "background", &WIN_BG_COLOR);
-	win_res(e->dpy, "background", &BAR_FG_COLOR);
-	win_res(e->dpy, "foreground", &BAR_BG_COLOR);
-	win_res(e->dpy, "foreground", &SEL_COLOR);
+	win_res(e->dpy, RES_CLASS ".background", &WIN_BG_COLOR);
+	win_res(e->dpy, RES_CLASS ".background", &BAR_FG_COLOR);
+	win_res(e->dpy, RES_CLASS ".foreground", &BAR_BG_COLOR);
+	win_res(e->dpy, RES_CLASS ".foreground", &SEL_COLOR);
 
 	win_init_font(e, BAR_FONT);
 
@@ -281,7 +277,7 @@ void win_open(win_t *win)
 
 	win_set_title(win, "sxiv");
 
-	classhint.res_class = "Sxiv";
+	classhint.res_class = RES_CLASS;
 	classhint.res_name = options->res_name != NULL ? options->res_name : "sxiv";
 	XSetClassHint(e->dpy, win->xwin, &classhint);
 
