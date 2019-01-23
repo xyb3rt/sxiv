@@ -14,11 +14,8 @@ static const char * const BAR_FONT = "monospace:size=8";
 /* colors:
  * (see X(7) section "COLOR NAMES" for valid values)
  */
-static const char * const WIN_BG_COLOR = "#555555";
-static const char * const WIN_FS_COLOR = "#000000";
-static const char * const SEL_COLOR    = "#EEEEEE";
-static const char * const BAR_BG_COLOR = "#222222";
-static const char * const BAR_FG_COLOR = "#EEEEEE";
+static const char * const BG_COLOR = "#555555";
+static const char * const FG_COLOR = "#EEEEEE";
 
 #endif
 #ifdef _IMAGE_CONFIG

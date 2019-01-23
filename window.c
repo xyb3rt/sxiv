@@ -121,12 +121,18 @@ const char* win_res(Display *dpy, const char *name, const char *def)
 	}
 }
 
+unsigned int win_luminance(const XftColor *col)
+{
+	return (col->color.red + col->color.green + col->color.blue) / 3;
+}
+
 #define INIT_ATOM_(atom) \
 	atoms[ATOM_##atom] = XInternAtom(e->dpy, #atom, False);
 
 void win_init(win_t *win)
 {
 	win_env_t *e;
+	const char *bg, *fg;
 
 	memset(win, 0, sizeof(win_t));
 
@@ -146,15 +152,12 @@ void win_init(win_t *win)
 
 	win_init_font(e, BAR_FONT);
 
-	win_alloc_color(e, win_res(e->dpy, RES_CLASS ".background", WIN_BG_COLOR),
-	                &win->bgcol);
-	win_alloc_color(e, WIN_FS_COLOR, &win->fscol);
-	win_alloc_color(e, win_res(e->dpy, RES_CLASS ".foreground", SEL_COLOR),
-	                &win->selcol);
-	win_alloc_color(e, win_res(e->dpy, RES_CLASS ".foreground", BAR_BG_COLOR),
-	                &win->bar.bgcol);
-	win_alloc_color(e, win_res(e->dpy, RES_CLASS ".background", BAR_FG_COLOR),
-	                &win->bar.fgcol);
+	bg = win_res(e->dpy, RES_CLASS ".background", BG_COLOR);
+	fg = win_res(e->dpy, RES_CLASS ".foreground", FG_COLOR);
+	win_alloc_color(e, bg, &win->bg);
+	win_alloc_color(e, fg, &win->fg);
+	win_alloc_color(e, "black", &win->black);
+	win->light = win_luminance(&win->bg) > win_luminance(&win->fg);
 
 	win->bar.l.size = BAR_L_LEN;
 	win->bar.r.size = BAR_R_LEN;
@@ -294,7 +297,7 @@ void win_open(win_t *win)
 	win->buf.h = e->scrh;
 	win->buf.pm = XCreatePixmap(e->dpy, win->xwin,
 	                            win->buf.w, win->buf.h, e->depth);
-	XSetForeground(e->dpy, gc, fullscreen ? win->fscol.pixel : win->bgcol.pixel);
+	XSetForeground(e->dpy, gc, fullscreen ? win->black.pixel : win->bg.pixel);
 	XFillRectangle(e->dpy, win->buf.pm, gc, 0, 0, win->buf.w, win->buf.h);
 	XSetWindowBackgroundPixmap(e->dpy, win->xwin, win->buf.pm);
 
@@ -386,14 +389,14 @@ void win_clear(win_t *win)
 		win->buf.pm = XCreatePixmap(e->dpy, win->xwin,
 		                            win->buf.w, win->buf.h, e->depth);
 	}
-	XSetForeground(e->dpy, gc, win->fullscreen ? win->fscol.pixel : win->bgcol.pixel);
+	XSetForeground(e->dpy, gc, win->fullscreen ? win->black.pixel : win->bg.pixel);
 	XFillRectangle(e->dpy, win->buf.pm, gc, 0, 0, win->buf.w, win->buf.h);
 }
 
 #define TEXTWIDTH(win, text, len) \
 	win_draw_text(win, NULL, NULL, 0, 0, text, len, 0)
 
-int win_draw_text(win_t *win, XftDraw *d, XftColor *color, int x, int y,
+int win_draw_text(win_t *win, XftDraw *d, const XftColor *color, int x, int y,
                   char *text, int len, int w)
 {
 	int err, tw = 0;
@@ -432,6 +435,7 @@ void win_draw_bar(win_t *win)
 	win_env_t *e;
 	win_bar_t *l, *r;
 	XftDraw *d;
+	const XftColor *bg, *fg;
 
 	if ((l = &win->bar.l)->buf == NULL || (r = &win->bar.r)->buf == NULL)
 		return;
@@ -442,23 +446,28 @@ void win_draw_bar(win_t *win)
 	d = XftDrawCreate(e->dpy, win->buf.pm, DefaultVisual(e->dpy, e->scr),
 	                  DefaultColormap(e->dpy, e->scr));
 
-	XSetForeground(e->dpy, gc, win->bar.bgcol.pixel);
+	if (win->fullscreen && !win->light)
+		bg = &win->bg, fg = &win->fg;
+	else
+		bg = &win->fg, fg = &win->bg;
+
+	XSetForeground(e->dpy, gc, bg->pixel);
 	XFillRectangle(e->dpy, win->buf.pm, gc, 0, win->h, win->w, win->bar.h);
 
-	XSetForeground(e->dpy, gc, win->bar.fgcol.pixel);
-	XSetBackground(e->dpy, gc, win->bar.bgcol.pixel);
+	XSetForeground(e->dpy, gc, fg->pixel);
+	XSetBackground(e->dpy, gc, bg->pixel);
 
 	if ((len = strlen(r->buf)) > 0) {
 		if ((tw = TEXTWIDTH(win, r->buf, len)) > w)
 			return;
 		x = win->w - tw - H_TEXT_PAD;
 		w -= tw;
-		win_draw_text(win, d, &win->bar.fgcol, x, y, r->buf, len, tw);
+		win_draw_text(win, d, fg, x, y, r->buf, len, tw);
 	}
 	if ((len = strlen(l->buf)) > 0) {
 		x = H_TEXT_PAD;
 		w -= 2 * H_TEXT_PAD; /* gap between left and right parts */
-		win_draw_text(win, d, &win->bar.fgcol, x, y, l->buf, len, w);
+		win_draw_text(win, d, fg, x, y, l->buf, len, w);
 	}
 	XftDrawDestroy(d);
 }
