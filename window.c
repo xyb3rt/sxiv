@@ -100,23 +100,20 @@ void win_check_wm_support(Display *dpy, Window root)
 	}
 }
 
-void get_xresource(Display *dpy, const char* rsc, const void* dst)
+void win_res(Display *dpy, const char *rsc, const char **dst)
 {
 	char *type;
 	XrmValue ret;
 	XrmDatabase db;
 	char fullname[256];
-	char *resource_manager;
+	char *res_man;
 
 	XrmInitialize();
-	resource_manager = XResourceManagerString(dpy);
 
-	if (resource_manager == NULL)
+	if ((res_man = XResourceManagerString(dpy)) == NULL)
 		return;
 
-	db = XrmGetStringDatabase(resource_manager);
-
-	if (db == NULL)
+	if ((db = XrmGetStringDatabase(res_man)) == NULL)
 		return;
 
 	snprintf(fullname, sizeof(fullname), ".%s", rsc);
@@ -124,9 +121,8 @@ void get_xresource(Display *dpy, const char* rsc, const void* dst)
 
 	XrmGetResource(db, fullname, "String", &type, &ret);
 
-	if (ret.addr != NULL || !strncmp("String", type, 64)) {
-		*( (char **) dst ) = ret.addr;
-	}
+	if (ret.addr != NULL && STREQ(type, "String"))
+		*dst = ret.addr;
 }
 
 #define INIT_ATOM_(atom) \
@@ -152,10 +148,10 @@ void win_init(win_t *win)
 	if (setlocale(LC_CTYPE, "") == NULL || XSupportsLocale() == 0)
 		error(0, 0, "No locale support");
 
-	get_xresource(e->dpy, "background", &WIN_BG_COLOR);
-	get_xresource(e->dpy, "background", &BAR_FG_COLOR);
-	get_xresource(e->dpy, "foreground", &BAR_BG_COLOR);
-	get_xresource(e->dpy, "foreground", &SEL_COLOR);
+	win_res(e->dpy, "background", &WIN_BG_COLOR);
+	win_res(e->dpy, "background", &BAR_FG_COLOR);
+	win_res(e->dpy, "foreground", &BAR_BG_COLOR);
+	win_res(e->dpy, "foreground", &SEL_COLOR);
 
 	win_init_font(e, BAR_FONT);
 
