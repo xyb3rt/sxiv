@@ -102,7 +102,7 @@ void win_check_wm_support(Display *dpy, Window root)
 	}
 }
 
-void win_res(Display *dpy, const char *name, const char **dst)
+const char* win_res(Display *dpy, const char *name, const char *def)
 {
 	char *type;
 	XrmValue ret;
@@ -111,14 +111,14 @@ void win_res(Display *dpy, const char *name, const char **dst)
 
 	XrmInitialize();
 
-	if ((res_man = XResourceManagerString(dpy)) == NULL)
-		return;
-
-	if ((db = XrmGetStringDatabase(res_man)) == NULL)
-		return;
-
-	if (XrmGetResource(db, name, name, &type, &ret) && STREQ(type, "String"))
-		*dst = ret.addr;
+	if ((res_man = XResourceManagerString(dpy)) != NULL &&
+	    (db = XrmGetStringDatabase(res_man)) != NULL &&
+	    XrmGetResource(db, name, name, &type, &ret) && STREQ(type, "String"))
+	{
+		return ret.addr;
+	} else {
+		return def;
+	}
 }
 
 #define INIT_ATOM_(atom) \
@@ -144,18 +144,17 @@ void win_init(win_t *win)
 	if (setlocale(LC_CTYPE, "") == NULL || XSupportsLocale() == 0)
 		error(0, 0, "No locale support");
 
-	win_res(e->dpy, RES_CLASS ".background", &WIN_BG_COLOR);
-	win_res(e->dpy, RES_CLASS ".background", &BAR_FG_COLOR);
-	win_res(e->dpy, RES_CLASS ".foreground", &BAR_BG_COLOR);
-	win_res(e->dpy, RES_CLASS ".foreground", &SEL_COLOR);
-
 	win_init_font(e, BAR_FONT);
 
-	win_alloc_color(e, WIN_BG_COLOR, &win->bgcol);
+	win_alloc_color(e, win_res(e->dpy, RES_CLASS ".background", WIN_BG_COLOR),
+	                &win->bgcol);
 	win_alloc_color(e, WIN_FS_COLOR, &win->fscol);
-	win_alloc_color(e, SEL_COLOR,    &win->selcol);
-	win_alloc_color(e, BAR_BG_COLOR, &win->bar.bgcol);
-	win_alloc_color(e, BAR_FG_COLOR, &win->bar.fgcol);
+	win_alloc_color(e, win_res(e->dpy, RES_CLASS ".foreground", SEL_COLOR),
+	                &win->selcol);
+	win_alloc_color(e, win_res(e->dpy, RES_CLASS ".foreground", BAR_BG_COLOR),
+	                &win->bar.bgcol);
+	win_alloc_color(e, win_res(e->dpy, RES_CLASS ".background", BAR_FG_COLOR),
+	                &win->bar.fgcol);
 
 	win->bar.l.size = BAR_L_LEN;
 	win->bar.r.size = BAR_R_LEN;
