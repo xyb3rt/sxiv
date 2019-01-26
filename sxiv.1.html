@@ -1,5 +1,5 @@
 <!-- Creator     : groff version 1.22.3 -->
-<!-- CreationDate: Fri Oct  6 10:26:23 2017 -->
+<!-- CreationDate: Sat Jan 26 14:40:34 2019 -->
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
 "http://www.w3.org/TR/html4/loose.dtd">
 <html>
@@ -65,10 +65,9 @@ Simple X Image Viewer</p>
 
 
 <p style="margin-left:11%; margin-top: 1em">sxiv is a
-simple image viewer for X. It only has the most basic
-features required for fast image viewing.</p>
+simple image viewer for X.</p>
 
-<p style="margin-left:11%; margin-top: 1em">sxiv has two
+<p style="margin-left:11%; margin-top: 1em">It has two
 modes of operation: image and thumbnail mode. The default is
 image mode, in which only the current image is shown. In
 thumbnail mode a grid of small previews is displayed, making
@@ -204,7 +203,8 @@ exit.</p> </td></tr>
 <td width="78%">
 
 
-<p>Read names of files to open from standard input.</p></td></tr>
+<p>Read names of files to open from standard input. Also
+done if FILE is &lsquo;-&rsquo;.</p></td></tr>
 <tr valign="top" align="left">
 <td width="11%"></td>
 <td width="9%">
@@ -472,12 +472,10 @@ width.</p>
 
 <p><b>+</b></p></td>
 <td width="2%"></td>
-<td width="63%">
+<td width="78%">
 
 
-<p>Zoom in.</p></td>
-<td width="15%">
-</td></tr>
+<p>Zoom in.</p></td></tr>
 <tr valign="top" align="left">
 <td width="11%"></td>
 <td width="9%">
@@ -485,12 +483,10 @@ width.</p>
 
 <p><b>-</b></p></td>
 <td width="2%"></td>
-<td width="63%">
+<td width="78%">
 
 
-<p>Zoom out.</p></td>
-<td width="15%">
-</td></tr>
+<p>Zoom out.</p></td></tr>
 <tr valign="top" align="left">
 <td width="11%"></td>
 <td width="9%">
@@ -498,12 +494,10 @@ width.</p>
 
 <p><b>m</b></p></td>
 <td width="2%"></td>
-<td width="63%">
+<td width="78%">
 
 
-<p>Mark/unmark the current image.</p></td>
-<td width="15%">
-</td></tr>
+<p>Mark/unmark the current image.</p></td></tr>
 <tr valign="top" align="left">
 <td width="11%"></td>
 <td width="9%">
@@ -511,12 +505,22 @@ width.</p>
 
 <p><b>M</b></p></td>
 <td width="2%"></td>
-<td width="63%">
+<td width="78%">
 
 
-<p>Reverse all image marks.</p></td>
-<td width="15%">
-</td></tr>
+<p>Reverse all image marks.</p></td></tr>
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="9%">
+
+
+<p><b>Ctrl-M</b></p></td>
+<td width="2%"></td>
+<td width="78%">
+
+
+<p>Repeat last mark action on all images from the last
+marked/unmarked up to the current one.</p></td></tr>
 <tr valign="top" align="left">
 <td width="11%"></td>
 <td width="9%">
@@ -524,12 +528,10 @@ width.</p>
 
 <p><b>Ctrl-m</b></p></td>
 <td width="2%"></td>
-<td width="63%">
+<td width="78%">
 
 
-<p>Remove all image marks.</p></td>
-<td width="15%">
-</td></tr>
+<p>Remove all image marks.</p></td></tr>
 <tr valign="top" align="left">
 <td width="11%"></td>
 <td width="9%">
@@ -537,12 +539,10 @@ width.</p>
 
 <p><b>N</b></p></td>
 <td width="2%"></td>
-<td width="63%">
+<td width="78%">
 
 
-<p>Go <i>count</i> marked images forward.</p></td>
-<td width="15%">
-</td></tr>
+<p>Go <i>count</i> marked images forward.</p></td></tr>
 <tr valign="top" align="left">
 <td width="11%"></td>
 <td width="9%">
@@ -550,12 +550,10 @@ width.</p>
 
 <p><b>P</b></p></td>
 <td width="2%"></td>
-<td width="63%">
+<td width="78%">
 
 
-<p>Go <i>count</i> marked images backward.</p></td>
-<td width="15%">
-</td></tr>
+<p>Go <i>count</i> marked images backward.</p></td></tr>
 <tr valign="top" align="left">
 <td width="11%"></td>
 <td width="9%">
@@ -563,12 +561,10 @@ width.</p>
 
 <p><b>{</b></p></td>
 <td width="2%"></td>
-<td width="63%">
+<td width="78%">
 
 
-<p>Decrease gamma correction by <i>count</i> steps.</p></td>
-<td width="15%">
-</td></tr>
+<p>Decrease gamma correction by <i>count</i> steps.</p></td></tr>
 <tr valign="top" align="left">
 <td width="11%"></td>
 <td width="9%">
@@ -576,12 +572,10 @@ width.</p>
 
 <p><b>}</b></p></td>
 <td width="2%"></td>
-<td width="63%">
+<td width="78%">
 
 
-<p>Increase gamma correction by <i>count</i> steps.</p></td>
-<td width="15%">
-</td></tr>
+<p>Increase gamma correction by <i>count</i> steps.</p></td></tr>
 <tr valign="top" align="left">
 <td width="11%"></td>
 <td width="9%">
@@ -589,12 +583,10 @@ width.</p>
 
 <p><b>Ctrl-g</b></p></td>
 <td width="2%"></td>
-<td width="63%">
+<td width="78%">
 
 
-<p>Reset gamma correction.</p></td>
-<td width="15%">
-</td></tr>
+<p>Reset gamma correction.</p></td></tr>
 </table>
 
 <p style="margin-left:11%; margin-top: 1em"><b>Thumbnail
