@@ -74,6 +74,13 @@ on GitHub or get a copy using git with the following command:
 
 **Stable releases**
 
+**[v25](https://github.com/muennich/sxiv/archive/v25.tar.gz)**
+*(January 26, 2019)*
+
+  * Support font fallback for missing glyphs
+  * Fix busy loop when built without inotify
+  * Use background/foreground colors from X resource database
+
 **[v24](https://github.com/muennich/sxiv/archive/v24.tar.gz)**
 *(October 27, 2017)*
 
