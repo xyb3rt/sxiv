@@ -15,8 +15,8 @@ static const char * const BAR_FONT = "monospace:size=8";
  * overwritten by 'background' and 'foreground' X resource properties.
  * (see X(7) section "COLOR NAMES" for valid values)
  */
-static const char * const BG_COLOR = "#555555";
-static const char * const FG_COLOR = "#EEEEEE";
+static const char * const BG_COLOR = "#ffffea";
+static const char * const FG_COLOR = "#555555";
 
 #endif
 #ifdef _IMAGE_CONFIG
