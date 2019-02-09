@@ -3,7 +3,14 @@ version = 25
 srcdir = .
 VPATH = $(srcdir)
 
-PREFIX = /usr/local
+ifeq "$(PREFIX)" ""
+	INCLUDEPREFIX = /usr/include
+else
+	INCLUDEPREFIX := $(PREFIX)/include
+	PREFIX := $(PREFIX)/local
+endif
+
+PREFIX ?= /usr/local
 MANPREFIX = $(PREFIX)/share/man
 
 # autoreload backend: inotify/nop
@@ -17,7 +24,7 @@ HAVE_LIBEXIF = 1
 
 cflags = -std=c99 -Wall -pedantic $(CFLAGS)
 cppflags = -I. $(CPPFLAGS) -D_XOPEN_SOURCE=700 -DHAVE_GIFLIB=$(HAVE_GIFLIB) \
-  -DHAVE_LIBEXIF=$(HAVE_LIBEXIF) -I/usr/include/freetype2
+  -DHAVE_LIBEXIF=$(HAVE_LIBEXIF) -I$(INCLUDEPREFIX)/freetype2
 
 lib_exif_0 =
 lib_exif_1 = -lexif
