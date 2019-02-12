@@ -3,13 +3,11 @@ version = 25
 srcdir = .
 VPATH = $(srcdir)
 
-ifeq "$(PREFIX)" ""
-	INCLUDEPREFIX = /usr/include
-else
-	INCLUDEPREFIX := $(PREFIX)/include
-	PREFIX := $(PREFIX)/local
+ifeq "$(notdir $(PREFIX))" "usr"
+INCLUDEPREFIX := $(PREFIX)/include
+PREFIX := $(PREFIX)/local
 endif
-
+INCLUDEPREFIX ?= /usr/include
 PREFIX ?= /usr/local
 MANPREFIX = $(PREFIX)/share/man
 
