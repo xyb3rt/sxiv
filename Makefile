@@ -1,4 +1,4 @@
-version = 25
+version = 25+
 
 srcdir = .
 VPATH = $(srcdir)
@@ -16,8 +16,9 @@ HAVE_GIFLIB = 1
 HAVE_LIBEXIF = 1
 
 cflags = -std=c99 -Wall -pedantic $(CFLAGS)
-cppflags = -I. $(CPPFLAGS) -D_XOPEN_SOURCE=700 -DHAVE_GIFLIB=$(HAVE_GIFLIB) \
-  -DHAVE_LIBEXIF=$(HAVE_LIBEXIF) -I/usr/include/freetype2
+cppflags = -I. $(CPPFLAGS) -D_XOPEN_SOURCE=700 \
+  -DHAVE_GIFLIB=$(HAVE_GIFLIB) -DHAVE_LIBEXIF=$(HAVE_LIBEXIF) \
+  -I/usr/include/freetype2 -I$(PREFIX)/include/freetype2
 
 lib_exif_0 =
 lib_exif_1 = -lexif
