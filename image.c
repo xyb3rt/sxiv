@@ -36,6 +36,11 @@
 enum { DEF_GIF_DELAY = 75 };
 #endif
 
+#if HAVE_LIBWEBP
+#include <strings.h>
+#include <webp/demux.h>
+#endif
+
 float zoom_min;
 float zoom_max;
 
@@ -74,6 +79,13 @@ void img_init(img_t *img, win_t *win)
 
 	img->ss.on = options->slideshow > 0;
 	img->ss.delay = options->slideshow > 0 ? options->slideshow : SLIDESHOW_DELAY * 10;
+}
+
+bool img_can_access(const fileinfo_t *file)
+{
+	struct stat st;
+	return (access(file->path, R_OK) == 0 &&
+			stat(file->path, &st) == 0 && S_ISREG(st.st_mode));
 }
 
 #if HAVE_LIBEXIF
@@ -293,13 +305,155 @@ bool img_load_gif(img_t *img, const fileinfo_t *file)
 }
 #endif /* HAVE_GIFLIB */
 
+#ifdef HAVE_LIBWEBP
+bool img_is_webp(const fileinfo_t *file)
+{
+	const int len_ext = 5;
+	const char *webp_ext = ".webp";
+	size_t path_len;
+
+	path_len = strlen(file->path);
+	if (path_len < len_ext)
+		return false;
+
+	return strcasecmp(file->path + (path_len - len_ext), webp_ext) == 0;
+}
+
+bool img_load_webp_raw(WebPData *webp_data, const fileinfo_t *file)
+{
+	FILE* img_file;
+	uint8_t *img_data;
+	size_t img_size;
+	size_t chunks_read;
+
+	img_file = fopen(file->path, "rb");
+	if (img_file == NULL)
+		return false;
+
+	fseek(img_file, 0L, SEEK_END);
+	img_size = ftell(img_file);
+	fseek(img_file, 0L, SEEK_SET);
+	if (img_size < 0)
+		return false;
+
+	img_data = emalloc(img_size);
+	chunks_read = fread(img_data, img_size, 1, img_file);
+	fclose(img_file);
+
+	if (chunks_read != 1)
+		return false;
+
+	webp_data->bytes = img_data;
+	webp_data->size = img_size;
+
+	return true;
+}
+
+bool img_load_webp(img_t *img, const fileinfo_t *file)
+{
+	WebPData webp_data;
+	WebPAnimDecoder *dec;
+	WebPAnimInfo anim_info;
+	WebPAnimDecoderOptions dec_opt;
+	Imlib_Image im;
+	int w, h, prev_timestamp = 0;
+	bool err = false;
+
+	if (!img_can_access(file))
+		return false;
+
+	if (img->multi.cap == 0) {
+		img->multi.cap = 8;
+		img->multi.frames = (img_frame_t*)
+		                    emalloc(sizeof(img_frame_t) * img->multi.cap);
+	}
+	img->multi.cnt = img->multi.sel = 0;
+	img->multi.length = 0;
+
+	WebPDataInit(&webp_data);
+
+	if (!img_load_webp_raw(&webp_data, file))
+		return false;
+
+	if (WebPAnimDecoderOptionsInit(&dec_opt) != 1)
+		return false;
+	dec_opt.color_mode = MODE_BGRA;
+
+	dec = WebPAnimDecoderNew(&webp_data, &dec_opt);
+	if (dec == NULL)
+		return false;
+
+	if (WebPAnimDecoderGetInfo(dec, &anim_info))
+	{
+		w = anim_info.canvas_width;
+		h = anim_info.canvas_height;
+	}
+	else
+	{
+		err = true;
+	}
+
+	while (!err && WebPAnimDecoderHasMoreFrames(dec))
+	{
+		uint8_t *bgra_data;
+		DATA32 *curr_img_data;
+		int timestamp, delay;
+
+		im = NULL;
+		if (!WebPAnimDecoderGetNext(dec, &bgra_data, &timestamp))
+		{
+			err = true;
+			break;
+		}
+
+		curr_img_data = (DATA32 *)bgra_data;
+		im = imlib_create_image_using_copied_data(w, h, curr_img_data);
+
+		if (im == NULL) {
+			err = true;
+			break;
+		}
+
+		imlib_context_set_image(im);
+		imlib_image_set_format("webp");
+		imlib_image_set_has_alpha(1);
+
+		if (img->multi.cnt == img->multi.cap) {
+			img->multi.cap *= 2;
+			img->multi.frames = (img_frame_t*)
+				erealloc(img->multi.frames,
+						img->multi.cap * sizeof(img_frame_t));
+		}
+		img->multi.frames[img->multi.cnt].im = im;
+		delay = timestamp - prev_timestamp;
+
+		img->multi.frames[img->multi.cnt].delay = delay > 0 ? delay : DEF_GIF_DELAY;
+		img->multi.length += img->multi.frames[img->multi.cnt].delay;
+		img->multi.cnt++;
+
+		prev_timestamp = timestamp;
+	}
+
+	WebPAnimDecoderDelete(dec);
+
+	if (img->multi.cnt > 1) {
+		img->im = img->multi.frames[0].im;
+	} else if (img->multi.cnt == 1) {
+		img->im = img->multi.frames[0].im;
+		img->multi.cnt = 0;
+	}
+
+	imlib_context_set_image(img->im);
+
+	return !err;
+}
+#endif /* HAVE_LIBWEBP */
+
 Imlib_Image img_open(const fileinfo_t *file)
 {
-	struct stat st;
 	Imlib_Image im = NULL;
 
-	if (access(file->path, R_OK) == 0 &&
-	    stat(file->path, &st) == 0 && S_ISREG(st.st_mode))
+	if (img_can_access(file))
 	{
 		im = imlib_load_image(file->path);
 		if (im != NULL) {
@@ -319,10 +473,26 @@ bool img_load(img_t *img, const fileinfo_t *file)
 {
 	const char *fmt;
 
+#if HAVE_LIBWEBP
+	if (img_is_webp(file))
+	{
+		if (!img_load_webp(img, file))
+		{
+			if (file->flags & FF_WARN)
+				error(0, 0, "%s: Corrupted webp file", file->name);
+			return false;
+		}
+	}
+	else
+	{
+#endif
 	if ((img->im = img_open(file)) == NULL)
 		return false;
 
 	imlib_image_set_changes_on_disk();
+#if HAVE_LIBWEBP
+	}
+#endif
 
 #if HAVE_LIBEXIF
 	exif_auto_orientate(file);
