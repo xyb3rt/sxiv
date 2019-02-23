@@ -48,6 +48,7 @@ static GC gc;
 
 static XftFont *font;
 static int fontheight;
+static double fontsize;
 static int barheight;
 
 Atom atoms[ATOM_COUNT];
@@ -60,6 +61,7 @@ void win_init_font(const win_env_t *e, const char *fontstr)
 	if ((font = XftFontOpenName(e->dpy, e->scr, fontstr)) == NULL)
 		error(EXIT_FAILURE, 0, "Error loading font '%s'", fontstr);
 	fontheight = font->ascent + font->descent;
+	FcPatternGetDouble(font->pattern, FC_SIZE, 0, &fontsize);
 	barheight = fontheight + 2 * V_TEXT_PAD;
 }
 
@@ -414,7 +416,8 @@ int win_draw_text(win_t *win, XftDraw *d, const XftColor *color, int x, int y,
 			fccharset = FcCharSetCreate();
 			FcCharSetAddChar(fccharset, rune);
 			f = XftFontOpen(win->env.dpy, win->env.scr, FC_CHARSET, FcTypeCharSet,
-			                fccharset, FC_SCALABLE, FcTypeBool, FcTrue, NULL);
+			                fccharset, FC_SCALABLE, FcTypeBool, FcTrue,
+			                FC_SIZE, FcTypeDouble, fontsize, NULL);
 			FcCharSetDestroy(fccharset);
 		}
 		XftTextExtentsUtf8(win->env.dpy, f, (XftChar8*)t, next - t, &ext);
