@@ -79,7 +79,7 @@ void tns_cache_write(Imlib_Image im, const char *filepath, bool force)
 	char *cfile, *dirend;
 	struct stat cstats, fstats;
 	struct utimbuf times;
-	Imlib_Load_Error err = 0;
+	Imlib_Load_Error err;
 
 	if (options->private_mode)
 		return;
@@ -93,26 +93,27 @@ void tns_cache_write(Imlib_Image im, const char *filepath, bool force)
 		{
 			if ((dirend = strrchr(cfile, '/')) != NULL) {
 				*dirend = '\0';
-				if ((err = r_mkdir(cfile)) == -1)
+				if (r_mkdir(cfile) == -1) {
 					error(0, errno, "%s", cfile);
+					goto end;
+				}
 				*dirend = '/';
 			}
-			if (err == 0) {
-				imlib_context_set_image(im);
-				if (imlib_image_has_alpha()) {
-					imlib_image_set_format("png");
-				} else {
-					imlib_image_set_format("jpg");
-					imlib_image_attach_data_value("quality", NULL, 90, NULL);
-				}
-				imlib_save_image_with_error_return(cfile, &err);
+			imlib_context_set_image(im);
+			if (imlib_image_has_alpha()) {
+				imlib_image_set_format("png");
+			} else {
+				imlib_image_set_format("jpg");
+				imlib_image_attach_data_value("quality", NULL, 90, NULL);
 			}
-			if (err == 0) {
-				times.actime = fstats.st_atime;
-				times.modtime = fstats.st_mtime;
-				utime(cfile, &times);
-			}
+			imlib_save_image_with_error_return(cfile, &err);
+			if (err)
+				goto end;
+			times.actime = fstats.st_atime;
+			times.modtime = fstats.st_mtime;
+			utime(cfile, &times);
 		}
+end:
 		free(cfile);
 	}
 }
