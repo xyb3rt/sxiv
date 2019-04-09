@@ -134,7 +134,7 @@ unsigned int win_luminance(const XftColor *col)
 void win_init(win_t *win)
 {
 	win_env_t *e;
-	const char *bg, *fg;
+	const char *bg, *fg, *f;
 
 	memset(win, 0, sizeof(win_t));
 
@@ -152,7 +152,8 @@ void win_init(win_t *win)
 	if (setlocale(LC_CTYPE, "") == NULL || XSupportsLocale() == 0)
 		error(0, 0, "No locale support");
 
-	win_init_font(e, BAR_FONT);
+	f = win_res(e->dpy, RES_CLASS ".font", BAR_FONT);
+	win_init_font(e, f);
 
 	bg = win_res(e->dpy, RES_CLASS ".background", BG_COLOR);
 	fg = win_res(e->dpy, RES_CLASS ".foreground", FG_COLOR);
