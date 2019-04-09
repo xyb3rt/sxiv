@@ -7,6 +7,7 @@ enum {
 };
 
 /* bar font:
+ * overwritten by the 'font' X resource property.
  * (see fonts-conf(5) subsection "FONT NAMES" for valid values)
  */
 static const char * const BAR_FONT = "monospace:size=8";
