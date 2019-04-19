@@ -375,6 +375,17 @@ Zoom in.
 .TP
 .B ScrollDown
 Zoom out.
+.SH CONFIGURATION
+The following X resources are supported:
+.TP
+.B background
+Color of the window background and bar foreground
+.TP
+.B foreground
+Color of the window foreground and bar background
+.TP
+.B font
+Name of Xft bar font
 .SH STATUS BAR
 The information displayed on the left side of the status bar can be replaced
 with the output of a user-provided script, which is called by sxiv whenever an
@@ -431,5 +442,5 @@ Max Voit        <mvdev at with-eyes.net>
 https://github.com/muennich/sxiv
 .EE
 .SH SEE ALSO
-.BR feh (1),
-.BR qiv (1)
+.BR X (7),
+.BR xrdb (1)
