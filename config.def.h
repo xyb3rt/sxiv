@@ -6,18 +6,10 @@ enum {
 	WIN_HEIGHT = 600
 };
 
-/* bar font:
- * overwritten by the 'font' X resource property.
- * (see fonts-conf(5) subsection "FONT NAMES" for valid values)
+/* colors and font are configured with 'background', 'foreground' and
+ * 'font' X resource properties.
+ * See X(7) section Resources and xrdb(1) for more information.
  */
-static const char * const BAR_FONT = "monospace:size=8";
-
-/* colors:
- * overwritten by 'background' and 'foreground' X resource properties.
- * (see X(7) section "COLOR NAMES" for valid values)
- */
-static const char * const BG_COLOR = "#ffffea";
-static const char * const FG_COLOR = "#555555";
 
 #endif
 #ifdef _IMAGE_CONFIG

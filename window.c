@@ -152,11 +152,11 @@ void win_init(win_t *win)
 	if (setlocale(LC_CTYPE, "") == NULL || XSupportsLocale() == 0)
 		error(0, 0, "No locale support");
 
-	f = win_res(e->dpy, RES_CLASS ".font", BAR_FONT);
+	f = win_res(e->dpy, RES_CLASS ".font", "monospace-8");
 	win_init_font(e, f);
 
-	bg = win_res(e->dpy, RES_CLASS ".background", BG_COLOR);
-	fg = win_res(e->dpy, RES_CLASS ".foreground", FG_COLOR);
+	bg = win_res(e->dpy, RES_CLASS ".background", "white");
+	fg = win_res(e->dpy, RES_CLASS ".foreground", "black");
 	win_alloc_color(e, bg, &win->bg);
 	win_alloc_color(e, fg, &win->fg);
 	win_alloc_color(e, "black", &win->black);
