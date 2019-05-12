@@ -321,7 +321,7 @@ void load_image(int new)
 		reset_timeout(animate);
 }
 
-int *selects; /* 0 if unselected */
+int *selects; /* 0 if file is unselected */
 int selnext; /* Only incremements by 1. */
 
 bool mark_image(int n, bool on)

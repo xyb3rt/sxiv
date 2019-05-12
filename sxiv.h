@@ -121,6 +121,11 @@ typedef struct {
 	fileflags_t flags;
 } fileinfo_t;
 
+typedef struct {
+	char *path;
+	int order; /* selects */
+} outf_t;
+
 /* timeouts in milliseconds: */
 enum {
 	TO_REDRAW_RESIZE = 75,

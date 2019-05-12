@@ -54,18 +54,15 @@ extern bool extprefix;
 
 extern int *selects;
 
-/* Comparison function. Receives two generic (void) pointers to the items under comparison. */
-int compare_ints(const void *p, const void *q) {
-    int x = *(const int *)p;
-    int y = *(const int *)q;
+/* Bad place for this method? */
+int cmp_outf_t(const void *p, const void *q) {
+    outf_t a = *(const outf_t *) p;
+    outf_t b = *(const outf_t *) q;
 
-    /* Avoid return x - y, which can cause undefined behaviour
-       because of signed integer overflow. */
-    if (x < y)
-        return -1;  // Return -1 if you want ascending, 1 if you want descending order. 
-    else if (x > y)
-        return 1;   // Return 1 if you want ascending, -1 if you want descending order. 
-
+    if (a.order < b.order)
+        return -1;
+    else if (a.order > b.order)
+        return 1;
     return 0;
 }
 
@@ -74,23 +71,19 @@ bool cg_quit(arg_t _)
 	unsigned int i;
 
 	if (options->to_stdout && markcnt > 0) {
-		typedef struct {
-			char *path;
-			int order;
-		} outf_t;
 		outf_t *outfs;
 		outfs = emalloc(filecnt * sizeof(outf_t));
-
 		for (i = 0; i < filecnt; i++) {
 			outfs[i].path = files[i].path;
 			outfs[i].order = selects[i];
-			/*
-			if (files[i].flags & FF_MARK)
-				printf("%s\n", files[i].name);
-				*/
-			printf("%s %u\n", outfs[i].path, outfs[i].order);
 		}
-		//qsort(selects, filecnt, sizeof *selects, &compare_ints);
+
+		/* Sort selections in order */
+		qsort(outfs, filecnt, sizeof *outfs, &cmp_outf_t);
+		for (i = 0; i < filecnt; i++) {
+			if (outfs[i].order != 0)
+				printf("%s %u\n", outfs[i].path, outfs[i].order);
+		}
 	}
 	exit(EXIT_SUCCESS);
 }
