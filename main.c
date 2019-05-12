@@ -321,8 +321,14 @@ void load_image(int new)
 		reset_timeout(animate);
 }
 
+int *selects; /* 0 if unselected */
+int selnext; /* Only incremements by 1. */
+
 bool mark_image(int n, bool on)
 {
+	printf(on ? "true\n" : "false\n");
+	selects[n] = on ? selnext++ : 0;
+
 	markidx = n;
 	if (!!(files[n].flags & FF_MARK) != on) {
 		files[n].flags ^= FF_MARK;
@@ -853,6 +859,9 @@ int main(int argc, char **argv)
 	files = emalloc(filecnt * sizeof(*files));
 	memset(files, 0, filecnt * sizeof(*files));
 	fileidx = 0;
+
+	selects = emalloc(filecnt * sizeof(int));
+	selnext = 1;
 
 	if (options->from_stdin) {
 		n = 0;
