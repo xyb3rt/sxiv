@@ -326,7 +326,6 @@ int selnext; /* Only incremements by 1. */
 
 bool mark_image(int n, bool on)
 {
-	printf(on ? "true\n" : "false\n");
 	selects[n] = on ? selnext++ : 0;
 
 	markidx = n;

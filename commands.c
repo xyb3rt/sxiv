@@ -75,19 +75,21 @@ bool cg_quit(arg_t _)
 
 	if (options->to_stdout && markcnt > 0) {
 		typedef struct {
-			char path;
+			char *path;
 			int order;
 		} outf_t;
+		outf_t *outfs;
+		outfs = emalloc(filecnt * sizeof(outf_t));
 
 		for (i = 0; i < filecnt; i++) {
-			printf("%u,", selects[i]);
+			outfs[i].path = files[i].path;
+			outfs[i].order = selects[i];
 			/*
 			if (files[i].flags & FF_MARK)
 				printf("%s\n", files[i].name);
 				*/
-
+			printf("%s %u\n", outfs[i].path, outfs[i].order);
 		}
-		printf("\n");
 		//qsort(selects, filecnt, sizeof *selects, &compare_ints);
 	}
 	exit(EXIT_SUCCESS);
