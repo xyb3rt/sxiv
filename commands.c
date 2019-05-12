@@ -52,15 +52,43 @@ extern int markidx;
 extern int prefix;
 extern bool extprefix;
 
+extern int *selects;
+
+/* Comparison function. Receives two generic (void) pointers to the items under comparison. */
+int compare_ints(const void *p, const void *q) {
+    int x = *(const int *)p;
+    int y = *(const int *)q;
+
+    /* Avoid return x - y, which can cause undefined behaviour
+       because of signed integer overflow. */
+    if (x < y)
+        return -1;  // Return -1 if you want ascending, 1 if you want descending order. 
+    else if (x > y)
+        return 1;   // Return 1 if you want ascending, -1 if you want descending order. 
+
+    return 0;
+}
+
 bool cg_quit(arg_t _)
 {
 	unsigned int i;
 
 	if (options->to_stdout && markcnt > 0) {
+		typedef struct {
+			char path;
+			int order;
+		} outf_t;
+
 		for (i = 0; i < filecnt; i++) {
+			printf("%u,", selects[i]);
+			/*
 			if (files[i].flags & FF_MARK)
 				printf("%s\n", files[i].name);
+				*/
+
 		}
+		printf("\n");
+		//qsort(selects, filecnt, sizeof *selects, &compare_ints);
 	}
 	exit(EXIT_SUCCESS);
 }
