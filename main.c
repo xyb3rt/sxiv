@@ -64,6 +64,9 @@ bool extprefix;
 
 bool resized = false;
 
+int *selects; /* 0 if file is unselected */
+int selnext; /* Only incremements by 1. */
+
 typedef struct {
 	int err;
 	char *cmd;
@@ -320,9 +323,6 @@ void load_image(int new)
 	else
 		reset_timeout(animate);
 }
-
-int *selects; /* 0 if file is unselected */
-int selnext; /* Only incremements by 1. */
 
 bool mark_image(int n, bool on)
 {

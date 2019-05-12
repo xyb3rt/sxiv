@@ -82,7 +82,7 @@ bool cg_quit(arg_t _)
 		qsort(outfs, filecnt, sizeof *outfs, &cmp_outf_t);
 		for (i = 0; i < filecnt; i++) {
 			if (outfs[i].order != 0)
-				printf("%s %u\n", outfs[i].path, outfs[i].order);
+				printf("%s %u\n", outfs[i].path);
 		}
 	}
 	exit(EXIT_SUCCESS);
