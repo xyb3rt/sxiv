@@ -391,12 +391,9 @@ void img_check_pan(img_t *img, bool moved)
 		img->dirty = true;
 }
 
-bool img_fit(img_t *img)
+int img_zoom_diff(img_t *img, float *zptr)
 {
 	float z, zw, zh;
-
-	if (img->scalemode == SCALE_ZOOM)
-		return false;
 
 	zw = (float) img->win->w / (float) img->w;
 	zh = (float) img->win->h / (float) img->h;
@@ -413,8 +410,20 @@ bool img_fit(img_t *img)
 			break;
 	}
 	z = MIN(z, img->scalemode == SCALE_DOWN ? 1.0 : zoom_max);
+  if (zptr != NULL)
+    *zptr = z;
 
-	if (zoomdiff(img, z) != 0) {
+  return zoomdiff(img, z);
+}
+
+bool img_fit(img_t *img)
+{
+  float z;
+
+	if (img->scalemode == SCALE_ZOOM)
+		return false;
+
+	if (img_zoom_diff(img, &z) != 0) {
 		img->zoom = z;
 		img->dirty = true;
 		return true;

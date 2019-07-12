@@ -252,6 +252,7 @@ void img_toggle_antialias(img_t*);
 bool img_change_gamma(img_t*, int);
 bool img_frame_navigate(img_t*, int);
 bool img_frame_animate(img_t*);
+int  img_zoom_diff(img_t*, float*);
 
 
 /* options.c */
