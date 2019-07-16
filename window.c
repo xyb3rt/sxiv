@@ -53,9 +53,6 @@ static int barheight;
 
 Atom atoms[ATOM_COUNT];
 
-static Bool fs_support;
-static Bool fs_warned;
-
 void win_init_font(const win_env_t *e, const char *fontstr)
 {
 	if ((font = XftFontOpenName(e->dpy, e->scr, fontstr)) == NULL)
@@ -71,36 +68,6 @@ void win_alloc_color(const win_env_t *e, const char *name, XftColor *col)
 	                       DefaultColormap(e->dpy, e->scr), name, col))
 	{
 		error(EXIT_FAILURE, 0, "Error allocating color '%s'", name);
-	}
-}
-
-void win_check_wm_support(Display *dpy, Window root)
-{
-	int format;
-	long offset = 0, length = 16;
-	Atom *data, type;
-	unsigned long i, nitems, bytes_left;
-	Bool found = False;
-
-	while (!found && length > 0) {
-		if (XGetWindowProperty(dpy, root, atoms[ATOM__NET_SUPPORTED],
-		                       offset, length, False, XA_ATOM, &type, &format,
-		                       &nitems, &bytes_left, (unsigned char**) &data))
-		{
-			break;
-		}
-		if (type == XA_ATOM && format == 32) {
-			for (i = 0; i < nitems; i++) {
-				if (data[i] == atoms[ATOM__NET_WM_STATE_FULLSCREEN]) {
-					found = True;
-					fs_support = True;
-					break;
-				}
-			}
-		}
-		XFree(data);
-		offset += nitems;
-		length = MIN(length, bytes_left / 4);
 	}
 }
 
@@ -170,9 +137,6 @@ void win_init(win_t *win)
 	INIT_ATOM_(_NET_WM_ICON);
 	INIT_ATOM_(_NET_WM_STATE);
 	INIT_ATOM_(_NET_WM_STATE_FULLSCREEN);
-	INIT_ATOM_(_NET_SUPPORTED);
-
-	win_check_wm_support(e->dpy, RootWindow(e->dpy, e->scr));
 }
 
 void win_open(win_t *win)
@@ -188,7 +152,6 @@ void win_open(win_t *win)
 	Pixmap none;
 	int gmask;
 	XSizeHints sizehints;
-	Bool fullscreen = options->fullscreen && fs_support;
 
 	e = &win->env;
 	parent = options->embed != 0 ? options->embed : RootWindow(e->dpy, e->scr);
@@ -300,7 +263,7 @@ void win_open(win_t *win)
 	XMapWindow(e->dpy, win->xwin);
 	XFlush(e->dpy);
 
-	if (fullscreen)
+	if (options->fullscreen)
 		win_toggle_fullscreen(win);
 }
 
@@ -337,15 +300,6 @@ void win_toggle_fullscreen(win_t *win)
 	XEvent ev;
 	XClientMessageEvent *cm;
 
-	if (!fs_support) {
-		if (!fs_warned) {
-			error(0, 0, "No fullscreen support");
-			fs_warned = True;
-		}
-		return;
-	}
-	win->fullscreen = !win->fullscreen;
-
 	memset(&ev, 0, sizeof(ev));
 	ev.type = ClientMessage;
 
@@ -353,9 +307,8 @@ void win_toggle_fullscreen(win_t *win)
 	cm->window = win->xwin;
 	cm->message_type = atoms[ATOM__NET_WM_STATE];
 	cm->format = 32;
-	cm->data.l[0] = win->fullscreen;
+	cm->data.l[0] = 2; // toggle
 	cm->data.l[1] = atoms[ATOM__NET_WM_STATE_FULLSCREEN];
-	cm->data.l[2] = cm->data.l[3] = 0;
 
 	XSendEvent(win->env.dpy, DefaultRootWindow(win->env.dpy), False,
 	           SubstructureNotifyMask | SubstructureRedirectMask, &ev);
