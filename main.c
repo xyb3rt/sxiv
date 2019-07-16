@@ -59,6 +59,9 @@ int alternate;
 int markcnt;
 int markidx;
 
+char **rmfiles;
+int rmcnt, rmidx;
+
 int prefix;
 bool extprefix;
 
@@ -95,6 +98,7 @@ cursor_t imgcursor[3] = {
 
 void cleanup(void)
 {
+	tmp_unlink(rmfiles, rmidx);
 	img_close(&img, false);
 	arl_cleanup(&arl);
 	tns_free(&tns);
@@ -103,14 +107,27 @@ void cleanup(void)
 
 void check_add_file(char *filename, bool given)
 {
-	char *path;
+	char *path = NULL;
+	struct stat st;
+	bool rm = false;
 
 	if (*filename == '\0')
 		return;
 
-	if (access(filename, R_OK) < 0 ||
-	    (path = realpath(filename, NULL)) == NULL)
-	{
+	if (access(filename, R_OK) == 0 && stat(filename, &st) == 0) {
+		switch (st.st_mode & S_IFMT) {
+		case S_IFREG:
+			path = realpath(filename, NULL);
+			break;
+
+		case S_IFIFO:
+			path = tmp_pipe_drain(filename);
+			rm = true;
+			break;
+		}
+	}
+
+	if (path == NULL) {
 		if (given)
 			error(0, errno, "%s", filename);
 		return;
@@ -127,6 +144,16 @@ void check_add_file(char *filename, bool given)
 	if (given)
 		files[fileidx].flags |= FF_WARN;
 	fileidx++;
+
+	if (rm) {
+		if (rmidx == rmcnt) {
+			rmcnt *= 2;
+			rmfiles = erealloc(rmfiles, rmcnt * sizeof(char*));
+			memset(&rmfiles[rmcnt/2], 0, rmcnt/2 * sizeof(char*));
+		}
+
+		rmfiles[rmidx++] = path;
+	}
 }
 
 void remove_file(int n, bool manual)
@@ -853,6 +880,10 @@ int main(int argc, char **argv)
 	files = emalloc(filecnt * sizeof(*files));
 	memset(files, 0, filecnt * sizeof(*files));
 	fileidx = 0;
+
+	rmcnt = 16;
+	rmfiles = emalloc(rmcnt * sizeof(char*));
+	rmidx = 0;
 
 	if (options->from_stdin) {
 		n = 0;

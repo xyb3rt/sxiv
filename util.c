@@ -211,3 +211,35 @@ int r_mkdir(char *path)
 	return 0;
 }
 
+char *tmp_pipe_drain(char *pipe)
+{
+	int n;
+	char buf[1024];
+	char *path = emalloc(PATH_MAX);
+	int fd;
+
+	snprintf(path, PATH_MAX, "/tmp/sxiv-XXXXXX");
+	if ((fd = mkstemp(path)) < 0) {
+		free(path);
+		return NULL;
+	}
+
+	FILE *src = fopen(pipe, "rb");
+	FILE *dst = fdopen(fd, "wb");
+
+	while ((n = fread(buf, sizeof(char), sizeof(buf), src)) > 0) {
+		if (fwrite(buf, sizeof(char), n, dst) < n) {
+			free(path);
+			return NULL;
+		}
+	}
+
+	fclose(dst);
+	fclose(src);
+	return path;
+}
+
+CLEANUP void tmp_unlink(char **rmfiles, int n) {
+	while (n--)
+		unlink(rmfiles[n]);
+}

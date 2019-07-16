@@ -366,6 +366,8 @@ int r_opendir(r_dir_t*, const char*, bool);
 int r_closedir(r_dir_t*);
 char* r_readdir(r_dir_t*, bool);
 int r_mkdir(char*);
+char* tmp_pipe_drain(char*);
+CLEANUP void tmp_unlink(char**, int);
 
 
 /* window.c */
