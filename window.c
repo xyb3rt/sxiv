@@ -450,10 +450,7 @@ void win_draw_bar(win_t *win)
 	d = XftDrawCreate(e->dpy, win->buf.pm, DefaultVisual(e->dpy, e->scr),
 	                  DefaultColormap(e->dpy, e->scr));
 
-	if (win->fullscreen && !win->light)
-		bg = &win->bg, fg = &win->fg;
-	else
-		bg = &win->fg, fg = &win->bg;
+  bg = &win->bg, fg = &win->fg;
 
 	XSetForeground(e->dpy, gc, bg->pixel);
 	XFillRectangle(e->dpy, win->buf.pm, gc, 0, win->h, win->w, win->bar.h);
