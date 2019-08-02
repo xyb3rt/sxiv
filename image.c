@@ -409,7 +409,7 @@ int img_zoom_diff(img_t *img, float *zptr)
 			z = MIN(zw, zh);
 			break;
 	}
-	z = MIN(z, img->scalemode == SCALE_DOWN ? 1.0 : zoom_max);
+	//z = MIN(z, img->scalemode == SCALE_DOWN ? 1.0 : zoom_max);
   if (zptr != NULL)
     *zptr = z;
 
