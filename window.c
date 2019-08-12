@@ -73,21 +73,24 @@ void win_alloc_color(const win_env_t *e, const char *name, XftColor *col)
 
 const char* win_res(Display *dpy, const char *name, const char *def)
 {
-	char *type;
-	XrmValue ret;
-	XrmDatabase db;
-	char *res_man;
+	char *type = NULL;
+	XrmValue ret = { .size = 0, .addr = NULL };
+	static XrmDatabase db = NULL;
+	static char *res_man = NULL;
 
-	XrmInitialize();
-
-	if ((res_man = XResourceManagerString(dpy)) != NULL &&
-	    (db = XrmGetStringDatabase(res_man)) != NULL &&
-	    XrmGetResource(db, name, name, &type, &ret) && STREQ(type, "String"))
-	{
-		return ret.addr;
-	} else {
-		return def;
+	if (res_man == NULL) {
+		XrmInitialize();
+		res_man = XResourceManagerString(dpy);
+		if (res_man != NULL) {
+			db = XrmGetStringDatabase(res_man);
+		}
 	}
+
+	return
+		db && XrmGetResource(db, name, name, &type, &ret) && STREQ(type, "String")
+		? ret.addr
+		: def
+		;
 }
 
 #define INIT_ATOM_(atom) \
