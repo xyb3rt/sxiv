@@ -62,7 +62,7 @@ Build Dependencies
 
 On ubuntu:
 
-    # sudo apt install libimlib2-dev
+    # sudo apt install libimlib2-dev libexif-dev
 
 Usage
 -----
