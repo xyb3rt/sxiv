@@ -57,6 +57,13 @@ the following command:
     $ make config.h
 
 
+Build Dependencies
+------------------
+
+On ubuntu:
+
+    # sudo apt install libimlib2-dev
+
 Usage
 -----
 
