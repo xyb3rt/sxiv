@@ -71,18 +71,14 @@ void win_alloc_color(const win_env_t *e, const char *name, XftColor *col)
 	}
 }
 
-const char* win_res(Display *dpy, const char *name, const char *def)
+const char* win_res(XrmDatabase db, const char *name, const char *def)
 {
 	char *type;
 	XrmValue ret;
-	XrmDatabase db;
-	char *res_man;
 
-	XrmInitialize();
-
-	if ((res_man = XResourceManagerString(dpy)) != NULL &&
-	    (db = XrmGetStringDatabase(res_man)) != NULL &&
-	    XrmGetResource(db, name, name, &type, &ret) && STREQ(type, "String"))
+	if (db != None &&
+	    XrmGetResource(db, name, name, &type, &ret) &&
+	    STREQ(type, "String"))
 	{
 		return ret.addr;
 	} else {
@@ -97,6 +93,8 @@ void win_init(win_t *win)
 {
 	win_env_t *e;
 	const char *bg, *fg, *f;
+	char *res_man;
+	XrmDatabase db;
 
 	memset(win, 0, sizeof(win_t));
 
@@ -114,11 +112,15 @@ void win_init(win_t *win)
 	if (setlocale(LC_CTYPE, "") == NULL || XSupportsLocale() == 0)
 		error(0, 0, "No locale support");
 
-	f = win_res(e->dpy, RES_CLASS ".font", "monospace-8");
+	XrmInitialize();
+	res_man = XResourceManagerString(e->dpy);
+	db = res_man != NULL ? XrmGetStringDatabase(res_man) : None;
+
+	f = win_res(db, RES_CLASS ".font", "monospace-8");
 	win_init_font(e, f);
 
-	bg = win_res(e->dpy, RES_CLASS ".background", "white");
-	fg = win_res(e->dpy, RES_CLASS ".foreground", "black");
+	bg = win_res(db, RES_CLASS ".background", "white");
+	fg = win_res(db, RES_CLASS ".foreground", "black");
 	win_alloc_color(e, bg, &win->bg);
 	win_alloc_color(e, fg, &win->fg);
 
