@@ -70,10 +70,10 @@ typedef struct {
 } extcmd_t;
 
 struct {
-  extcmd_t f;
-  int fd;
-  unsigned int i, lastsep;
-  pid_t pid;
+	extcmd_t f;
+	int fd;
+	unsigned int i, lastsep;
+	pid_t pid;
 } info;
 
 struct {
