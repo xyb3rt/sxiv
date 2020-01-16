@@ -92,6 +92,11 @@ on GitHub or get a copy using git with the following command:
 
 **Stable releases**
 
+**[v26](https://github.com/muennich/sxiv/archive/v26.tar.gz)**
+*(January 16, 2020)*
+
+  * Maintenance release
+
 **[v25](https://github.com/muennich/sxiv/archive/v25.tar.gz)**
 *(January 26, 2019)*
 
