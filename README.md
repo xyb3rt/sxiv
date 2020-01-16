@@ -32,8 +32,26 @@ Screenshots
 ![Thumb](http://muennich.github.com/sxiv/img/thumb.png "Thumb mode")
 
 
-Installation
+Dependencies
 ------------
+
+sxiv requires the following software to be installed:
+
+  * Imlib2
+  * X11
+  * Xft
+  * freetype2
+  * fontconfig
+  * giflib (optional, disabled with `HAVE_GIFLIB=0`)
+  * libexif (optional, disabled with `HAVE_LIBEXIF=0`)
+
+Please make sure to install the corresponding development packages in case that
+you want to build sxiv on a distribution with separate runtime and development
+packages (e.g. *-dev on Debian).
+
+
+Building
+--------
 
 sxiv is built using the commands:
 
