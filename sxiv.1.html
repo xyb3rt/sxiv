@@ -1,5 +1,5 @@
-<!-- Creator     : groff version 1.22.3 -->
-<!-- CreationDate: Fri Apr 19 16:13:19 2019 -->
+<!-- Creator     : groff version 1.22.4 -->
+<!-- CreationDate: Thu Jan 16 12:46:32 2020 -->
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
 "http://www.w3.org/TR/html4/loose.dtd">
 <html>
@@ -43,8 +43,8 @@
 </h2>
 
 
-<p style="margin-left:11%; margin-top: 1em">sxiv -
-Simple X Image Viewer</p>
+<p style="margin-left:11%; margin-top: 1em">sxiv - Simple X
+Image Viewer</p>
 
 <h2>SYNOPSIS
 <a name="SYNOPSIS"></a>
@@ -52,13 +52,11 @@ Simple X Image Viewer</p>
 
 
 <p style="margin-left:11%; margin-top: 1em"><b>sxiv</b>
-[<b>-abcfhiopqrtvZ</b>] [<b>-A</b>
-<i>FRAMERATE</i>] [<b>-e</b> <i>WID</i>]
-[<b>-G</b> <i>GAMMA</i>] [<b>-g</b>
-<i>GEOMETRY</i>] [<b>-N</b> <i>NAME</i>]
-[<b>-n</b> <i>NUM</i>] [<b>-S</b> <i>DELAY</i>]
-[<b>-s</b> <i>MODE</i>] [<b>-z</b> <i>ZOOM</i>]
-<i>FILE</i>...</p>
+[<b>-abcfhiopqrtvZ</b>] [<b>-A</b> <i>FRAMERATE</i>]
+[<b>-e</b> <i>WID</i>] [<b>-G</b> <i>GAMMA</i>] [<b>-g</b>
+<i>GEOMETRY</i>] [<b>-N</b> <i>NAME</i>] [<b>-n</b>
+<i>NUM</i>] [<b>-S</b> <i>DELAY</i>] [<b>-s</b> <i>MODE</i>]
+[<b>-z</b> <i>ZOOM</i>] <i>FILE</i>...</p>
 
 <h2>DESCRIPTION
 <a name="DESCRIPTION"></a>
@@ -81,7 +79,6 @@ window manager.</p>
 <h2>OPTIONS
 <a name="OPTIONS"></a>
 </h2>
-
 
 
 <p style="margin-left:11%; margin-top: 1em"><b>-A</b>
@@ -151,14 +148,12 @@ directory and exit.</p></td></tr>
 <p>Start in fullscreen mode.</p></td></tr>
 </table>
 
-<p style="margin-left:11%;"><b>-G</b>
-<i>GAMMA</i></p>
+<p style="margin-left:11%;"><b>-G</b> <i>GAMMA</i></p>
 
 <p style="margin-left:22%;">Set image gamma to GAMMA
 (-32..32).</p>
 
-<p style="margin-left:11%;"><b>-g</b>
-<i>GEOMETRY</i></p>
+<p style="margin-left:11%;"><b>-g</b> <i>GEOMETRY</i></p>
 
 <p style="margin-left:22%;">Set window position and size.
 See section GEOMETRY SPECIFICATIONS of X(7) for more
@@ -205,7 +200,7 @@ exit.</p> </td></tr>
 
 
 <p>Read names of files to open from standard input. Also
-done if FILE is &lsquo;-&rsquo;.</p></td></tr>
+done if FILE is &rsquo;-&rsquo;.</p></td></tr>
 <tr valign="top" align="left">
 <td width="11%"></td>
 <td width="9%">
@@ -217,8 +212,8 @@ done if FILE is &lsquo;-&rsquo;.</p></td></tr>
 
 
 <p>Write list of all marked files to standard output when
-quitting. In combination with <b>-i</b> sxiv can be
-used as a visual filter/pipe.</p></td></tr>
+quitting. In combination with <b>-i</b> sxiv can be used as
+a visual filter/pipe.</p></td></tr>
 <tr valign="top" align="left">
 <td width="11%"></td>
 <td width="9%">
@@ -256,8 +251,7 @@ cache or temporary files.</p></td></tr>
 view.</p> </td></tr>
 </table>
 
-<p style="margin-left:11%;"><b>-S</b>
-<i>DELAY</i></p>
+<p style="margin-left:11%;"><b>-S</b> <i>DELAY</i></p>
 
 <p style="margin-left:22%;">Start in slideshow mode. Set
 the delay between images to <i>DELAY</i> seconds.
@@ -304,7 +298,7 @@ exit.</p> </td></tr>
 <td width="78%">
 
 
-<p>The same as &lsquo;-z 100&rsquo;.</p></td></tr>
+<p>The same as &rsquo;-z 100&rsquo;.</p></td></tr>
 </table>
 
 <p style="margin-left:11%;"><b>-z</b> <i>ZOOM</i></p>
@@ -1121,41 +1115,39 @@ an example script installed together with sxiv as
 thumbnails under <i>$XDG_CACHE_HOME/sxiv/</i>.</p>
 
 <p style="margin-left:11%; margin-top: 1em">Use the command
-line option <i>-c</i> to remove all orphaned cache
-files. Additionally, run the following command afterwards
-inside the cache directory to remove empty
-subdirectories:</p>
+line option <i>-c</i> to remove all orphaned cache files.
+Additionally, run the following command afterwards inside
+the cache directory to remove empty subdirectories:</p>
 
-<p style="margin-left:22%; margin-top: 1em">find .
--depth -type d -empty ! -name
-&rsquo;.&rsquo; -exec rmdir {} \;</p>
+<p style="margin-left:22%; margin-top: 1em">find . -depth
+-type d -empty ! -name &rsquo;.&rsquo; -exec rmdir {} \;</p>
 
 <h2>AUTHOR
 <a name="AUTHOR"></a>
 </h2>
 
 
-<pre style="margin-left:11%; margin-top: 1em">Bert Muennich   &lt;ber.t at posteo.de&gt;</pre>
-
+<p style="margin-left:11%; margin-top: 1em">Bert Muennich
+&lt;ber.t at posteo.de&gt;</p>
 
 <h2>CONTRIBUTORS
 <a name="CONTRIBUTORS"></a>
 </h2>
 
 
-<pre style="margin-left:11%; margin-top: 1em">Bastien Dejean  &lt;nihilhill at gmail.com&gt;
-Dave Reisner    &lt;d at falconindy.com&gt;
-Fung SzeTat     &lt;sthorde at gmail.com&gt;
-Max Voit        &lt;mvdev at with-eyes.net&gt;</pre>
-
+<p style="margin-left:11%; margin-top: 1em">Bastien Dejean
+&lt;nihilhill at gmail.com&gt; <br>
+Dave Reisner &lt;d at falconindy.com&gt; <br>
+Fung SzeTat &lt;sthorde at gmail.com&gt; <br>
+Max Voit &lt;mvdev at with-eyes.net&gt;</p>
 
 <h2>HOMEPAGE
 <a name="HOMEPAGE"></a>
 </h2>
 
 
-<pre style="margin-left:11%; margin-top: 1em">https://github.com/muennich/sxiv</pre>
 
+<p style="margin-left:11%; margin-top: 1em">https://github.com/muennich/sxiv</p>
 
 <h2>SEE ALSO
 <a name="SEE ALSO"></a>
