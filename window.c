@@ -92,7 +92,7 @@ const char* win_res(XrmDatabase db, const char *name, const char *def)
 void win_init(win_t *win)
 {
 	win_env_t *e;
-	const char *bg, *fg, *tc, *f;
+	const char *bg, *fg, *bbg, *f;
 	char *res_man;
 	XrmDatabase db;
 
@@ -121,10 +121,10 @@ void win_init(win_t *win)
 
 	bg = win_res(db, RES_CLASS ".background", "white");
 	fg = win_res(db, RES_CLASS ".foreground", "black");
-        tc = win_res(db, RES_CLASS ".textColor", "white");
+        bbg = win_res(db, RES_CLASS ".barBackground", "white");
 	win_alloc_color(e, bg, &win->bg);
 	win_alloc_color(e, fg, &win->fg);
-        win_alloc_color(e, tc, &win->tc);
+        win_alloc_color(e, bbg, &win->bbg);
 
 	win->bar.l.size = BAR_L_LEN;
 	win->bar.r.size = BAR_R_LEN;
@@ -410,12 +410,12 @@ void win_draw_bar(win_t *win)
 			return;
 		x = win->w - tw - H_TEXT_PAD;
 		w -= tw;
-		win_draw_text(win, d, &win->tc, x, y, r->buf, len, tw);
+		win_draw_text(win, d, &win->bbg, x, y, r->buf, len, tw);
 	}
 	if ((len = strlen(l->buf)) > 0) {
 		x = H_TEXT_PAD;
 		w -= 2 * H_TEXT_PAD; /* gap between left and right parts */
-		win_draw_text(win, d, &win->tc, x, y, l->buf, len, w);
+		win_draw_text(win, d, &win->bbg, x, y, l->buf, len, w);
 	}
 	XftDrawDestroy(d);
 }
