@@ -277,6 +277,7 @@ struct opt {
 	/* window: */
 	bool fullscreen;
 	bool hide_bar;
+	bool swap_bar;
 	long embed;
 	char *geometry;
 	char *res_name;
