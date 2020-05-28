@@ -266,6 +266,7 @@ struct opt {
 	int filecnt;
 	int startnum;
   char *startfile;
+  bool old;
 
 	/* image: */
 	scalemode_t scalemode;
@@ -289,7 +290,7 @@ struct opt {
 	bool private_mode;
 };
 
-extern const opt_t *options;
+extern opt_t *options;
 
 void print_usage(void);
 void print_version(void);

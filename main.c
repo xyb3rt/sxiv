@@ -27,6 +27,7 @@
 #include <errno.h>
 #include <locale.h>
 #include <signal.h>
+#include <libgen.h> // dirname, basename
 #include <sys/select.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
@@ -864,6 +865,27 @@ int main(int argc, char **argv)
 		}
 		free(filename);
 	}
+
+    if (!options->old && options->filecnt == 1) {
+      filename = options->filenames[0];
+
+      if (stat(filename, &fstats) < 0) {
+        error(0, errno, "%s", filename);
+      }
+
+      if (S_ISDIR(fstats.st_mode)) {
+        // start in thumbs mode if only one dir provided
+        options->thumb_mode = true;
+
+      } else if (options->startfile == NULL) {
+        // one file provided => open all in the dir
+        char *name = basename(filename);
+        filename = realpath(dirname(options->filenames[0]), NULL);
+        options->startfile = (char *) malloc(strlen(name) + strlen(filename) + 2);
+        sprintf(options->startfile, "%s/%s", filename, name);
+        options->filenames[0] = filename;
+      }
+    }
 
 	for (i = 0; i < options->filecnt; i++) {
 		filename = options->filenames[i];
