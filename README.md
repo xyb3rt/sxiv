@@ -7,6 +7,16 @@ software so that you can use it and modify it for your needs. Please file a bug
 report if something does not work as documented or expected. Contributions are
 welcome but there is no guarantee that they will be incorporated.
 
+Fork Features
+-------------
+
+* Navigate with arrows when not zoomed
+* Logarithmic zoom steps
+* Fit image zoom by default
+* Start with a file name (`-F` option)
+* Match bar colors
+* Square thumbnails [patch](https://github.com/i-tsvetkov/sxiv-patches/blob/master/sxiv-square-thumbnails.patch)
+
 
 Features
 --------
