@@ -18,6 +18,7 @@
 
 #include "sxiv.h"
 #define _IMAGE_CONFIG
+#define _VIDEO_CONFIG
 #include "config.h"
 
 #include <stdlib.h>
@@ -308,6 +309,14 @@ bool ci_navigate_frame(arg_t d)
 
 bool ci_toggle_animation(arg_t _)
 {
+  if (files[fileidx].video_thumb != NULL) {
+    char *cmd = (char *) malloc(strlen(files[fileidx].path)
+                                + strlen(VIDEO_CMD) + 1);
+    sprintf(cmd, VIDEO_CMD, files[fileidx].path);
+    system(cmd);
+    return false;
+  }
+
 	bool dirty = false;
 
 	if (img.multi.cnt > 0) {

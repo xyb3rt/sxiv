@@ -10,6 +10,7 @@ welcome but there is no guarantee that they will be incorporated.
 Fork Features
 -------------
 
+* Video support
 * Navigate with arrows when not zoomed
 * Logarithmic zoom steps
 * Fit image zoom by default

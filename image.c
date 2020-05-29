@@ -298,10 +298,17 @@ Imlib_Image img_open(const fileinfo_t *file)
 	struct stat st;
 	Imlib_Image im = NULL;
 
-	if (access(file->path, R_OK) == 0 &&
-	    stat(file->path, &st) == 0 && S_ISREG(st.st_mode))
+    const char *file_path;
+    if (file->video_thumb == NULL) {
+      file_path = file->path;
+    } else {
+      file_path = file->video_thumb;
+    }
+
+	if (access(file_path, R_OK) == 0 &&
+	    stat(file_path, &st) == 0 && S_ISREG(st.st_mode))
 	{
-		im = imlib_load_image(file->path);
+		im = imlib_load_image(file_path);
 		if (im != NULL) {
 			imlib_context_set_image(im);
 			if (imlib_image_get_data_for_reading_only() == NULL) {

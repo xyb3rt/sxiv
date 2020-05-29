@@ -125,6 +125,13 @@ void check_add_file(char *filename, bool given)
 
 	files[fileidx].name = estrdup(filename);
 	files[fileidx].path = path;
+
+    if (is_video(path)) {
+      files[fileidx].video_thumb = get_video_thumb(path);
+    } else {
+      files[fileidx].video_thumb = NULL;
+    }
+
 	if (given)
 		files[fileidx].flags |= FF_WARN;
 	fileidx++;
@@ -241,7 +248,12 @@ void open_info(void)
 		dup2(pfd[1], 1);
 		snprintf(w, sizeof(w), "%d", img.w);
 		snprintf(h, sizeof(h), "%d", img.h);
-		execl(info.f.cmd, info.f.cmd, files[fileidx].name, w, h, NULL);
+		execl(info.f.cmd,
+              info.f.cmd,
+              files[fileidx].name,
+              w, h,
+              files[fileidx].video_thumb == NULL ? "image" : "video",
+              NULL);
 		error(EXIT_FAILURE, errno, "exec: %s", info.f.cmd);
 	}
 	close(pfd[1]);

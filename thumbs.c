@@ -229,6 +229,7 @@ bool tns_load(tns_t *tns, int n, bool force, bool cache_only)
 	char *cfile;
 	thumb_t *t;
 	fileinfo_t *file;
+    const char *file_path;
 	Imlib_Image im = NULL;
 
 	if (n < 0 || n >= *tns->cnt)
@@ -236,6 +237,12 @@ bool tns_load(tns_t *tns, int n, bool force, bool cache_only)
 	file = &tns->files[n];
 	if (file->name == NULL || file->path == NULL)
 		return false;
+
+    if (file->video_thumb == NULL) {
+      file_path = file->path;
+    } else {
+      file_path = file->video_thumb;
+    }
 
 	t = &tns->thumbs[n];
 
@@ -246,12 +253,12 @@ bool tns_load(tns_t *tns, int n, bool force, bool cache_only)
 	}
 
 	if (!force) {
-		if ((im = tns_cache_load(file->path, &force)) != NULL) {
+		if ((im = tns_cache_load(file_path, &force)) != NULL) {
 			imlib_context_set_image(im);
 			if (imlib_image_get_width() < maxwh &&
 			    imlib_image_get_height() < maxwh)
 			{
-				if ((cfile = tns_cache_filepath(file->path)) != NULL) {
+				if ((cfile = tns_cache_filepath(file_path)) != NULL) {
 					unlink(cfile);
 					free(cfile);
 				}
@@ -273,7 +280,7 @@ bool tns_load(tns_t *tns, int n, bool force, bool cache_only)
 			char tmppath[] = "/tmp/sxiv-XXXXXX";
 			Imlib_Image tmpim;
 
-			if ((ed = exif_data_new_from_file(file->path)) != NULL) {
+			if ((ed = exif_data_new_from_file(file_path)) != NULL) {
 				if (ed->data != NULL && ed->size > 0 &&
 				    (tmpfd = mkstemp(tmppath)) >= 0)
 				{
@@ -322,8 +329,10 @@ bool tns_load(tns_t *tns, int n, bool force, bool cache_only)
 	}
 
 	if (im == NULL) {
-		if ((im = img_open(file)) == NULL)
-			return false;
+      if ((im = img_open(file)) == NULL) {
+        error(0, 0, "failed opening thumb for '%s'", file_path);
+        return false;
+      }
 	}
 	imlib_context_set_image(im);
 

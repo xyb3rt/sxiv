@@ -63,6 +63,13 @@ static const int thumb_sizes[] = { 32, 64, 96, 128, 160 };
 static const int THUMB_SIZE = 3;
 
 #endif
+#ifdef _VIDEO_CONFIG
+/*
+ * command used to play videos
+ */
+static const char *VIDEO_CMD = "xdg-open '%s'";
+
+#endif
 #ifdef _MAPPINGS_CONFIG
 
 /* keyboard mappings for image and thumbnail mode: */
