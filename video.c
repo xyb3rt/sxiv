@@ -7,7 +7,10 @@ bool is_video(const char *file) {
 #if 1
   // because the other way is extreamly slow...
   // TODO: find a proper way
-  return strcmp(".mp4", file + strlen(file) - 4) == 0;
+  const char *ext = file + strlen(file) - 4;
+  return
+    strcmp(".mp4", ext) == 0 ||
+    strcmp(".mkv", ext) == 0;
 #else
   bool res = false;
   const char *tmpl = "file -b --mime-type '%s'";
