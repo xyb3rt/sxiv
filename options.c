@@ -133,7 +133,11 @@ void parse_options(int argc, char **argv)
 			case 'o':
 				_options.to_stdout = true;
 				break;
+<<<<<<< HEAD
             case 'O':
+=======
+            case 'd':
+>>>>>>> 3adc821 (add option for dmenu like behaviour)
                 _options.like_dmenu = true;
                 break;
 			case 'p':
