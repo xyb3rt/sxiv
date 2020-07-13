@@ -10,6 +10,7 @@ bool is_video(const char *file) {
   const char *ext = file + strlen(file) - 4;
   return
     strcmp(".mp4", ext) == 0 ||
+    strcmp(".3gp", ext) == 0 ||
     strcmp(".mkv", ext) == 0;
 #else
   bool res = false;
