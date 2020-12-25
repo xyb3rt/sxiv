@@ -31,5 +31,6 @@ case "$1" in
 "C-comma")  rotate 270 ;;
 "C-period") rotate  90 ;;
 "C-slash")  rotate 180 ;;
+"Escape")   exit 1 ;;
 esac
 
