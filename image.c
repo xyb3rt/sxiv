@@ -36,6 +36,12 @@
 enum { DEF_GIF_DELAY = 75 };
 #endif
 
+#if HAVE_LIBWEBP
+#include <webp/decode.h>
+#include <webp/demux.h>
+enum { DEF_WEBP_DELAY = 75 };
+#endif
+
 float zoom_min;
 float zoom_max;
 
@@ -138,7 +144,7 @@ bool img_load_gif(img_t *img, const fileinfo_t *file)
 	if (img->multi.cap == 0) {
 		img->multi.cap = 8;
 		img->multi.frames = (img_frame_t*)
-		                    emalloc(sizeof(img_frame_t) * img->multi.cap);
+							emalloc(sizeof(img_frame_t) * img->multi.cap);
 	}
 	img->multi.cnt = img->multi.sel = 0;
 	img->multi.length = 0;
@@ -213,10 +219,10 @@ bool img_load_gif(img_t *img, const fileinfo_t *file)
 			for (i = 0; i < sh; i++) {
 				for (j = 0; j < sw; j++) {
 					if (i < y || i >= y + h || j < x || j >= x + w ||
-					    rows[i-y][j-x] == transp)
+						rows[i-y][j-x] == transp)
 					{
 						if (prev_frame != NULL && (prev_disposal != 2 ||
-						    i < py || i >= py + ph || j < px || j >= px + pw))
+							i < py || i >= py + ph || j < px || j >= px + pw))
 						{
 							*ptr = prev_frame[i * sw + j];
 						} else {
@@ -257,8 +263,8 @@ bool img_load_gif(img_t *img, const fileinfo_t *file)
 			if (img->multi.cnt == img->multi.cap) {
 				img->multi.cap *= 2;
 				img->multi.frames = (img_frame_t*)
-				                    erealloc(img->multi.frames,
-				                             img->multi.cap * sizeof(img_frame_t));
+									erealloc(img->multi.frames,
+											 img->multi.cap * sizeof(img_frame_t));
 			}
 			img->multi.frames[img->multi.cnt].im = im;
 			delay = img->multi.framedelay > 0 ? img->multi.framedelay : delay;
@@ -293,13 +299,123 @@ bool img_load_gif(img_t *img, const fileinfo_t *file)
 }
 #endif /* HAVE_GIFLIB */
 
+
+#if HAVE_LIBWEBP
+bool img_load_webp(img_t* img, const fileinfo_t* file)
+{
+	bool err = false;
+	FILE *webp_file;
+	size_t file_size;
+	WebPData data;
+
+	Imlib_Image im = NULL;
+	struct WebPAnimDecoderOptions opts;
+	WebPAnimDecoder *dec;
+	struct WebPAnimInfo info;
+	uint8_t *buf = NULL;
+	int ts;
+	const WebPDemuxer *demux;
+	WebPIterator iter;
+	uint32_t flags;
+	uint32_t delay;
+
+	// Check if file exists (and we are able to read it)
+	if (access(file->path, R_OK) == -1) {
+		error(0, 0, "%s: Error opening webp image", file->name);
+		return false;
+	}
+	// Open the file
+	if ((webp_file = fopen(file->path, "rb")) == NULL) {
+		error(0, 0, "%s: Error opening webp image", file->name);
+		return false;
+	}
+	// Get the file size
+	fseek(webp_file, 0L, SEEK_END);
+	file_size = ftell(webp_file);
+	rewind(webp_file);
+	// Read the whole file into memory
+	data.bytes = emalloc(file_size);
+	if (fread((uint8_t*)data.bytes, 1, file_size, webp_file) != file_size) {
+		error(0, 0, "%s: Error opening webp image", file->name);
+		free((uint8_t*)data.bytes);
+		return false;
+	}
+	data.size = file_size;
+
+	// Setup the WebP Animation Decoder
+	if (!WebPAnimDecoderOptionsInit(&opts)) {
+		// Version mismatch in WebP library
+		error(0, 0, "%s: Error opening webp image", file->name);
+		free((uint8_t*)data.bytes);
+		return false;
+	}
+	opts.color_mode = MODE_BGRA;
+	// This could cause problems on some systems and will require more testing
+	// than I can do (multithreaded decoding)
+	opts.use_threads = true;
+	if ((dec = WebPAnimDecoderNew(&data, &opts)) == NULL) {
+		// Parsing error, invalid operation, or memory error
+		error(0, 0, "%s: Error opening webp image", file->name);
+		free((uint8_t*)data.bytes);
+		return false;
+	}
+	if (!WebPAnimDecoderGetInfo(dec, &info)) {
+		error(0, 0, "%s: Error opening webp image", file->name);
+		WebPAnimDecoderDelete(dec);
+		free((uint8_t*)data.bytes);
+		return false;
+	}
+	demux = WebPAnimDecoderGetDemuxer(dec);
+
+	// Get global information for the image
+	flags = WebPDemuxGetI(demux, WEBP_FF_FORMAT_FLAGS);
+	img->w = WebPDemuxGetI(demux, WEBP_FF_CANVAS_WIDTH);
+	img->h = WebPDemuxGetI(demux, WEBP_FF_CANVAS_HEIGHT);
+	img->alpha = (flags & ALPHA_FLAG) > 0;
+	img->multi.cap = info.frame_count;
+	img->multi.sel = 0;
+	img->multi.frames = emalloc(info.frame_count * sizeof(img_frame_t));
+
+	// Load (and decode) the frames of the image (also works with images that
+	// have only 1 frame)
+	img->multi.cnt = 0;
+	while (WebPAnimDecoderGetNext(dec, &buf, &ts)) {
+		im = imlib_create_image_using_copied_data(
+				info.canvas_width, info.canvas_height, (DATA32*)buf);
+		imlib_context_set_image(im);
+		imlib_image_set_format("webp");
+		// Get an iterator of this frame - used for frame info (duration, etc.)
+		WebPDemuxGetFrame(demux, img->multi.cnt+1, &iter);
+		// TODO: iter refers to the sub-frame, not the total frame. im is the
+		// total frame, entirely reconstructed. How can we see if the total
+		// frame has transparency?
+		if (iter.has_alpha) imlib_image_set_has_alpha(1);
+		// Store info for this frame
+		img->multi.frames[img->multi.cnt].im = im;
+		delay = iter.duration > 0 ? iter.duration : DEF_WEBP_DELAY;
+		img->multi.frames[img->multi.cnt].delay = delay;
+		img->multi.length += img->multi.frames[img->multi.cnt].delay;
+		img->multi.cnt++;
+	}
+	WebPAnimDecoderDelete(dec);
+	WebPDemuxReleaseIterator(&iter);
+
+	if (img->multi.cnt == 1) img->multi.cnt = 0;
+	img->im = img->multi.frames[0].im;
+
+	imlib_context_set_image(img->im);
+
+	return !err;
+}
+#endif /* HAVE_LIBWEBP */
+
 Imlib_Image img_open(const fileinfo_t *file)
 {
 	struct stat st;
 	Imlib_Image im = NULL;
 
 	if (access(file->path, R_OK) == 0 &&
-	    stat(file->path, &st) == 0 && S_ISREG(st.st_mode))
+		stat(file->path, &st) == 0 && S_ISREG(st.st_mode))
 	{
 		im = imlib_load_image(file->path);
 		if (im != NULL) {
@@ -319,8 +435,15 @@ bool img_load(img_t *img, const fileinfo_t *file)
 {
 	const char *fmt;
 
+#if HAVE_LIBWEBP
+	if (STREQ(strrchr(file->path, '.')+1, "webp"))
+		img_load_webp(img, file);
+	else if ((img->im = img_open(file)) == NULL)
+		return false;
+#else
 	if ((img->im = img_open(file)) == NULL)
 		return false;
+#endif
 
 	imlib_image_set_changes_on_disk();
 
@@ -332,6 +455,10 @@ bool img_load(img_t *img, const fileinfo_t *file)
 #if HAVE_GIFLIB
 		if (STREQ(fmt, "gif"))
 			img_load_gif(img, file);
+#endif
+#if HAVE_LIBWEBP
+		if (STREQ(fmt, "webp"))
+			img_load_webp(img, file);
 #endif
 	}
 	img->w = imlib_image_get_width();
@@ -443,8 +570,8 @@ void img_render(img_t *img)
 		return;
 
 	/* calculate source and destination offsets:
-	 *   - part of image drawn on full window, or
-	 *   - full image drawn on part of window
+	 *	 - part of image drawn on full window, or
+	 *	 - full image drawn on part of window
 	 */
 	if (img->x <= 0) {
 		sx = -img->x / img->zoom + 0.5;
