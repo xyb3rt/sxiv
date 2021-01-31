@@ -29,7 +29,7 @@ lib_exif_1 = -lexif
 lib_gif_0 =
 lib_gif_1 = -lgif
 lib_webp_0 =
-lib_webp_1 = -lwebp
+lib_webp_1 = -lwebpdemux -lwebp
 ldlibs = $(LDLIBS) -lImlib2 -lX11 -lXft -lfontconfig \
   $(lib_exif_$(HAVE_LIBEXIF)) $(lib_gif_$(HAVE_GIFLIB)) \
   $(lib_webp_$(HAVE_LIBWEBP))
