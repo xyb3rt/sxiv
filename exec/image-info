@@ -36,5 +36,4 @@ type=
     type="${s}⯈ $dur${s}(play with ctrl-space)"
 }
 
-echo "${filesize}${s}${geometry}${type}${s}${filename}"
-
+echo "${filename}${s}${filesize}${s}${geometry}${type}"
