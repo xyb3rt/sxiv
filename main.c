@@ -238,7 +238,7 @@ void open_info(void)
 	int pfd[2];
 	char w[12], h[12];
 
-	if (info.f.err != 0 || info.fd >= 0 || win.bar.h == 0)
+	if (info.f.err != 0 || info.fd >= 0)
 		return;
 	win.bar.l.buf[0] = '\0';
 	if (pipe(pfd) < 0)
@@ -367,8 +367,6 @@ void update_info(void)
 	win_bar_t *l = &win.bar.l, *r = &win.bar.r;
 
 	/* update bar contents */
-	if (win.bar.h == 0)
-		return;
 	for (fw = 0, i = filecnt; i > 0; fw++, i /= 10);
 	mark = files[fileidx].flags & FF_MARK ? "* " : "";
 	l->p = l->buf;

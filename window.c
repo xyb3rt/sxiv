@@ -437,6 +437,15 @@ void win_draw_bar(win_t *win)
 	XftDrawDestroy(d);
 }
 
+void win_update_title(win_t *win)
+{
+    size_t size = win->bar.l.size + win->bar.r.size + 2;
+    char *buf = (char *) malloc(size);
+    sprintf(buf, "%s %s", win->bar.l.buf, win->bar.r.buf);
+    win_set_title(win, buf);
+    free(buf);
+}
+
 void win_draw(win_t *win)
 {
 	if (win->bar.h > 0)
@@ -445,6 +454,8 @@ void win_draw(win_t *win)
 	XSetWindowBackgroundPixmap(win->env.dpy, win->xwin, win->buf.pm);
 	XClearWindow(win->env.dpy, win->xwin);
 	XFlush(win->env.dpy);
+
+    win_update_title(win);
 }
 
 void win_draw_rect(win_t *win, int x, int y, int w, int h, bool fill, int lw,

@@ -34,6 +34,7 @@ Here are the key points that diverge from the main repo
 * Start with a file name (`-F` option)
 * Match bar colors
 * Square thumbnails [patch](https://github.com/i-tsvetkov/sxiv-patches/blob/master/sxiv-square-thumbnails.patch)
+* Window titles match the bar
 
 
 Screenshots
