@@ -43,7 +43,7 @@ char* tns_cache_filepath(const char *filepath)
 
 	if (*filepath != '/')
 		return NULL;
-	
+
 	if (strncmp(filepath, cache_dir, strlen(cache_dir)) != 0) {
 		/* don't cache images inside the cache directory! */
 		len = strlen(cache_dir) + strlen(filepath) + 2;
@@ -202,20 +202,37 @@ CLEANUP void tns_free(tns_t *tns)
 Imlib_Image tns_scale_down(Imlib_Image im, int dim)
 {
 	int w, h;
+	#if !SQUARE_THUMBNAILS_PATCH
 	float z, zw, zh;
+	#endif // SQUARE_THUMBNAILS_PATCH
 
 	imlib_context_set_image(im);
 	w = imlib_image_get_width();
 	h = imlib_image_get_height();
+	#if SQUARE_THUMBNAILS_PATCH
+	int x = (w < h) ? 0 : (w - h) / 2;
+	int y = (w > h) ? 0 : (h - w) / 2;
+	int s = (w < h) ? w : h;
+	#else
 	zw = (float) dim / (float) w;
 	zh = (float) dim / (float) h;
 	z = MIN(zw, zh);
 	z = MIN(z, 1.0);
+	#endif // SQUARE_THUMBNAILS_PATCH
 
-	if (z < 1.0) {
+	#if SQUARE_THUMBNAILS_PATCH
+	if (dim < w || dim < h)
+	#else
+	if (z < 1.0)
+	#endif // SQUARE_THUMBNAILS_PATCH
+	{
 		imlib_context_set_anti_alias(1);
+		#if SQUARE_THUMBNAILS_PATCH
+		im = imlib_create_cropped_scaled_image(x, y, s, s, dim, dim);
+		#else
 		im = imlib_create_cropped_scaled_image(0, 0, w, h,
 		                                       MAX(z * w, 1), MAX(z * h, 1));
+		#endif // SQUARE_THUMBNAILS_PATCH
 		if (im == NULL)
 			error(EXIT_FAILURE, ENOMEM, NULL);
 		imlib_free_image_and_decache();

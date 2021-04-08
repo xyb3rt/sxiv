@@ -18,7 +18,13 @@
 
 #include "sxiv.h"
 #define _MAPPINGS_CONFIG
+#if WINDOW_FIT_IMAGE_PATCH
+#define _WINDOW_CONFIG
+#endif // WINDOW_FIT_IMAGE_PATCH
 #include "config.h"
+#if WINDOW_FIT_IMAGE_PATCH
+#undef _WINDOW_CONFIG
+#endif // WINDOW_FIT_IMAGE_PATCH
 
 #include <stdlib.h>
 #include <string.h>
@@ -938,6 +944,28 @@ int main(int argc, char **argv)
 		tns.thumbs = NULL;
 		load_image(fileidx);
 	}
+
+	#if WINDOW_FIT_IMAGE_PATCH
+	win.w = WIN_WIDTH;
+	win.h = WIN_HEIGHT;
+
+	if (mode == MODE_IMAGE && filecnt == 1) {
+		win.h -= win.bar.h;
+
+		if (img.w <= win.w && img.h <= win.h) {
+			win.w = img.w;
+			win.h = img.h;
+		} else {
+			double scale = (img.w * win.h > img.h * win.w) ?
+			               (double) win.w / img.w : (double) win.h / img.h;
+			win.w = (int) (img.w * scale);
+			win.h = (int) (img.h * scale);
+		}
+
+		win.h += win.bar.h;
+	}
+	#endif // WINDOW_FIT_IMAGE_PATCH
+
 	win_open(&win);
 	win_set_cursor(&win, CURSOR_WATCH);
 

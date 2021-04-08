@@ -236,7 +236,7 @@ bool cg_navigate_marked(arg_t n)
 {
 	int d, i;
 	int new = fileidx;
-	
+
 	if (prefix > 0)
 		n *= prefix;
 	d = n > 0 ? 1 : -1;
@@ -270,15 +270,37 @@ bool cg_change_gamma(arg_t d)
 	}
 }
 
+/**
+ * @brief Navigate forwards/backwards to an image.
+ *
+ * @details alongside, the parameter n to indicate forwards/backwards movement,
+ * the function utilizes the following global variables: prefix, fileidx, and
+ * filecnt.
+ * @note The global variable "prefix" indicates how much to move by.
+ * @note The global variable "fileidx" indicates the 0-index location of the
+ *       image before movement.
+ * @note The global variable "filecnt" indicates the number of images accounted
+ *       for in the sxiv instance.
+ *
+ * @param n When n == 1, forwards movement. When n == -1, backwards movement.
+ * @return Loads different image if n != fileidx. Else, does nothing.
+ */
 bool ci_navigate(arg_t n)
 {
 	if (prefix > 0)
 		n *= prefix;
 	n += fileidx;
+	#if IMAGE_MODE_CYCLE_PATCH
+ 	if (n < 0)
+ 		n = filecnt - 1;
+	if (n >= filecnt)
+		n = 0;
+	#else
 	if (n < 0)
 		n = 0;
 	if (n >= filecnt)
 		n = filecnt - 1;
+	#endif // IMAGE_MODE_CYCLE_PATCH
 
 	if (n != fileidx) {
 		load_image(n);
@@ -340,7 +362,7 @@ bool ci_drag(arg_t mode)
 
 	if ((int)(img.w * img.zoom) <= win.w && (int)(img.h * img.zoom) <= win.h)
 		return false;
-	
+
 	win_set_cursor(&win, CURSOR_DRAG);
 
 	win_cursor_pos(&win, &x, &y);

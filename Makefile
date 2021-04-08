@@ -41,7 +41,7 @@ sxiv: $(objs)
 	@echo "LINK $@"
 	$(CC) $(LDFLAGS) -o $@ $(objs) $(ldlibs)
 
-$(objs): Makefile sxiv.h commands.lst config.h
+$(objs): Makefile sxiv.h commands.lst config.h patches.h
 options.o: version.h
 window.o: icon/data.h
 
@@ -52,6 +52,10 @@ window.o: icon/data.h
 config.h:
 	@echo "GEN $@"
 	cp $(srcdir)/config.def.h $@
+
+patches.h:
+	@echo "GEN $@"
+	cp $(srcdir)/patches.def.h $@
 
 version.h: Makefile .git/index
 	@echo "GEN $@"
