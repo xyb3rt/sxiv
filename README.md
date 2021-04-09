@@ -33,9 +33,9 @@ Here are the key points that diverge from the main repo
 * Fit image zoom by default
 * Start with a file name (`-F` option)
 * Match bar colors
-* Square thumbnails [patch](https://github.com/i-tsvetkov/sxiv-patches/blob/master/sxiv-square-thumbnails.patch)
 * Window titles match the bar
-
+* Square thumbnails [patch](https://github.com/i-tsvetkov/sxiv-patches/blob/master/sxiv-square-thumbnails.patch) by i-tsvetkov
+* SVG support [patch](https://github.com/muennich/sxiv/pull/440) by Dhruv Vanjari
 
 Screenshots
 -----------

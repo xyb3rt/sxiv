@@ -16,7 +16,7 @@ HAVE_GIFLIB = 1
 # enable features requiring libexif (-lexif)
 HAVE_LIBEXIF = 1
 
-cflags = -std=c99 -Wall -pedantic $(CFLAGS)
+cflags = -std=c99 -Wall -pedantic $(CFLAGS) `pkg-config --cflags --libs librsvg-2.0 cairo`
 cppflags = -I. $(CPPFLAGS) -D_XOPEN_SOURCE=700 \
   -DHAVE_GIFLIB=$(HAVE_GIFLIB) -DHAVE_LIBEXIF=$(HAVE_LIBEXIF) \
   -I/usr/include/freetype2 -I$(PREFIX)/include/freetype2
@@ -40,7 +40,7 @@ $(V).SILENT:
 
 sxiv: $(objs)
 	@echo "LINK $@"
-	$(CC) $(LDFLAGS) -o $@ $(objs) $(ldlibs)
+	$(CC) $(LDFLAGS) -o $@ $(objs) $(ldlibs) $(cflags)
 
 $(objs): Makefile sxiv.h commands.lst config.h
 options.o: version.h
