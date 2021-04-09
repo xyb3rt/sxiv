@@ -11,7 +11,7 @@ Refer to [https://github.com/muennich/sxiv](https://github.com/muennich/sxiv) fo
 
 ### Changelog:
 
-2021-04-09 - Added svg image support
+2021-04-09 - Added svg image support and WM hints
 
 2021-04-08 - Added image-mode-cycle, square-thumbnails and window-fit-image patches
 
@@ -28,3 +28,6 @@ Refer to [https://github.com/muennich/sxiv](https://github.com/muennich/sxiv) fo
 
    - [window-fit-image](https://github.com/i-tsvetkov/sxiv-patches)
       - makes the window size fit the image when displaying a single image
+
+   - [wm-hints](https://github.com/muennich/sxiv/pull/406)
+      - without this there is the potential for some window managers assuming that sxiv does not require focus
