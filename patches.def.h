@@ -7,6 +7,21 @@
  * relevant descriptions.
  */
 
+/* Sets the _NET_WM_PID X property.
+ *
+ * Without this using tools like wmctrl -lp the PID for sxiv windows are displayed
+ * as 0 indicating that "the application owning the window does not support it."
+ *
+ * https://github.com/muennich/sxiv/issues/398
+ * https://github.com/muennich/sxiv/pull/403
+ */
+#define EWMH_NET_WM_PID_PATCH 0
+
+/* Sets the WM_CLIENT_MACHINE X property.
+ * https://github.com/muennich/sxiv/pull/403
+ */
+#define EWMH_WM_CLIENT_MACHINE 0
+
 /* Adds the ability to cycle when viewing multiple images.
  * https://github.com/i-tsvetkov/sxiv-patches
  */

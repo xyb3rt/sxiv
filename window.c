@@ -25,6 +25,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <locale.h>
+#if EWMH_NET_WM_PID_PATCH
+#include <unistd.h>
+#endif // EWMH_NET_WM_PID_PATCH
 #include <X11/cursorfont.h>
 #include <X11/Xatom.h>
 #include <X11/Xresource.h>
@@ -137,6 +140,9 @@ void win_init(win_t *win)
 	INIT_ATOM_(_NET_WM_NAME);
 	INIT_ATOM_(_NET_WM_ICON_NAME);
 	INIT_ATOM_(_NET_WM_ICON);
+	#if EWMH_NET_WM_PID_PATCH
+	INIT_ATOM_(_NET_WM_PID);
+	#endif // EWMH_NET_WM_PID_PATCH
 	INIT_ATOM_(_NET_WM_STATE);
 	INIT_ATOM_(_NET_WM_STATE_FULLSCREEN);
 }
@@ -207,6 +213,27 @@ void win_open(win_t *win)
 	                          e->depth, InputOutput, e->vis, 0, NULL);
 	if (win->xwin == None)
 		error(EXIT_FAILURE, 0, "Error creating X window");
+
+	#if EWMH_NET_WM_PID_PATCH
+	/* set the _NET_WM_PID property */
+	pid_t pid = getpid();
+	XChangeProperty(e->dpy, win->xwin,
+	                atoms[ATOM__NET_WM_PID], XA_CARDINAL, sizeof(pid_t) * 8,
+	                PropModeReplace, (unsigned char *) &pid, 1);
+	#endif // EWMH_NET_WM_PID_PATCH
+
+	#if EWMH_WM_CLIENT_MACHINE
+	/* set the WM_CLIENT_MACHINE property */
+	char hostname[255];
+	if (gethostname(hostname, sizeof(hostname)) == 0) {
+		XTextProperty tp;
+		tp.value = (unsigned char *)hostname;
+		tp.nitems = strlen(hostname);
+		tp.encoding = XA_STRING;
+		tp.format = 8;
+		XSetWMClientMachine(e->dpy, win->xwin, &tp);
+	}
+	#endif // EWMH_WM_CLIENT_MACHINE
 
 	XSelectInput(e->dpy, win->xwin,
 	             ButtonReleaseMask | ButtonPressMask | KeyPressMask |

@@ -11,11 +11,17 @@ Refer to [https://github.com/muennich/sxiv](https://github.com/muennich/sxiv) fo
 
 ### Changelog:
 
-2021-04-09 - Added svg image support and WM hints
+2021-04-09 - Added svg image support, WM hints and \_NET\_WM\_PID and WM\_CLIENT\_MACHINE EWMH properties
 
 2021-04-08 - Added image-mode-cycle, square-thumbnails and window-fit-image patches
 
 ### Patches included:
+
+   - [ewmh-net-wm-pid](https://github.com/muennich/sxiv/pull/403)
+      - sets the \_NET\_WM\_PID X property
+
+   - [ewmh-wm-client-machine](https://github.com/muennich/sxiv/pull/403)
+      - sets the WM_CLIENT_MACHINE X property
 
    - [image-mode-cycle](https://github.com/i-tsvetkov/sxiv-patches)
       - adds the ability to cycle when viewing multiple images
