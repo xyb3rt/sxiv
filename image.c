@@ -36,6 +36,11 @@
 enum { DEF_GIF_DELAY = 75 };
 #endif
 
+#if SVG_IMAGE_SUPPORT_PATCH
+#include <cairo.h>
+#include <librsvg/rsvg.h>
+#endif // SVG_IMAGE_SUPPORT_PATCH
+
 float zoom_min;
 float zoom_max;
 
@@ -293,6 +298,62 @@ bool img_load_gif(img_t *img, const fileinfo_t *file)
 }
 #endif /* HAVE_GIFLIB */
 
+#if SVG_IMAGE_SUPPORT_PATCH
+Imlib_Image img_open_svg(const fileinfo_t *file)
+{
+	RsvgHandle *svg_handle = rsvg_handle_new_from_file(file->name, 0);
+	if (svg_handle == NULL)
+		return NULL;
+
+	gboolean has_out_height;
+	gboolean has_out_width;
+	gboolean has_out_viewbox;
+	RsvgLength out_height;
+	RsvgLength out_width;
+	RsvgRectangle out_viewbox;
+
+	rsvg_handle_get_intrinsic_dimensions(svg_handle,
+	                                     &has_out_height, &out_height,
+	                                     &has_out_width, &out_width,
+	                                     &has_out_viewbox, &out_viewbox);
+
+	double image_width, image_height;
+	if (has_out_height & has_out_width) {
+		image_height = out_height.length;
+		image_width = out_width.length;
+	} else if (has_out_viewbox) {
+		image_width = out_viewbox.height;
+		image_height = out_viewbox.width;
+	} else {
+		error(0, 0, "%s: Document does not specify height and width of image", file->name);
+		return NULL;
+	}
+
+	cairo_surface_t *surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
+	                                                      (int) image_height,
+	                                                      (int) image_width);
+	cairo_t *cr = cairo_create(surface);
+
+	rsvg_handle_render_cairo(svg_handle, cr);
+
+	DATA32 *svg_buffer;
+	svg_buffer = (DATA32 *) cairo_image_surface_get_data(surface);
+
+	Imlib_Image im = imlib_create_image_using_copied_data((int) image_height, (int) image_width, svg_buffer);
+	if (im == NULL)
+		return NULL;
+
+	imlib_context_set_image(im);
+	imlib_image_set_has_alpha(1);
+
+	cairo_surface_destroy(surface);
+	cairo_destroy(cr);
+	g_object_unref(svg_handle);
+
+	return im;
+}
+#endif // SVG_IMAGE_SUPPORT_PATCH
+
 Imlib_Image img_open(const fileinfo_t *file)
 {
 	struct stat st;
@@ -302,6 +363,12 @@ Imlib_Image img_open(const fileinfo_t *file)
 	    stat(file->path, &st) == 0 && S_ISREG(st.st_mode))
 	{
 		im = imlib_load_image(file->path);
+
+		#if SVG_IMAGE_SUPPORT_PATCH
+		if (im == NULL)
+			im = img_open_svg(file);
+		#endif // SVG_IMAGE_SUPPORT_PATCH
+
 		if (im != NULL) {
 			imlib_context_set_image(im);
 			if (imlib_image_get_data_for_reading_only() == NULL) {
