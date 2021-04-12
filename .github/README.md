@@ -9,6 +9,8 @@ So if you have ever been curious about trying out sxiv patches then this may be 
 
 Refer to [https://github.com/muennich/sxiv](https://github.com/muennich/sxiv) for the original version and further details on sxiv, how to install it and how it works.
 
+---
+
 ### Changelog:
 
 2021-04-09 - Added svg image support, WM hints and \_NET\_WM\_PID and WM\_CLIENT\_MACHINE EWMH properties

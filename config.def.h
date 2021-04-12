@@ -44,6 +44,16 @@ static const bool ANTI_ALIAS = true;
  */
 static const bool ALPHA_LAYER = false;
 
+#if SVG_IMAGE_SUPPORT_PATCH
+/* fallback height and width for svg documents,
+ * use these values in case svg document does not specify height and width.
+ */
+enum {
+	FB_SVG_HEIGHT = 512,
+	FB_SVG_WIDTH  = 512
+};
+#endif // SVG_IMAGE_SUPPORT_PATCH
+
 #endif
 #ifdef _THUMBS_CONFIG
 
