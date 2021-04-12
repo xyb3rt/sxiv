@@ -296,47 +296,41 @@ bool img_load_gif(img_t *img, const fileinfo_t *file)
 }
 #endif /* HAVE_GIFLIB */
 
-Imlib_Image img_open_svg(const fileinfo_t *file)
+Imlib_Image img_open_svg(const fileinfo_t *file, int height, int width)
 {
 	RsvgHandle *svg_handle = rsvg_handle_new_from_file(file->name, 0);
 	if (svg_handle == NULL)
 		return NULL;
 
-	gboolean has_out_height;
-	gboolean has_out_width;
 	gboolean has_out_viewbox;
+	RsvgRectangle out_viewbox = {0, 0, width, height};
+	gboolean has_out_height;
 	RsvgLength out_height;
+	gboolean has_out_width;
 	RsvgLength out_width;
-	RsvgRectangle out_viewbox;
 
 	rsvg_handle_get_intrinsic_dimensions(svg_handle,
-	                                     &has_out_height, &out_height,
-	                                     &has_out_width, &out_width,
+	                                     &has_out_height,  &out_height,
+	                                     &has_out_width,   &out_width,
 	                                     &has_out_viewbox, &out_viewbox);
 
-	double image_width, image_height;
-	if (has_out_height & has_out_width) {
-		image_height = out_height.length;
-		image_width = out_width.length;
-	} else if (has_out_viewbox) {
-		image_width = out_viewbox.height;
-		image_height = out_viewbox.width;
-	} else {
-		error(0, 0, "%s: Document does not specify height and width of image", file->name);
-		return NULL;
+	if (!has_out_viewbox && has_out_height & has_out_width) {
+		out_viewbox.height = out_height.length;
+		out_viewbox.width = out_width.length;
 	}
 
 	cairo_surface_t *surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
-	                                                      (int) image_height,
-	                                                      (int) image_width);
+	                                                      (int) out_viewbox.width,
+	                                                      (int) out_viewbox.height);
 	cairo_t *cr = cairo_create(surface);
 
-	rsvg_handle_render_cairo(svg_handle, cr);
+	GError *e = NULL;
+	rsvg_handle_render_document(svg_handle, cr, &out_viewbox, &e);
 
 	DATA32 *svg_buffer;
 	svg_buffer = (DATA32 *) cairo_image_surface_get_data(surface);
 
-	Imlib_Image im = imlib_create_image_using_copied_data((int) image_height, (int) image_width, svg_buffer);
+	Imlib_Image im = imlib_create_image_using_copied_data((int) out_viewbox.width, (int) out_viewbox.height, svg_buffer);
 	if (im == NULL)
 		return NULL;
 
@@ -361,7 +355,7 @@ Imlib_Image img_open(const fileinfo_t *file)
 		im = imlib_load_image(file->path);
 
 		if (im == NULL)
-			im = img_open_svg(file);
+			im = img_open_svg(file, FB_SVG_HEIGHT, FB_SVG_WIDTH);
 
 		if (im != NULL) {
 			imlib_context_set_image(im);
