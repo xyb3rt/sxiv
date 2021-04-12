@@ -32,10 +32,38 @@
  */
 #define SQUARE_THUMBNAILS_PATCH 0
 
-/* Adds support for SVG image format.
+/* Adds support for SVG image format (2021-03-14).
+ *
+ * This patch depends on the following libraries for loading svg documents:
+ *    - librsvg
+ *    - cairo
+ *
+ * Remember to uncomment the relevant lines in the Makefile when enabling this patch.
+ *
+ * Known issues:
+ *    - the vector images are converted to raster and thus do not retain their scalable nature
+ *
  * https://github.com/muennich/sxiv/pull/440
  */
 #define SVG_IMAGE_SUPPORT_PATCH 0
+
+/* Adds support for animated WebP image format.
+ * Note that as-is sxiv has support for still WebP images through the Imlib2 library. This
+ * only adds support for animated WebP images (similar to animated GIF images).
+ *
+ * This patch depends on the following libraries for loading svg documents:
+ *    - lwebp
+ *    - lwebpdemux
+ *
+ * Remember to uncomment the relevant lines in the Makefile when enabling this patch.
+ *
+ * Known issues:
+ *    - the rendering of transparency for still WebP images is different to what sxiv has
+ *      by default when rendering WebP images (without this patch)
+ *
+ * https://github.com/muennich/sxiv/pull/437
+ */
+#define WEBP_IMAGE_SUPPORT_PATCH 0
 
 /* Makes the window size fit the image when displaying a single image.
  * https://github.com/i-tsvetkov/sxiv-patches

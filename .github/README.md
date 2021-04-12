@@ -13,6 +13,8 @@ Refer to [https://github.com/muennich/sxiv](https://github.com/muennich/sxiv) fo
 
 ### Changelog:
 
+2021-04-12 - Added animated WebP support
+
 2021-04-09 - Added svg image support, WM hints and \_NET\_WM\_PID and WM\_CLIENT\_MACHINE EWMH properties
 
 2021-04-08 - Added image-mode-cycle, square-thumbnails and window-fit-image patches
@@ -33,6 +35,9 @@ Refer to [https://github.com/muennich/sxiv](https://github.com/muennich/sxiv) fo
 
    - [svg-image-support](https://github.com/muennich/sxiv/pull/440)
       - adds support for the SVG image format
+
+   - [webp-image-support](https://github.com/muennich/sxiv/pull/437)
+      - adds support for animated WebP images
 
    - [window-fit-image](https://github.com/i-tsvetkov/sxiv-patches)
       - makes the window size fit the image when displaying a single image
