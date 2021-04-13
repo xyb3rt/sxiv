@@ -38,7 +38,6 @@ enum { DEF_GIF_DELAY = 75 };
 
 #if SVG_IMAGE_SUPPORT_PATCH
 #include <cairo.h>
-#include <librsvg/rsvg.h>
 #endif // SVG_IMAGE_SUPPORT_PATCH
 
 #if WEBP_IMAGE_SUPPORT_PATCH
@@ -66,6 +65,9 @@ void img_init(img_t *img, win_t *win)
 	imlib_context_set_colormap(win->env.cmap);
 
 	img->im = NULL;
+	#if SVG_IMAGE_SUPPORT_PATCH
+	img->svg.h = NULL;
+	#endif // SVG_IMAGE_SUPPORT_PATCH
 	img->win = win;
 	img->scalemode = options->scalemode;
 	img->zoom = options->zoom;
@@ -306,52 +308,62 @@ bool img_load_gif(img_t *img, const fileinfo_t *file)
 #endif /* HAVE_GIFLIB */
 
 #if SVG_IMAGE_SUPPORT_PATCH
-Imlib_Image img_open_svg(const fileinfo_t *file, int height, int width)
-{
-	RsvgHandle *svg_handle = rsvg_handle_new_from_file(file->name, 0);
-	if (svg_handle == NULL)
-		return NULL;
+svg_t img_open_svg(const fileinfo_t *file) {
+	svg_t svg;
+
+	svg.h = rsvg_handle_new_from_file(file->name, 0);
+	svg.viewbox.height = FB_SVG_HEIGHT;
+	svg.viewbox.width = FB_SVG_WIDTH;
 
 	gboolean has_out_viewbox;
-	RsvgRectangle out_viewbox = {0, 0, width, height};
 	gboolean has_out_height;
 	RsvgLength out_height;
 	gboolean has_out_width;
 	RsvgLength out_width;
 
-	rsvg_handle_get_intrinsic_dimensions(svg_handle,
+	rsvg_handle_get_intrinsic_dimensions(svg.h,
 	                                     &has_out_height,  &out_height,
 	                                     &has_out_width,   &out_width,
-	                                     &has_out_viewbox, &out_viewbox);
+	                                     &has_out_viewbox, &svg.viewbox);
 
 	if (!has_out_viewbox && has_out_height & has_out_width) {
-		out_viewbox.height = out_height.length;
-		out_viewbox.width = out_width.length;
+		svg.viewbox.height = out_height.length;
+		svg.viewbox.width = out_width.length;
 	}
 
+	svg.size = svg.viewbox;
+
+	return svg;
+}
+
+bool img_load_svg(img_t *img, float z) {
+	img->svg.viewbox.height = img->svg.size.height * z;
+	img->svg.viewbox.width = img->svg.size.width * z;
+
 	cairo_surface_t *surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
-	                                                      (int) out_viewbox.width,
-	                                                      (int) out_viewbox.height);
+	                                                      (int) img->svg.viewbox.width,
+	                                                      (int) img->svg.viewbox.height);
 	cairo_t *cr = cairo_create(surface);
 
 	GError *e = NULL;
-	rsvg_handle_render_document(svg_handle, cr, &out_viewbox, &e);
+	rsvg_handle_render_document(img->svg.h, cr, &img->svg.viewbox, &e);
 
 	DATA32 *svg_buffer;
 	svg_buffer = (DATA32 *) cairo_image_surface_get_data(surface);
 
-	Imlib_Image im = imlib_create_image_using_copied_data((int) out_viewbox.width, (int) out_viewbox.height, svg_buffer);
-	if (im == NULL)
-		return NULL;
+	img->im = imlib_create_image_using_copied_data((int) img->svg.viewbox.width, (int) img->svg.viewbox.height, svg_buffer);
+	if (img->im == NULL)
+		return false;
 
-	imlib_context_set_image(im);
+	imlib_context_set_image(img->im);
 	imlib_image_set_has_alpha(1);
+	img->w = img->svg.viewbox.width;
+	img->h = img->svg.viewbox.height;
 
 	cairo_surface_destroy(surface);
 	cairo_destroy(cr);
-	g_object_unref(svg_handle);
 
-	return im;
+	return true;
 }
 #endif // SVG_IMAGE_SUPPORT_PATCH
 
@@ -573,11 +585,6 @@ Imlib_Image img_open(const fileinfo_t *file)
 		if (im == NULL)
 			im = imlib_load_image(file->path);
 
-		#if SVG_IMAGE_SUPPORT_PATCH
-		if (im == NULL)
-			im = img_open_svg(file, FB_SVG_HEIGHT, FB_SVG_WIDTH);
-		#endif // SVG_IMAGE_SUPPORT_PATCH
-
 		if (im != NULL) {
 			imlib_context_set_image(im);
 			if (imlib_image_get_data_for_reading_only() == NULL) {
@@ -586,8 +593,10 @@ Imlib_Image img_open(const fileinfo_t *file)
 			}
 		}
 	}
+	#if !SVG_IMAGE_SUPPORT_PATCH
 	if (im == NULL && (file->flags & FF_WARN))
 		error(0, 0, "%s: Error opening image", file->name);
+	#endif // SVG_IMAGE_SUPPORT_PATCH
 	return im;
 }
 
@@ -595,8 +604,19 @@ bool img_load(img_t *img, const fileinfo_t *file)
 {
 	const char *fmt;
 
+	#if SVG_IMAGE_SUPPORT_PATCH
+	if ((img->im = img_open(file)) == NULL) {
+		img->svg = img_open_svg(file);
+		if ((img->svg.h == NULL) || img_load_svg(img, 1.0) == false) {
+			if (file->flags & FF_WARN)
+				error(0, 0, "%s: Error opening image", file->name);
+			return false;
+		}
+	}
+	#else
 	if ((img->im = img_open(file)) == NULL)
 		return false;
+	#endif // SVG_IMAGE_SUPPORT_PATCH
 
 	imlib_image_set_changes_on_disk();
 
@@ -641,6 +661,11 @@ CLEANUP void img_close(img_t *img, bool decache)
 			imlib_free_image();
 		img->im = NULL;
 	}
+
+	#if SVG_IMAGE_SUPPORT_PATCH
+	if (img->svg.h)
+		g_object_unref(img->svg.h);
+	#endif // SVG_IMAGE_SUPPORT_PATCH
 }
 
 void img_check_pan(img_t *img, bool moved)
@@ -649,8 +674,18 @@ void img_check_pan(img_t *img, bool moved)
 	float w, h, ox, oy;
 
 	win = img->win;
+	#if SVG_IMAGE_SUPPORT_PATCH
+	if (img->svg.h) {
+		w = img->w;
+		h = img->h;
+	} else {
+		w = img->w * img->zoom;
+		h = img->h * img->zoom;
+	}
+	#else
 	w = img->w * img->zoom;
 	h = img->h * img->zoom;
+	#endif // SVG_IMAGE_SUPPORT_PATCH
 	ox = img->x;
 	oy = img->y;
 
@@ -710,6 +745,12 @@ void img_render(img_t *img)
 	int dx, dy, dw, dh;
 	Imlib_Image bg;
 	unsigned long c;
+
+	#if SVG_IMAGE_SUPPORT_PATCH
+	float z = img->zoom;
+	if (img->svg.h)
+		img->zoom = 1.0;
+	#endif // SVG_IMAGE_SUPPORT_PATCH
 
 	win = img->win;
 	img_fit(img);
@@ -790,6 +831,11 @@ void img_render(img_t *img)
 		imlib_render_image_part_on_drawable_at_size(sx, sy, sw, sh, dx, dy, dw, dh);
 	}
 	img->dirty = false;
+
+	#if SVG_IMAGE_SUPPORT_PATCH
+	if (img->svg.h)
+		img->zoom = z;
+	#endif // SVG_IMAGE_SUPPORT_PATCH
 }
 
 bool img_fit_win(img_t *img, scalemode_t sm)
@@ -818,6 +864,12 @@ bool img_zoom(img_t *img, float z)
 
 	if (zoomdiff(img, z) != 0) {
 		int x, y;
+
+		#if SVG_IMAGE_SUPPORT_PATCH
+		if (img->svg.h) {
+			img_load_svg(img, z);
+		}
+		#endif // SVG_IMAGE_SUPPORT_PATCH
 
 		win_cursor_pos(img->win, &x, &y);
 		if (x < 0 || x >= img->win->w || y < 0 || y >= img->win->h) {

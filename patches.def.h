@@ -40,9 +40,6 @@
  *
  * Remember to uncomment the relevant lines in the Makefile when enabling this patch.
  *
- * Known issues:
- *    - the vector images are converted to raster and thus do not retain their scalable nature
- *
  * https://github.com/muennich/sxiv/pull/440
  */
 #define SVG_IMAGE_SUPPORT_PATCH 0

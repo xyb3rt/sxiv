@@ -28,6 +28,10 @@
 #include <Imlib2.h>
 #include <X11/Xlib.h>
 
+#if SVG_IMAGE_SUPPORT_PATCH
+#include <librsvg/rsvg.h>
+#endif // SVG_IMAGE_SUPPORT_PATCH
+
 /*
  * Annotation for functions called in cleanup().
  * These functions are not allowed to call error(!0, ...) or exit().
@@ -207,10 +211,22 @@ typedef struct {
 	int length;
 } multi_img_t;
 
+#if SVG_IMAGE_SUPPORT_PATCH
+typedef struct {
+	RsvgHandle *h;
+	RsvgRectangle size;     /* size of the actual docuemnt which will be used while scaling */
+	RsvgRectangle viewbox;  /* size of the scaled image which will be rendered */
+} svg_t;
+#endif // SVG_IMAGE_SUPPORT_PATCH
+
 struct img {
 	Imlib_Image im;
 	int w;
 	int h;
+
+	#if SVG_IMAGE_SUPPORT_PATCH
+	svg_t svg;
+	#endif // SVG_IMAGE_SUPPORT_PATCH
 
 	win_t *win;
 	float x;
