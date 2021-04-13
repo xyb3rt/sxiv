@@ -28,7 +28,6 @@
 #include <unistd.h>
 
 #include<cairo.h>
-#include<librsvg/rsvg.h>
 
 #if HAVE_LIBEXIF
 #include <libexif/exif-data.h>
@@ -57,6 +56,7 @@ void img_init(img_t *img, win_t *win)
 	imlib_context_set_colormap(win->env.cmap);
 
 	img->im = NULL;
+	img->svg.h = NULL;
 	img->win = win;
 	img->scalemode = options->scalemode;
 	img->zoom = options->zoom;
