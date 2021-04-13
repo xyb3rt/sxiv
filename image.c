@@ -439,10 +439,16 @@ void img_check_pan(img_t *img, bool moved)
 	float w, h, ox, oy;
 
 	win = img->win;
-	w = img->w * img->zoom;
-	h = img->h * img->zoom;
 	ox = img->x;
 	oy = img->y;
+
+	if (img->svg.h) {
+		w = img->w;
+		h = img->h;
+	} else {
+		w = img->w * img->zoom;
+		h = img->h * img->zoom;
+	}
 
 	if (w < win->w)
 		img->x = (win->w - w) / 2;
@@ -500,6 +506,10 @@ void img_render(img_t *img)
 	int dx, dy, dw, dh;
 	Imlib_Image bg;
 	unsigned long c;
+
+	float z = img->zoom;
+	if (img->svg.h)
+		img->zoom = 1.0;
 
 	win = img->win;
 	img_fit(img);
@@ -580,6 +590,9 @@ void img_render(img_t *img)
 		imlib_render_image_part_on_drawable_at_size(sx, sy, sw, sh, dx, dy, dw, dh);
 	}
 	img->dirty = false;
+
+	if (img->svg.h)
+		img->zoom = z;
 }
 
 bool img_fit_win(img_t *img, scalemode_t sm)
@@ -608,6 +621,10 @@ bool img_zoom(img_t *img, float z)
 
 	if (zoomdiff(img, z) != 0) {
 		int x, y;
+
+		if (img->svg.h) {
+			img_load_svg(img, z);
+		}
 
 		win_cursor_pos(img->win, &x, &y);
 		if (x < 0 || x >= img->win->w || y < 0 || y >= img->win->h) {
