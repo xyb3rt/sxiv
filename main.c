@@ -27,6 +27,7 @@
 #include <errno.h>
 #include <locale.h>
 #include <signal.h>
+#include <libgen.h> // dirname, basename
 #include <sys/select.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
@@ -124,6 +125,13 @@ void check_add_file(char *filename, bool given)
 
 	files[fileidx].name = estrdup(filename);
 	files[fileidx].path = path;
+
+    if (is_video(path)) {
+      files[fileidx].video_thumb = get_video_thumb(path);
+    } else {
+      files[fileidx].video_thumb = NULL;
+    }
+
 	if (given)
 		files[fileidx].flags |= FF_WARN;
 	fileidx++;
@@ -230,7 +238,7 @@ void open_info(void)
 	int pfd[2];
 	char w[12], h[12];
 
-	if (info.f.err != 0 || info.fd >= 0 || win.bar.h == 0)
+	if (info.f.err != 0 || info.fd >= 0)
 		return;
 	win.bar.l.buf[0] = '\0';
 	if (pipe(pfd) < 0)
@@ -240,7 +248,12 @@ void open_info(void)
 		dup2(pfd[1], 1);
 		snprintf(w, sizeof(w), "%d", img.w);
 		snprintf(h, sizeof(h), "%d", img.h);
-		execl(info.f.cmd, info.f.cmd, files[fileidx].name, w, h, NULL);
+		execl(info.f.cmd,
+              info.f.cmd,
+              files[fileidx].name,
+              w, h,
+              files[fileidx].video_thumb == NULL ? "image" : "video",
+              NULL);
 		error(EXIT_FAILURE, errno, "exec: %s", info.f.cmd);
 	}
 	close(pfd[1]);
@@ -354,8 +367,6 @@ void update_info(void)
 	win_bar_t *l = &win.bar.l, *r = &win.bar.r;
 
 	/* update bar contents */
-	if (win.bar.h == 0)
-		return;
 	for (fw = 0, i = filecnt; i > 0; fw++, i /= 10);
 	mark = files[fileidx].flags & FF_MARK ? "* " : "";
 	l->p = l->buf;
@@ -865,6 +876,27 @@ int main(int argc, char **argv)
 		free(filename);
 	}
 
+    if (!options->old && options->filecnt == 1) {
+      filename = options->filenames[0];
+
+      if (stat(filename, &fstats) < 0) {
+        error(0, errno, "%s", filename);
+      }
+
+      if (S_ISDIR(fstats.st_mode)) {
+        // start in thumbs mode if only one dir provided
+        options->thumb_mode = true;
+
+      } else if (options->startfile == NULL) {
+        // one file provided => open all in the dir
+        char *name = basename(filename);
+        filename = realpath(dirname(options->filenames[0]), NULL);
+        options->startfile = (char *) malloc(strlen(name) + strlen(filename) + 2);
+        sprintf(options->startfile, "%s/%s", filename, name);
+        options->filenames[0] = filename;
+      }
+    }
+
 	for (i = 0; i < options->filecnt; i++) {
 		filename = options->filenames[i];
 
@@ -895,6 +927,14 @@ int main(int argc, char **argv)
 
 	filecnt = fileidx;
 	fileidx = options->startnum < filecnt ? options->startnum : 0;
+
+  if (options->startfile != NULL) {
+    for (int i = 0; i < filecnt; ++i) {
+      if (strcmp(options->startfile, files[i].path) == 0) {
+        fileidx = i;
+      }
+    }
+  }
 
 	for (i = 0; i < ARRLEN(buttons); i++) {
 		if (buttons[i].cmd == i_cursor_navigate) {

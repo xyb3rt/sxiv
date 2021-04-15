@@ -25,6 +25,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <locale.h>
+#include <unistd.h>
 #include <X11/cursorfont.h>
 #include <X11/Xatom.h>
 #include <X11/Xresource.h>
@@ -139,6 +140,7 @@ void win_init(win_t *win)
 	INIT_ATOM_(_NET_WM_ICON);
 	INIT_ATOM_(_NET_WM_STATE);
 	INIT_ATOM_(_NET_WM_STATE_FULLSCREEN);
+    INIT_ATOM_(_NET_WM_PID);
 }
 
 void win_open(win_t *win)
@@ -200,6 +202,23 @@ void win_open(win_t *win)
 	                          e->depth, InputOutput, e->vis, 0, NULL);
 	if (win->xwin == None)
 		error(EXIT_FAILURE, 0, "Error creating X window");
+
+    // set the _NET_WM_PID
+    pid_t pid = getpid();
+    XChangeProperty(e->dpy, win->xwin,
+                    atoms[ATOM__NET_WM_PID], XA_CARDINAL, sizeof(pid_t) * 8,
+                    PropModeReplace, (unsigned char *) &pid, 1);
+
+    // set the WM_CLIENT_MACHINE
+    char hostname[255];
+    if (gethostname(hostname, sizeof(hostname)) == 0) {
+      XTextProperty tp;
+      tp.value = (unsigned char *)hostname;
+      tp.nitems = strlen(hostname);
+      tp.encoding = XA_STRING;
+      tp.format = 8;
+      XSetWMClientMachine(e->dpy, win->xwin, &tp);
+    }
 
 	XSelectInput(e->dpy, win->xwin,
 	             ButtonReleaseMask | ButtonPressMask | KeyPressMask |
@@ -397,7 +416,7 @@ void win_draw_bar(win_t *win)
 	d = XftDrawCreate(e->dpy, win->buf.pm, DefaultVisual(e->dpy, e->scr),
 	                  DefaultColormap(e->dpy, e->scr));
 
-	XSetForeground(e->dpy, gc, win->fg.pixel);
+	XSetForeground(e->dpy, gc, win->bg.pixel);
 	XFillRectangle(e->dpy, win->buf.pm, gc, 0, win->h, win->w, win->bar.h);
 
 	XSetForeground(e->dpy, gc, win->bg.pixel);
@@ -408,14 +427,23 @@ void win_draw_bar(win_t *win)
 			return;
 		x = win->w - tw - H_TEXT_PAD;
 		w -= tw;
-		win_draw_text(win, d, &win->bg, x, y, r->buf, len, tw);
+		win_draw_text(win, d, &win->fg, x, y, r->buf, len, tw);
 	}
 	if ((len = strlen(l->buf)) > 0) {
 		x = H_TEXT_PAD;
 		w -= 2 * H_TEXT_PAD; /* gap between left and right parts */
-		win_draw_text(win, d, &win->bg, x, y, l->buf, len, w);
+		win_draw_text(win, d, &win->fg, x, y, l->buf, len, w);
 	}
 	XftDrawDestroy(d);
+}
+
+void win_update_title(win_t *win)
+{
+    size_t size = win->bar.l.size + win->bar.r.size + 2;
+    char *buf = (char *) malloc(size);
+    sprintf(buf, "%s %s", win->bar.l.buf, win->bar.r.buf);
+    win_set_title(win, buf);
+    free(buf);
 }
 
 void win_draw(win_t *win)
@@ -426,6 +454,8 @@ void win_draw(win_t *win)
 	XSetWindowBackgroundPixmap(win->env.dpy, win->xwin, win->buf.pm);
 	XClearWindow(win->env.dpy, win->xwin);
 	XFlush(win->env.dpy);
+
+    win_update_title(win);
 }
 
 void win_draw_rect(win_t *win, int x, int y, int w, int h, bool fill, int lw,

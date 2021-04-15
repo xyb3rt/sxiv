@@ -202,20 +202,19 @@ CLEANUP void tns_free(tns_t *tns)
 Imlib_Image tns_scale_down(Imlib_Image im, int dim)
 {
 	int w, h;
-	float z, zw, zh;
 
 	imlib_context_set_image(im);
 	w = imlib_image_get_width();
 	h = imlib_image_get_height();
-	zw = (float) dim / (float) w;
-	zh = (float) dim / (float) h;
-	z = MIN(zw, zh);
-	z = MIN(z, 1.0);
 
-	if (z < 1.0) {
+	int x = (w < h) ? 0 : (w - h) / 2;
+	int y = (w > h) ? 0 : (h - w) / 2;
+
+	int s = (w < h) ? w : h;
+
+	if (dim < w || dim < h) {
 		imlib_context_set_anti_alias(1);
-		im = imlib_create_cropped_scaled_image(0, 0, w, h,
-		                                       MAX(z * w, 1), MAX(z * h, 1));
+		im = imlib_create_cropped_scaled_image(x, y, s, s, dim, dim);
 		if (im == NULL)
 			error(EXIT_FAILURE, ENOMEM, NULL);
 		imlib_free_image_and_decache();
@@ -230,6 +229,7 @@ bool tns_load(tns_t *tns, int n, bool force, bool cache_only)
 	char *cfile;
 	thumb_t *t;
 	fileinfo_t *file;
+    const char *file_path;
 	Imlib_Image im = NULL;
 
 	if (n < 0 || n >= *tns->cnt)
@@ -237,6 +237,12 @@ bool tns_load(tns_t *tns, int n, bool force, bool cache_only)
 	file = &tns->files[n];
 	if (file->name == NULL || file->path == NULL)
 		return false;
+
+    if (file->video_thumb == NULL) {
+      file_path = file->path;
+    } else {
+      file_path = file->video_thumb;
+    }
 
 	t = &tns->thumbs[n];
 
@@ -247,12 +253,12 @@ bool tns_load(tns_t *tns, int n, bool force, bool cache_only)
 	}
 
 	if (!force) {
-		if ((im = tns_cache_load(file->path, &force)) != NULL) {
+		if ((im = tns_cache_load(file_path, &force)) != NULL) {
 			imlib_context_set_image(im);
 			if (imlib_image_get_width() < maxwh &&
 			    imlib_image_get_height() < maxwh)
 			{
-				if ((cfile = tns_cache_filepath(file->path)) != NULL) {
+				if ((cfile = tns_cache_filepath(file_path)) != NULL) {
 					unlink(cfile);
 					free(cfile);
 				}
@@ -274,7 +280,7 @@ bool tns_load(tns_t *tns, int n, bool force, bool cache_only)
 			char tmppath[] = "/tmp/sxiv-XXXXXX";
 			Imlib_Image tmpim;
 
-			if ((ed = exif_data_new_from_file(file->path)) != NULL) {
+			if ((ed = exif_data_new_from_file(file_path)) != NULL) {
 				if (ed->data != NULL && ed->size > 0 &&
 				    (tmpfd = mkstemp(tmppath)) >= 0)
 				{
@@ -323,8 +329,10 @@ bool tns_load(tns_t *tns, int n, bool force, bool cache_only)
 	}
 
 	if (im == NULL) {
-		if ((im = img_open(file)) == NULL)
-			return false;
+      if ((im = img_open(file)) == NULL) {
+        error(0, 0, "failed opening thumb for '%s'", file_path);
+        return false;
+      }
 	}
 	imlib_context_set_image(im);
 
@@ -568,7 +576,7 @@ bool tns_zoom(tns_t *tns, int d)
 
 	tns->bw = ((thumb_sizes[tns->zl] - 1) >> 5) + 1;
 	tns->bw = MIN(tns->bw, 4);
-	tns->dim = thumb_sizes[tns->zl] + 2 * tns->bw + 6;
+	tns->dim = thumb_sizes[tns->zl] + 2 * tns->bw;
 
 	if (tns->zl != oldzl) {
 		for (i = 0; i < *tns->cnt; i++)

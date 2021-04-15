@@ -18,6 +18,7 @@
 
 #include "sxiv.h"
 #define _IMAGE_CONFIG
+#define _VIDEO_CONFIG
 #include "config.h"
 
 #include <stdlib.h>
@@ -101,10 +102,6 @@ bool cg_toggle_bar(arg_t _)
 {
 	win_toggle_bar(&win);
 	if (mode == MODE_IMAGE) {
-		if (win.bar.h > 0)
-			open_info();
-		else
-			close_info();
 		img.checkpan = img.dirty = true;
 	} else {
 		tns.dirty = true;
@@ -308,6 +305,14 @@ bool ci_navigate_frame(arg_t d)
 
 bool ci_toggle_animation(arg_t _)
 {
+  if (files[fileidx].video_thumb != NULL) {
+    char *cmd = (char *) malloc(strlen(files[fileidx].path)
+                                + strlen(VIDEO_CMD) + 1);
+    sprintf(cmd, VIDEO_CMD, files[fileidx].path);
+    system(cmd);
+    return false;
+  }
+
 	bool dirty = false;
 
 	if (img.multi.cnt > 0) {
@@ -330,6 +335,21 @@ bool ci_scroll(arg_t dir)
 bool ci_scroll_to_edge(arg_t dir)
 {
 	return img_pan_edge(&img, dir);
+}
+
+bool ci_scroll_or_navigate(arg_t dir)
+{
+	if (img_zoom_diff(&img, NULL) >= 0) {
+		arg_t n;
+		switch (dir) {
+		case DIR_LEFT:  n = -1; break;
+		case DIR_RIGHT: n =  1; break;
+		default:        n =  0; break;
+		}
+		return ci_navigate(n);
+	} else {
+		return ci_scroll(dir);
+	}
 }
 
 bool ci_drag(arg_t mode)

@@ -26,6 +26,7 @@
 #include <sys/types.h>
 #include <Imlib2.h>
 #include <X11/Xlib.h>
+#include <librsvg/rsvg.h>
 
 /*
  * Annotation for functions called in cleanup().
@@ -118,6 +119,7 @@ typedef enum {
 typedef struct {
 	const char *name; /* as given by user */
 	const char *path; /* always absolute */
+  const char* video_thumb;
 	fileflags_t flags;
 } fileinfo_t;
 
@@ -206,10 +208,18 @@ typedef struct {
 	int length;
 } multi_img_t;
 
+typedef struct {
+	RsvgHandle *h;
+	RsvgRectangle size;     /* size of the actual docuemnt which will be used while scaling */
+	RsvgRectangle viewbox;  /* size of the scaled image which will be rendered */
+} svg_t;
+
 struct img {
 	Imlib_Image im;
 	int w;
 	int h;
+
+	svg_t svg;
 
 	win_t *win;
 	float x;
@@ -252,6 +262,7 @@ void img_toggle_antialias(img_t*);
 bool img_change_gamma(img_t*, int);
 bool img_frame_navigate(img_t*, int);
 bool img_frame_animate(img_t*);
+int  img_zoom_diff(img_t*, float*);
 
 
 /* options.c */
@@ -264,6 +275,8 @@ struct opt {
 	bool recursive;
 	int filecnt;
 	int startnum;
+  char *startfile;
+  bool old;
 
 	/* image: */
 	scalemode_t scalemode;
@@ -287,7 +300,7 @@ struct opt {
 	bool private_mode;
 };
 
-extern const opt_t *options;
+extern opt_t *options;
 
 void print_usage(void);
 void print_version(void);
@@ -384,6 +397,7 @@ enum {
 	ATOM__NET_WM_ICON_NAME,
 	ATOM__NET_WM_ICON,
 	ATOM__NET_WM_STATE,
+    ATOM__NET_WM_PID,
 	ATOM__NET_WM_STATE_FULLSCREEN,
 	ATOM_COUNT
 };
@@ -443,6 +457,11 @@ void win_draw_rect(win_t*, int, int, int, int, bool, int, unsigned long);
 void win_set_title(win_t*, const char*);
 void win_set_cursor(win_t*, cursor_t);
 void win_cursor_pos(win_t*, int*, int*);
+
+/* video.c */
+
+bool is_video(const char *file);
+char *get_video_thumb(char *file);
 
 #endif /* SXIV_H */
 

@@ -7,14 +7,33 @@
 #   $1: path to image file
 #   $2: image width
 #   $3: image height
+#   $4: image/video
 
 s="  " # field separator
 
 exec 2>/dev/null
 
-filename=$(basename -- "$1")
-filesize=$(du -Hh -- "$1" | cut -f 1)
+video_duration() {
+    f="$1"
+    duration=$(ffprobe -v quiet -of default=noprint_wrappers=1:nokey=1 -show_entries format=duration "$f")
+    h=$(echo "$duration/3600" | bc)
+    m=$(echo "$duration%3600/60" | bc)
+    s=$(echo "$duration%60/1" | bc)
+    if [ "$h" = 0 ]; then
+        printf '%02d:%02d\n' "$m" "$s"
+    else
+        printf '%02d:%02d:%02d\n' "$h" "$m" "$s"
+    fi
+}
+
+path="$1"
+filename=$(basename -- "$path")
+filesize=$(du -Hh -- "$path" | cut -f 1)
 geometry="${2}x${3}"
+type=
+[ "$4" = video ] && {
+    dur=$(video_duration "$path")
+    type="${s}⯈ $dur${s}(play with ctrl-space)"
+}
 
-echo "${filesize}${s}${geometry}${s}${filename}"
-
+echo "${filename}${s}${filesize}${s}${geometry}${type}"

@@ -1,9 +1,9 @@
 .TH SXIV 1 sxiv\-VERSION
 .SH NAME
-sxiv \- Simple X Image Viewer
+sxiv \- Simple X Image Viewer (Naheel's fork)
 .SH SYNOPSIS
 .B sxiv
-.RB [ \-abcfhiopqrtvZ ]
+.RB [ \-abcfhiopqrtvZO ]
 .RB [ \-A
 .IR FRAMERATE ]
 .RB [ \-e
@@ -16,6 +16,8 @@ sxiv \- Simple X Image Viewer
 .IR NAME ]
 .RB [ \-n
 .IR NUM ]
+.RB [ \-F
+.IR FILE ]
 .RB [ \-S
 .IR DELAY ]
 .RB [ \-s
@@ -42,7 +44,7 @@ Play animations with a constant frame rate set to
 Play animations of multi-frame images.
 .TP
 .B \-b
-Do not show info bar on bottom of window.
+Show info bar on bottom of window.
 .TP
 .B \-c
 Remove all orphaned cache files from the thumbnail cache directory and exit.
@@ -66,6 +68,9 @@ Set the resource name of sxiv's X window to NAME.
 .TP
 .BI "\-n " NUM
 Start at picture number NUM.
+.TP
+.BI "\-F " FILE
+Start at picture file FILE.
 .TP
 .B \-h
 Print brief usage information to standard output and exit.
@@ -107,6 +112,9 @@ Print version information to standard output and exit.
 .TP
 .B \-Z
 The same as `\-z 100'.
+.TP
+.B \-O
+Run in the old mode. That is, the original sxiv.
 .TP
 .BI "\-z " ZOOM
 Set zoom level to ZOOM percent.
