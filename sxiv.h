@@ -26,6 +26,7 @@
 #include <sys/types.h>
 #include <Imlib2.h>
 #include <X11/Xlib.h>
+#include <librsvg/rsvg.h>
 
 /*
  * Annotation for functions called in cleanup().
@@ -207,10 +208,18 @@ typedef struct {
 	int length;
 } multi_img_t;
 
+typedef struct {
+	RsvgHandle *h;
+	RsvgRectangle size;     /* size of the actual docuemnt which will be used while scaling */
+	RsvgRectangle viewbox;  /* size of the scaled image which will be rendered */
+} svg_t;
+
 struct img {
 	Imlib_Image im;
 	int w;
 	int h;
+
+	svg_t svg;
 
 	win_t *win;
 	float x;

@@ -339,17 +339,17 @@ bool ci_scroll_to_edge(arg_t dir)
 
 bool ci_scroll_or_navigate(arg_t dir)
 {
-  if (img_zoom_diff(&img, NULL) >= 0) {
-    arg_t n;
-    switch (dir) {
+	if (img_zoom_diff(&img, NULL) >= 0) {
+		arg_t n;
+		switch (dir) {
 		case DIR_LEFT:  n = -1; break;
 		case DIR_RIGHT: n =  1; break;
-    default:        n =  0; break;
-    }
-    return ci_navigate(n);
-  } else {
-    return ci_scroll(dir);
-  }
+		default:        n =  0; break;
+		}
+		return ci_navigate(n);
+	} else {
+		return ci_scroll(dir);
+	}
 }
 
 bool ci_drag(arg_t mode)

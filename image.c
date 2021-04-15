@@ -28,7 +28,6 @@
 #include <unistd.h>
 
 #include <cairo.h>
-#include <librsvg/rsvg.h>
 
 #if HAVE_LIBEXIF
 #include <libexif/exif-data.h>
@@ -57,6 +56,7 @@ void img_init(img_t *img, win_t *win)
 	imlib_context_set_colormap(win->env.cmap);
 
 	img->im = NULL;
+	img->svg.h = NULL;
 	img->win = win;
 	img->scalemode = options->scalemode;
 	img->zoom = options->zoom;
@@ -296,58 +296,62 @@ bool img_load_gif(img_t *img, const fileinfo_t *file)
 }
 #endif /* HAVE_GIFLIB */
 
-Imlib_Image img_open_svg(const fileinfo_t *file)
-{
-	RsvgHandle *svg_handle = rsvg_handle_new_from_file(file->name, 0);
-	if (svg_handle == NULL)
-		return NULL;
+svg_t img_open_svg(const fileinfo_t *file) {
+	svg_t svg;
 
-	gboolean has_out_height;
-	gboolean has_out_width;
+	svg.h = rsvg_handle_new_from_file(file->name, 0);
+	svg.viewbox.height = FB_SVG_HEIGHT;
+	svg.viewbox.width = FB_SVG_WIDTH;
+
 	gboolean has_out_viewbox;
+	gboolean has_out_height;
 	RsvgLength out_height;
+	gboolean has_out_width;
 	RsvgLength out_width;
-	RsvgRectangle out_viewbox;
 
-	rsvg_handle_get_intrinsic_dimensions(svg_handle,
-	                                     &has_out_height, &out_height,
-	                                     &has_out_width, &out_width,
-	                                     &has_out_viewbox, &out_viewbox);
+	rsvg_handle_get_intrinsic_dimensions(svg.h,
+	                                     &has_out_height,  &out_height,
+	                                     &has_out_width,   &out_width,
+	                                     &has_out_viewbox, &svg.viewbox);
 
-	double image_width, image_height;
-	if (has_out_height & has_out_width) {
-		image_height = out_height.length;
-		image_width = out_width.length;
-	} else if (has_out_viewbox) {
-		image_width = out_viewbox.height;
-		image_height = out_viewbox.width;
-	} else {
-		error(0, 0, "%s: Document does not specify height and width of image", file->name);
-		return NULL;
+	if (!has_out_viewbox && has_out_height & has_out_width) {
+		svg.viewbox.height = out_height.length;
+		svg.viewbox.width = out_width.length;
 	}
 
+	svg.size = svg.viewbox;
+
+	return svg;
+}
+
+bool img_load_svg(img_t *img, float z) {
+	img->svg.viewbox.height = img->svg.size.height * z;
+	img->svg.viewbox.width = img->svg.size.width * z;
+
 	cairo_surface_t *surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
-	                                                      (int) image_height,
-	                                                      (int) image_width);
+	                                                      (int) img->svg.viewbox.width,
+	                                                      (int) img->svg.viewbox.height);
 	cairo_t *cr = cairo_create(surface);
 
-	rsvg_handle_render_cairo(svg_handle, cr);
+	GError *e = NULL;
+	rsvg_handle_render_document(img->svg.h, cr, &img->svg.viewbox, &e);
 
 	DATA32 *svg_buffer;
 	svg_buffer = (DATA32 *) cairo_image_surface_get_data(surface);
 
-	Imlib_Image im = imlib_create_image_using_copied_data((int) image_height, (int) image_width, svg_buffer);
-	if (im == NULL)
-		return NULL;
+	img->im = imlib_create_image_using_copied_data((int) img->svg.viewbox.width, (int) img->svg.viewbox.height, svg_buffer);
+	if (img->im == NULL)
+		return false;
 
-	imlib_context_set_image(im);
+	imlib_context_set_image(img->im);
 	imlib_image_set_has_alpha(1);
+	img->w = img->svg.viewbox.width;
+	img->h = img->svg.viewbox.height;
 
 	cairo_surface_destroy(surface);
 	cairo_destroy(cr);
-	g_object_unref(svg_handle);
 
-	return im;
+	return true;
 }
 
 Imlib_Image img_open(const fileinfo_t *file)
@@ -366,8 +370,6 @@ Imlib_Image img_open(const fileinfo_t *file)
 	    stat(file_path, &st) == 0 && S_ISREG(st.st_mode))
 	{
 		im = imlib_load_image(file_path);
-		if (im == NULL)
-			im = img_open_svg(file);
 		if (im != NULL) {
 			imlib_context_set_image(im);
 			if (imlib_image_get_data_for_reading_only() == NULL) {
@@ -376,8 +378,6 @@ Imlib_Image img_open(const fileinfo_t *file)
 			}
 		}
 	}
-	if (im == NULL && (file->flags & FF_WARN))
-		error(0, 0, "%s: Error opening image", file->name);
 	return im;
 }
 
@@ -385,8 +385,14 @@ bool img_load(img_t *img, const fileinfo_t *file)
 {
 	const char *fmt;
 
-	if ((img->im = img_open(file)) == NULL)
-		return false;
+	if ((img->im = img_open(file)) == NULL) {
+		img->svg = img_open_svg(file);
+		if ((img->svg.h == NULL) || img_load_svg(img, 1.0) == false) {
+			if (file->flags & FF_WARN)
+				error(0, 0, "%s: Error opening image", file->name);
+			return false;
+		}
+	}
 
 	imlib_image_set_changes_on_disk();
 
@@ -427,6 +433,9 @@ CLEANUP void img_close(img_t *img, bool decache)
 			imlib_free_image();
 		img->im = NULL;
 	}
+
+	if (img->svg.h)
+		g_object_unref(img->svg.h);
 }
 
 void img_check_pan(img_t *img, bool moved)
@@ -435,10 +444,16 @@ void img_check_pan(img_t *img, bool moved)
 	float w, h, ox, oy;
 
 	win = img->win;
-	w = img->w * img->zoom;
-	h = img->h * img->zoom;
 	ox = img->x;
 	oy = img->y;
+
+	if (img->svg.h) {
+		w = img->w;
+		h = img->h;
+	} else {
+		w = img->w * img->zoom;
+		h = img->h * img->zoom;
+	}
 
 	if (w < win->w)
 		img->x = (win->w - w) / 2;
@@ -476,15 +491,15 @@ int img_zoom_diff(img_t *img, float *zptr)
 			break;
 	}
 	//z = MIN(z, img->scalemode == SCALE_DOWN ? 1.0 : zoom_max);
-  if (zptr != NULL)
-    *zptr = z;
+	if (zptr != NULL)
+		*zptr = z;
 
-  return zoomdiff(img, z);
+	return zoomdiff(img, z);
 }
 
 bool img_fit(img_t *img)
 {
-  float z;
+	float z;
 
 	if (img->scalemode == SCALE_ZOOM)
 		return false;
@@ -505,6 +520,10 @@ void img_render(img_t *img)
 	int dx, dy, dw, dh;
 	Imlib_Image bg;
 	unsigned long c;
+
+	float z = img->zoom;
+	if (img->svg.h)
+		img->zoom = 1.0;
 
 	win = img->win;
 	img_fit(img);
@@ -585,6 +604,9 @@ void img_render(img_t *img)
 		imlib_render_image_part_on_drawable_at_size(sx, sy, sw, sh, dx, dy, dw, dh);
 	}
 	img->dirty = false;
+
+	if (img->svg.h)
+		img->zoom = z;
 }
 
 bool img_fit_win(img_t *img, scalemode_t sm)
@@ -613,6 +635,10 @@ bool img_zoom(img_t *img, float z)
 
 	if (zoomdiff(img, z) != 0) {
 		int x, y;
+
+		if (img->svg.h) {
+			img_load_svg(img, z);
+		}
 
 		win_cursor_pos(img->win, &x, &y);
 		if (x < 0 || x >= img->win->w || y < 0 || y >= img->win->h) {
