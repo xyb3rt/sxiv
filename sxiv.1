@@ -3,7 +3,7 @@
 sxiv \- Simple X Image Viewer
 .SH SYNOPSIS
 .B sxiv
-.RB [ \-abcdfhiopqrtvZ ]
+.RB [ \-abBcfhiopqrtvZ ]
 .RB [ \-A
 .IR FRAMERATE ]
 .RB [ \-e
@@ -27,7 +27,7 @@ sxiv \- Simple X Image Viewer
 sxiv is a simple image viewer for X.
 .P
 It has two modes of operation: image and thumbnail mode. The default is image
-mode, in which only the current image is shown. In thumbnail mode a grid of 
+mode, in which only the current image is shown. In thumbnail mode a grid of
 small previews is displayed, making it easy to choose an image to open.
 .P
 Please note, that the fullscreen mode requires an EWMH/NetWM compliant window
@@ -47,7 +47,7 @@ Do not show info bar on bottom of window.
 .B \-c
 Remove all orphaned cache files from the thumbnail cache directory and exit.
 .TP
-.B \-d
+.B \-B
 Invert the colors of the bar.
 .TP
 .BI "\-e " WID
@@ -99,7 +99,7 @@ seconds.
 may be a floating point number.
 .TP
 .BI "\-s " MODE
-Set scale mode according to MODE character. Supported modes are: [d]own, 
+Set scale mode according to MODE character. Supported modes are: [d]own,
 [f]it, [w]idth, [h]eight.
 .TP
 .B \-t
