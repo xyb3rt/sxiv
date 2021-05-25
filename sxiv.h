@@ -93,6 +93,9 @@ typedef enum {
 typedef enum {
 	SCALE_DOWN,
 	SCALE_FIT,
+	#if SCALE_FILL_MODE_PATCH
+	SCALE_FILL,
+	#endif // SCALE_FILL_MODE_PATCH
 	SCALE_WIDTH,
 	SCALE_HEIGHT,
 	SCALE_ZOOM

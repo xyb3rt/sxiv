@@ -13,6 +13,8 @@ Refer to [https://github.com/muennich/sxiv](https://github.com/muennich/sxiv) fo
 
 ### Changelog:
 
+2021-05-25 - Added fill scale mode
+
 2021-04-12 - Added animated WebP support
 
 2021-04-09 - Added svg image support, WM hints and \_NET\_WM\_PID and WM\_CLIENT\_MACHINE EWMH properties
@@ -29,6 +31,9 @@ Refer to [https://github.com/muennich/sxiv](https://github.com/muennich/sxiv) fo
 
    - [image-mode-cycle](https://github.com/i-tsvetkov/sxiv-patches)
       - adds the ability to cycle when viewing multiple images
+
+   - [scale-mode-fill](https://github.com/muennich/sxiv/pull/446)
+      - adds fill scale mode
 
    - [square-thumbnails](https://github.com/i-tsvetkov/sxiv-patches)
       - makes thumbnails square

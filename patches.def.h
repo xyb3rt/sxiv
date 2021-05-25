@@ -27,6 +27,11 @@
  */
 #define IMAGE_MODE_CYCLE_PATCH 0
 
+/* Adds fill scale mode.
+ * https://github.com/muennich/sxiv/pull/446
+ */
+#define SCALE_FILL_MODE_PATCH 0
+
 /* Makes thumbnails square.
  * https://github.com/i-tsvetkov/sxiv-patches
  */

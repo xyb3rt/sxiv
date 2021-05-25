@@ -44,7 +44,11 @@ void parse_options(int argc, char **argv)
 {
 	int n, opt;
 	char *end, *s;
-	const char *scalemodes = "dfwh";
+	const char *scalemodes = "dfwh"
+	#if SCALE_FILL_MODE_PATCH
+	"F"
+	#endif // SCALE_FILL_MODE_PATCH
+	;
 
 	progname = strrchr(argv[0], '/');
 	progname = progname ? progname + 1 : argv[0];
