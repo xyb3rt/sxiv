@@ -387,6 +387,21 @@ Color of the window foreground and bar background
 .B font
 Name of Xft bar font
 .TP
+.B titlePrefix
+Any string literal to be used as the window title prefix.
+.TP
+.B titleSuffix
+The format of the window title suffix.
+
+.EX
+    Value  Format
+    0      Basename of file
+    1      Basename of directory
+    2      Full path to file
+    3      Full path to directory
+    4      Empty string
+.EE
+.TP
 Please see xrdb(1) on how to change them.
 .SH STATUS BAR
 The information displayed on the left side of the status bar can be replaced
