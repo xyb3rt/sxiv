@@ -25,6 +25,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <locale.h>
+#include <unistd.h>
 #include <X11/cursorfont.h>
 #include <X11/Xatom.h>
 #include <X11/Xresource.h>
@@ -138,6 +139,7 @@ void win_init(win_t *win)
 	INIT_ATOM_(_NET_WM_ICON_NAME);
 	INIT_ATOM_(_NET_WM_ICON);
 	INIT_ATOM_(_NET_WM_STATE);
+	INIT_ATOM_(_NET_WM_PID);
 	INIT_ATOM_(_NET_WM_STATE_FULLSCREEN);
 }
 
@@ -200,6 +202,12 @@ void win_open(win_t *win)
 	                          e->depth, InputOutput, e->vis, 0, NULL);
 	if (win->xwin == None)
 		error(EXIT_FAILURE, 0, "Error creating X window");
+
+	  // set the _NET_WM_PID
+	pid_t pid = getpid();
+	XChangeProperty(e->dpy, win->xwin,
+					atoms[ATOM__NET_WM_PID], XA_CARDINAL, sizeof(pid_t) * 8,
+					PropModeReplace, (unsigned char *) &pid, 1);
 
 	XSelectInput(e->dpy, win->xwin,
 	             ButtonReleaseMask | ButtonPressMask | KeyPressMask |
