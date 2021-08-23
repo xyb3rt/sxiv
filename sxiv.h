@@ -420,6 +420,7 @@ struct win {
 	win_env_t env;
 
 	XftColor backgroundcolor;
+	XftColor foregroundcolor;
 	XftColor barcolor;
 	XftColor textcolor;
 

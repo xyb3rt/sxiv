@@ -94,7 +94,7 @@ const char* win_res(XrmDatabase db, const char *name, const char *def)
 void win_init(win_t *win)
 {
 	win_env_t *e;
-	const char *backgroundcolor, *barcolor, *textcolor, *f;
+	const char *backgroundcolor, *foregroundcolor, *barcolor, *textcolor, *f;
 	char *res_man;
 	XrmDatabase db;
 
@@ -126,9 +126,11 @@ void win_init(win_t *win)
 	                         NULL, 10) % SUFFIXMODE_COUNT;
 
 	backgroundcolor = win_res(db, RES_CLASS ".background", "black");
+	foregroundcolor = win_res(db, RES_CLASS ".foreground", "white");
 	barcolor = win_res(db, RES_CLASS ".barcolor", "black");
 	textcolor = win_res(db, RES_CLASS ".textcolor", "white");
 	win_alloc_color(e, backgroundcolor, &win->backgroundcolor);
+	win_alloc_color(e, foregroundcolor, &win->foregroundcolor);
 	win_alloc_color(e, barcolor, &win->barcolor);
 	win_alloc_color(e, textcolor, &win->textcolor);
 
