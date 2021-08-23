@@ -120,7 +120,7 @@ void win_init(win_t *win)
 	f = win_res(db, RES_CLASS ".font", "monospace-8");
 	win_init_font(e, f);
 
-	win->prefix = win_res(db, RES_CLASS ".titlePrefix", "sxiv - ");
+	win->prefix = win_res(db, RES_CLASS ".titlePrefix", "sxiv");
 	win->suffixmode = strtol(win_res(db, RES_CLASS ".titleSuffix", "0"),
 	                         NULL, 10) % SUFFIXMODE_COUNT;
 
@@ -478,8 +478,9 @@ void win_set_title(win_t *win, const char *path)
 
 	/* Some ancient WM's that don't comply to EMWH (e.g. mwm) only use WM_NAME for
 	 * the window title, which is set by XStoreName below. */
-	title = emalloc(strlen(win->prefix) + strlen(win->suffix) + 1);
-	(void)sprintf(title, "%s%s", win->prefix, win->suffix);
+	size_t suffixLen = strlen(win->suffix);
+	title = emalloc(strlen(win->prefix) + suffixLen + 1);
+	(void)sprintf(title, "%s%s%s", win->prefix, (suffixLen == 0) ? "" : " - ", win->suffix);
 	XChangeProperty(win->env.dpy, win->xwin, atoms[ATOM__NET_WM_NAME],
 	                XInternAtom(win->env.dpy, "UTF8_STRING", False), 8,
 	                PropModeReplace, (unsigned char *)title, strlen(title));
