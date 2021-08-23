@@ -419,8 +419,9 @@ struct win {
 	Window xwin;
 	win_env_t env;
 
-	XftColor bg;
-	XftColor fg;
+	XftColor backgroundcolor;
+	XftColor barcolor;
+	XftColor textcolor;
 
 	suffixmode_t suffixmode;
 	const char   *prefix;
