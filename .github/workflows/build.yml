@@ -18,6 +18,8 @@ jobs:
         sudo apt-get update
         sudo apt-get install -yq \
                    libimlib2-dev \
+                   librsvg2-dev \
+                   libcairo2-dev \
                    libx11-dev \
                    libxft-dev \
                    freetype2-doc \
