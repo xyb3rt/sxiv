@@ -478,6 +478,9 @@ bool img_fit(img_t *img)
 	zh = (float) img->win->h / (float) img->h;
 
 	switch (img->scalemode) {
+		case SCALE_FILL:
+			z = MAX(zw, zh);
+			break;
 		case SCALE_WIDTH:
 			z = zw;
 			break;
@@ -577,7 +580,7 @@ void img_render(img_t *img)
 			}
 			imlib_image_put_back_data(data);
 		} else {
-			c = win->bg.pixel;
+			c = win->backgroundcolor.pixel;
 			imlib_context_set_color(c >> 16 & 0xFF, c >> 8 & 0xFF, c & 0xFF, 0xFF);
 			imlib_image_fill_rectangle(0, 0, dw, dh);
 		}

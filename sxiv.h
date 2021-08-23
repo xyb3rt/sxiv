@@ -90,6 +90,7 @@ typedef enum {
 typedef enum {
 	SCALE_DOWN,
 	SCALE_FIT,
+	SCALE_FILL,
 	SCALE_WIDTH,
 	SCALE_HEIGHT,
 	SCALE_ZOOM
@@ -116,6 +117,16 @@ typedef enum {
 	FF_MARK    = 2,
 	FF_TN_INIT = 4
 } fileflags_t;
+
+typedef enum {
+	BASE_CFILE,
+	BASE_CDIR,
+	CFILE,
+	CDIR,
+	EMPTY,
+
+	SUFFIXMODE_COUNT,
+} suffixmode_t;
 
 typedef struct {
 	const char *name; /* as given by user */
@@ -394,6 +405,7 @@ enum {
 	ATOM__NET_WM_ICON_NAME,
 	ATOM__NET_WM_ICON,
 	ATOM__NET_WM_STATE,
+	ATOM__NET_WM_PID,
 	ATOM__NET_WM_STATE_FULLSCREEN,
 	ATOM_COUNT
 };
@@ -417,8 +429,14 @@ struct win {
 	Window xwin;
 	win_env_t env;
 
-	XftColor bg;
-	XftColor fg;
+	XftColor backgroundcolor;
+	XftColor foregroundcolor;
+	XftColor barcolor;
+	XftColor textcolor;
+
+	suffixmode_t suffixmode;
+	const char   *prefix;
+	const char   *suffix;
 
 	int x;
 	int y;

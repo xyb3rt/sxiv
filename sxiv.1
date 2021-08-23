@@ -97,7 +97,7 @@ may be a floating point number.
 .TP
 .BI "\-s " MODE
 Set scale mode according to MODE character. Supported modes are: [d]own, 
-[f]it, [w]idth, [h]eight.
+[f]it, [F]ill, [w]idth, [h]eight.
 .TP
 .B \-t
 Start in thumbnail mode.
@@ -169,13 +169,13 @@ Zoom out.
 Mark/unmark the current image.
 .TP
 .B M
-Reverse all image marks.
-.TP
-.B Ctrl-M
 Repeat last mark action on all images from the last marked/unmarked up to the
 current one.
 .TP
 .B Ctrl-m
+Reverse all image marks.
+.TP
+.B Ctrl-u
 Remove all image marks.
 .TP
 .B N
@@ -311,6 +311,9 @@ Set zoom level to 100%, but fit large images into window.
 .B W
 Fit image to window.
 .TP
+.B F
+Fill image to window.
+.TP
 .B e
 Fit image to window width.
 .TP
@@ -379,13 +382,34 @@ Zoom out.
 The following X resources are supported:
 .TP
 .B background
-Color of the window background and bar foreground
+Color of the window background
 .TP
 .B foreground
-Color of the window foreground and bar background
+Color of the window foreground
+.TP
+.B barcolor
+Color of the bar background
+.TP
+.B textcolor
+Color of the bar foreground
 .TP
 .B font
 Name of Xft bar font
+.TP
+.B titlePrefix
+Any string literal to be used as the window title prefix.
+.TP
+.B titleSuffix
+The format of the window title suffix.
+
+.EX
+    Value  Format
+    0      Basename of file
+    1      Basename of directory
+    2      Full path to file
+    3      Full path to directory
+    4      Empty string
+.EE
 .TP
 Please see xrdb(1) on how to change them.
 .SH STATUS BAR
