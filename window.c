@@ -125,9 +125,9 @@ void win_init(win_t *win)
 	win->suffixmode = strtol(win_res(db, RES_CLASS ".titleSuffix", "0"),
 	                         NULL, 10) % SUFFIXMODE_COUNT;
 
-	backgroundcolor = win_res(db, RES_CLASS ".background", "white");
+	backgroundcolor = win_res(db, RES_CLASS ".background", "black");
 	barcolor = win_res(db, RES_CLASS ".barcolor", "black");
-	textcolor = win_res(db, RES_CLASS ".textcolor", "black");
+	textcolor = win_res(db, RES_CLASS ".textcolor", "white");
 	win_alloc_color(e, backgroundcolor, &win->backgroundcolor);
 	win_alloc_color(e, barcolor, &win->barcolor);
 	win_alloc_color(e, textcolor, &win->textcolor);
