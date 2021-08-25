@@ -27,6 +27,7 @@
 #include <errno.h>
 #include <locale.h>
 #include <signal.h>
+#include <limits.h>
 #include <sys/select.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
@@ -896,6 +897,16 @@ int main(int argc, char **argv)
 
 	filecnt = fileidx;
 	fileidx = options->startnum < filecnt ? options->startnum : 0;
+
+	if (options->startfile != NULL) {
+		for (int i = 0; i < filecnt; ++i) {
+			char file_path[PATH_MAX];
+			realpath(options->startfile, file_path);
+			if (strcmp(file_path, files[i].path) == 0) {
+				fileidx = i;
+			}
+		}
+	}
 
 	for (i = 0; i < ARRLEN(buttons); i++) {
 		if (buttons[i].cmd == i_cursor_navigate) {
