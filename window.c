@@ -127,8 +127,8 @@ void win_init(win_t *win)
 
 	backgroundcolor = win_res(db, RES_CLASS ".background", "black");
 	foregroundcolor = win_res(db, RES_CLASS ".foreground", "white");
-	barcolor = win_res(db, RES_CLASS ".barcolor", "black");
-	textcolor = win_res(db, RES_CLASS ".textcolor", "white");
+	barcolor = win_res(db, RES_CLASS ".bar", backgroundcolor);
+	textcolor = win_res(db, RES_CLASS ".text", foregroundcolor);
 	win_alloc_color(e, backgroundcolor, &win->backgroundcolor);
 	win_alloc_color(e, foregroundcolor, &win->foregroundcolor);
 	win_alloc_color(e, barcolor, &win->barcolor);
