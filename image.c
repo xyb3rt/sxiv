@@ -372,7 +372,7 @@ bool img_load_webp(img_t* img, const fileinfo_t* file)
 	flags = WebPDemuxGetI(demux, WEBP_FF_FORMAT_FLAGS);
 	img->w = WebPDemuxGetI(demux, WEBP_FF_CANVAS_WIDTH);
 	img->h = WebPDemuxGetI(demux, WEBP_FF_CANVAS_HEIGHT);
-	img->alpha = (flags & ALPHA_FLAG) > 0;
+	img->alpha = ALPHA_LAYER;
 	img->multi.cap = info.frame_count;
 	img->multi.sel = 0;
 	img->multi.frames = emalloc(info.frame_count * sizeof(img_frame_t));
@@ -387,10 +387,7 @@ bool img_load_webp(img_t* img, const fileinfo_t* file)
 		imlib_image_set_format("webp");
 		// Get an iterator of this frame - used for frame info (duration, etc.)
 		WebPDemuxGetFrame(demux, img->multi.cnt+1, &iter);
-		// TODO: iter refers to the sub-frame, not the total frame. im is the
-		// total frame, entirely reconstructed. How can we see if the total
-		// frame has transparency?
-		if (iter.has_alpha) imlib_image_set_has_alpha(1);
+		imlib_image_set_has_alpha((flags & ALPHA_FLAG) > 0);
 		// Store info for this frame
 		img->multi.frames[img->multi.cnt].im = im;
 		delay = iter.duration > 0 ? iter.duration : DEF_WEBP_DELAY;
@@ -494,6 +491,7 @@ Imlib_Image load_webp_firstframe_im(const fileinfo_t *file)
 			info.canvas_width, info.canvas_height, (DATA32*)buf);
 	imlib_context_set_image(im);
 	imlib_image_set_format("webp");
+	imlib_image_set_has_alpha(1);
 
 	WebPAnimDecoderDelete(dec);
 	free((uint8_t*)data.bytes);
