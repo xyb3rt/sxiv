@@ -240,7 +240,11 @@ bool cg_navigate_marked(arg_t n)
 	if (prefix > 0)
 		n *= prefix;
 	d = n > 0 ? 1 : -1;
-	for (i = fileidx + d; n != 0 && i >= 0 && i < filecnt; i += d) {
+	for (i = fileidx + d; n != 0; i += d) {
+		if (i < 0)
+			i += filecnt;
+		else if (i >= filecnt)
+			i -= filecnt;
 		if (files[i].flags & FF_MARK) {
 			n -= d;
 			new = i;
@@ -275,10 +279,10 @@ bool ci_navigate(arg_t n)
 	if (prefix > 0)
 		n *= prefix;
 	n += fileidx;
-	if (n < 0)
-		n = 0;
-	if (n >= filecnt)
-		n = filecnt - 1;
+	while (n < 0)
+		n += filecnt;
+	while (n >= filecnt)
+		n -= filecnt;
 
 	if (n != fileidx) {
 		load_image(n);

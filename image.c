@@ -1083,10 +1083,10 @@ bool img_frame_navigate(img_t *img, int d)
 		return false;
 
 	d += img->multi.sel;
-	if (d < 0)
-		d = 0;
-	else if (d >= img->multi.cnt)
-		d = img->multi.cnt - 1;
+	while (d < 0)
+		d += img->multi.cnt;
+	while (d >= img->multi.cnt)
+		d -= img->multi.cnt;
 
 	return img_frame_goto(img, d);
 }

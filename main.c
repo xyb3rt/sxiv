@@ -430,8 +430,6 @@ void reset_cursor(void)
 			if (timeouts[i].handler == reset_cursor) {
 				if (timeouts[i].active) {
 					c = ptr_third_x();
-					c = MAX(fileidx > 0 ? 0 : 1, c);
-					c = MIN(fileidx + 1 < filecnt ? 2 : 1, c);
 					cursor = imgcursor[c];
 				}
 				break;
