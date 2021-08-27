@@ -473,5 +473,8 @@ void win_set_title(win_t*, const char*);
 void win_set_cursor(win_t*, cursor_t);
 void win_cursor_pos(win_t*, int*, int*);
 
+char* get_path_from_url(char* url);
+int download_from_url(char* url, char* path);
+
 #endif /* SXIV_H */
 

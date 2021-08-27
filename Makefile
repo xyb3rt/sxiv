@@ -31,12 +31,12 @@ lib_gif_0 =
 lib_gif_1 = -lgif
 lib_webp_0 =
 lib_webp_1 = -lwebpdemux -lwebp
-ldlibs = $(LDLIBS) -lImlib2 -lX11 -lXft -lfontconfig \
+ldlibs = $(LDLIBS) -lImlib2 -lX11 -lXft -lfontconfig -lcurl \
   $(lib_exif_$(HAVE_LIBEXIF)) $(lib_gif_$(HAVE_GIFLIB)) \
   $(lib_webp_$(HAVE_LIBWEBP))
 
 objs = autoreload_$(AUTORELOAD).o commands.o image.o main.o options.o \
-  thumbs.o util.o window.o
+  thumbs.o util.o window.o remote.o
 
 all: sxiv
 
