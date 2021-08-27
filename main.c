@@ -869,8 +869,17 @@ int main(int argc, char **argv)
 		filename = options->filenames[i];
 
 		if (stat(filename, &fstats) < 0) {
+#if HAVE_LIBCURL
+			char *path = get_path_from_url(filename);
+			if (!download_from_url(filename, path)) {
+				error(0, errno, "%s", filename);
+				continue;
+			}
+			filename = path;
+#else
 			error(0, errno, "%s", filename);
 			continue;
+#endif /* HAVE_LIBCURL */
 		}
 		if (!S_ISDIR(fstats.st_mode)) {
 			check_add_file(filename, true);
