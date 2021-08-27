@@ -40,13 +40,13 @@ sxiv requires the following software to be installed:
   * Imlib2
   * librsvg
   * cairo
-  * curl
   * X11
   * Xft
   * freetype2
   * fontconfig
   * giflib (optional, disabled with `HAVE_GIFLIB=0`)
   * libexif (optional, disabled with `HAVE_LIBEXIF=0`)
+  * curl (optional, disabled with `HAVE_LIBCURL=0`)
 
 Please make sure to install the corresponding development packages in case that
 you want to build sxiv on a distribution with separate runtime and development
