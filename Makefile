@@ -18,11 +18,14 @@ HAVE_LIBEXIF = 1
 # enable features requiring libwebp (-lwebp)
 HAVE_LIBWEBP = 1
 
+# enable features requiring libcurl (-lcurl)
+HAVE_LIBCURL = 1
+
 cflags = -std=c99 -Wall -pedantic $(CFLAGS) `pkg-config --cflags --libs librsvg-2.0 cairo`
 
 cppflags = -I. $(CPPFLAGS) -D_XOPEN_SOURCE=700 \
   -DHAVE_GIFLIB=$(HAVE_GIFLIB) -DHAVE_LIBEXIF=$(HAVE_LIBEXIF) \
-  -DHAVE_LIBWEBP=$(HAVE_LIBWEBP) \
+  -DHAVE_LIBWEBP=$(HAVE_LIBWEBP) -DHAVE_LIBCURL=$(HAVE_LIBCURL) \
   -I/usr/include/freetype2 -I$(PREFIX)/include/freetype2
 
 lib_exif_0 =
@@ -31,9 +34,11 @@ lib_gif_0 =
 lib_gif_1 = -lgif
 lib_webp_0 =
 lib_webp_1 = -lwebpdemux -lwebp
-ldlibs = $(LDLIBS) -lImlib2 -lX11 -lXft -lfontconfig -lcurl \
+lib_curl_0 =
+lib_curl_1 = -lcurl
+ldlibs = $(LDLIBS) -lImlib2 -lX11 -lXft -lfontconfig \
   $(lib_exif_$(HAVE_LIBEXIF)) $(lib_gif_$(HAVE_GIFLIB)) \
-  $(lib_webp_$(HAVE_LIBWEBP))
+  $(lib_webp_$(HAVE_LIBWEBP)) $(lib_curl_$(HAVE_LIBCURL))
 
 objs = autoreload_$(AUTORELOAD).o commands.o image.o main.o options.o \
   thumbs.o util.o window.o remote.o

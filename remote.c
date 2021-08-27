@@ -1,5 +1,7 @@
 #include "sxiv.h"
 
+#if HAVE_LIBCURL
+
 #include <stdlib.h>
 #include <libgen.h>
 #include <curl/curl.h>
@@ -40,3 +42,5 @@ int download_from_url(char* url, char* path) {
     if(res != CURLE_OK) return 0;
     return 1;
 }
+
+#endif /* HAVE_LIBCURL */
