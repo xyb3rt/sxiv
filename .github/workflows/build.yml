@@ -20,6 +20,7 @@ jobs:
                    libimlib2-dev \
                    librsvg2-dev \
                    libcairo2-dev \
+                   libcurl4-gnutls-dev \
                    libx11-dev \
                    libxft-dev \
                    freetype2-doc \

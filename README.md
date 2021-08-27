@@ -40,6 +40,7 @@ sxiv requires the following software to be installed:
   * Imlib2
   * librsvg
   * cairo
+  * curl
   * X11
   * Xft
   * freetype2
