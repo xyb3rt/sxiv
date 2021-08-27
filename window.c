@@ -24,7 +24,9 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <libgen.h>
 #include <locale.h>
+#include <unistd.h>
 #include <X11/cursorfont.h>
 #include <X11/Xatom.h>
 #include <X11/Xresource.h>
@@ -92,7 +94,7 @@ const char* win_res(XrmDatabase db, const char *name, const char *def)
 void win_init(win_t *win)
 {
 	win_env_t *e;
-	const char *bg, *fg, *f;
+	const char *backgroundcolor, *foregroundcolor, *barcolor, *textcolor, *f;
 	char *res_man;
 	XrmDatabase db;
 
@@ -119,10 +121,18 @@ void win_init(win_t *win)
 	f = win_res(db, RES_CLASS ".font", "monospace-8");
 	win_init_font(e, f);
 
-	bg = win_res(db, RES_CLASS ".background", "white");
-	fg = win_res(db, RES_CLASS ".foreground", "black");
-	win_alloc_color(e, bg, &win->bg);
-	win_alloc_color(e, fg, &win->fg);
+	win->prefix = win_res(db, RES_CLASS ".titlePrefix", "sxiv");
+	win->suffixmode = strtol(win_res(db, RES_CLASS ".titleSuffix", "0"),
+	                         NULL, 10) % SUFFIXMODE_COUNT;
+
+	backgroundcolor = win_res(db, RES_CLASS ".background", "black");
+	foregroundcolor = win_res(db, RES_CLASS ".foreground", "white");
+	barcolor = win_res(db, RES_CLASS ".bar", backgroundcolor);
+	textcolor = win_res(db, RES_CLASS ".text", foregroundcolor);
+	win_alloc_color(e, backgroundcolor, &win->backgroundcolor);
+	win_alloc_color(e, foregroundcolor, &win->foregroundcolor);
+	win_alloc_color(e, barcolor, &win->barcolor);
+	win_alloc_color(e, textcolor, &win->textcolor);
 
 	win->bar.l.size = BAR_L_LEN;
 	win->bar.r.size = BAR_R_LEN;
@@ -138,6 +148,7 @@ void win_init(win_t *win)
 	INIT_ATOM_(_NET_WM_ICON_NAME);
 	INIT_ATOM_(_NET_WM_ICON);
 	INIT_ATOM_(_NET_WM_STATE);
+	INIT_ATOM_(_NET_WM_PID);
 	INIT_ATOM_(_NET_WM_STATE_FULLSCREEN);
 }
 
@@ -201,6 +212,12 @@ void win_open(win_t *win)
 	if (win->xwin == None)
 		error(EXIT_FAILURE, 0, "Error creating X window");
 
+	  // set the _NET_WM_PID
+	pid_t pid = getpid();
+	XChangeProperty(e->dpy, win->xwin,
+					atoms[ATOM__NET_WM_PID], XA_CARDINAL, sizeof(pid_t) * 8,
+					PropModeReplace, (unsigned char *) &pid, 1);
+
 	XSelectInput(e->dpy, win->xwin,
 	             ButtonReleaseMask | ButtonPressMask | KeyPressMask |
 	             PointerMotionMask | StructureNotifyMask);
@@ -238,8 +255,6 @@ void win_open(win_t *win)
 	}
 	free(icon_data);
 
-	win_set_title(win, "sxiv");
-
 	classhint.res_class = RES_CLASS;
 	classhint.res_name = options->res_name != NULL ? options->res_name : "sxiv";
 	XSetClassHint(e->dpy, win->xwin, &classhint);
@@ -258,7 +273,7 @@ void win_open(win_t *win)
 	win->buf.h = e->scrh;
 	win->buf.pm = XCreatePixmap(e->dpy, win->xwin,
 	                            win->buf.w, win->buf.h, e->depth);
-	XSetForeground(e->dpy, gc, win->bg.pixel);
+	XSetForeground(e->dpy, gc, win->backgroundcolor.pixel);
 	XFillRectangle(e->dpy, win->buf.pm, gc, 0, 0, win->buf.w, win->buf.h);
 	XSetWindowBackgroundPixmap(e->dpy, win->xwin, win->buf.pm);
 
@@ -340,7 +355,7 @@ void win_clear(win_t *win)
 		win->buf.pm = XCreatePixmap(e->dpy, win->xwin,
 		                            win->buf.w, win->buf.h, e->depth);
 	}
-	XSetForeground(e->dpy, gc, win->bg.pixel);
+	XSetForeground(e->dpy, gc, win->backgroundcolor.pixel);
 	XFillRectangle(e->dpy, win->buf.pm, gc, 0, 0, win->buf.w, win->buf.h);
 }
 
@@ -397,23 +412,23 @@ void win_draw_bar(win_t *win)
 	d = XftDrawCreate(e->dpy, win->buf.pm, DefaultVisual(e->dpy, e->scr),
 	                  DefaultColormap(e->dpy, e->scr));
 
-	XSetForeground(e->dpy, gc, win->fg.pixel);
+	XSetForeground(e->dpy, gc, win->barcolor.pixel);
 	XFillRectangle(e->dpy, win->buf.pm, gc, 0, win->h, win->w, win->bar.h);
 
-	XSetForeground(e->dpy, gc, win->bg.pixel);
-	XSetBackground(e->dpy, gc, win->fg.pixel);
+	XSetForeground(e->dpy, gc, win->backgroundcolor.pixel);
+	XSetBackground(e->dpy, gc, win->barcolor.pixel);
 
 	if ((len = strlen(r->buf)) > 0) {
 		if ((tw = TEXTWIDTH(win, r->buf, len)) > w)
 			return;
 		x = win->w - tw - H_TEXT_PAD;
 		w -= tw;
-		win_draw_text(win, d, &win->bg, x, y, r->buf, len, tw);
+		win_draw_text(win, d, &win->textcolor, x, y, r->buf, len, tw);
 	}
 	if ((len = strlen(l->buf)) > 0) {
 		x = H_TEXT_PAD;
 		w -= 2 * H_TEXT_PAD; /* gap between left and right parts */
-		win_draw_text(win, d, &win->bg, x, y, l->buf, len, w);
+		win_draw_text(win, d, &win->textcolor, x, y, l->buf, len, w);
 	}
 	XftDrawDestroy(d);
 }
@@ -443,17 +458,56 @@ void win_draw_rect(win_t *win, int x, int y, int w, int h, bool fill, int lw,
 		XDrawRectangle(win->env.dpy, win->buf.pm, gc, x, y, w, h);
 }
 
-void win_set_title(win_t *win, const char *title)
+void win_set_title(win_t *win, const char *path)
 {
-	XStoreName(win->env.dpy, win->xwin, title);
-	XSetIconName(win->env.dpy, win->xwin, title);
+	char *title, *suffix="";
+	static bool first_time = true;
 
+	/* Return if window is not ready yet, otherwise we get an X fault. */
+	if (win->xwin == None)
+		return;
+
+	/* Get title suffix type from X-resources. Default: BASE_CDIR. */
+	suffix = estrdup(path);
+	switch (win->suffixmode) {
+		case CFILE:
+			win->suffix = suffix;
+			break;
+		case BASE_CFILE:
+			win->suffix = basename(suffix);
+			break;
+		case CDIR:
+			win->suffix = dirname(suffix);
+			break;
+		case BASE_CDIR:
+			win->suffix = basename(dirname(suffix));
+			break;
+		case SUFFIXMODE_COUNT: // Never happens
+		case EMPTY:
+			win->suffix = "";
+			break;
+	}
+
+	/* Some ancient WM's that don't comply to EMWH (e.g. mwm) only use WM_NAME for
+	 * the window title, which is set by XStoreName below. */
+	size_t suffixLen = strlen(win->suffix);
+	title = emalloc(strlen(win->prefix) + suffixLen + 1);
+	(void)sprintf(title, "%s%s%s", win->prefix, (suffixLen == 0) ? "" : " - ", win->suffix);
 	XChangeProperty(win->env.dpy, win->xwin, atoms[ATOM__NET_WM_NAME],
 	                XInternAtom(win->env.dpy, "UTF8_STRING", False), 8,
-	                PropModeReplace, (unsigned char *) title, strlen(title));
+	                PropModeReplace, (unsigned char *)title, strlen(title));
 	XChangeProperty(win->env.dpy, win->xwin, atoms[ATOM__NET_WM_ICON_NAME],
 	                XInternAtom(win->env.dpy, "UTF8_STRING", False), 8,
-	                PropModeReplace, (unsigned char *) title, strlen(title));
+	                PropModeReplace, (unsigned char *)title, strlen(title));
+	free(title);
+	free(suffix);
+
+	/* These two atoms won't change and thus only need to be set once. */
+	if (first_time) {
+		XStoreName(win->env.dpy, win->xwin, "sxiv");
+		XSetIconName(win->env.dpy, win->xwin, "sxiv");
+		first_time = false;
+	}
 }
 
 void win_set_cursor(win_t *win, cursor_t cursor)

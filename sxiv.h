@@ -27,6 +27,8 @@
 #include <Imlib2.h>
 #include <X11/Xlib.h>
 
+#include <librsvg/rsvg.h>
+
 /*
  * Annotation for functions called in cleanup().
  * These functions are not allowed to call error(!0, ...) or exit().
@@ -88,6 +90,7 @@ typedef enum {
 typedef enum {
 	SCALE_DOWN,
 	SCALE_FIT,
+	SCALE_FILL,
 	SCALE_WIDTH,
 	SCALE_HEIGHT,
 	SCALE_ZOOM
@@ -114,6 +117,16 @@ typedef enum {
 	FF_MARK    = 2,
 	FF_TN_INIT = 4
 } fileflags_t;
+
+typedef enum {
+	BASE_CFILE,
+	BASE_CDIR,
+	CFILE,
+	CDIR,
+	EMPTY,
+
+	SUFFIXMODE_COUNT,
+} suffixmode_t;
 
 typedef struct {
 	const char *name; /* as given by user */
@@ -206,10 +219,18 @@ typedef struct {
 	int length;
 } multi_img_t;
 
+typedef struct {
+	RsvgHandle *h;
+	RsvgRectangle size;     /* size of the actual docuemnt which will be used while scaling */
+	RsvgRectangle viewbox;  /* size of the scaled image which will be rendered */
+} svg_t;
+
 struct img {
 	Imlib_Image im;
 	int w;
 	int h;
+
+	svg_t svg;
 
 	win_t *win;
 	float x;
@@ -264,6 +285,7 @@ struct opt {
 	bool recursive;
 	int filecnt;
 	int startnum;
+	char *startfile;
 
 	/* image: */
 	scalemode_t scalemode;
@@ -384,6 +406,7 @@ enum {
 	ATOM__NET_WM_ICON_NAME,
 	ATOM__NET_WM_ICON,
 	ATOM__NET_WM_STATE,
+	ATOM__NET_WM_PID,
 	ATOM__NET_WM_STATE_FULLSCREEN,
 	ATOM_COUNT
 };
@@ -407,8 +430,14 @@ struct win {
 	Window xwin;
 	win_env_t env;
 
-	XftColor bg;
-	XftColor fg;
+	XftColor backgroundcolor;
+	XftColor foregroundcolor;
+	XftColor barcolor;
+	XftColor textcolor;
+
+	suffixmode_t suffixmode;
+	const char   *prefix;
+	const char   *suffix;
 
 	int x;
 	int y;

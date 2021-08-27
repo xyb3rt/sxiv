@@ -35,6 +35,7 @@ void exif_auto_orientate(const fileinfo_t*);
 Imlib_Image img_open(const fileinfo_t*);
 
 static char *cache_dir;
+extern const int fileidx;
 
 char* tns_cache_filepath(const char *filepath)
 {
@@ -469,14 +470,14 @@ void tns_mark(tns_t *tns, int n, bool mark)
 	if (n >= 0 && n < *tns->cnt && tns->thumbs[n].im != NULL) {
 		win_t *win = tns->win;
 		thumb_t *t = &tns->thumbs[n];
-		unsigned long col = win->bg.pixel;
+		unsigned long col = win->backgroundcolor.pixel;
 		int x = t->x + t->w, y = t->y + t->h;
 
 		win_draw_rect(win, x - 1, y + 1, 1, tns->bw, true, 1, col);
 		win_draw_rect(win, x + 1, y - 1, tns->bw, 1, true, 1, col);
 
 		if (mark)
-			col = win->fg.pixel;
+			col = win->foregroundcolor.pixel;
 
 		win_draw_rect(win, x, y, tns->bw + 2, tns->bw + 2, true, 1, col);
 
@@ -490,7 +491,7 @@ void tns_highlight(tns_t *tns, int n, bool hl)
 	if (n >= 0 && n < *tns->cnt && tns->thumbs[n].im != NULL) {
 		win_t *win = tns->win;
 		thumb_t *t = &tns->thumbs[n];
-		unsigned long col = hl ? win->fg.pixel : win->bg.pixel;
+		unsigned long col = hl ? win->foregroundcolor.pixel : win->backgroundcolor.pixel;
 		int oxy = (tns->bw + 1) / 2 + 1, owh = tns->bw + 2;
 
 		win_draw_rect(win, t->x - oxy, t->y - oxy, t->w + owh, t->h + owh,
@@ -531,6 +532,7 @@ bool tns_move_selection(tns_t *tns, direction_t dir, int cnt)
 		if (!tns->dirty)
 			tns_highlight(tns, *tns->sel, true);
 	}
+	win_set_title(tns->win, tns->files[fileidx].path);
 	return *tns->sel != old;
 }
 
