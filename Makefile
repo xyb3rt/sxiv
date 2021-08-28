@@ -21,11 +21,18 @@ HAVE_LIBWEBP = 1
 # enable features requiring libcurl (-lcurl)
 HAVE_LIBCURL = 1
 
-cflags = -std=c99 -Wall -pedantic $(CFLAGS) `pkg-config --cflags --libs librsvg-2.0 cairo`
+# enable features requiring cairo and svg (-lgif)
+HAVE_CAIRO_SVG = 1
+
+lib_cairo_svg_0 =
+lib_cairo_svg_1 = `pkg-config --cflags --libs librsvg-2.0 cairo`
+
+cflags = -std=c99 -Wall -pedantic $(CFLAGS) $(lib_cairo_svg_$(HAVE_CAIRO_SVG))
 
 cppflags = -I. $(CPPFLAGS) -D_XOPEN_SOURCE=700 \
   -DHAVE_GIFLIB=$(HAVE_GIFLIB) -DHAVE_LIBEXIF=$(HAVE_LIBEXIF) \
   -DHAVE_LIBWEBP=$(HAVE_LIBWEBP) -DHAVE_LIBCURL=$(HAVE_LIBCURL) \
+  -DHAVE_CAIRO_SVG=$(HAVE_CAIRO_SVG) \
   -I/usr/include/freetype2 -I$(PREFIX)/include/freetype2
 
 lib_exif_0 =

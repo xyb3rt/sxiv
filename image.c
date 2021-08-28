@@ -27,7 +27,9 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#if HAVE_CAIRO_SVG
 #include<cairo.h>
+#endif
 
 #if HAVE_LIBEXIF
 #include <libexif/exif-data.h>
@@ -63,7 +65,9 @@ void img_init(img_t *img, win_t *win)
 	imlib_context_set_colormap(win->env.cmap);
 
 	img->im = NULL;
+#if HAVE_CAIRO_SVG
 	img->svg.h = NULL;
+#endif
 	img->win = win;
 	img->scalemode = options->scalemode;
 	img->zoom = options->zoom;
@@ -501,6 +505,7 @@ Imlib_Image load_webp_firstframe_im(const fileinfo_t *file)
 }
 #endif /* HAVE_LIBWEBP */
 
+#if HAVE_CAIRO_SVG
 svg_t img_open_svg(const fileinfo_t *file) {
 	svg_t svg;
 
@@ -558,6 +563,7 @@ bool img_load_svg(img_t *img, float z) {
 
 	return true;
 }
+#endif /* HAVE_CAIRO_SVG */
 
 Imlib_Image img_open(const fileinfo_t *file)
 {
@@ -588,6 +594,11 @@ Imlib_Image img_open(const fileinfo_t *file)
 		}
 	}
 
+#if !HAVE_CAIRO_SVG
+	if (im == NULL && (file->flags & FF_WARN))
+		error(0, 0, "%s: Error opening image", file->name);
+#endif
+
 	return im;
 }
 
@@ -595,6 +606,7 @@ bool img_load(img_t *img, const fileinfo_t *file)
 {
 	const char *fmt;
 
+#if HAVE_CAIRO_SVG
 	if ((img->im = img_open(file)) == NULL) {
 		img->svg = img_open_svg(file);
 		if ((img->svg.h == NULL) || img_load_svg(img, 1.0) == false) {
@@ -603,6 +615,10 @@ bool img_load(img_t *img, const fileinfo_t *file)
 			return false;
 		}
 	}
+#else
+	if ((img->im = img_open(file)) == NULL)
+		return false;
+#endif /* HAVE_CAIRO_SVG */
 
 	imlib_image_set_changes_on_disk();
 
@@ -648,8 +664,10 @@ CLEANUP void img_close(img_t *img, bool decache)
 		img->im = NULL;
 	}
 
+#if HAVE_CAIRO_SVG
 	if (img->svg.h)
 		g_object_unref(img->svg.h);
+#endif
 }
 
 void img_check_pan(img_t *img, bool moved)
@@ -658,9 +676,14 @@ void img_check_pan(img_t *img, bool moved)
 	float w, h, ox, oy;
 
 	win = img->win;
+#if !HAVE_CAIRO_SVG
+	w = img->w * img->zoom;
+	h = img->h * img->zoom;
+#endif
 	ox = img->x;
 	oy = img->y;
 
+#if HAVE_CAIRO_SVG
 	if (img->svg.h) {
 		w = img->w;
 		h = img->h;
@@ -668,6 +691,7 @@ void img_check_pan(img_t *img, bool moved)
 		w = img->w * img->zoom;
 		h = img->h * img->zoom;
 	}
+#endif
 
 	if (w < win->w)
 		img->x = (win->w - w) / 2;
@@ -729,9 +753,11 @@ void img_render(img_t *img)
 	Imlib_Image bg;
 	unsigned long c;
 
+#if HAVE_CAIRO_SVG
 	float z = img->zoom;
 	if (img->svg.h)
 		img->zoom = 1.0;
+#endif
 
 	win = img->win;
 	img_fit(img);
@@ -813,8 +839,10 @@ void img_render(img_t *img)
 	}
 	img->dirty = false;
 
+#if HAVE_CAIRO_SVG
 	if (img->svg.h)
 		img->zoom = z;
+#endif
 }
 
 bool img_fit_win(img_t *img, scalemode_t sm)
@@ -844,9 +872,11 @@ bool img_zoom(img_t *img, float z)
 	if (zoomdiff(img, z) != 0) {
 		int x, y;
 
+#if HAVE_CAIRO_SVG
 		if (img->svg.h) {
 			img_load_svg(img, z);
 		}
+#endif
 
 		win_cursor_pos(img->win, &x, &y);
 		if (x < 0 || x >= img->win->w || y < 0 || y >= img->win->h) {

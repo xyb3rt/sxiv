@@ -38,12 +38,12 @@ Dependencies
 sxiv requires the following software to be installed:
 
   * Imlib2
-  * librsvg
-  * cairo
   * X11
   * Xft
   * freetype2
   * fontconfig
+  * librsvg (optional, disabled with `HAVE_CAIRO_SVG=0`)
+  * cairo (optional, disabled with `HAVE_CAIRO_SVG=0`)
   * giflib (optional, disabled with `HAVE_GIFLIB=0`)
   * libexif (optional, disabled with `HAVE_LIBEXIF=0`)
   * libwebp (optional, disabled with `HAVE_LIBWEBP=0`)
