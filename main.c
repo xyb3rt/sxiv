@@ -822,7 +822,7 @@ int main(int argc, char **argv)
 	int i, start;
 	size_t n;
 	ssize_t len;
-	char *filename;
+	char *filename, *dirname, *savedname = NULL;
 	const char *homedir, *dsuffix = "";
 	struct stat fstats;
 	r_dir_t dir;
@@ -881,11 +881,25 @@ int main(int argc, char **argv)
 			continue;
 #endif /* HAVE_LIBCURL */
 		}
-		if (!S_ISDIR(fstats.st_mode)) {
+		if (!S_ISDIR(fstats.st_mode) && !options->loaddir) {
 			check_add_file(filename, true);
 		} else {
-			if (r_opendir(&dir, filename, options->recursive) < 0) {
-				error(0, errno, "%s", filename);
+			if (options->loaddir) {
+				char *del;
+				savedname = realpath(filename, NULL);
+				if (!savedname){
+					error(0, errno, "%s", savedname);
+					continue;
+				}
+				dirname = emalloc(sizeof savedname[0] * (strlen(savedname)+1));
+				strcpy(dirname, savedname);
+				del = strrchr(dirname, '/');
+				*del = '\0';
+			} else {
+				dirname = filename;
+			}
+			if (r_opendir(&dir, dirname, options->recursive) < 0) {
+				error(0, errno, "%s", dirname);
 				continue;
 			}
 			start = fileidx;
@@ -903,7 +917,18 @@ int main(int argc, char **argv)
 		error(EXIT_FAILURE, 0, "No valid image file given, aborting");
 
 	filecnt = fileidx;
-	fileidx = options->startnum < filecnt ? options->startnum : 0;
+	if (options->loaddir) {
+		for (i = 0; i < filecnt; ++i) {
+			if (STREQ(savedname, files[i].path)) {
+				fileidx = i;
+			}
+		}
+	} else {
+		fileidx = options->startnum < filecnt ? options->startnum : 0;
+	}
+	free(savedname);
+	if (options->loaddir)
+		free(dirname);
 
 	if (options->startfile != NULL) {
 		for (int i = 0; i < filecnt; ++i) {

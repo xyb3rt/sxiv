@@ -292,6 +292,7 @@ struct opt {
 	int filecnt;
 	int startnum;
 	char *startfile;
+	bool loaddir;
 
 	/* image: */
 	scalemode_t scalemode;
