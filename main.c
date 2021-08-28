@@ -923,7 +923,7 @@ int main(int argc, char **argv)
 		error(EXIT_FAILURE, 0, "No valid image file given, aborting");
 
 	filecnt = fileidx;
-	fileidx = 0;
+	fileidx = options->startnum < filecnt ? options->startnum : 0;
 	if (options->loaddir) {
 		if (savedname == NULL) {
 			savedname = emalloc(sizeof(""));
@@ -936,8 +936,6 @@ int main(int argc, char **argv)
 				}
 			}
 		}
-	} else {
-		fileidx = options->startnum < filecnt ? options->startnum : 0;
 	}
 	free(savedname);
 	if (options->loaddir)
