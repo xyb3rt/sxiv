@@ -27,7 +27,9 @@
 #include <Imlib2.h>
 #include <X11/Xlib.h>
 
+#if HAVE_CAIRO_SVG
 #include <librsvg/rsvg.h>
+#endif
 
 /*
  * Annotation for functions called in cleanup().
@@ -219,18 +221,22 @@ typedef struct {
 	int length;
 } multi_img_t;
 
+#if HAVE_CAIRO_SVG
 typedef struct {
 	RsvgHandle *h;
 	RsvgRectangle size;     /* size of the actual docuemnt which will be used while scaling */
 	RsvgRectangle viewbox;  /* size of the scaled image which will be rendered */
 } svg_t;
+#endif
 
 struct img {
 	Imlib_Image im;
 	int w;
 	int h;
 
+#if HAVE_CAIRO_SVG
 	svg_t svg;
+#endif
 
 	win_t *win;
 	float x;
