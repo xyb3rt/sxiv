@@ -7,6 +7,7 @@ This is my fork of sxiv. I created this because a lot of features I found useful
 
 Features
 --------
+_Those with a ``new`` before the feature are additions compared to the main repo_
 
 * Basic image operations, e.g. zooming, panning, rotating
 * Customizable key and mouse button mappings (in *config.h*)
@@ -15,6 +16,13 @@ Features
 * Basic support for multi-frame images
 * Load all frames from GIF files and play GIF animations
 * Display image information in status bar
+* _(new)_ Load all images on parent directory
+* _(new)_ Partial svg support (only on image mode for now)
+* _(new)_ View images from URL
+* _(new)_ Full webp support
+* _(new)_ Start from file
+* _(new)_ Configurable title
+* _(new)_ Configurable bar colors
 
 
 Screenshots
