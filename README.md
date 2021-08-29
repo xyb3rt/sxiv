@@ -1,11 +1,8 @@
-![sxiv](http://muennich.github.com/sxiv/img/logo.png "sxiv")
+![sxiv](README/logo.png "sxiv")
 
 **Simple X Image Viewer**
 
-The sole purpose of sxiv is to be the perfect image viewer for me. It is free
-software so that you can use it and modify it for your needs. Please file a bug
-report if something does not work as documented or expected. Contributions are
-welcome but there is no guarantee that they will be incorporated.
+This is my fork of sxiv. I created this because a lot of features I found useful were spread around multiple forks of the [main repo](https://github.com/muennich/sxiv). C is not my main language (but I can code a bit with it), thats why you will probably see that most of the additions are from 3rd parties. Contributions are more than welcome 🙃.
 
 
 Features
