@@ -30,11 +30,11 @@ Screenshots
 
 **Image mode:**
 
-![Image](http://muennich.github.com/sxiv/img/image.png "Image mode")
+![Image](README/image.png "Image mode")
 
 **Thumbnail mode:**
 
-![Thumb](http://muennich.github.com/sxiv/img/thumb.png "Thumb mode")
+![Thumb](README/thumb.png "Thumb mode")
 
 
 Dependencies
