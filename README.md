@@ -83,7 +83,7 @@ the following command:
 Usage
 -----
 
-Please see the [man page](http://grfreire.github.com/sxiv/sxiv.1.html) for
+Please see the [man page](http://GRFreire.github.io/sxiv/sxiv.1.html) for
 information on how to use sxiv.
 
 
