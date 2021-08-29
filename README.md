@@ -87,6 +87,39 @@ Please see the [man page](http://muennich.github.com/sxiv/sxiv.1.html) for
 information on how to use sxiv.
 
 
+Configuring
+-----------
+```man
+The following X resources are supported:
+
+background
+      Color of the window background
+
+foreground
+      Color of the window foreground
+
+bar    Color of the bar background
+
+text   Color of the bar foreground
+
+font   Name of Xft bar font
+
+titlePrefix
+      Any string literal to be used as the window title prefix.
+
+titleSuffix
+      The format of the window title suffix.
+
+          Value  Format
+          0      Basename of file
+          1      Basename of directory
+          2      Full path to file
+          3      Full path to directory
+          4      Empty string
+
+Please see xrdb(1) on how to change them.
+```
+
 Download & Changelog
 --------------------
 
