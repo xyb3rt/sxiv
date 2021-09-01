@@ -866,6 +866,7 @@ int main(int argc, char **argv)
 	}
 
 	for (i = 0; i < options->filecnt; i++) {
+		bool isremote = false;
 		filename = options->filenames[i];
 
 		if (stat(filename, &fstats) < 0) {
@@ -876,14 +877,16 @@ int main(int argc, char **argv)
 				continue;
 			}
 			filename = path;
+			isremote = true;
 #else
 			error(0, errno, "%s", filename);
 			continue;
 #endif /* HAVE_LIBCURL */
 		}
 		bool isdir = S_ISDIR(fstats.st_mode);
-		if (!isdir && !options->loaddir) {
+		if (isremote || (!isdir && !options->loaddir)) {
 			check_add_file(filename, true);
+			dirname = filename;
 		} else {
 			if (!isdir) {
 				if (options->loaddir) {
