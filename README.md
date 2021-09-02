@@ -17,7 +17,7 @@ _Those with a ``new`` before the feature are additions compared to the main repo
 * Load all frames from GIF files and play GIF animations
 * Display image information in status bar
 * _(new)_ Load all images on parent directory
-* _(new)_ Partial svg support (only on image mode for now)
+* _(new)_ Partial svg support (see [known issues](#known-issues) for more information)
 * _(new)_ View images from URL
 * _(new)_ Full webp support
 * _(new)_ Start from file
@@ -131,6 +131,12 @@ You can [browse](https://github.com/GRFreire/sxiv) the source code repository
 on GitHub or get a copy using git with the following command:
 
     git clone https://github.com/GRFreire/sxiv.git
+
+
+Known Issues
+------------
+- Currently SVG support is unstable (more information on [issues/10](issues/10)), therefore it is disabled by default. You can enable it with ``HAVE_CAIRO_SVG=1`` when building.
+
 
 Changelog & Stable releases
 ---------------------------

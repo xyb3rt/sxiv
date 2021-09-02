@@ -22,7 +22,7 @@ HAVE_LIBWEBP = 1
 HAVE_LIBCURL = 1
 
 # enable features requiring cairo and svg (-lgif)
-HAVE_CAIRO_SVG = 1
+HAVE_CAIRO_SVG = 0
 
 lib_cairo_svg_0 =
 lib_cairo_svg_1 = `pkg-config --cflags --libs librsvg-2.0 cairo`
