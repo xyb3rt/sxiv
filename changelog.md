@@ -1,5 +1,16 @@
 **Stable releases**
 
+**[v27](https://github.com/GRFreire/sxiv/archive/v27.tar.gz)**
+*(September 01, 2021)*
+
+  * New option -d to load all images on parent directory
+  * Add partial svg support
+  * View remote images from url
+  * Add full webp support
+  * Add option -F to start from file
+  * Configurable title
+  * Configurable bar colors from X resources
+
 **[v26](https://github.com/GRFreire/sxiv/archive/v26.tar.gz)**
 *(January 16, 2020)*
 
