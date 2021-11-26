@@ -1,34 +1,39 @@
 #include "sxiv.h"
+#include <ctype.h>
 
 // I know... Dirty methods... If you have better ideas
 // pull requests are more than welcomed
 
+#if HAVE_LIBMAGIC
+#include <magic.h>
+extern magic_t magic;
+#endif
+
+const char *video_types[] = {
+  ".mp4", ".3gp", ".mkv", ".avi",
+  ".flv", ".mov", ".mwv"
+};
+
 bool is_video(const char *file) {
-#if 1
-  // because the other way is extreamly slow...
-  // TODO: find a proper way
-  const char *ext = file + strlen(file) - 4;
-  return
-    strcmp(".mp4", ext) == 0 ||
-    strcmp(".3gp", ext) == 0 ||
-    strcmp(".mkv", ext) == 0;
-#else
-  bool res = false;
-  const char *tmpl = "file -b --mime-type '%s'";
-  char *command = (char *) malloc(strlen(file) + strlen(tmpl) + 1);
-  sprintf(command, tmpl, file);
-
-  char buffer[128];
-  FILE *fpipe = (FILE *) popen(command, "r");
-  if (fpipe) {
-    while (fgets(buffer, sizeof buffer, fpipe) != NULL);
-    char *startswith = "video";
-    res = strncmp(startswith, buffer, strlen(startswith)) == 0;
+  size_t flen = strlen(file);
+  // extension check
+  if (flen >= 4) {
+    static char ext[4];
+    const char *ext_ptr = file + flen - 4;
+    strcpy(ext, ext_ptr);
+    for (char *p = ext; *p; ++p) *p = tolower(*p);
+    for (size_t i = 0; i < sizeof(video_types) / sizeof(video_types[0]); ++i) {
+      if (strcmp(video_types[i], ext) == 0) {
+        return true;
+      }
+    }
   }
-
-  free(command);
-  pclose(fpipe);
-  return res;
+#if HAVE_LIBMAGIC
+  // mimetype check
+  const char *mime = magic_file(magic, file);
+  return strncmp(mime, "video", 5) == 0;
+#else
+  return false;
 #endif
 }
 

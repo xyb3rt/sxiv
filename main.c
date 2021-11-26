@@ -35,6 +35,10 @@
 #include <X11/keysym.h>
 #include <X11/XF86keysym.h>
 
+#if HAVE_LIBMAGIC
+#include <magic.h>
+#endif
+
 typedef struct {
 	struct timeval when;
 	bool active;
@@ -94,12 +98,30 @@ cursor_t imgcursor[3] = {
 	CURSOR_ARROW, CURSOR_ARROW, CURSOR_ARROW
 };
 
+#if HAVE_LIBMAGIC
+magic_t magic;
+#endif
+
+void magic_init() {
+#if HAVE_LIBMAGIC
+  magic = magic_open(MAGIC_MIME_TYPE);
+  magic_load(magic, NULL);
+#endif
+}
+
+void magic_cleanup() {
+#if HAVE_LIBMAGIC
+  magic_close(magic);
+#endif
+}
+
 void cleanup(void)
 {
 	img_close(&img, false);
 	arl_cleanup(&arl);
 	tns_free(&tns);
 	win_close(&win);
+    magic_cleanup();
 }
 
 void check_add_file(char *filename, bool given)
@@ -840,6 +862,8 @@ int main(int argc, char **argv)
 
 	setup_signal(SIGCHLD, sigchld);
 	setup_signal(SIGPIPE, SIG_IGN);
+
+    magic_init();
 
 	setlocale(LC_COLLATE, "");
 
