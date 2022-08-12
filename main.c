@@ -422,12 +422,20 @@ void update_info(void)
 	}
 }
 
+// not really third anymore
 int ptr_third_x(void)
 {
 	int x, y;
 
 	win_cursor_pos(&win, &x, &y);
-	return MAX(0, MIN(2, (x / (win.w * 0.33))));
+    int target = win.w * 0.1;
+    if (x > (win.w - target))
+        return 2;
+    else if (x > target)
+        return 1;
+    else
+        return 0;
+	//return MAX(0, MIN(2, (x / (win.w * 0.33))));
 }
 
 void redraw(void)
