@@ -303,15 +303,33 @@ bool ci_navigate_frame(arg_t d)
 	return !img.multi.animate && img_frame_navigate(&img, d);
 }
 
+pid_t run_mpv(int xwin, char *video)
+{
+    // TODO: be portable?
+    const static char *mpv = "/usr/bin/mpv";
+    pid_t pid = fork();
+    if (pid < 0) {
+        return -1;
+    } else if (pid == 0) {
+        if (xwin > 0) {
+            char wid[16];
+            sprintf(wid, "%d", xwin);
+            execl(mpv, "mpv", "-wid", wid, video, NULL);
+        } else {
+            execl(mpv, "mpv", video, NULL);
+        }
+        return 0; // unreachable
+    } else {
+        return pid;
+    }
+}
+
 bool ci_toggle_animation(arg_t _)
 {
-  if (files[fileidx].video_thumb != NULL) {
-    char *cmd = (char *) malloc(strlen(files[fileidx].path)
-                                + strlen(VIDEO_CMD) + 1);
-    sprintf(cmd, VIDEO_CMD, files[fileidx].path);
-    system(cmd);
-    return false;
-  }
+    if (files[fileidx].video_thumb != NULL) {
+        run_mpv(win.xwin, files[fileidx].path);
+        return false;
+    }
 
 	bool dirty = false;
 
