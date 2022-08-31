@@ -54,6 +54,8 @@ static int barheight;
 
 Atom atoms[ATOM_COUNT];
 
+extern int filecnt, fileidx;
+
 void win_init_font(const win_env_t *e, const char *fontstr)
 {
 	if ((font = XftFontOpenName(e->dpy, e->scr, fontstr)) == NULL)
@@ -447,7 +449,7 @@ void win_update_title(win_t *win)
 {
     size_t size = win->bar.l.size + win->bar.r.size + 2;
     char *buf = (char *) malloc(size);
-    sprintf(buf, "%s %s", win->bar.l.buf, win->bar.r.buf);
+    sprintf(buf, "[%d/%d] %s", fileidx + 1, filecnt, win->bar.l.buf);
     win_set_title(win, buf);
     free(buf);
 }
