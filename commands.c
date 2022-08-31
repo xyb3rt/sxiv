@@ -303,7 +303,7 @@ bool ci_navigate_frame(arg_t d)
 	return !img.multi.animate && img_frame_navigate(&img, d);
 }
 
-pid_t run_mpv(int xwin, char *video)
+pid_t run_mpv(int xwin, const char *video)
 {
     // TODO: be portable?
     const static char *mpv = "/usr/bin/mpv";

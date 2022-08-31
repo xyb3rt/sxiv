@@ -186,6 +186,7 @@ typedef struct {
 	unsigned int button;
 	cmd_id_t cmd;
 	arg_t arg;
+	int type;
 } button_t;
 
 extern const cmd_t cmds[CMD_COUNT];

@@ -75,7 +75,7 @@ static const int THUMB_SIZE = 3;
 /*
  * command used to play videos
  */
-static const char *VIDEO_CMD = "xdg-open '%s'";
+// static const char *VIDEO_CMD = "xdg-open '%s'";
 
 #endif
 #ifdef _MAPPINGS_CONFIG
@@ -165,12 +165,12 @@ static const keymap_t keys[] = {
 
 /* mouse button mappings for image mode: */
 static const button_t buttons[] = {
-	/* modifiers    button            function              argument */
-	{ 0,            1,                i_cursor_navigate,    None },
-	{ 0,            1,                i_drag,               DRAG_ABSOLUTE },
-	{ 0,            3,                g_switch_mode,        None },
-	{ 0,            4,                g_zoom,               +1 },
-	{ 0,            5,                g_zoom,               -1 },
+	/* modifiers    button            function              argument       type */
+	{ 0,            1,                i_cursor_navigate,    None,          ButtonRelease },
+	{ 0,            1,                i_drag,               DRAG_RELATIVE, ButtonPress },
+	{ 0,            3,                g_switch_mode,        None,          ButtonPress },
+	{ 0,            4,                g_zoom,               +1,            ButtonPress },
+	{ 0,            5,                g_zoom,               -1,            ButtonPress },
 };
 
 #endif

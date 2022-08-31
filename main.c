@@ -506,7 +506,9 @@ void clear_resize(void)
 
 Bool is_input_ev(Display *dpy, XEvent *ev, XPointer arg)
 {
-	return ev->type == ButtonPress || ev->type == KeyPress;
+	return ev->type == ButtonPress ||
+		ev->type == ButtonRelease ||
+		ev->type == KeyPress;
 }
 
 void run_key_handler(const char *key, unsigned int mask)
@@ -665,10 +667,12 @@ void on_buttonpress(XButtonEvent *bev)
 			if (buttons[i].button == bev->button &&
 			    MODMASK(buttons[i].mask) == MODMASK(bev->state) &&
 			    buttons[i].cmd >= 0 && buttons[i].cmd < CMD_COUNT &&
-			    (cmds[buttons[i].cmd].mode < 0 || cmds[buttons[i].cmd].mode == mode))
+			    (cmds[buttons[i].cmd].mode < 0 || cmds[buttons[i].cmd].mode == mode) &&
+			    buttons[i].type == bev->type)
 			{
 				if (cmds[buttons[i].cmd].func(buttons[i].arg))
 					dirty = true;
+				break;
 			}
 		}
 		if (dirty)
@@ -800,6 +804,7 @@ void run(void)
 
 		switch (ev.type) {
 			/* handle events */
+			case ButtonRelease:
 			case ButtonPress:
 				on_buttonpress(&ev.xbutton);
 				break;
