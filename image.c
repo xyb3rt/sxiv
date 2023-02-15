@@ -402,6 +402,9 @@ bool img_fit(img_t *img)
 	zh = (float) img->win->h / (float) img->h;
 
 	switch (img->scalemode) {
+		case SCALE_FILL:
+			z = MAX(zw, zh);
+			break;
 		case SCALE_WIDTH:
 			z = zw;
 			break;
