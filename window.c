@@ -238,7 +238,7 @@ void win_open(win_t *win)
 	}
 	free(icon_data);
 
-	win_set_title(win, "sxiv");
+	win_set_title(win, options->title != NULL ? options->title : "sxiv");
 
 	classhint.res_class = RES_CLASS;
 	classhint.res_name = options->res_name != NULL ? options->res_name : "sxiv";

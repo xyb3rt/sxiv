@@ -279,6 +279,7 @@ struct opt {
 	long embed;
 	char *geometry;
 	char *res_name;
+	char *title;
 
 	/* misc flags: */
 	bool quiet;

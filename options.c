@@ -31,8 +31,8 @@ const opt_t *options = (const opt_t*) &_options;
 void print_usage(void)
 {
 	printf("usage: sxiv [-abcfhiopqrtvZ] [-A FRAMERATE] [-e WID] [-G GAMMA] "
-	       "[-g GEOMETRY] [-N NAME] [-n NUM] [-S DELAY] [-s MODE] [-z ZOOM] "
-	       "FILES...\n");
+	       "[-g GEOMETRY] [-N NAME] [-T TITLE] [-n NUM] [-S DELAY] [-s MODE] "
+	       "[-z ZOOM] FILES...\n");
 }
 
 void print_version(void)
@@ -66,13 +66,14 @@ void parse_options(int argc, char **argv)
 	_options.hide_bar = false;
 	_options.geometry = NULL;
 	_options.res_name = NULL;
+	_options.title = NULL;
 
 	_options.quiet = false;
 	_options.thumb_mode = false;
 	_options.clean_cache = false;
 	_options.private_mode = false;
 
-	while ((opt = getopt(argc, argv, "A:abce:fG:g:hin:N:opqrS:s:tvZz:")) != -1) {
+	while ((opt = getopt(argc, argv, "A:abce:fG:g:hin:N:opqrS:s:tT:vZz:")) != -1) {
 		switch (opt) {
 			case '?':
 				print_usage();
@@ -148,6 +149,9 @@ void parse_options(int argc, char **argv)
 				if (s == NULL || *s == '\0' || strlen(optarg) != 1)
 					error(EXIT_FAILURE, 0, "Invalid argument for option -s: %s", optarg);
 				_options.scalemode = s - scalemodes;
+				break;
+			case 'T':
+				_options.title = optarg;
 				break;
 			case 't':
 				_options.thumb_mode = true;
