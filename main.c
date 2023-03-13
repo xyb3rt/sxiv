@@ -468,7 +468,7 @@ Bool is_input_ev(Display *dpy, XEvent *ev, XPointer arg)
 	return ev->type == ButtonPress || ev->type == KeyPress;
 }
 
-void run_key_handler(const char *key, unsigned int mask)
+int run_key_handler(const char *key, unsigned int mask)
 {
 	pid_t pid;
 	FILE *pfs;
@@ -479,25 +479,26 @@ void run_key_handler(const char *key, unsigned int mask)
 	char kstr[32];
 	struct stat *oldst, st;
 	XEvent dump;
+	int status;
 
 	if (keyhandler.f.err != 0) {
 		if (!keyhandler.warned) {
 			error(0, keyhandler.f.err, "%s", keyhandler.f.cmd);
 			keyhandler.warned = true;
 		}
-		return;
+		return 1;
 	}
 	if (key == NULL)
-		return;
+		return 1;
 
 	if (pipe(pfd) < 0) {
 		error(0, errno, "pipe");
-		return;
+		return 1;
 	}
 	if ((pfs = fdopen(pfd[1], "w")) == NULL) {
 		error(0, errno, "open pipe");
 		close(pfd[0]), close(pfd[1]);
-		return;
+		return 1;
 	}
 	oldst = emalloc(fcnt * sizeof(*oldst));
 
@@ -532,7 +533,7 @@ void run_key_handler(const char *key, unsigned int mask)
 		}
 	}
 	fclose(pfs);
-	while (waitpid(pid, NULL, 0) == -1 && errno == EINTR);
+	while (waitpid(pid, &status, 0) == -1 && errno == EINTR);
 
 	for (f = i = 0; f < fcnt; i++) {
 		if ((marked && (files[i].flags & FF_MARK)) || (!marked && i == fileidx)) {
@@ -563,6 +564,9 @@ end:
 	free(oldst);
 	reset_cursor();
 	redraw();
+	if (WIFEXITED(status))
+		return WEXITSTATUS(status);
+	return 1;
 }
 
 #define MODMASK(mask) ((mask) & (ShiftMask|ControlMask|Mod1Mask))
@@ -586,11 +590,11 @@ void on_keypress(XKeyEvent *kev)
 	}
 	if (IsModifierKey(ksym))
 		return;
-	if (ksym == XK_Escape && MODMASK(kev->state) == 0) {
-		extprefix = False;
-	} else if (extprefix) {
-		run_key_handler(XKeysymToString(ksym), kev->state & ~sh);
-		extprefix = False;
+	if (extprefix) {
+		if (run_key_handler(XKeysymToString(ksym), kev->state & ~sh))
+			extprefix = False;
+		if (one_extkeyhandler_cmd)
+			extprefix = False;
 	} else if (key >= '0' && key <= '9') {
 		/* number prefix for commands */
 		prefix = prefix * 10 + (int) (key - '0');
