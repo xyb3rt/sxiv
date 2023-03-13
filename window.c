@@ -154,6 +154,7 @@ void win_open(win_t *win)
 	Pixmap none;
 	int gmask;
 	XSizeHints sizehints;
+	XWMHints hints;
 
 	e = &win->env;
 	parent = options->embed != 0 ? options->embed : RootWindow(e->dpy, e->scr);
@@ -251,6 +252,11 @@ void win_open(win_t *win)
 	sizehints.x = win->x;
 	sizehints.y = win->y;
 	XSetWMNormalHints(win->env.dpy, win->xwin, &sizehints);
+
+	hints.flags = InputHint | StateHint;
+	hints.input = 1;
+	hints.initial_state = NormalState;
+	XSetWMHints(win->env.dpy, win->xwin, &hints);
 
 	win->h -= win->bar.h;
 
